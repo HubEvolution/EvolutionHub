@@ -132,7 +132,7 @@ describe('Authentifizierung - Integration', () => {
 
     // Test
     const response = await makeTestRequest(testServer, 'POST', '/api/auth/login', {
-      body: { email: 'admin@test-suite.local', password: 'AdminPass123!' }
+      body: { email: 'admin@test-suite.local', password: 'AdminPass123!' },
     });
 
     // Assertions
@@ -177,13 +177,13 @@ import { testDataHelpers } from '../data/test-data-manager';
 // Zufälligen Benutzer erstellen
 const user = testDataHelpers.createRandomUser({
   role: 'admin',
-  verified: true
+  verified: true,
 });
 
 // Mehrere Projekte erstellen
 const projects = testDataHelpers.createRandomProjects(5, [
   { status: 'active' },
-  { status: 'completed' }
+  { status: 'completed' },
 ]);
 ```
 
@@ -200,7 +200,7 @@ const authData = dataManager.loadDataSet('auth-basic');
 // Neue Daten generieren
 const userProfile = dataManager.generateFromTemplate('user-profile', {
   role: 'premium',
-  verified: true
+  verified: true,
 });
 ```
 
@@ -351,9 +351,9 @@ name: Test Suite v2 CI/CD
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
 
 jobs:
   unit-tests:
@@ -412,7 +412,7 @@ const user = { email: 'test@example.com', password: '123456' };
 // ✅ Gut: Dynamische Testdaten
 const user = testDataHelpers.createRandomUser({
   verified: true,
-  role: 'user'
+  role: 'user',
 });
 ```
 
@@ -477,12 +477,12 @@ npm run test:e2e -- --video retain-on-failure
 
 ```typescript
 class TestDataManager {
-  loadDataSet(id: string): TestDataSet | null
-  saveDataSet(dataSet: TestDataSet): void
-  getFactory<T>(type: string): DataFactory<T> | null
-  generateFromTemplate(name: string, context?: any): any
-  exportDataSets(filePath: string): void
-  importDataSets(filePath: string): void
+  loadDataSet(id: string): TestDataSet | null;
+  saveDataSet(dataSet: TestDataSet): void;
+  getFactory<T>(type: string): DataFactory<T> | null;
+  generateFromTemplate(name: string, context?: any): any;
+  exportDataSets(filePath: string): void;
+  importDataSets(filePath: string): void;
 }
 ```
 
@@ -490,26 +490,26 @@ class TestDataManager {
 
 ```typescript
 class TestLogger {
-  error(message: string, data?: any): void
-  warn(message: string, data?: any): void
-  info(message: string, data?: any): void
-  debug(message: string, data?: any): void
-  getLogs(level?: LogLevel): LogEntry[]
-  clearLogs(): void
+  error(message: string, data?: any): void;
+  warn(message: string, data?: any): void;
+  info(message: string, data?: any): void;
+  debug(message: string, data?: any): void;
+  getLogs(level?: LogLevel): LogEntry[];
+  clearLogs(): void;
 }
 ```
 
 ### Server-Helper
 
 ```typescript
-function setupTestServer(): Promise<TestServer>
-function teardownTestServer(server: TestServer): Promise<void>
+function setupTestServer(): Promise<TestServer>;
+function teardownTestServer(server: TestServer): Promise<void>;
 function makeTestRequest(
   server: TestServer,
   method: string,
   path: string,
   options?: RequestOptions
-): Promise<TestResponse>
+): Promise<TestResponse>;
 ```
 
 ## 🤝 Beitrag
@@ -580,4 +580,4 @@ A: Verwenden Sie `await page.waitForLoadState('networkidle')` vor Interaktionen
 
 ---
 
-*Test-Suite v2 - Zukunftssichere Test-Infrastruktur für Evolution Hub*
+_Test-Suite v2 - Zukunftssichere Test-Infrastruktur für Evolution Hub_

@@ -43,16 +43,24 @@ async function createTask(): Promise<{ taskId: string; cookie: string }> {
   expect(json?.success).toBe(true);
   const setCookie = res.headers.get('set-cookie') || '';
   const guestCookie = setCookie.split(';')[0];
-  return { taskId: (json.data.taskId as string) ?? (json.data.task?.id as string), cookie: guestCookie };
+  return {
+    taskId: (json.data.taskId as string) ?? (json.data.task?.id as string),
+    cookie: guestCookie,
+  };
 }
 
 async function postComplete(taskId: string, body: unknown, headers: Record<string, string> = {}) {
-  return sendJson(`/api/testing/evaluate/${encodeURIComponent(taskId)}/complete`, body, { headers });
+  return sendJson(`/api/testing/evaluate/${encodeURIComponent(taskId)}/complete`, body, {
+    headers,
+  });
 }
 
 describe('/api/testing/evaluate/:id/complete', () => {
   it('rejects without token → 401', async () => {
-    const { res } = await postComplete('dummy-id', { status: 'completed', report: makeReport({ taskId: 'dummy-id' }) });
+    const { res } = await postComplete('dummy-id', {
+      status: 'completed',
+      report: makeReport({ taskId: 'dummy-id' }),
+    });
     expect(res.status).toBe(401);
   });
 
@@ -88,13 +96,17 @@ describe('/api/testing/evaluate/:id/complete', () => {
       report: makeReport({ taskId, success: true }),
     };
 
-    const { res, json } = await postComplete(taskId, payload, { 'x-executor-token': EXECUTOR_TOKEN as string });
+    const { res, json } = await postComplete(taskId, payload, {
+      'x-executor-token': EXECUTOR_TOKEN as string,
+    });
     expect(res.status).toBe(200);
     expect(json?.success).toBe(true);
     expect(json?.data?.taskId).toBe(taskId);
 
     // optional verification via GET /api/testing/evaluate/:id (if implemented)
-    const { res: getRes } = await getJson(`${TEST_URL}/api/testing/evaluate/${encodeURIComponent(taskId)}`);
+    const { res: getRes } = await getJson(
+      `${TEST_URL}/api/testing/evaluate/${encodeURIComponent(taskId)}`
+    );
     expect([200, 404]).toContain(getRes.status); // tolerate absence or not-found depending on implementation
   });
 });

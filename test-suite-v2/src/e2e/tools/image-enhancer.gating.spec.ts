@@ -77,13 +77,21 @@ test.describe('Image Enhancer — Gating & CTA', () => {
     ).ImageEnhancer.uploadImage(page, SAMPLE_IMAGE);
 
     // Select Replicate ESRGAN when available; otherwise select Workers AI fallback
-    const replicateValue = 'nightmareai/real-esrgan:f0992969a94014d73864d08e6d9a39286868328e4263d9ce2da6fc4049d01a1a';
+    const replicateValue =
+      'nightmareai/real-esrgan:f0992969a94014d73864d08e6d9a39286868328e4263d9ce2da6fc4049d01a1a';
     const cfFallbackValue = '@cf/runwayml/stable-diffusion-v1-5-img2img';
-    const forceCF = ((process.env.FORCE_CF_MODELS || '').toLowerCase() === '1') || ((process.env.FORCE_CF_MODELS || '').toLowerCase() === 'true');
+    const forceCF =
+      (process.env.FORCE_CF_MODELS || '').toLowerCase() === '1' ||
+      (process.env.FORCE_CF_MODELS || '').toLowerCase() === 'true';
     const modelSelect = page.locator('select#model, [data-testid="model-select"]').first();
-    const replicateAvailable = (await modelSelect.locator(`option[value="${replicateValue}"]`).count()) > 0;
+    const replicateAvailable =
+      (await modelSelect.locator(`option[value="${replicateValue}"]`).count()) > 0;
     const useReplicate = replicateAvailable && !forceCF;
-    await selectOption(page, 'select#model, [data-testid="model-select"]', useReplicate ? replicateValue : cfFallbackValue);
+    await selectOption(
+      page,
+      'select#model, [data-testid="model-select"]',
+      useReplicate ? replicateValue : cfFallbackValue
+    );
 
     const x4 = page.getByRole('button', { name: /^x4$/ });
     const face = page.getByLabel(/Face enhance/i);

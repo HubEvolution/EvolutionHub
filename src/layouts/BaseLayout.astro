@@ -26,7 +26,7 @@ interface Props {
   description?: string;
   ogImage?: string;
   canonical?: string;
-  structuredData?: any;
+  structuredData?: Record<string, unknown> | Array<unknown> | string | number | boolean | null;
   image?: string;
   type?: string;
   publishedTime?: string;

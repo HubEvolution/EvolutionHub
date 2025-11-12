@@ -27,7 +27,9 @@ export function csrfHeaders(token: string): Record<string, string> {
   };
 }
 
-export async function getJson<T = unknown>(path: string): Promise<{ res: Response; json: T | null }>;
+export async function getJson<T = unknown>(
+  path: string
+): Promise<{ res: Response; json: T | null }>;
 export async function getJson<T = unknown>(
   input: RequestInfo,
   init?: RequestInit

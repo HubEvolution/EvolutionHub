@@ -46,7 +46,6 @@ This document tracks the exact text updates to apply to the protected rules file
 ## Testing & CI (testing-and-ci.md)
 
 - Add: mention of the OpenAPI Zod Pilot/Diff scripts and workflow now present:
-
   - `npm run openapi:zod:pilot`
 
   - `npm run openapi:zod:diff`

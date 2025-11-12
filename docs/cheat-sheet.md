@@ -13,17 +13,17 @@ testRefs: 'N/A'
 
 ## 🚀 Schnellstart
 
-| Befehl | Beschreibung |
-|--------|--------------|
-| `npm run menu` | **Interaktives Entwicklungsmenü starten** |
-| `npm run dev:astro` | Lokalen Entwicklungsserver starten |
-| `npm run setup:local` | Lokale Entwicklungsumgebung einrichten |
+| Befehl                | Beschreibung                              |
+| --------------------- | ----------------------------------------- |
+| `npm run menu`        | **Interaktives Entwicklungsmenü starten** |
+| `npm run dev:astro`   | Lokalen Entwicklungsserver starten        |
+| `npm run setup:local` | Lokale Entwicklungsumgebung einrichten    |
 
 ## 🔄 Entwicklungsbefehle
 
 ### Lokale Entwicklung
 
-```bash
+````bash
 
 # Interaktives Menü (empfohlen für Einsteiger)
 
@@ -54,11 +54,11 @@ npm run db:generate
 
 # Migrationen ausführen
 npm run db:migrate
-```
+````
 
 ### Build & Deployment
 
-```bash
+````bash
 
 # Build erstellen
 
@@ -88,13 +88,13 @@ npm run test:e2e
 
 # E2E-Tests mit UI
 npm run test:e2e:ui
-```
+````
 
 ## 🔍 Wrangler-Befehle
 
 ### D1-Datenbank
 
-```bash
+````bash
 
 # D1-Datenbanken auflisten
 
@@ -118,11 +118,11 @@ npx wrangler r2 bucket list
 
 # Dateien im Bucket auflisten
 npx wrangler r2 object list evolution-hub-avatars-local
-```
+````
 
 ### KV-Namespace
 
-```bash
+````bash
 
 # KV-Namespaces auflisten
 
@@ -153,3 +153,4 @@ npx wrangler kv:key list --namespace-id=SESSION_LOCAL
 1. **Preview**: `npm run preview`
 
 ```text
+````

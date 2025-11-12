@@ -35,7 +35,6 @@ Die Authentifizierung sollte sowohl für die Web-Oberfläche als auch für die A
 Wir haben uns für eine JWT-basierte (JSON Web Token) Authentifizierung mit HttpOnly-Cookies entschieden:
 
 1. **JWT-Tokens** für die Authentifizierung:
-
    - Zustandslose Authentifizierung, ideal für serverless Umgebungen
 
    - Enthält Benutzer-ID, Rollen und Ablaufzeit
@@ -43,7 +42,6 @@ Wir haben uns für eine JWT-basierte (JSON Web Token) Authentifizierung mit Http
    - Signiert mit einem sicheren Algorithmus (HS256)
 
 1. **HttpOnly-Cookies** für die Token-Speicherung:
-
    - Schutz vor XSS-Angriffen durch JavaScript-Zugriffsbeschränkung
 
    - Automatische Übermittlung bei jeder Anfrage
@@ -53,7 +51,6 @@ Wir haben uns für eine JWT-basierte (JSON Web Token) Authentifizierung mit Http
    - SameSite=Strict zur Verhinderung von CSRF-Angriffen
 
 1. **Kurze Token-Lebensdauer** mit automatischer Erneuerung:
-
    - Token-Gültigkeit von 1-7 Tagen
 
    - Automatische Erneuerung bei Aktivität
@@ -61,7 +58,6 @@ Wir haben uns für eine JWT-basierte (JSON Web Token) Authentifizierung mit Http
    - Absolute Ablaufzeit für Langzeit-Tokens
 
 1. **Zentrale Auth-Middleware**:
-
    - Einheitliche Authentifizierungslogik für alle geschützten Routen
 
    - Automatische Token-Validierung und -Erneuerung
@@ -73,7 +69,6 @@ Wir haben uns für eine JWT-basierte (JSON Web Token) Authentifizierung mit Http
 ### Positive Konsequenzen
 
 1. **Verbesserte Sicherheit**:
-
    - HttpOnly-Cookies schützen vor XSS-Angriffen
 
    - SameSite=Strict schützt vor CSRF-Angriffen
@@ -81,7 +76,6 @@ Wir haben uns für eine JWT-basierte (JSON Web Token) Authentifizierung mit Http
    - Kurze Token-Lebensdauer minimiert das Risiko bei Token-Diebstahl
 
 1. **Skalierbarkeit**:
-
    - Zustandslose Authentifizierung passt gut zu serverless Architekturen
 
    - Keine Notwendigkeit für eine separate Sitzungsdatenbank
@@ -89,7 +83,6 @@ Wir haben uns für eine JWT-basierte (JSON Web Token) Authentifizierung mit Http
    - Reduzierte Datenbankabfragen bei Authentifizierung
 
 1. **Benutzererfahrung**:
-
    - Persistente Anmeldung über Browser-Neustarts hinweg
 
    - Nahtlose Token-Erneuerung ohne Benutzerinteraktion
@@ -97,7 +90,6 @@ Wir haben uns für eine JWT-basierte (JSON Web Token) Authentifizierung mit Http
    - Konsistente Authentifizierung für Web-UI und API-Zugriffe
 
 1. **Entwicklungseffizienz**:
-
    - Einheitliche Authentifizierungslogik in der Middleware
 
    - Einfache Integration mit Cloudflare Workers
@@ -107,13 +99,11 @@ Wir haben uns für eine JWT-basierte (JSON Web Token) Authentifizierung mit Http
 ### Negative Konsequenzen
 
 1. **Eingeschränkte Token-Widerrufung**:
-
    - JWTs sind zustandslos, was die sofortige Widerrufung erschwert
 
    - Workaround durch kurze Token-Lebensdauer und Blacklisting
 
 1. **Cookie-Limitierungen**:
-
    - Größenbeschränkungen für Cookies (max. 4KB)
 
    - Potenziell problematisch bei komplexen Berechtigungsmodellen
@@ -121,13 +111,11 @@ Wir haben uns für eine JWT-basierte (JSON Web Token) Authentifizierung mit Http
    - Erfordert möglicherweise Minimierung der Token-Payload
 
 1. **Cross-Origin-Herausforderungen**:
-
    - HttpOnly-Cookies mit SameSite=Strict können Cross-Origin-API-Aufrufe erschweren
 
    - Zusätzliche Konfiguration für legitime Cross-Origin-Szenarien erforderlich
 
 1. **Debugging-Komplexität**:
-
    - Cookie-basierte Authentifizierung ist schwieriger zu debuggen als Header-basierte
 
    - Erfordert Browser-Tools für Cookie-Inspektion

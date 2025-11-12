@@ -1,14 +1,21 @@
-"use strict";
+'use strict';
 /**
  * E-Mail-Verifikations-API-Endpunkt
  *
  * Implementiert Double-Opt-in E-Mail-Verifikation für neue Benutzerregistrierungen.
  * Basiert auf dem bewährten Newsletter-Confirmation-Pattern.
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.HEAD = exports.OPTIONS = exports.DELETE = exports.PATCH = exports.PUT = exports.POST = exports.GET = void 0;
-const response_helpers_1 = require("@/lib/response-helpers");
-const api_middleware_1 = require("@/lib/api-middleware");
+Object.defineProperty(exports, '__esModule', { value: true });
+exports.HEAD =
+  exports.OPTIONS =
+  exports.DELETE =
+  exports.PATCH =
+  exports.PUT =
+  exports.POST =
+  exports.GET =
+    void 0;
+const response_helpers_1 = require('@/lib/response-helpers');
+const api_middleware_1 = require('@/lib/api-middleware');
 // Deprecated endpoint: serve 410 responses only
 /**
  * GET /api/auth/verify-email
@@ -23,18 +30,31 @@ const api_middleware_1 = require("@/lib/api-middleware");
  * - Bei Fehlern: /register mit entsprechendem error-Parameter
  */
 const GET = async (context) => {
-    return (0, response_helpers_1.createDeprecatedGoneHtml)(context);
+  return (0, response_helpers_1.createDeprecatedGoneHtml)(context);
 };
 exports.GET = GET;
 /**
  * 410 Gone für nicht unterstützte Methoden (Endpoint deprecated, nur GET existierte)
  */
-const methodNotAllowed = (context) => (0, response_helpers_1.createDeprecatedGoneJson)(context, 'This endpoint has been deprecated. Please migrate to the new authentication flow.', { Allow: 'GET' });
+const methodNotAllowed = (context) =>
+  (0, response_helpers_1.createDeprecatedGoneJson)(
+    context,
+    'This endpoint has been deprecated. Please migrate to the new authentication flow.',
+    { Allow: 'GET' }
+  );
 // Enforce CSRF/Origin checks on unsafe methods via redirect middleware; it preserves response shape
-exports.POST = (0, api_middleware_1.withRedirectMiddleware)(async (context) => methodNotAllowed(context));
-exports.PUT = (0, api_middleware_1.withRedirectMiddleware)(async (context) => methodNotAllowed(context));
-exports.PATCH = (0, api_middleware_1.withRedirectMiddleware)(async (context) => methodNotAllowed(context));
-exports.DELETE = (0, api_middleware_1.withRedirectMiddleware)(async (context) => methodNotAllowed(context));
+exports.POST = (0, api_middleware_1.withRedirectMiddleware)(async (context) =>
+  methodNotAllowed(context)
+);
+exports.PUT = (0, api_middleware_1.withRedirectMiddleware)(async (context) =>
+  methodNotAllowed(context)
+);
+exports.PATCH = (0, api_middleware_1.withRedirectMiddleware)(async (context) =>
+  methodNotAllowed(context)
+);
+exports.DELETE = (0, api_middleware_1.withRedirectMiddleware)(async (context) =>
+  methodNotAllowed(context)
+);
 // Safe methods remain plain 410 JSON without CSRF enforcement
 exports.OPTIONS = methodNotAllowed;
 exports.HEAD = methodNotAllowed;

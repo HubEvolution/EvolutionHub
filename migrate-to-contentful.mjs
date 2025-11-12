@@ -21,10 +21,12 @@ const CONTENT_TYPE_ID = 'blogPost'; // Die API-ID deines Content Models aus der 
 const BLOG_FILES_PATH = 'src/content/blog';
 // Der Basispfad, von dem aus die Bildpfade in deinem Frontmatter relativ sind.
 // Da deine Pfade wie '/src/content/blog/images/...' aussehen, ist das Projekt-Root richtig.
-const IMAGE_BASE_PATH = process.cwd(); 
+const IMAGE_BASE_PATH = process.cwd();
 
 if (!DRY_RUN && (!SPACE_ID || !MANAGEMENT_TOKEN)) {
-  console.error('Bitte setze CONTENTFUL_SPACE_ID und CONTENTFUL_MANAGEMENT_TOKEN in deiner .env Datei.');
+  console.error(
+    'Bitte setze CONTENTFUL_SPACE_ID und CONTENTFUL_MANAGEMENT_TOKEN in deiner .env Datei.'
+  );
   process.exit(1);
 }
 
@@ -76,7 +78,6 @@ async function uploadAsset(space, environment, imagePath, imageAlt) {
     if (extension === '.png') contentType = 'image/png';
     if (extension === '.gif') contentType = 'image/gif';
 
-
     const asset = await environment.createAssetFromFiles({
       fields: {
         title: {
@@ -114,10 +115,7 @@ async function migrate() {
   }
 
   // Alle Markdown-Dateien im Blog-Verzeichnis finden
-  const files = await globby([
-    `${BLOG_FILES_PATH}/**/*.md`,
-    `${BLOG_FILES_PATH}/**/*.mdx`,
-  ]);
+  const files = await globby([`${BLOG_FILES_PATH}/**/*.md`, `${BLOG_FILES_PATH}/**/*.mdx`]);
   console.log(`📁 Gefundene Dateien:`, files);
   console.log(`📄 ${files.length} Markdown-Dateien gefunden.`);
 

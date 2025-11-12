@@ -14,7 +14,6 @@ testRefs: 'N/A'
 This doc explains the conventions for server-side validation using Zod in Evolution Hub.
 
 - Shared helpers live in `src/lib/validation/`.
-
   - `errors.ts`: `formatZodError(err)` to convert `ZodError` into `details` compatible with `createApiError`.
 
   - `schemas/*`: feature-specific schemas (e.g., `ai-image.ts`, `voice.ts`, `prompt.ts`, `webscraper.ts`).
@@ -22,7 +21,6 @@ This doc explains the conventions for server-side validation using Zod in Evolut
   - `index.ts`: barrel exports (`z`, `ZodError`, helpers, schemas).
 
 - API routes wrap handlers with `withApiMiddleware` / `withAuthApiMiddleware` and return standardized shapes:
-
   - Success: `createApiSuccess({ data })`.
 
   - Errors: `createApiError(type, message, { details? })`.
@@ -30,7 +28,6 @@ This doc explains the conventions for server-side validation using Zod in Evolut
   - For validation failures, map `ZodError` via `formatZodError` and respond with `type: 'validation_error'`.
 
 - Security expectations are preserved by middleware:
-
   - Same-origin + CSRF (double-submit when enabled) for unsafe methods.
 
   - Rate-limits per feature (see `src/lib/rate-limiter.ts`).

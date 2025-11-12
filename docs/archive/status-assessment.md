@@ -23,14 +23,13 @@ Dieses Dokument bietet eine Übersicht über den aktuellen Status des Evolution 
 
 - ✅ **Logout-API**: Implementiert und funktional
 
-- ℹ️  Hinweis: Legacy Passwort-Flows (Login/Register/Forgot/Reset/Change/Verify) wurden entfernt und liefern 410 Gone. Session-Management erfolgt ausschließlich über `__Host-session` (HttpOnly, Secure, SameSite=Strict, Path=/).
+- ℹ️ Hinweis: Legacy Passwort-Flows (Login/Register/Forgot/Reset/Change/Verify) wurden entfernt und liefern 410 Gone. Session-Management erfolgt ausschließlich über `__Host-session` (HttpOnly, Secure, SameSite=Strict, Path=/).
 
 ### Benutzer-APIs
 
 - ✅ **Profil-Management**: Die API für Profilanzeige und -bearbeitung funktioniert
 
 - ✅ **Security-Features**: Erfolgreich implementiert und getestet:
-
   - Rate-Limiting
 
   - Security-Headers

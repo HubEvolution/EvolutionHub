@@ -1,11 +1,19 @@
 import type { APIContext } from 'astro';
-import { withApiMiddleware, createApiSuccess, createMethodNotAllowed, createApiError } from '@/lib/api-middleware';
+import {
+  withApiMiddleware,
+  createApiSuccess,
+  createMethodNotAllowed,
+  createApiError,
+} from '@/lib/api-middleware';
 import { webEvalTaskLimiter } from '@/lib/rate-limiter';
 import { verifyCloudflareAccessJwt } from '@/lib/security/cloudflare-access';
 
 function getEnv(context: APIContext): Record<string, string> {
   try {
-    return ((context.locals as unknown as { runtime?: { env?: Record<string, string> } })?.runtime?.env) || {};
+    return (
+      (context.locals as unknown as { runtime?: { env?: Record<string, string> } })?.runtime?.env ||
+      {}
+    );
   } catch {
     return {};
   }
@@ -24,8 +32,10 @@ async function handler(context: APIContext): Promise<Response> {
   const accessCheck = await verifyCloudflareAccessJwt(request, env);
 
   // Fallback: pre-shared executor token (header X-Executor-Token)
-  const executorHeader = request.headers.get('x-executor-token') ?? request.headers.get('X-Executor-Token');
-  const hasExecutorMatch = !!env.WEB_EVAL_EXECUTOR_TOKEN && executorHeader === env.WEB_EVAL_EXECUTOR_TOKEN;
+  const executorHeader =
+    request.headers.get('x-executor-token') ?? request.headers.get('X-Executor-Token');
+  const hasExecutorMatch =
+    !!env.WEB_EVAL_EXECUTOR_TOKEN && executorHeader === env.WEB_EVAL_EXECUTOR_TOKEN;
 
   if (!accessCheck.valid && !hasExecutorMatch) {
     return createApiError('auth_error', 'Unauthorized');

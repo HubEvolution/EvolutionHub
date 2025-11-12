@@ -74,7 +74,6 @@ This document explains how the Image Enhancer UI mirrors server‑side entitleme
 ## Error Semantics
 
 - Provider errors are normalized by the backend:
-
   - 401/403 → `forbidden`
 
   - 4xx → `validation_error`
@@ -94,19 +93,16 @@ Add screenshots to this folder once captured.
 ## Testing
 
 - Unit
-
   - `gating.test.ts` covers allowedScales/canUseFaceEnhance derivations
 
   - Hooks/components tests under `__tests__` verify UI states
 
 - Integration
-
   - `/api/ai-image/usage` returns entitlements and `X-Usage-*` headers
 
   - `/api/ai-image/generate` rejects over‑plan params with `validation_error`
 
 - E2E
-
   - EN/DE routes: controls hidden/disabled per plan; CTA visibility scenarios
 
 ## Notes on Limits

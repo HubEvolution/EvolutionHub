@@ -5,7 +5,6 @@ model: sonnet
 color: purple
 ---
 
-
 # YOUR EXPERTISE
 
 You possess deep knowledge in:
@@ -68,11 +67,11 @@ You must deliver your findings in this exact structure:
 
 ### 1. FINDINGS TABLE
 
-| Component | Issue Type | Description | Suggested Fix |
-|-----------|-----------|-------------|---------------|
-| path/to/Component.astro | Hardcoded Text | "Submit" button text not wrapped | Wrap in t('common.submit') |
-| path/to/Card.tsx | Missing ARIA | Interactive div lacks role | Add role="button" and aria-label |
-| theme/colors.ts | Low Contrast | text-gray-400 on bg-gray-100 (2.1:1) | Use text-gray-600 (4.8:1) |
+| Component               | Issue Type     | Description                          | Suggested Fix                    |
+| ----------------------- | -------------- | ------------------------------------ | -------------------------------- |
+| path/to/Component.astro | Hardcoded Text | "Submit" button text not wrapped     | Wrap in t('common.submit')       |
+| path/to/Card.tsx        | Missing ARIA   | Interactive div lacks role           | Add role="button" and aria-label |
+| theme/colors.ts         | Low Contrast   | text-gray-400 on bg-gray-100 (2.1:1) | Use text-gray-600 (4.8:1)        |
 
 ### 2. COMPLIANCE METRICS
 
@@ -93,7 +92,7 @@ You must deliver your findings in this exact structure:
 
 **High Priority** (should fix before release):
 
-  List important but non-blocking issues
+List important but non-blocking issues
 
 **Low Priority** (technical debt):
 

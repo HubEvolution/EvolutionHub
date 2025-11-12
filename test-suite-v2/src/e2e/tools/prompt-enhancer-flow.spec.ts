@@ -1,5 +1,9 @@
 import { test, expect } from '@playwright/test';
-import { navigateToTool, assertOutputNotEmpty, PromptEnhancer } from '../../../fixtures/tool-helpers';
+import {
+  navigateToTool,
+  assertOutputNotEmpty,
+  PromptEnhancer,
+} from '../../../fixtures/tool-helpers';
 import { dismissCookieConsent } from '../../../fixtures/common-helpers';
 
 test.describe('Prompt Enhancer Flow', () => {
@@ -59,7 +63,9 @@ test.describe('Prompt Enhancer Flow', () => {
   test('Error - Invalid Input (Empty)', async ({ page }) => {
     await navigateToTool(page, 'prompt-enhancer', { locale: 'en' });
     await dismissCookieConsent(page);
-    const enhanceBtn = page.locator('button[type="submit"], button:has-text("Enhance"), [data-testid="enhance-button"]').first();
+    const enhanceBtn = page
+      .locator('button[type="submit"], button:has-text("Enhance"), [data-testid="enhance-button"]')
+      .first();
     await expect(enhanceBtn).toBeDisabled();
   });
 
@@ -74,8 +80,8 @@ test.describe('Prompt Enhancer Flow', () => {
         contentType: 'application/json',
         body: JSON.stringify({
           success: false,
-          error: { type: 'QUOTA_EXCEEDED', message: 'Rate limit exceeded' }
-        })
+          error: { type: 'QUOTA_EXCEEDED', message: 'Rate limit exceeded' },
+        }),
       });
     });
 
@@ -84,13 +90,20 @@ test.describe('Prompt Enhancer Flow', () => {
     // Submit without waiting for success (429 expected)
     await PromptEnhancer.fillInput(page, 'Test input');
     // Wait for hydration/state to enable the button; retry if needed
-    const enhanceBtn = page.locator('button[type="submit"], button:has-text("Enhance"), [data-testid="enhance-button"]').first();
+    const enhanceBtn = page
+      .locator('button[type="submit"], button:has-text("Enhance"), [data-testid="enhance-button"]')
+      .first();
     await expect(enhanceBtn).toBeVisible();
     await enhanceBtn.waitFor({ state: 'attached', timeout: 5000 });
-    await page.waitForFunction(() => {
-      const btn = document.querySelector('[data-testid="enhance-button"]') as HTMLButtonElement | null;
-      return !!btn && !btn.disabled;
-    }, { timeout: 10000 });
+    await page.waitForFunction(
+      () => {
+        const btn = document.querySelector(
+          '[data-testid="enhance-button"]'
+        ) as HTMLButtonElement | null;
+        return !!btn && !btn.disabled;
+      },
+      { timeout: 10000 }
+    );
     await enhanceBtn.click();
     const errorLocator = page.locator('[role="alert"], .error');
     await expect(errorLocator).toBeVisible();

@@ -79,7 +79,9 @@ test.describe('OAuth Cookie Security', () => {
       await context.close();
     });
 
-    test('should make session_id available for immediate follow-up requests', async ({ browser }) => {
+    test('should make session_id available for immediate follow-up requests', async ({
+      browser,
+    }) => {
       test.skip(!FAKE_STYTCH, 'Requires E2E_FAKE_STYTCH=1');
 
       const context = await browser.newContext();
@@ -138,7 +140,9 @@ test.describe('OAuth Cookie Security', () => {
       await context.close();
     });
 
-    test('should set __Host-session cookie with strict attributes on HTTPS', async ({ browser }) => {
+    test('should set __Host-session cookie with strict attributes on HTTPS', async ({
+      browser,
+    }) => {
       test.skip(!FAKE_STYTCH, 'Requires E2E_FAKE_STYTCH=1');
 
       const context = await browser.newContext();
@@ -169,7 +173,9 @@ test.describe('OAuth Cookie Security', () => {
       await context.close();
     });
 
-    test('should make both cookies available for immediate follow-up requests', async ({ browser }) => {
+    test('should make both cookies available for immediate follow-up requests', async ({
+      browser,
+    }) => {
       test.skip(!FAKE_STYTCH, 'Requires E2E_FAKE_STYTCH=1');
 
       const context = await browser.newContext();
@@ -243,7 +249,10 @@ test.describe('OAuth Cookie Security', () => {
 
           // Assert __Host-session cookie in Set-Cookie header (HTTPS only)
           const hostSessionCookie = cookieStrings.find((c) => c.includes('__Host-session='));
-          expect(hostSessionCookie, 'Set-Cookie should include __Host-session on HTTPS').toBeTruthy();
+          expect(
+            hostSessionCookie,
+            'Set-Cookie should include __Host-session on HTTPS'
+          ).toBeTruthy();
         } else {
           // On HTTP, session_id should NOT have Secure flag
           expect(sessionIdCookie).not.toContain('Secure');
@@ -326,7 +335,9 @@ test.describe('OAuth Cookie Security', () => {
   test.describe('Helper Function Tests', () => {
     test.skip(!FAKE_STYTCH || IS_REMOTE, 'Requires E2E_FAKE_STYTCH=1 and local dev');
 
-    test('should validate session cookies using assertSessionCookies helper (HTTP)', async ({ browser }) => {
+    test('should validate session cookies using assertSessionCookies helper (HTTP)', async ({
+      browser,
+    }) => {
       test.skip(IS_HTTPS, 'Only for HTTP');
 
       const context = await browser.newContext();
@@ -347,7 +358,9 @@ test.describe('OAuth Cookie Security', () => {
       await context.close();
     });
 
-    test('should validate session cookies using assertSessionCookies helper (HTTPS)', async ({ browser }) => {
+    test('should validate session cookies using assertSessionCookies helper (HTTPS)', async ({
+      browser,
+    }) => {
       test.skip(!IS_HTTPS, 'Only for HTTPS');
 
       const context = await browser.newContext();

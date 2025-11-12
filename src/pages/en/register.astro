@@ -10,8 +10,8 @@ import { sanitizeReferralCode } from '@/lib/referrals/utils';
 const locale = getLocale(Astro.url.pathname);
 const t = getI18n(locale);
 
-const locals = Astro.locals as any;
-if (locals.user) {
+const locals = Astro.locals as { user?: unknown } | undefined;
+if (locals?.user) {
   return Astro.redirect(localizePath(locale, '/dashboard'));
 }
 

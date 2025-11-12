@@ -79,7 +79,6 @@ Die folgenden Prinzipien leiten alle Design- und Entwicklungsentscheidungen im E
 Die Navigation des Evolution Hub folgt einer klaren Hierarchie:
 
 1. **Hauptnavigation** (Header)
-
    - Logo (Link zur Startseite)
 
    - Primäre Navigation (Dashboard, Projekte, Tools, Blog)
@@ -91,13 +90,11 @@ Die Navigation des Evolution Hub folgt einer klaren Hierarchie:
    - Theme-Toggle
 
 1. **Sekundäre Navigation** (Seitenspezifisch)
-
    - Tabs oder Segmented Controls für Unterabschnitte
 
    - Breadcrumbs für tiefere Hierarchieebenen
 
 1. **Utility-Navigation** (Footer)
-
    - Rechtliche Informationen
 
    - Support-Links
@@ -154,114 +151,59 @@ Die Navigation des Evolution Hub folgt einer klaren Hierarchie:
 
 - **Fehlermeldungen**: Inline-Fehlermeldungen neben betroffenen Feldern
 
-- **Pflichtfelder**: Mit Sternchen (*) markieren, sparsam einsetzen
+- **Pflichtfelder**: Mit Sternchen (\*) markieren, sparsam einsetzen
 
 - **Eingabevalidierung**: Live-Validierung nach Verlassen des Feldes
 
 ### Beispiel für Formularstruktur
 
-```html
+````html
 <form class="space-y-6">
   <div class="space-y-4">
     <h2 class="text-xl font-semibold">Persönliche Informationen</h2>
-    
+
     <div class="space-y-2">
       <FormLabel for="name" required>Name</FormLabel>
-      <Input 
-        id="name" 
-        name="name" 
-        type="text" 
-        required 
-        aria-describedby="name-help"
-      />
-      <p id="name-help" class="text-sm text-gray-500">
-        Bitte gib deinen vollständigen Namen ein.
-      </p>
+      <input id="name" name="name" type="text" required aria-describedby="name-help" />
+      <p id="name-help" class="text-sm text-gray-500">Bitte gib deinen vollständigen Namen ein.</p>
     </div>
-    
+
     <div class="space-y-2">
       <FormLabel for="email" required>E-Mail</FormLabel>
-      <Input 
-        id="email" 
-        name="email" 
-        type="email" 
-        required 
-        aria-describedby="email-help"
-      />
-      <p id="email-help" class="text-sm text-gray-500">
-        Wir senden dir eine Bestätigungs-E-Mail.
-      </p>
+      <input id="email" name="email" type="email" required aria-describedby="email-help" />
+      <p id="email-help" class="text-sm text-gray-500">Wir senden dir eine Bestätigungs-E-Mail.</p>
     </div>
   </div>
-  
+
   <div class="pt-4">
-    <Button type="submit">Absenden</Button>
+    <button type="submit">Absenden</button>
   </div>
 </form>
 
-```text
-
----
-
-## Feedback und Benachrichtigungen
-
-### Feedback-Typen
-
-1. **Inline-Feedback**
-
-   - Direkt neben oder unter dem betroffenen Element
-
-   - Für Formularvalidierung und kontextbezogene Hinweise
-
-   - Farbcodierung: Rot für Fehler, Gelb für Warnungen, Grün für Erfolg
-
-1. **Toast-Benachrichtigungen**
-
-   - Kurzzeitige Benachrichtigungen am oberen oder unteren Bildschirmrand
-
-   - Für temporäre Statusmeldungen (Erfolg, Info)
-
-   - Automatisches Verschwinden nach 5 Sekunden
-
-   - Möglichkeit zum manuellen Schließen
-
-1. **Modals/Dialoge**
-
-   - Für wichtige Meldungen, die Benutzerinteraktion erfordern
-
-   - Fokus auf den Dialog lenken (Rest der Seite abdunkeln)
-
-   - Klare Aktionsbuttons (Primär, Sekundär, Abbrechen)
-
-1. **Statusanzeigen**
-
-   - Für laufende Prozesse (Laden, Speichern)
-
-   - Fortschrittsbalken für längere Prozesse
-
-   - Spinner für kurze Ladezeiten
-
-### Feedback-Richtlinien
-
-- **Zeitnah**: Feedback sollte unmittelbar nach der Aktion erfolgen
-
-- **Klar**: Eindeutige Botschaft, was passiert ist oder was zu tun ist
-
-- **Hilfreich**: Konstruktive Hinweise zur Problemlösung bei Fehlern
-
-- **Nicht störend**: Feedback sollte den Arbeitsfluss nicht unterbrechen
-
-- **Konsistent**: Gleiche Arten von Feedback für ähnliche Situationen
-
-### Beispiele für Feedback-Komponenten
-
-```jsx
-// Toast-Benachrichtigung
-<div class="fixed bottom-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md">
+```text --- ## Feedback und Benachrichtigungen ### Feedback-Typen 1. **Inline-Feedback** - Direkt
+neben oder unter dem betroffenen Element - Für Formularvalidierung und kontextbezogene Hinweise -
+Farbcodierung: Rot für Fehler, Gelb für Warnungen, Grün für Erfolg 1. **Toast-Benachrichtigungen** -
+Kurzzeitige Benachrichtigungen am oberen oder unteren Bildschirmrand - Für temporäre Statusmeldungen
+(Erfolg, Info) - Automatisches Verschwinden nach 5 Sekunden - Möglichkeit zum manuellen Schließen 1.
+**Modals/Dialoge** - Für wichtige Meldungen, die Benutzerinteraktion erfordern - Fokus auf den
+Dialog lenken (Rest der Seite abdunkeln) - Klare Aktionsbuttons (Primär, Sekundär, Abbrechen) 1.
+**Statusanzeigen** - Für laufende Prozesse (Laden, Speichern) - Fortschrittsbalken für längere
+Prozesse - Spinner für kurze Ladezeiten ### Feedback-Richtlinien - **Zeitnah**: Feedback sollte
+unmittelbar nach der Aktion erfolgen - **Klar**: Eindeutige Botschaft, was passiert ist oder was zu
+tun ist - **Hilfreich**: Konstruktive Hinweise zur Problemlösung bei Fehlern - **Nicht störend**:
+Feedback sollte den Arbeitsfluss nicht unterbrechen - **Konsistent**: Gleiche Arten von Feedback für
+ähnliche Situationen ### Beispiele für Feedback-Komponenten ```jsx // Toast-Benachrichtigung
+<div
+  class="fixed bottom-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md"
+>
   <div class="flex">
     <div class="flex-shrink-0">
       <svg class="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+        <path
+          fill-rule="evenodd"
+          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+          clip-rule="evenodd"
+        />
       </svg>
     </div>
     <div class="ml-3">
@@ -270,7 +212,11 @@ Die Navigation des Evolution Hub folgt einer klaren Hierarchie:
     <div class="ml-auto pl-3">
       <button class="inline-flex text-gray-400 hover:text-gray-500">
         <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+          <path
+            fill-rule="evenodd"
+            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+            clip-rule="evenodd"
+          />
         </svg>
       </button>
     </div>
@@ -280,11 +226,11 @@ Die Navigation des Evolution Hub folgt einer klaren Hierarchie:
 // Fehler-Feedback in einem Formular
 <div class="space-y-2">
   <FormLabel for="password" required>Passwort</FormLabel>
-  <Input 
-    id="password" 
-    name="password" 
-    type="password" 
-    required 
+  <input
+    id="password"
+    name="password"
+    type="password"
+    required
     aria-invalid="true"
     aria-describedby="password-error"
     class="border-red-500 focus:ring-red-500"
@@ -293,7 +239,7 @@ Die Navigation des Evolution Hub folgt einer klaren Hierarchie:
     Passwort muss mindestens 8 Zeichen enthalten.
   </p>
 </div>
-```
+````
 
 ---
 
@@ -304,7 +250,6 @@ Evolution Hub strebt WCAG 2.1 AA-Konformität an und folgt diesen Richtlinien:
 ### Grundprinzipien
 
 1. **Wahrnehmbar**
-
    - Textalternativen für Nicht-Text-Inhalte (Bilder, Icons)
 
    - Untertitel und Transkripte für Medien
@@ -314,7 +259,6 @@ Evolution Hub strebt WCAG 2.1 AA-Konformität an und folgt diesen Richtlinien:
    - Responsive Layouts für verschiedene Bildschirmgrößen
 
 1. **Bedienbar**
-
    - Vollständige Tastaturzugänglichkeit
 
    - Ausreichend Zeit für Interaktionen
@@ -324,7 +268,6 @@ Evolution Hub strebt WCAG 2.1 AA-Konformität an und folgt diesen Richtlinien:
    - Klare Navigation und Orientierungshilfen
 
 1. **Verständlich**
-
    - Konsistente Navigation und Bezeichnungen
 
    - Vorhersehbares Verhalten bei Interaktionen
@@ -334,7 +277,6 @@ Evolution Hub strebt WCAG 2.1 AA-Konformität an und folgt diesen Richtlinien:
    - Klare Anweisungen und Hilfetexte
 
 1. **Robust**
-
    - Kompatibilität mit aktuellen und zukünftigen Technologien
 
    - Valider HTML-Code
@@ -355,15 +297,18 @@ Evolution Hub strebt WCAG 2.1 AA-Konformität an und folgt diesen Richtlinien:
 
 ### Beispiele für barrierefreie Komponenten
 
-```html
+````html
 <!-- Skip-Link -->
-<a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:p-4 focus:bg-white focus:text-black focus:z-50">
+<a
+  href="#main-content"
+  class="sr-only focus:not-sr-only focus:absolute focus:p-4 focus:bg-white focus:text-black focus:z-50"
+>
   Zum Hauptinhalt springen
 </a>
 
 <!-- Barrierefreier Button mit Icon -->
-<button 
-  aria-label="Benachrichtigungen öffnen" 
+<button
+  aria-label="Benachrichtigungen öffnen"
   class="p-2 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
 >
   <svg aria-hidden="true" class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
@@ -374,65 +319,21 @@ Evolution Hub strebt WCAG 2.1 AA-Konformität an und folgt diesen Richtlinien:
 <!-- Formularfeld mit Fehler -->
 <div>
   <label for="username" id="username-label">Benutzername</label>
-  <input 
-    type="text" 
-    id="username" 
-    aria-invalid="true" 
-    aria-describedby="username-error"
-  />
-  <div id="username-error" role="alert">
-    Benutzername wird bereits verwendet.
-  </div>
+  <input type="text" id="username" aria-invalid="true" aria-describedby="username-error" />
+  <div id="username-error" role="alert">Benutzername wird bereits verwendet.</div>
 </div>
 
-```text
-
----
-
-## Interaktionsmuster
-
-### Hover-Zustände
-
-- **Buttons**: Farbänderung, subtile Skalierung
-
-- **Karten**: Leichte Elevation (Schatten), subtile Skalierung
-
-- **Links**: Unterstreichung oder Farbänderung
-
-- **Interaktive Elemente**: Cursor-Änderung zu Pointer
-
-### Fokus-Zustände
-
-- **Sichtbarer Fokus-Ring**: Für alle interaktiven Elemente
-
-- **Konsistente Farbe**: Emerald-500 für den Fokus-Ring
-
-- **Ausreichende Größe**: Mindestens 2px Breite für den Fokus-Ring
-
-### Touch-Interaktionen
-
-- **Touch-Targets**: Mindestens 44x44px für Touch-Ziele
-
-- **Ausreichender Abstand**: Mindestens 8px zwischen Touch-Zielen
-
-- **Swipe-Gesten**: Für Listen und Karussells
-
-- **Pull-to-Refresh**: Für Listen mit aktualisierbaren Inhalten
-
-### Drag & Drop
-
-- **Visuelles Feedback**: Element hebt sich beim Ziehen ab
-
-- **Drop-Zonen**: Deutlich hervorheben, wenn ein Element darüber schwebt
-
-- **Erfolgs-/Fehlerfeedback**: Nach dem Ablegen
-
-- **Tastatur-Alternative**: Für Drag & Drop-Funktionen
-
-### Beispiele für Interaktionsmuster
-
-```jsx
-// Hover-Zustand für Karten
+```text --- ## Interaktionsmuster ### Hover-Zustände - **Buttons**: Farbänderung, subtile Skalierung
+- **Karten**: Leichte Elevation (Schatten), subtile Skalierung - **Links**: Unterstreichung oder
+Farbänderung - **Interaktive Elemente**: Cursor-Änderung zu Pointer ### Fokus-Zustände -
+**Sichtbarer Fokus-Ring**: Für alle interaktiven Elemente - **Konsistente Farbe**: Emerald-500 für
+den Fokus-Ring - **Ausreichende Größe**: Mindestens 2px Breite für den Fokus-Ring ###
+Touch-Interaktionen - **Touch-Targets**: Mindestens 44x44px für Touch-Ziele - **Ausreichender
+Abstand**: Mindestens 8px zwischen Touch-Zielen - **Swipe-Gesten**: Für Listen und Karussells -
+**Pull-to-Refresh**: Für Listen mit aktualisierbaren Inhalten ### Drag & Drop - **Visuelles
+Feedback**: Element hebt sich beim Ziehen ab - **Drop-Zonen**: Deutlich hervorheben, wenn ein
+Element darüber schwebt - **Erfolgs-/Fehlerfeedback**: Nach dem Ablegen - **Tastatur-Alternative**:
+Für Drag & Drop-Funktionen ### Beispiele für Interaktionsmuster ```jsx // Hover-Zustand für Karten
 <div class="transition-all duration-200 transform hover:scale-105 hover:shadow-lg">
   <!-- Karteninhalt -->
 </div>
@@ -443,14 +344,14 @@ Evolution Hub strebt WCAG 2.1 AA-Konformität an und folgt diesen Richtlinien:
 </button>
 
 // Drag & Drop-Element
-<div 
+<div
   draggable="true"
   class="cursor-grab active:cursor-grabbing bg-white p-4 rounded-lg shadow"
   aria-roledescription="draggable item"
 >
   Ziehbares Element
 </div>
-```
+````
 
 ---
 
@@ -498,7 +399,7 @@ Evolution Hub strebt WCAG 2.1 AA-Konformität an und folgt diesen Richtlinien:
 
 ### Beispiele für Content-Richtlinien
 
-```text
+````text
 // Gut
 "Bitte gib eine gültige E-Mail-Adresse ein, damit wir dir eine Bestätigung senden können."
 
@@ -557,11 +458,11 @@ Evolution Hub strebt WCAG 2.1 AA-Konformität an und folgt diesen Richtlinien:
 
 ```jsx
 // Lazy Loading für Bilder
-<img 
-  src="placeholder.jpg" 
-  data-src="actual-image.jpg" 
-  class="lazy-image" 
-  alt="Beschreibung" 
+<img
+  src="placeholder.jpg"
+  data-src="actual-image.jpg"
+  class="lazy-image"
+  alt="Beschreibung"
 />
 
 // Virtualisierte Liste
@@ -585,7 +486,7 @@ function SkeletonCard() {
     </div>
   );
 }
-```
+````
 
 ---
 

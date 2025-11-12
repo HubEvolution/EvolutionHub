@@ -16,11 +16,9 @@ Dieses Dokument beschreibt die erweiterten Filter-Funktionen des Debug Panels.
 ## Features
 
 - **Suggested filters (Vorschläge)**
-
   - Analysiert die letzten ~300 Logs.
 
   - Schlägt vor:
-
     - Häufige Pfade (≥5% Anteil) als Stummschaltungen.
 
     - Häufige Nachrichtenanfänge (≥3 Vorkommen) als Stummschaltungen.
@@ -32,7 +30,6 @@ Dieses Dokument beschreibt die erweiterten Filter-Funktionen des Debug Panels.
   - Chips sind klickbar; „Apply all“ wendet mehrere Vorschläge auf einmal an.
 
 - **Regex mutes (Regex-Modus)**
-
   - Umschaltbar per Checkbox „Regex mutes“ neben dem Mute-Input.
 
   - `mutePatterns` werden als kommaseparierte, case-insensitive Regex-Ausdrücke interpretiert.
@@ -40,7 +37,6 @@ Dieses Dokument beschreibt die erweiterten Filter-Funktionen des Debug Panels.
   - Ungültige Regex werden sicher ignoriert.
 
 - **Undo last apply (Rückgängig)**
-
   - „Undo“-Button im Vorschlagsbereich.
 
   - Stellt den letzten Filterzustand wieder her (max. 20 Schritte History).
@@ -94,13 +90,11 @@ Dieses Dokument beschreibt die erweiterten Filter-Funktionen des Debug Panels.
 - Für lokale Worker‑Entwicklung muss im **Development‑Mode** gebaut werden, damit `.env.development` (mit `PUBLIC_ENABLE_DEBUG_PANEL=true`) greift.
 
 - Verwende die aktualisierten Scripts in `package.json`:
-
   - `npm run dev:worker` bzw. `dev:worker:dev` bauen jetzt mit `astro build --mode development` über `build:worker:dev` und starten anschließend Wrangler.
 
   - Produktions‑Builds (CI/Deploy) nutzen weiterhin `build:worker` (ohne `--mode development`) und respektieren `.env.production` (Panel aus).
 
 - Quick‑Check:
-
   - EventSource auf `GET /api/debug/logs-stream` sollte 200 liefern; bei deaktiviertem Panel kommt 404 gemäß `src/pages/api/debug/logs-stream.ts`.
 
   - Query‑Param `?debugPanel=1` oder LocalStorage‑Flag `debugPanel.force=1` kann das Overlay zusätzlich erzwingen.

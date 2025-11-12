@@ -6,7 +6,12 @@ import {
   withAuthApiMiddleware,
 } from '@/lib/api-middleware';
 import { rateLimit } from '@/lib/rate-limiter';
-import { handleServiceError, resolveNotificationService, resolveUserId } from './utils';
+import {
+  handleServiceError,
+  resolveNotificationService,
+  resolveUserId,
+  resolveRuntimeEnv,
+} from './utils';
 
 const NOTIFICATION_TYPES = [
   'comment_reply',
@@ -38,7 +43,7 @@ export const GET = withAuthApiMiddleware(async (context) => {
     }
 
     await rateLimit(`notifications:settings:${userId}`, 20, 60, {
-      env: (context.locals as any)?.runtime?.env as Record<string, unknown>,
+      env: resolveRuntimeEnv(context),
     });
 
     const notificationService = resolveNotificationService(context);
@@ -69,7 +74,7 @@ export const POST = withAuthApiMiddleware(
 
     try {
       await rateLimit(`notifications:settings:update:${userId}`, 10, 60, {
-        env: (context.locals as any)?.runtime?.env as Record<string, unknown>,
+        env: resolveRuntimeEnv(context),
       });
 
       const notificationService = resolveNotificationService(context);

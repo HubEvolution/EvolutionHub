@@ -1,5 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { PromptEnhancerService, type EnhanceInput, type EnhanceOptions } from '@/lib/services/prompt-enhancer-service';
+import {
+  PromptEnhancerService,
+  type EnhanceInput,
+  type EnhanceOptions,
+} from '@/lib/services/prompt-enhancer-service';
 import type { KVNamespace } from '@cloudflare/workers-types';
 
 // Mock loggerFactory
@@ -39,13 +43,15 @@ describe('PromptEnhancerService', () => {
   });
 
   describe('enhance', () => {
-    const input: EnhanceInput = { 
-      text: 'Schreibe einen präzisen Prompt für einen Agenten, der aus Longtail-Keywords Blogposts generiert. Quellen angeben, Markdown-Output.' 
+    const input: EnhanceInput = {
+      text: 'Schreibe einen präzisen Prompt für einen Agenten, der aus Longtail-Keywords Blogposts generiert. Quellen angeben, Markdown-Output.',
     };
     const options: EnhanceOptions = { mode: 'agent', safety: true, includeScores: true };
 
     it('should enhance basic input successfully with full structure', async () => {
-      mockKV.get.mockResolvedValueOnce(JSON.stringify({ count: 0, resetAt: Date.now() + 86400000 }));
+      mockKV.get.mockResolvedValueOnce(
+        JSON.stringify({ count: 0, resetAt: Date.now() + 86400000 })
+      );
       mockKV.put.mockResolvedValue();
 
       const result = await service.enhance(input, options, 'guest', 'test-guest-id');
@@ -63,10 +69,12 @@ describe('PromptEnhancerService', () => {
     });
 
     it('should mask PII and generate report', async () => {
-      const piiInput: EnhanceInput = { 
-        text: 'Help me email john.doe@example.com at +1-555-1234 about the project.' 
+      const piiInput: EnhanceInput = {
+        text: 'Help me email john.doe@example.com at +1-555-1234 about the project.',
       };
-      mockKV.get.mockResolvedValueOnce(JSON.stringify({ count: 0, resetAt: Date.now() + 86400000 }));
+      mockKV.get.mockResolvedValueOnce(
+        JSON.stringify({ count: 0, resetAt: Date.now() + 86400000 })
+      );
       mockKV.put.mockResolvedValue();
 
       const result = await service.enhance(piiInput, options, 'guest', 'test-guest-id');
@@ -81,17 +89,19 @@ describe('PromptEnhancerService', () => {
     it('should throw validation error for empty input', async () => {
       const emptyInput: EnhanceInput = { text: '' };
 
-      await expect(
-        service.enhance(emptyInput, options, 'guest', 'test-id')
-      ).rejects.toThrow('Input text is required and cannot be empty');
+      await expect(service.enhance(emptyInput, options, 'guest', 'test-id')).rejects.toThrow(
+        'Input text is required and cannot be empty'
+      );
     });
 
     it('should throw quota exceeded error', async () => {
-      mockKV.get.mockResolvedValueOnce(JSON.stringify({ count: 5, resetAt: Date.now() + 86400000 })); // Guest limit 5
+      mockKV.get.mockResolvedValueOnce(
+        JSON.stringify({ count: 5, resetAt: Date.now() + 86400000 })
+      ); // Guest limit 5
 
-      await expect(
-        service.enhance(input, options, 'guest', 'test-id')
-      ).rejects.toThrow('Daily quota exceeded');
+      await expect(service.enhance(input, options, 'guest', 'test-id')).rejects.toThrow(
+        'Daily quota exceeded'
+      );
     });
 
     it('should be deterministic for same input', async () => {
@@ -107,10 +117,12 @@ describe('PromptEnhancerService', () => {
     });
 
     it('should calculate scores appropriately for complex input', async () => {
-      const complexInput: EnhanceInput = { 
-        text: 'A very long complex input with many keywords like AI, prompt, engineering, testing, development to analyze and generate detailed content step by step including multiple sections.' 
+      const complexInput: EnhanceInput = {
+        text: 'A very long complex input with many keywords like AI, prompt, engineering, testing, development to analyze and generate detailed content step by step including multiple sections.',
       };
-      mockKV.get.mockResolvedValueOnce(JSON.stringify({ count: 0, resetAt: Date.now() + 86400000 }));
+      mockKV.get.mockResolvedValueOnce(
+        JSON.stringify({ count: 0, resetAt: Date.now() + 86400000 })
+      );
       mockKV.put.mockResolvedValue();
 
       const result = await service.enhance(complexInput, options, 'user', 'test-user-id');
@@ -122,7 +134,9 @@ describe('PromptEnhancerService', () => {
 
     it('should use concise mode for shorter output', async () => {
       const optionsConcise: EnhanceOptions = { mode: 'concise', safety: true, includeScores: true };
-      mockKV.get.mockResolvedValueOnce(JSON.stringify({ count: 0, resetAt: Date.now() + 86400000 }));
+      mockKV.get.mockResolvedValueOnce(
+        JSON.stringify({ count: 0, resetAt: Date.now() + 86400000 })
+      );
       mockKV.put.mockResolvedValue();
 
       const result = await service.enhance(input, optionsConcise, 'guest', 'test-id');
@@ -131,3 +145,4 @@ describe('PromptEnhancerService', () => {
       expect(result.enhanced.steps?.length).toBeLessThanOrEqual(3); // Shorter
     });
   });
+});

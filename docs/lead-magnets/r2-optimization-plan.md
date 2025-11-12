@@ -25,7 +25,6 @@ Runtime: Cloudflare Workers (Edge). Keine Node-spezifischen APIs. Siehe Cloudfla
 ## Architektur-Varianten
 
 - Variante B1 – Worker-Proxy (empfohlen zuerst):
-
   - Dateien privat in R2.
 
   - Download-Endpoint im Worker liest via `env.R2_LEADMAGNETS.get(key)` und streamt die Datei.
@@ -33,7 +32,6 @@ Runtime: Cloudflare Workers (Edge). Keine Node-spezifischen APIs. Siehe Cloudfla
   - Vorteile: volle Kontrolle (Auth/Tokens/Headers/Logging), keine zusätzlichen SDKs.
 
 - Variante B2 – Signierte URLs (optional):
-
   - Endpoint gibt kurzlebige signierte URL zurück; Browser lädt direkt von R2.
 
   - Vorteile: weniger Edge-Kosten bei vielen/parallelen Downloads.
@@ -51,7 +49,6 @@ Runtime: Cloudflare Workers (Edge). Keine Node-spezifischen APIs. Siehe Cloudfla
 ## API-Design
 
 - GET `/api/lead-magnets/download?key=<asset>`
-
   - Prüft optionales Token (`t`), Ablauf (`exp`), Herkunft/IP (optional).
 
   - Liest Objekt aus R2, setzt `Content-Type`, `Content-Length`, `Content-Disposition`.
@@ -59,11 +56,9 @@ Runtime: Cloudflare Workers (Edge). Keine Node-spezifischen APIs. Siehe Cloudfla
   - Streamt Response, schreibt Audit-Log (D1).
 
 - Optional: HEAD `/api/lead-magnets/download?key=<asset>`
-
   - Liefert nur Metadaten (Größe, Typ), dient Preflight/Frontend.
 
 - Optional: GET `/api/lead-magnets/sign?key=<asset>`
-
   - Erzeugt kurzlebigen Download-Token oder signierte URL (B2).
 
 ## Token-Schema (B1/B2)
@@ -92,8 +87,8 @@ Runtime: Cloudflare Workers (Edge). Keine Node-spezifischen APIs. Siehe Cloudfla
 
 ## Migrationsschritte
 
-1) Bucket anlegen: `R2_LEADMAGNETS` (privat). Assets hochladen (`new-work-*.pdf`, `ki-tools-*.pdf`, `produktivitaets-*.pdf`).
-1) `wrangler.toml`: R2 Binding ergänzen. Beispiel:
+1. Bucket anlegen: `R2_LEADMAGNETS` (privat). Assets hochladen (`new-work-*.pdf`, `ki-tools-*.pdf`, `produktivitaets-*.pdf`).
+1. `wrangler.toml`: R2 Binding ergänzen. Beispiel:
 
    ```toml
    [[r2_buckets]]
@@ -102,11 +97,11 @@ Runtime: Cloudflare Workers (Edge). Keine Node-spezifischen APIs. Siehe Cloudfla
    preview_bucket_name = "evolution-hub-lead-magnets-dev"
    ```
 
-1) API implementieren: `src/pages/api/lead-magnets/download.ts` auf Worker-R2-Proxy umbauen (B1). Token-Check optional.
-1) Audit-D1 Migration: Tabelle anlegen und Insert im Download-Flow.
-1) Frontend-Links prüfen: CTAs verlinken weiter `/api/lead-magnets/download?key=...`.
-1) Rate-Limiting (optional): simple IP/Token basierte Limits (KV Zähler + TTL).
-1) Monitoring: Logs (Workers), Fehlerzähler, Durchsatz, 4xx/5xx-Rate; Sampling in D1.
+1. API implementieren: `src/pages/api/lead-magnets/download.ts` auf Worker-R2-Proxy umbauen (B1). Token-Check optional.
+1. Audit-D1 Migration: Tabelle anlegen und Insert im Download-Flow.
+1. Frontend-Links prüfen: CTAs verlinken weiter `/api/lead-magnets/download?key=...`.
+1. Rate-Limiting (optional): simple IP/Token basierte Limits (KV Zähler + TTL).
+1. Monitoring: Logs (Workers), Fehlerzähler, Durchsatz, 4xx/5xx-Rate; Sampling in D1.
 
 ## Rollback
 

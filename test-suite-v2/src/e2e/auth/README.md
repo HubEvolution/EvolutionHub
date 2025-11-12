@@ -6,15 +6,15 @@ Comprehensive E2E tests for all authentication flows in Evolution Hub.
 
 auth/
 ├── oauth/
-│   ├── github-oauth-flow.spec.ts          # GitHub OAuth happy path tests
-│   ├── oauth-cookie-security.spec.ts      # Cookie security tests (v1.7.2 fixes)
-│   ├── oauth-error-handling.spec.ts       # OAuth error scenarios
-│   └── oauth-welcome-profile.spec.ts      # First-time user welcome flow
-├── magic-link-flow.spec.ts                # Magic Link tests (EN)
-├── magic-link-flow-de.spec.ts             # Magic Link tests (DE)
-├── session-management.spec.ts             # Session lifecycle tests
-├── auth-middleware.spec.ts                # Middleware redirect tests
-└── README.md                              # This file
+│ ├── github-oauth-flow.spec.ts # GitHub OAuth happy path tests
+│ ├── oauth-cookie-security.spec.ts # Cookie security tests (v1.7.2 fixes)
+│ ├── oauth-error-handling.spec.ts # OAuth error scenarios
+│ └── oauth-welcome-profile.spec.ts # First-time user welcome flow
+├── magic-link-flow.spec.ts # Magic Link tests (EN)
+├── magic-link-flow-de.spec.ts # Magic Link tests (DE)
+├── session-management.spec.ts # Session lifecycle tests
+├── auth-middleware.spec.ts # Middleware redirect tests
+└── README.md # This file
 
 ## 🎯 Test Coverage
 
@@ -214,13 +214,13 @@ STYTCH_TEST_EMAIL=<your-verified-email>
 
 ## 📊 Coverage Goals
 
-| Flow | Coverage | Tests |
-|------|----------|-------|
-| **OAuth** | 90% | 18 test cases |
-| **Magic Link** | 80% | 4 test cases (existing) |
-| **Session** | 85% | 14 test cases |
-| **Middleware** | 75% | 12 test cases |
-| **Overall** | ~85% | 48 test cases |
+| Flow           | Coverage | Tests                   |
+| -------------- | -------- | ----------------------- |
+| **OAuth**      | 90%      | 18 test cases           |
+| **Magic Link** | 80%      | 4 test cases (existing) |
+| **Session**    | 85%      | 14 test cases           |
+| **Middleware** | 75%      | 12 test cases           |
+| **Overall**    | ~85%     | 48 test cases           |
 
 ## 🔧 Troubleshooting
 

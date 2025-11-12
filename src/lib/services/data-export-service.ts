@@ -181,27 +181,29 @@ export class DataExportService {
         .from(comments)
         .where(eq(comments.authorId, userId));
 
-      exportData.comments = commentsData.map((c: {
-        id: string;
-        content: string;
-        entityId?: string | null;
-        status?: unknown;
-        createdAt: unknown;
-        updatedAt?: unknown | null;
-        parentId?: string | null;
-      }) => ({
-        id: c.id,
-        content: c.content,
-        postId: (c as { postId?: string | null }).postId || c.entityId || undefined,
-        status: String(c.status ?? ''),
-        createdAt: (c.createdAt as unknown as Date).getTime?.() ?? Number(c.createdAt),
-        updatedAt:
-          c.updatedAt != null
-            ? ((c.updatedAt as unknown as Date).getTime?.() ?? Number(c.updatedAt))
-            : undefined,
-        parentId: (c.parentId as string | null) || undefined,
-        author: { id: userId, name: exportData.user?.name },
-      }));
+      exportData.comments = commentsData.map(
+        (c: {
+          id: string;
+          content: string;
+          entityId?: string | null;
+          status?: unknown;
+          createdAt: unknown;
+          updatedAt?: unknown | null;
+          parentId?: string | null;
+        }) => ({
+          id: c.id,
+          content: c.content,
+          postId: (c as { postId?: string | null }).postId || c.entityId || undefined,
+          status: String(c.status ?? ''),
+          createdAt: (c.createdAt as unknown as Date).getTime?.() ?? Number(c.createdAt),
+          updatedAt:
+            c.updatedAt != null
+              ? ((c.updatedAt as unknown as Date).getTime?.() ?? Number(c.updatedAt))
+              : undefined,
+          parentId: (c.parentId as string | null) || undefined,
+          author: { id: userId, name: exportData.user?.name },
+        })
+      );
     }
 
     // Hole Benachrichtigungen
@@ -211,26 +213,28 @@ export class DataExportService {
         .from(notifications)
         .where(eq(notifications.userId, userId));
 
-      exportData.notifications = notificationsData.map((n: {
-        id: string;
-        type: unknown;
-        title: string;
-        message: string;
-        isRead: unknown;
-        createdAt: unknown;
-        readAt?: unknown | null;
-      }) => ({
-        id: n.id,
-        type: String(n.type),
-        title: n.title,
-        message: n.message,
-        isRead: Boolean(n.isRead as unknown),
-        createdAt: (n.createdAt as unknown as Date).getTime?.() ?? Number(n.createdAt),
-        readAt:
-          n.readAt != null
-            ? ((n.readAt as unknown as Date).getTime?.() ?? Number(n.readAt))
-            : undefined,
-      }));
+      exportData.notifications = notificationsData.map(
+        (n: {
+          id: string;
+          type: unknown;
+          title: string;
+          message: string;
+          isRead: unknown;
+          createdAt: unknown;
+          readAt?: unknown | null;
+        }) => ({
+          id: n.id,
+          type: String(n.type),
+          title: n.title,
+          message: n.message,
+          isRead: Boolean(n.isRead as unknown),
+          createdAt: (n.createdAt as unknown as Date).getTime?.() ?? Number(n.createdAt),
+          readAt:
+            n.readAt != null
+              ? ((n.readAt as unknown as Date).getTime?.() ?? Number(n.readAt))
+              : undefined,
+        })
+      );
     }
 
     return exportData;
@@ -435,40 +439,42 @@ export class DataExportService {
       .from(dataExportJobs)
       .where(eq(dataExportJobs.userId, userId))
       .orderBy(desc(dataExportJobs.requestedAt));
-    return rows.map((row: {
-      id: string;
-      userId: string;
-      type?: unknown;
-      status?: unknown;
-      format?: unknown;
-      filePath?: string | null;
-      fileSize?: number | null;
-      downloadUrl?: string | null;
-      expiresAt?: unknown | null;
-      errorMessage?: string | null;
-      requestedAt: unknown;
-      completedAt?: unknown | null;
-      downloadCount?: number | null;
-    }) => ({
-      id: row.id,
-      userId: row.userId,
-      type: row.type as ExportJobType,
-      status: (row.status ?? 'pending') as ExportJobStatus,
-      format: (row.format ?? 'json') as ExportFormat,
-      filePath: row.filePath ?? undefined,
-      fileSize: row.fileSize ?? undefined,
-      downloadUrl: row.downloadUrl ?? undefined,
-      expiresAt: row.expiresAt
-        ? ((row.expiresAt as unknown as Date).getTime?.() ?? Number(row.expiresAt))
-        : undefined,
-      errorMessage: row.errorMessage ?? undefined,
-      requestedAt: (row.requestedAt as unknown as Date).getTime?.() ?? Number(row.requestedAt),
-      completedAt:
-        row.completedAt != null
-          ? ((row.completedAt as unknown as Date).getTime?.() ?? Number(row.completedAt))
+    return rows.map(
+      (row: {
+        id: string;
+        userId: string;
+        type?: unknown;
+        status?: unknown;
+        format?: unknown;
+        filePath?: string | null;
+        fileSize?: number | null;
+        downloadUrl?: string | null;
+        expiresAt?: unknown | null;
+        errorMessage?: string | null;
+        requestedAt: unknown;
+        completedAt?: unknown | null;
+        downloadCount?: number | null;
+      }) => ({
+        id: row.id,
+        userId: row.userId,
+        type: row.type as ExportJobType,
+        status: (row.status ?? 'pending') as ExportJobStatus,
+        format: (row.format ?? 'json') as ExportFormat,
+        filePath: row.filePath ?? undefined,
+        fileSize: row.fileSize ?? undefined,
+        downloadUrl: row.downloadUrl ?? undefined,
+        expiresAt: row.expiresAt
+          ? ((row.expiresAt as unknown as Date).getTime?.() ?? Number(row.expiresAt))
           : undefined,
-      downloadCount: row.downloadCount ?? 0,
-    }));
+        errorMessage: row.errorMessage ?? undefined,
+        requestedAt: (row.requestedAt as unknown as Date).getTime?.() ?? Number(row.requestedAt),
+        completedAt:
+          row.completedAt != null
+            ? ((row.completedAt as unknown as Date).getTime?.() ?? Number(row.completedAt))
+            : undefined,
+        downloadCount: row.downloadCount ?? 0,
+      })
+    );
   }
 
   /**

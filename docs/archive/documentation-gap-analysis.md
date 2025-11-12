@@ -72,7 +72,6 @@ Die Analyse orientiert sich an folgenden Kategorien:
 - ✅ docs/architecture/auth-flow.md - Dokumentation des Authentifizierungsflusses
 
 - ✅ docs/architecture/adrs/ - Architecture Decision Records
-
   - ✅ 0000-adr-template.md - ADR-Template
 
   - ✅ 0001-astro-cloudflare-stack.md - ADR zum Astro + Cloudflare Stack
@@ -234,7 +233,6 @@ Basierend auf den identifizierten Lücken werden folgende Maßnahmen priorisiert
 ### Hohe Priorität
 
 1. **Datenbank-Schema-Dokumentation mit ERD**
-
    - Vollständige Dokumentation aller Tabellen, Beziehungen und Constraints
 
    - Visualisierung durch Entity-Relationship-Diagramm
@@ -242,7 +240,6 @@ Basierend auf den identifizierten Lücken werden folgende Maßnahmen priorisiert
    - Dokumentation der Indexierungsstrategie
 
 1. **OpenAPI/Swagger-Spezifikation**
-
    - Maschinenlesbare API-Dokumentation für alle Endpunkte
 
    - Interaktive API-Dokumentation für Entwickler
@@ -250,7 +247,6 @@ Basierend auf den identifizierten Lücken werden folgende Maßnahmen priorisiert
    - Integration in CI/CD zur Validierung von API-Änderungen
 
 1. **Git-Workflow und Branching-Strategie**
-
    - Klare Richtlinien für Branches, Commits und Pull Requests
 
    - Workflow für Feature-Entwicklung, Bugfixes und Releases
@@ -258,7 +254,6 @@ Basierend auf den identifizierten Lücken werden folgende Maßnahmen priorisiert
    - Integration mit CI/CD-Pipeline
 
 1. **Deployment-Checkliste und Rollback-Strategie**
-
    - Schritte vor, während und nach einem Deployment
 
    - Verfahren bei fehlgeschlagenen Deployments
@@ -268,7 +263,6 @@ Basierend auf den identifizierten Lücken werden folgende Maßnahmen priorisiert
 ### Mittlere Priorität
 
 1. **Monitoring und Alerting-Strategie**
-
    - Zu überwachende Metriken und Schwellenwerte
 
    - Alerting-Kanäle und Eskalationspfade
@@ -276,7 +270,6 @@ Basierend auf den identifizierten Lücken werden folgende Maßnahmen priorisiert
    - Logging-Strategie und -Implementierung
 
 1. **Code-Review-Checkliste und -Richtlinien**
-
    - Kriterien für Code-Reviews
 
    - Prozess für Code-Reviews
@@ -284,7 +277,6 @@ Basierend auf den identifizierten Lücken werden folgende Maßnahmen priorisiert
    - Integration in den Entwicklungs-Workflow
 
 1. **Storybook für Komponenten-Dokumentation**
-
    - Interaktive Dokumentation aller UI-Komponenten
 
    - Nutzungsbeispiele und Varianten
@@ -292,7 +284,6 @@ Basierend auf den identifizierten Lücken werden folgende Maßnahmen priorisiert
    - Integration in CI/CD zur automatischen Aktualisierung
 
 1. **Barrierefreiheits-Richtlinien**
-
    - WCAG-Konformitätsziele
 
    - Checkliste für barrierefreie Komponenten
@@ -302,7 +293,6 @@ Basierend auf den identifizierten Lücken werden folgende Maßnahmen priorisiert
 ### Niedrige Priorität
 
 1. **Endbenutzer-Dokumentation**
-
    - Benutzerhandbuch für Endbenutzer
 
    - Tutorials für häufige Aufgaben
@@ -310,28 +300,25 @@ Basierend auf den identifizierten Lücken werden folgende Maßnahmen priorisiert
    - FAQ für häufige Fragen
 
 1. **Glossar mit projektspezifischen Begriffen**
+   - Definitionen aller projektspezifischen Begriffe
 
-    - Definitionen aller projektspezifischen Begriffe
+   - Abkürzungen und ihre Bedeutungen
 
-    - Abkürzungen und ihre Bedeutungen
-
-    - Technische Konzepte in einfacher Sprache erklärt
+   - Technische Konzepte in einfacher Sprache erklärt
 
 1. **Feature-Flag-Strategie**
+   - Implementierung von Feature-Flags
 
-    - Implementierung von Feature-Flags
+   - Prozess für das Ein- und Ausschalten von Features
 
-    - Prozess für das Ein- und Ausschalten von Features
-
-    - Testing mit Feature-Flags
+   - Testing mit Feature-Flags
 
 1. **GDPR/Datenschutz-Compliance-Dokumentation**
+   - Datenschutzrichtlinien
 
-    - Datenschutzrichtlinien
+   - Prozesse für Datenverarbeitung und -löschung
 
-    - Prozesse für Datenverarbeitung und -löschung
-
-    - Compliance-Checkliste
+   - Compliance-Checkliste
 
 ---
 

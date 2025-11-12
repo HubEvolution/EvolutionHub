@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 /**
  * Authentifizierungsmodul für Evolution Hub
  *
@@ -7,7 +7,7 @@
  *
  * @module auth-v2
  */
-Object.defineProperty(exports, "__esModule", { value: true });
+Object.defineProperty(exports, '__esModule', { value: true });
 exports.createSession = createSession;
 exports.validateSession = validateSession;
 exports.invalidateSession = invalidateSession;
@@ -35,18 +35,18 @@ const sessionExpiresInSeconds = 60 * 60 * 24 * 30; // 30 days
  * });
  */
 async function createSession(db, userId) {
-    const sessionId = crypto.randomUUID();
-    const expiresAt = new Date(Date.now() + sessionExpiresInSeconds * 1000);
-    const session = {
-        id: sessionId,
-        userId,
-        expiresAt,
-    };
-    await db
-        .prepare('INSERT INTO sessions (id, user_id, expires_at) VALUES (?, ?, ?)')
-        .bind(sessionId, userId, Math.floor(session.expiresAt.getTime() / 1000))
-        .run();
-    return session;
+  const sessionId = crypto.randomUUID();
+  const expiresAt = new Date(Date.now() + sessionExpiresInSeconds * 1000);
+  const session = {
+    id: sessionId,
+    userId,
+    expiresAt,
+  };
+  await db
+    .prepare('INSERT INTO sessions (id, user_id, expires_at) VALUES (?, ?, ?)')
+    .bind(sessionId, userId, Math.floor(session.expiresAt.getTime() / 1000))
+    .run();
+  return session;
 }
 /**
  * Validiert eine Benutzersitzung anhand ihrer ID
@@ -69,9 +69,10 @@ async function createSession(db, userId) {
  * }
  */
 async function validateSession(db, sessionId) {
-    // One roundtrip: fetch session + safe user fields via JOIN
-    const row = await db
-        .prepare(`SELECT 
+  // One roundtrip: fetch session + safe user fields via JOIN
+  const row = await db
+    .prepare(
+      `SELECT 
          s.id              AS s_id,
          s.user_id         AS s_user_id,
          s.expires_at      AS s_expires_at,
@@ -85,32 +86,33 @@ async function validateSession(db, sessionId) {
          u.plan            AS u_plan
        FROM sessions s
        JOIN users u ON u.id = s.user_id
-       WHERE s.id = ?`)
-        .bind(sessionId)
-        .first();
-    if (!row) {
-        return { session: null, user: null };
-    }
-    const session = {
-        id: row.s_id,
-        userId: row.s_user_id,
-        expiresAt: new Date(Number(row.s_expires_at) * 1000),
-    };
-    // Expired? Clean up and return null (preserves previous behavior)
-    if (session.expiresAt.getTime() < Date.now()) {
-        await db.prepare('DELETE FROM sessions WHERE id = ?').bind(sessionId).run();
-        return { session: null, user: null };
-    }
-    const user = {
-        id: row.u_id,
-        email: row.u_email,
-        name: row.u_name,
-        username: row.u_username,
-        image: row.u_image ?? undefined,
-        email_verified: Boolean(row.u_email_verified),
-        plan: row.u_plan ?? 'free',
-    };
-    return { session, user };
+       WHERE s.id = ?`
+    )
+    .bind(sessionId)
+    .first();
+  if (!row) {
+    return { session: null, user: null };
+  }
+  const session = {
+    id: row.s_id,
+    userId: row.s_user_id,
+    expiresAt: new Date(Number(row.s_expires_at) * 1000),
+  };
+  // Expired? Clean up and return null (preserves previous behavior)
+  if (session.expiresAt.getTime() < Date.now()) {
+    await db.prepare('DELETE FROM sessions WHERE id = ?').bind(sessionId).run();
+    return { session: null, user: null };
+  }
+  const user = {
+    id: row.u_id,
+    email: row.u_email,
+    name: row.u_name,
+    username: row.u_username,
+    image: row.u_image ?? undefined,
+    email_verified: Boolean(row.u_email_verified),
+    plan: row.u_plan ?? 'free',
+  };
+  return { session, user };
 }
 /**
  * Invalidiert (löscht) eine Benutzersitzung
@@ -129,5 +131,5 @@ async function validateSession(db, sessionId) {
  * }
  */
 async function invalidateSession(db, sessionId) {
-    await db.prepare('DELETE FROM sessions WHERE id = ?').bind(sessionId).run();
+  await db.prepare('DELETE FROM sessions WHERE id = ?').bind(sessionId).run();
 }

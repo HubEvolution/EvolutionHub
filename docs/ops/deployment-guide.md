@@ -59,7 +59,7 @@ Workflow-Datei: `.github/workflows/deploy.yml`
    - Wrangler Deploy `--env staging`
    - Health Check gegen `https://staging.hub-evolution.com`
 
-3. **staging-smokes** *(nur für Production-Deploys oder wenn `environment=production`)*
+3. **staging-smokes** _(nur für Production-Deploys oder wenn `environment=production`)_
    - CURL-Preflights (Image Enhancer UI/API, Magic Link Request)
    - Playwright Smoke (`test-suite-v2/src/e2e/tools/image-enhancer.spec.ts`)
 
@@ -145,13 +145,13 @@ Unabhängig vom Pfad (CI oder manuell):
 
 ## 6. Häufige Fehlerquellen
 
-| Bereich | Symptom | Maßnahme |
-| --- | --- | --- |
-| Secrets | 5xx beim Enhancer, fehlende Stytch-Logins | Secrets in `wrangler.toml` + Dashboard prüfen |
-| Staging-Smokes | Playwright schlägt fehl | `npm run test:e2e:chromium` lokal ausführen, Logs checken |
-| Origin Checks | `forbidden` bei POST | `Origin`-Header und Allowlist (`APP_ORIGIN`, `ALLOWED_ORIGINS`) abgleichen |
-| Stripe Plan Mapping | Nutzerplan bleibt `free` | `PRICING_TABLE*` mit Live-IDs aktualisieren, Webhook-Logs prüfen |
-| Rate Limits | Spikes in 429 | Monitor `KV_RATE_LIMIT` (falls KV-Limiter aktiviert) oder Skalenentscheid W1 (Checklist) |
+| Bereich             | Symptom                                   | Maßnahme                                                                                 |
+| ------------------- | ----------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Secrets             | 5xx beim Enhancer, fehlende Stytch-Logins | Secrets in `wrangler.toml` + Dashboard prüfen                                            |
+| Staging-Smokes      | Playwright schlägt fehl                   | `npm run test:e2e:chromium` lokal ausführen, Logs checken                                |
+| Origin Checks       | `forbidden` bei POST                      | `Origin`-Header und Allowlist (`APP_ORIGIN`, `ALLOWED_ORIGINS`) abgleichen               |
+| Stripe Plan Mapping | Nutzerplan bleibt `free`                  | `PRICING_TABLE*` mit Live-IDs aktualisieren, Webhook-Logs prüfen                         |
+| Rate Limits         | Spikes in 429                             | Monitor `KV_RATE_LIMIT` (falls KV-Limiter aktiviert) oder Skalenentscheid W1 (Checklist) |
 
 - [Monitoring & Runbook](./monitoring.md)
 - [Runbook: Image Enhancer Go-Live](./runbook-image-enhancer-go-live.md)

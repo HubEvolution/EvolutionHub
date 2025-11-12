@@ -139,7 +139,6 @@ Wir haben uns für eine vollständig auf Cloudflare-Diensten basierende Architek
 Die Cloudflare-Architektur wird wie folgt implementiert:
 
 1. **Frontend-Deployment**:
-
    - Astro-Projekt wird auf Cloudflare Pages gehostet
 
    - Statische Assets werden automatisch am CDN gecacht
@@ -147,7 +146,6 @@ Die Cloudflare-Architektur wird wie folgt implementiert:
    - Islands-Architektur für interaktive Komponenten
 
 1. **API-Implementierung**:
-
    - API-Endpunkte als Cloudflare Pages Functions
 
    - Organisiert in der Verzeichnisstruktur unter `/src/pages/api/`
@@ -155,7 +153,6 @@ Die Cloudflare-Architektur wird wie folgt implementiert:
    - TypeScript für Typsicherheit und bessere Entwicklererfahrung
 
 1. **Datenbank-Integration**:
-
    - D1-Datenbank über Cloudflare-Bindings eingebunden
 
    - Prepared Statements für alle Datenbankabfragen
@@ -163,7 +160,6 @@ Die Cloudflare-Architektur wird wie folgt implementiert:
    - Migrations-System für Schemaänderungen
 
 1. **Caching-Strategie**:
-
    - Cache-Control-Header für optimales Asset-Caching
 
    - API-Caching für lesende Operationen wo angemessen
@@ -171,7 +167,6 @@ Die Cloudflare-Architektur wird wie folgt implementiert:
    - Edge-Cache für häufig abgerufene Daten
 
 1. **Sicherheitsmaßnahmen**:
-
    - WAF-Regeln für bekannte Angriffsvektoren
 
    - Rate-Limiting für alle API-Endpunkte

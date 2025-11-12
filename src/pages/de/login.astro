@@ -11,7 +11,7 @@ import Card from '@/components/ui/Card';
 
 const locale = getLocale(Astro.url.pathname);
 const t = getI18n(locale);
-const locals = Astro.locals as any;
+const locals = Astro.locals as { user?: unknown } | undefined;
 
 const magicBanner = Astro.url.searchParams.get('success') === 'magic_sent';
 const magicText = t('pages.auth.magic.success') ?? 'Prüfe deine E‑Mails auf den Anmelde‑Link.';
@@ -26,7 +26,7 @@ const githubText = t('pages.login.form.oauth.github') ?? 'Mit GitHub anmelden';
 const noAccountPrompt = t('pages.login.form.no_account_prompt') ?? 'Sie haben noch kein Konto?';
 const registerLinkText = t('pages.login.form.register_link') ?? 'Registrieren';
 
-if (locals.user) {
+if (locals?.user) {
   return Astro.redirect(localizePath(locale, '/dashboard'));
 }
 ---

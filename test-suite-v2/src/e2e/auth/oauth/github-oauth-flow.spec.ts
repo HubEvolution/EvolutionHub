@@ -46,7 +46,9 @@ test.describe('GitHub OAuth Flow', () => {
       expect(href).toContain('/api/auth/oauth/github/start');
     });
 
-    test('should redirect to OAuth start endpoint when clicking GitHub button', async ({ page }) => {
+    test('should redirect to OAuth start endpoint when clicking GitHub button', async ({
+      page,
+    }) => {
       await page.goto('/en/login');
 
       // Click GitHub OAuth button
@@ -60,7 +62,9 @@ test.describe('GitHub OAuth Flow', () => {
       if (!IS_REMOTE && FAKE_STYTCH) {
         // Expect redirect to callback (mocked OAuth flow)
         const currentUrl = page.url();
-        expect(currentUrl).toMatch(/\/api\/auth\/oauth\/github\/callback|\/dashboard|\/en\/dashboard/);
+        expect(currentUrl).toMatch(
+          /\/api\/auth\/oauth\/github\/callback|\/dashboard|\/en\/dashboard/
+        );
       }
       // For remote targets, we cannot complete the OAuth flow (requires real Stytch)
     });
@@ -91,7 +95,9 @@ test.describe('GitHub OAuth Flow', () => {
 
       // Start with clean cookies
       const cookiesBefore = await context.cookies(BASE_URL);
-      expect(cookiesBefore.find((c) => c.name === 'session_id' || c.name === '__Host-session')).toBeFalsy();
+      expect(
+        cookiesBefore.find((c) => c.name === 'session_id' || c.name === '__Host-session')
+      ).toBeFalsy();
 
       // Navigate to login page
       await page.goto('/en/login');

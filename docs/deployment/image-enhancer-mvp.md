@@ -23,7 +23,7 @@ testRefs: 'N/A'
 
 #### Immediate Rollback (Emergency)
 
-```bash
+````bash
 
 # Disable MVP and enable legacy
 
@@ -31,7 +31,7 @@ npx wrangler secret put PUBLIC_ENHANCER_MVP_MODE --env production
 
 # Set value to: "0"
 
-npx wrangler secret put PUBLIC_ENHANCER_LEGACY_MODE --env production  
+npx wrangler secret put PUBLIC_ENHANCER_LEGACY_MODE --env production
 
 # Set value to: "1"
 
@@ -53,20 +53,18 @@ npx wrangler secret put PUBLIC_ENHANCER_LEGACY_MODE --env production
 
 # Deploy changes
 npx wrangler deploy --env production
-```
+````
 
 ## Performance Monitoring
 
 ### Key Metrics to Monitor
 
 1. **Page Load Performance**
-
    - Time to Interactive for Image Enhancer pages
 
    - Bundle size impact (ImagEnhancerRouter.js: ~20KB gzipped)
 
 1. **User Experience Metrics**
-
    - Upload success rate
 
    - Enhancement processing time
@@ -74,7 +72,6 @@ npx wrangler deploy --env production
    - Error rates (file validation, API failures)
 
 1. **Resource Usage**
-
    - R2 storage for enhanced images
 
    - Workers AI API calls
@@ -95,7 +92,7 @@ npx wrangler deploy --env production
 
 ### Production URL Testing
 
-```bash
+````bash
 
 # Test MVP interface
 
@@ -209,3 +206,4 @@ curl -X POST https://hub-evolution.com/api/ai-image/generate \
 - Monitor user feedback channels for UX issues
 
 ```text
+````

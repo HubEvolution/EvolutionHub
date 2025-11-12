@@ -67,7 +67,10 @@ export async function navigateToTool(
     } else if (tool === 'imag-enhancer' || tool === 'image-enhancer') {
       await Promise.race([
         findByTestId(page, 'image-upload-dropzone').waitFor({ state: 'attached', timeout: 5000 }),
-        page.locator('[aria-label*="Image upload"]').first().waitFor({ state: 'attached', timeout: 5000 }),
+        page
+          .locator('[aria-label*="Image upload"]')
+          .first()
+          .waitFor({ state: 'attached', timeout: 5000 }),
         page.locator('select#model').first().waitFor({ state: 'attached', timeout: 5000 }),
       ]);
     }
@@ -95,9 +98,7 @@ export async function uploadFile(
   } = options;
 
   // Resolve file path
-  const resolvedPath = path.isAbsolute(filePath)
-    ? filePath
-    : path.resolve(process.cwd(), filePath);
+  const resolvedPath = path.isAbsolute(filePath) ? filePath : path.resolve(process.cwd(), filePath);
 
   // Try to find file input
   const fileInput = page.locator(fileInputSelector).first();
@@ -186,7 +187,8 @@ export async function downloadResult(
     expectedFilename?: string;
   } = {}
 ): Promise<string> {
-  const { buttonSelector = '[data-testid="download-button"], button:has-text("Download")' } = options;
+  const { buttonSelector = '[data-testid="download-button"], button:has-text("Download")' } =
+    options;
 
   // Start waiting for download before clicking
   const downloadPromise = page.waitForEvent('download', { timeout: 10000 });
@@ -314,10 +316,7 @@ export async function waitForUsageQuota(page: Page): Promise<void> {
  * @param page - Playwright page
  */
 export async function getCurrentUsage(page: Page): Promise<number | null> {
-  const usageSelectors = [
-    '[data-testid="usage-count"]',
-    '[data-testid="requests-used"]',
-  ];
+  const usageSelectors = ['[data-testid="usage-count"]', '[data-testid="requests-used"]'];
 
   for (const selector of usageSelectors) {
     const element = page.locator(selector).first();
@@ -340,10 +339,7 @@ export async function getCurrentUsage(page: Page): Promise<number | null> {
  * @param page - Playwright page
  */
 export async function assertQuotaExceeded(page: Page): Promise<void> {
-  const errorSelectors = [
-    '[data-testid="quota-exceeded"]',
-    '[data-testid="error-message"]',
-  ];
+  const errorSelectors = ['[data-testid="quota-exceeded"]', '[data-testid="error-message"]'];
 
   let quotaErrorFound = false;
 
@@ -402,10 +398,16 @@ export const PromptEnhancer = {
   async selectMode(page: Page, mode: 'creative' | 'technical' | 'concise'): Promise<void> {
     // Prefer segmented buttons; wait briefly for group to attach
     const group = page.locator('[data-testid="mode-group"]').first();
-    const groupAttached = await group.waitFor({ state: 'attached', timeout: 1000 }).then(() => true).catch(() => false);
+    const groupAttached = await group
+      .waitFor({ state: 'attached', timeout: 1000 })
+      .then(() => true)
+      .catch(() => false);
     if (groupAttached) {
       const btn = page.locator(`[data-testid="mode-${mode}"]`).first();
-      const btnAttached = await btn.waitFor({ state: 'attached', timeout: 1000 }).then(() => true).catch(() => false);
+      const btnAttached = await btn
+        .waitFor({ state: 'attached', timeout: 1000 })
+        .then(() => true)
+        .catch(() => false);
       if (btnAttached) {
         await btn.click();
         return;
@@ -413,7 +415,10 @@ export const PromptEnhancer = {
     }
     // Fallback to select element
     const select = page.locator('#mode, [data-testid="mode-select"]').first();
-    const hasSelect = await select.waitFor({ state: 'attached', timeout: 1500 }).then(() => true).catch(() => false);
+    const hasSelect = await select
+      .waitFor({ state: 'attached', timeout: 1500 })
+      .then(() => true)
+      .catch(() => false);
     if (hasSelect) {
       await selectOption(page, '#mode, [data-testid="mode-select"]', mode);
       return;
@@ -425,9 +430,9 @@ export const PromptEnhancer = {
    * Click enhance button
    */
   async clickEnhance(page: Page): Promise<void> {
-    const enhanceButton = page.locator(
-      'button[type="submit"], button:has-text("Enhance"), [data-testid="enhance-button"]'
-    ).first();
+    const enhanceButton = page
+      .locator('button[type="submit"], button:has-text("Enhance"), [data-testid="enhance-button"]')
+      .first();
     await enhanceButton.click();
   },
 
@@ -441,7 +446,11 @@ export const PromptEnhancer = {
   /**
    * Complete full enhance flow
    */
-  async enhance(page: Page, input: string, mode?: 'creative' | 'technical' | 'concise'): Promise<string> {
+  async enhance(
+    page: Page,
+    input: string,
+    mode?: 'creative' | 'technical' | 'concise'
+  ): Promise<string> {
     await this.fillInput(page, input);
     if (mode) {
       await this.selectMode(page, mode);
@@ -479,9 +488,9 @@ export const ImageEnhancer = {
    * Click enhance button
    */
   async clickEnhance(page: Page): Promise<void> {
-    const enhanceButton = page.locator(
-      'button:has-text("Enhance"), [data-testid="enhance-button"]'
-    ).first();
+    const enhanceButton = page
+      .locator('button:has-text("Enhance"), [data-testid="enhance-button"]')
+      .first();
     // Wait until enabled to avoid flakiness (requires file selected and not rate-limited)
     await enhanceButton.waitFor({ state: 'attached', timeout: 5000 });
     await expect(enhanceButton).toBeEnabled({ timeout: 60000 });
@@ -492,9 +501,9 @@ export const ImageEnhancer = {
    * Toggle comparison view
    */
   async toggleComparison(page: Page): Promise<void> {
-    const compareButton = page.locator(
-      'button:has-text("Compare"), [data-testid="compare-button"]'
-    ).first();
+    const compareButton = page
+      .locator('button:has-text("Compare"), [data-testid="compare-button"]')
+      .first();
     await compareButton.click();
   },
 

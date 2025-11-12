@@ -24,8 +24,8 @@ test.describe('Webscraper Tool', () => {
 
     // HTML5 validation should prevent submission
     const urlInput = page.locator('input[name="url"]');
-    const validationMessage = await urlInput.evaluate((el: HTMLInputElement) =>
-      el.validationMessage
+    const validationMessage = await urlInput.evaluate(
+      (el: HTMLInputElement) => el.validationMessage
     );
 
     expect(validationMessage).toBeTruthy();

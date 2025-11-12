@@ -347,10 +347,7 @@ app.post('/schedule', async (c: BackupContext) => {
     const db = drizzle(c.env.DB);
     const backupService = new BackupService(db);
 
-    await backupService.scheduleAutomatedBackup(
-      body.type as BackupJobType,
-      body.cronExpression
-    );
+    await backupService.scheduleAutomatedBackup(body.type as BackupJobType, body.cronExpression);
 
     return c.json({
       success: true,

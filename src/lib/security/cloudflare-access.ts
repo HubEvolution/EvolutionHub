@@ -28,11 +28,12 @@ export async function verifyCloudflareAccessJwt(
   contextEnv: unknown
 ): Promise<AccessJwtVerificationResult> {
   const env = readEnv(contextEnv);
-  const rawHeader = request.headers.get('Cf-Access-Jwt-Assertion') || request.headers.get('cf-access-jwt-assertion');
+  const rawHeader =
+    request.headers.get('Cf-Access-Jwt-Assertion') ||
+    request.headers.get('cf-access-jwt-assertion');
   const auth = request.headers.get('authorization');
-  const bearer = auth && auth.toLowerCase().startsWith('bearer ')
-    ? auth.slice(7).trim()
-    : undefined;
+  const bearer =
+    auth && auth.toLowerCase().startsWith('bearer ') ? auth.slice(7).trim() : undefined;
   const token = rawHeader || bearer;
   if (!token) {
     return { valid: false, error: 'missing_jwt' };

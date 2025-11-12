@@ -26,7 +26,6 @@ This PR enhances the Imag‑Enhancer tool with an accessible Help modal, focus m
 - E2E: opens Help (Help/Hilfe), asserts dialog, closes with Esc.
 
 - Unit tests:
-
   - Keyboard shortcuts on compare handle (arrows, 0, 1, +/-).
 
   - Focus trap behavior in Help modal (Tab/Shift+Tab) and return focus to opener.
@@ -47,7 +46,7 @@ This PR enhances the Imag‑Enhancer tool with an accessible Help modal, focus m
 
 - `test-suite-v2/src/e2e/imag-enhancer.spec.ts` – Help modal smoke.
 
-- `src/locales/de.json` – new translations for keyboardHint and help.*.
+- `src/locales/de.json` – new translations for keyboardHint and help.\*.
 
 - `CHANGELOG.md` – Unreleased notes.
 

@@ -160,7 +160,6 @@ Last updated: 2025-08-24T23:27:01+02:00
 - `src/components/ui/ComingSoon.astro` (UI entry point for overlay)
 
 - `src/components/scripts/` directory:
-
   - `AOSCoordinator.astro`
 
   - `AnalyticsCoordinator.astro`
@@ -179,7 +178,7 @@ Last updated: 2025-08-24T23:27:01+02:00
 
 - Global window access: some scripts attach listeners or expose cleanup on `window`.
 
-- Data flow: `define:vars` passes server-side values into inline scripts; some components pass values via attributes/data-*.
+- Data flow: `define:vars` passes server-side values into inline scripts; some components pass values via attributes/data-\*.
 
 - CSP: inline scripts commonly use `nonce` for policy compliance.
 
@@ -212,6 +211,7 @@ Last updated: 2025-08-24T23:27:01+02:00
 - Add tests and linting for script TS safety (e.g., `noImplicitAny`) and critical interactions.
 
 ---
+
 This document is provisional and will be updated as we read more files and confirm behaviors.
 
 ## Decisions (Pilot)
@@ -224,20 +224,18 @@ This document is provisional and will be updated as we read more files and confi
 
 - **Lifecycle**: Expose cleanup via `window['moduleCleanup']` and call it on `beforeunload`.
 
-- **Data passing**: Prefer DOM data-* attributes or JSON script tags; use `define:vars` only when necessary.
+- **Data passing**: Prefer DOM data-\* attributes or JSON script tags; use `define:vars` only when necessary.
 
 - **Global handlers**: Cross-cutting listeners (e.g., smooth scrolling for `a[href^="#"]`) are centralized in `src/layouts/BaseLayout.astro`. Feature modules must not duplicate these to avoid double-binding.
 
 ## Pilot Implementation – Blog Post Enhancements
 
 - **Files**:
-
   - `src/pages/blog/[...slug].astro`: replaced inline script with CSP-safe loader using `nonce={Astro.locals.cspNonce}` and `Astro.resolve()`.
 
   - `src/scripts/blog-post-enhancements.ts`: new module exporting `init()`/`cleanup()`.
 
 - **Behavior parity**:
-
   - Lazy-load article images (`loading="lazy"`).
 
   - Smooth scrolling remains handled globally by `src/layouts/BaseLayout.astro` (module does not add its own click listener).
@@ -245,7 +243,6 @@ This document is provisional and will be updated as we read more files and confi
   - Add underline/tooltip styles for footnote links.
 
 - **Lifecycle & safety**:
-
   - Idempotent `init()`, cleanup on `beforeunload`.
 
 ## Migration Template
@@ -254,7 +251,7 @@ This document is provisional and will be updated as we read more files and confi
 
 1. Replace inline script with nonced loader:
 
-```astro
+````astro
 <script is:inline nonce={Astro.locals.cspNonce}>
   function initFeature() {
     import(Astro.resolve('@/scripts/<feature>.ts'))
@@ -267,41 +264,28 @@ This document is provisional and will be updated as we read more files and confi
   }
   if (document.readyState !== 'loading') initFeature();
   else document.addEventListener('DOMContentLoaded', initFeature);
-  window.addEventListener('beforeunload', () => { try { window['<feature>Cleanup']?.(); } catch {} });
+  window.addEventListener('beforeunload', () => {
+    try {
+      window['<feature>Cleanup']?.();
+    } catch {}
+  });
 </script>
 
-```text
-
-1. Testing: Unit test the module API; E2E verify UX behavior and cleanup across navigation.
-
-## Staging Deployment (Pilot) – Cloudflare Workers
-
-This pilot is deployed to a staging Cloudflare Worker with strict environment isolation.
-
-### Resource isolation (staging)
-
-- D1 database binding `DB` → `evolution-hub-main-local` (`11c6dad1-b35b-488e-a5f3-1d2e707afa65`).
-
-- R2 avatars binding `R2_AVATARS` → `evolution-hub-avatars-local`.
-
-- R2 lead magnets binding `R2_LEADMAGNETS` → `evolution-hub-lead-magnets-dev`.
-
-- KV `SESSION` → `bc180c72cdbe4701a221ab8002f2de72` (preview: `79810af7adff409a9a7fed6cb849b845`).
-
-- `BASE_URL` → `https://staging.hub-evolution.com`.
-
-See `wrangler.toml` under `[env.staging]` for authoritative bindings.
-
-### Migrations (staging DB)
-
-```bash
-wrangler d1 migrations list --env staging evolution-hub-main-local
-wrangler d1 migrations apply --env staging evolution-hub-main-local
-```
+```text 1. Testing: Unit test the module API; E2E verify UX behavior and cleanup across navigation.
+## Staging Deployment (Pilot) – Cloudflare Workers This pilot is deployed to a staging Cloudflare
+Worker with strict environment isolation. ### Resource isolation (staging) - D1 database binding
+`DB` → `evolution-hub-main-local` (`11c6dad1-b35b-488e-a5f3-1d2e707afa65`). - R2 avatars binding
+`R2_AVATARS` → `evolution-hub-avatars-local`. - R2 lead magnets binding `R2_LEADMAGNETS` →
+`evolution-hub-lead-magnets-dev`. - KV `SESSION` → `bc180c72cdbe4701a221ab8002f2de72` (preview:
+`79810af7adff409a9a7fed6cb849b845`). - `BASE_URL` → `https://staging.hub-evolution.com`. See
+`wrangler.toml` under `[env.staging]` for authoritative bindings. ### Migrations (staging DB)
+```bash wrangler d1 migrations list --env staging evolution-hub-main-local wrangler d1 migrations
+apply --env staging evolution-hub-main-local
+````
 
 ### Deploy to staging
 
-```bash
+````bash
 wrangler deploy --env staging
 
 ```bash
@@ -314,7 +298,7 @@ Playwright config reads `BASE_URL` and will not start a local server for remote 
 BASE_URL=https://staging.hub-evolution.com npm run test:e2e:chromium
 # Full matrix (optional)
 BASE_URL=https://staging.hub-evolution.com npm run test:e2e
-```
+````
 
 ### Validation checklist
 
@@ -337,7 +321,7 @@ BASE_URL=https://staging.hub-evolution.com npm run test:e2e
 ## Ranked Backlog (next candidates)
 
 1. **`src/layouts/BaseLayout.astro`**: smooth-scroll and misc inline handlers → extract to `src/scripts/base-layout-ux.ts`.
-1. **`src/components/Newsletter.astro`**: form submission/validation → `src/scripts/newsletter-form.ts` (with data-* config).
+1. **`src/components/Newsletter.astro`**: form submission/validation → `src/scripts/newsletter-form.ts` (with data-\* config).
 1. **`src/components/scripts/TypewriterComponent.astro`**: unify loader pattern; move logic if substantial.
 1. **`src/components/scripts/HeaderScroll.astro`**: align with coordinator template and idempotent API.
 1. **`src/pages/* account/settings`**: consolidate settings logic under a module with clear init/cleanup.

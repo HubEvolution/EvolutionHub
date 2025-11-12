@@ -14,8 +14,8 @@ const error = url.searchParams.get('error');
 const locale = getLocale(Astro.url.pathname);
 
 // Benutzer sollte bereits eingeloggt sein (Session wurde bei Verifikation erstellt)
-const locals = Astro.locals as any;
-const user = locals.user;
+const locals = Astro.locals as { user?: { name?: string } } | undefined;
+const user = locals?.user;
 
 // Falls kein eingeloggter Benutzer oder Fehler -> entsprechende Behandlung
 let pageState: 'success' | 'error' | 'no_session' = 'success';

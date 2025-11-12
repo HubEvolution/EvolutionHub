@@ -48,21 +48,21 @@ export function runTypewriter(elementId, textsProvider, delay = 100) {
       // Wir erwarten, dass provider eine Funktion ist, die ein Array von Strings zurückgibt
       resolvedTexts = await provider();
     } catch (error) {
-      console.error("Error providing text for typewriter:", error);
-      resolvedTexts = [{ text: "Error loading text", delay }];
+      console.error('Error providing text for typewriter:', error);
+      resolvedTexts = [{ text: 'Error loading text', delay }];
     }
 
-    textArray = resolvedTexts.map(item => {
+    textArray = resolvedTexts.map((item) => {
       if (typeof item === 'string') {
         return { text: item, delay };
       } else if (typeof item === 'object' && item !== null) {
         return { text: item.text || '', delay: item.delay || delay };
       }
-      return { text: "", delay }; // Fallback für unerwartete Einträge
+      return { text: '', delay }; // Fallback für unerwartete Einträge
     });
 
     if (textArray.length === 0) {
-      textArray = [{ text: "No text provided", delay }];
+      textArray = [{ text: 'No text provided', delay }];
     }
     type(); // Start typing after preparing the array
   };

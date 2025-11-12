@@ -90,12 +90,12 @@ jobs:
             exit 1
           fi
 
-      - name: "Preflight: GET /en/tools/imag-enhancer/app"
+      - name: 'Preflight: GET /en/tools/imag-enhancer/app'
         run: |
           set -o pipefail
           curl -i "${TEST_BASE_URL}/en/tools/imag-enhancer/app" | sed -n '1,20p'
 
-      - name: "Preflight: GET /api/ai-image/usage?debug=1"
+      - name: 'Preflight: GET /api/ai-image/usage?debug=1'
         run: |
           set -o pipefail
           curl -i "${TEST_BASE_URL}/api/ai-image/usage?debug=1" | sed -n '1,30p'

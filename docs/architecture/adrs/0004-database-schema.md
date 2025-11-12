@@ -132,7 +132,7 @@ Das Datenbankschema wird wie folgt implementiert:
 
 ### Users-Tabelle
 
-```sql
+````sql
 CREATE TABLE users (
     id TEXT PRIMARY KEY,
     email TEXT UNIQUE NOT NULL,
@@ -160,11 +160,11 @@ CREATE TABLE sessions (
 
 CREATE INDEX idx_sessions_user_id ON sessions(user_id);
 CREATE INDEX idx_sessions_expires_at ON sessions(expires_at);
-```
+````
 
 ### Projects-Tabelle
 
-```sql
+````sql
 CREATE TABLE projects (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
@@ -197,11 +197,11 @@ CREATE TABLE comments (
 
 CREATE INDEX idx_comments_project_id ON comments(project_id);
 CREATE INDEX idx_comments_user_id ON comments(user_id);
-```
+````
 
 ### Tools-Tabelle
 
-```sql
+````sql
 CREATE TABLE tools (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
@@ -228,11 +228,11 @@ CREATE TABLE project_tools (
 
 CREATE INDEX idx_project_tools_project_id ON project_tools(project_id);
 CREATE INDEX idx_project_tools_tool_id ON project_tools(tool_id);
-```
+````
 
 ### ResetTokens-Tabelle
 
-```sql
+````sql
 CREATE TABLE reset_tokens (
     token TEXT PRIMARY KEY,
     user_id TEXT NOT NULL,
@@ -279,3 +279,4 @@ CREATE INDEX idx_reset_tokens_expires_at ON reset_tokens(expires_at);
 - [Schema Migration Patterns](https://martinfowler.com/articles/evodb.html)
 
 ```text
+````

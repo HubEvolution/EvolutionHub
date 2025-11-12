@@ -33,16 +33,16 @@ const defaultStrings = {
   updated: 'Updated {date}',
 };
 
-const ProjectsPanel = ({ 
+const ProjectsPanel = ({
   initialProjects = [],
   title = 'Your Projects',
   locale = 'en',
-  strings = {}
+  strings = {},
 }) => {
   const { projects, loading, error, fetchProjects, createProject } = useProjectStore();
   const resolvedLocale = locale === 'de' ? 'de-DE' : 'en-US';
   const mergedStrings = { ...defaultStrings, ...strings };
-  
+
   // Beim ersten Rendern die Projekte abrufen, falls keine initialProjects vorhanden sind
   useEffect(() => {
     if ((!initialProjects || initialProjects.length === 0) && projects.length === 0) {
@@ -76,7 +76,7 @@ const ProjectsPanel = ({
     return new Date(dateString).toLocaleDateString(resolvedLocale, {
       month: 'short',
       day: 'numeric',
-      year: 'numeric'
+      year: 'numeric',
     });
   };
 
@@ -90,7 +90,7 @@ const ProjectsPanel = ({
         ) : error ? (
           <div className="text-center py-8 text-red-500 dark:text-red-400">
             <p>{error}</p>
-            <button 
+            <button
               onClick={fetchProjects}
               className="mt-2 text-primary hover:text-primary-light text-sm font-medium"
             >
@@ -100,7 +100,7 @@ const ProjectsPanel = ({
         ) : projects.length === 0 ? (
           <div className="text-center py-8 text-gray-500 dark:text-gray-400">
             <p>{mergedStrings.empty}</p>
-            <button 
+            <button
               onClick={createProject}
               className="mt-2 text-primary hover:text-primary-light text-sm font-medium"
             >
@@ -110,38 +110,40 @@ const ProjectsPanel = ({
         ) : (
           <div className="grid grid-cols-1 gap-4">
             {projects.map((project) => (
-              <div 
+              <div
                 key={project.id}
                 className="p-4 rounded-lg bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors cursor-pointer border border-gray-200 dark:border-white/5"
               >
                 <div className="flex justify-between items-start">
                   <h4 className="font-medium text-gray-800 dark:text-white">{project.title}</h4>
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white ${getStatusColor(project.status)}`}>
+                  <span
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white ${getStatusColor(project.status)}`}
+                  >
                     {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
                   </span>
                 </div>
-                
+
                 <p className="mt-1 text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
                   {project.description}
                 </p>
-                
+
                 <div className="mt-3">
                   <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
                     <span>{mergedStrings.progressLabel}</span>
                     <span>{project.progress}%</span>
                   </div>
                   <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
-                    <div 
-                      className="h-1.5 rounded-full bg-gradient-to-r from-primary to-purple-600" 
+                    <div
+                      className="h-1.5 rounded-full bg-gradient-to-r from-primary to-purple-600"
                       style={{ width: `${project.progress}%` }}
                     ></div>
                   </div>
                 </div>
-                
+
                 <div className="mt-3 flex items-center justify-between">
                   <div className="flex -space-x-2">
                     {project.members.map((member, i) => (
-                      <div 
+                      <div
                         key={i}
                         className="w-6 h-6 rounded-full bg-gray-600 flex items-center justify-center text-xs text-white border-2 border-gray-800"
                         title={member}
@@ -158,10 +160,10 @@ const ProjectsPanel = ({
             ))}
           </div>
         )}
-        
+
         {!loading && (!error || projects.length > 0) && (
           <div className="pt-2">
-            <button 
+            <button
               onClick={createProject}
               className="w-full py-2 text-sm text-center text-primary hover:text-primary-light transition-colors rounded-lg border border-dashed border-gray-300 dark:border-gray-600 hover:border-primary/50"
             >

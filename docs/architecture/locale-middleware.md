@@ -36,7 +36,6 @@ This document describes the locale selection splash page at `/welcome` and the m
 - Attributes: `HttpOnly`, `SameSite=Lax`, `Secure` when HTTPS, `Path=/`, `Max-Age=180 days`
 
 - Set when:
-
   - The user visits a URL with explicit `?set_locale=de|en`.
 
   - A user browses a locale-prefixed URL (e.g., `/en/...`) and the cookie differs; middleware syncs the cookie to match URL locale.
@@ -91,7 +90,7 @@ This document describes the locale selection splash page at `/welcome` and the m
 
 Start the dev server:
 
-```bash
+````bash
 npm run dev:astro
 
 # Local: http://localhost:4321/
@@ -115,7 +114,7 @@ curl -sv -D - -o /dev/null "http://localhost:4321/welcome?set_locale=de&next=/"
 
 # 5) Welcome page is served (no redirect) and should be noindex
 curl -I http://localhost:4321/welcome
-```
+````
 
 Expected highlights:
 
@@ -134,7 +133,6 @@ Expected highlights:
 - Playwright Specs: `tests/e2e/specs/splash-middleware.spec.ts`
 
 - Deckt ab:
-
   - First visit → Redirect zu `/welcome?next=...`
 
   - `?set_locale=de|en` setzt Cookie und mapped Redirect
@@ -152,7 +150,6 @@ Expected highlights:
 - Workflow: `.github/workflows/e2e-tests.yml`
 
 - Schritte:
-
   - Playwright E2E Tests ausführen
 
   - i18n Empty-Strings Report: `npm run i18n:report` → `i18n-empty-report.txt`

@@ -91,8 +91,9 @@ const features = [
 // Remove placeholder rows (i18n uses an em dash "—" for placeholders)
 const isDash = (s: unknown) => typeof s === 'string' && s.trim() === '—';
 const rows = features.filter((f) => {
-  const p = f as any;
-  const allDashes = isDash(f.starter) && isDash(p.pro) && isDash(p.premium) && isDash(f.enterprise);
+  const pro = (f as { pro?: unknown }).pro;
+  const premium = (f as { premium?: unknown }).premium;
+  const allDashes = isDash(f.starter) && isDash(pro) && isDash(premium) && isDash(f.enterprise);
   return !isDash(f.name) && !allDashes;
 });
 ---
@@ -132,10 +133,10 @@ const rows = features.filter((f) => {
               <td class="py-3 px-4 font-medium">{feature.name}</td>
               <td class="py-3 px-4 text-center">{feature.starter}</td>
               <td class="py-3 px-4 text-center bg-blue-50 dark:bg-blue-900/30">
-                {(feature as any).pro}
+                {(feature as { pro: string }).pro}
               </td>
               <td class="py-3 px-4 text-center bg-indigo-50 dark:bg-indigo-900/30">
-                {(feature as any).premium}
+                {(feature as { premium: string }).premium}
               </td>
               <td class="py-3 px-4 text-center">{feature.enterprise}</td>
             </AosWrapper>

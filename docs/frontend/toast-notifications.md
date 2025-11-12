@@ -48,7 +48,6 @@ Beispielseiten:
 - Wartet beim Mount kurz auf den Toaster (`[data-sonner-toaster]`), um Race-Conditions zu vermeiden.
 
 - Liest je nach `mode` relevante URL-Parameter:
-
   - `login`: `loggedOut`, `success`, `error`
 
   - alle anderen: `success`, `error`
@@ -63,30 +62,20 @@ Beispielseiten:
 
 - Füge auf Seiten mit Rückmeldungen das React-Island ein, z. B. auf Register-Seiten:
 
-```astro
+````astro
 ---
 import AuthStatusNotifier from '@/components/scripts/AuthStatusNotifier';
 ---
+
 <AuthStatusNotifier mode="register" client:load />
 
-```text
-
-- Für Login-Seiten verwende `mode="login"` (unterstützt zusätzlich `loggedOut`).
-
-## CSP & Sicherheit
-
-- In Production bleibt die CSP strikt. In Development wurde CSP in `src/middleware.ts` nur für HMR gelockert (siehe Projekt-Memory). `AuthStatusNotifier` arbeitet ohne `eval`/ESM-Imports und bleibt CSP-konform.
-
-## Tests
-
-- E2E-Spezifikation für URL-Status-Handling: `tests/e2e/specs/auth-url-status.spec.ts` (sollte vollständig grün laufen).
-
-## Troubleshooting
-
-- Keine Toaster sichtbar: Prüfen, ob `<Toaster client:load />` in `BaseLayout` gerendert wird.
-
-- Meldungen fehlen: Sicherstellen, dass die erwarteten Query-Parameter gesetzt sind und `mode` korrekt ist.
-
-- URL wird nicht bereinigt: Browser-Konsole auf Fehler prüfen; `history.replaceState` erfordert HTTPS/korrekte Basis-URL in Testumgebungen.
-
-```text
+```text - Für Login-Seiten verwende `mode="login"` (unterstützt zusätzlich `loggedOut`). ## CSP &
+Sicherheit - In Production bleibt die CSP strikt. In Development wurde CSP in `src/middleware.ts`
+nur für HMR gelockert (siehe Projekt-Memory). `AuthStatusNotifier` arbeitet ohne `eval`/ESM-Imports
+und bleibt CSP-konform. ## Tests - E2E-Spezifikation für URL-Status-Handling:
+`tests/e2e/specs/auth-url-status.spec.ts` (sollte vollständig grün laufen). ## Troubleshooting -
+Keine Toaster sichtbar: Prüfen, ob `<Toaster client:load />` in `BaseLayout` gerendert wird. -
+Meldungen fehlen: Sicherstellen, dass die erwarteten Query-Parameter gesetzt sind und `mode` korrekt
+ist. - URL wird nicht bereinigt: Browser-Konsole auf Fehler prüfen; `history.replaceState` erfordert
+HTTPS/korrekte Basis-URL in Testumgebungen. ```text
+````

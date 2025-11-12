@@ -6,10 +6,7 @@ import type { ReactElement } from 'react';
 export * from '@testing-library/react';
 
 // Custom render function that includes any providers or context needed for testing
-const customRender = (
-  ui: ReactElement,
-  options?: Omit<RenderOptions, 'wrapper'>,
-) => {
+const customRender = (ui: ReactElement, options?: Omit<RenderOptions, 'wrapper'>) => {
   return render(ui, {
     // Add any default options here
     ...options,

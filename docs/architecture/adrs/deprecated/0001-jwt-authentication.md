@@ -123,7 +123,6 @@ Wir haben uns für eine JWT (JSON Web Token)-basierte Authentifizierung mit Http
 Die JWT-Authentifizierung wird wie folgt implementiert:
 
 1. **Login-Prozess**:
-
    - Benutzer sendet Anmeldedaten (E-Mail/Passwort)
 
    - Server validiert Anmeldedaten gegen die Datenbank
@@ -135,7 +134,6 @@ Die JWT-Authentifizierung wird wie folgt implementiert:
    - Benutzerinformationen werden an den Client zurückgegeben
 
 1. **Authentifizierungsprüfung**:
-
    - Middleware extrahiert JWT aus dem Cookie-Header
 
    - JWT wird validiert (Signatur, Ablaufzeit, Aussteller)
@@ -145,11 +143,9 @@ Die JWT-Authentifizierung wird wie folgt implementiert:
    - Bei fehlgeschlagener Validierung wird ein 401-Fehler zurückgegeben
 
 1. **Logout-Prozess**:
-
    - Cookie wird mit leerem Wert und sofortigem Ablauf überschrieben
 
 1. **Token-Erneuerung**:
-
    - Implementierung eines stillen Token-Refresh-Mechanismus vor Ablauf
 
 ## Referenzen

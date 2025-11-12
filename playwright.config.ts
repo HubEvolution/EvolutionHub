@@ -25,10 +25,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
-  reporter: [
-    ['html', { outputFolder: 'playwright-report', open: 'never' }],
-    ['list']
-  ],
+  reporter: [['html', { outputFolder: 'playwright-report', open: 'never' }], ['list']],
   use: {
     baseURL: BASE_URL,
     extraHTTPHeaders: {
@@ -43,7 +40,7 @@ export default defineConfig({
     // Desktop browsers
     {
       name: 'chromium',
-      use: { 
+      use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 1920, height: 1080 },
       },
@@ -59,7 +56,7 @@ export default defineConfig({
   ],
 
   // Start the Cloudflare Worker dev server (wrangler dev) only for local targets
-  ...((IS_REMOTE_TARGET || DISABLE_LOCAL_SERVER)
+  ...(IS_REMOTE_TARGET || DISABLE_LOCAL_SERVER
     ? {}
     : {
         webServer: {

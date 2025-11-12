@@ -67,10 +67,10 @@ Alle Farben sind als Hex-Werte definiert mit Abstufungen von 50 bis 900 (bzw. 0/
 Die Datei `colors.css` exportiert alle Farben als CSS Custom Properties im Format:
 
 ```css
---color-primary-500: #06B6D4;
+--color-primary-500: #06b6d4;
 --color-secondary-600: #059669;
---color-accent-400: #FB923C;
---color-neutral-800: #1F2937;
+--color-accent-400: #fb923c;
+--color-neutral-800: #1f2937;
 ```
 
 Zusätzlich werden semantische Aliase bereitgestellt:
@@ -107,7 +107,7 @@ import colors from '@/assets/brand/colors/colors.json';
 ---
 
 <img src={logo.src} alt="EvolutionHub" />
-<div style={`color: ${colors.primary["600"]}`}>Primärfarbe</div>
+<div style={`color: ${colors.primary['600']}`}>Primärfarbe</div>
 ```
 
 ### In TypeScript/JavaScript
@@ -115,7 +115,7 @@ import colors from '@/assets/brand/colors/colors.json';
 ```typescript
 import colors from '@/assets/brand/colors/colors.json';
 
-const primaryColor = colors.primary["500"]; // "#06B6D4"
+const primaryColor = colors.primary['500']; // "#06B6D4"
 ```
 
 ### CSS Custom Properties
@@ -133,9 +133,7 @@ const primaryColor = colors.primary["500"]; // "#06B6D4"
 Die Farben sind bereits in `tailwind.config.js` integriert:
 
 ```html
-<button class="bg-primary-500 text-white hover:bg-primary-600">
-  Button
-</button>
+<button class="bg-primary-500 text-white hover:bg-primary-600">Button</button>
 ```
 
 ## Dateinamens-Konventionen

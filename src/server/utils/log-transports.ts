@@ -45,7 +45,7 @@ export class HttpTransport implements LogTransport {
       body: safeJson(entry),
     }) ?? Promise.resolve({ ok: true } as Response));
 
-    if (!(res as any).ok) {
+    if (!res.ok) {
       // Swallow errors; logging failures must not break app flow
       return;
     }
@@ -71,9 +71,15 @@ export class AnalyticsTransport implements LogTransport {
   }
 
   private get dataset(): { writeDataPoint: (data: Record<string, unknown>) => void } | null {
-    const anyGlobal = globalThis as unknown as Record<string, any>;
-    const ds = anyGlobal[this.datasetKey];
-    if (ds && typeof ds.writeDataPoint === 'function') return ds;
+    const globals = globalThis as unknown as Record<string, unknown>;
+    const candidate = globals[this.datasetKey] as unknown;
+    if (
+      candidate &&
+      typeof (candidate as { writeDataPoint?: (data: Record<string, unknown>) => void })
+        .writeDataPoint === 'function'
+    ) {
+      return candidate as { writeDataPoint: (data: Record<string, unknown>) => void };
+    }
     return null;
   }
 
@@ -111,9 +117,15 @@ export class R2Transport implements LogTransport {
   }
 
   private get bucket(): { put: (key: string, body: string) => Promise<void> } | null {
-    const anyGlobal = globalThis as unknown as Record<string, any>;
-    const b = anyGlobal[this.bucketKey];
-    if (b && typeof b.put === 'function') return b;
+    const globals = globalThis as unknown as Record<string, unknown>;
+    const candidate = globals[this.bucketKey] as unknown;
+    if (
+      candidate &&
+      typeof (candidate as { put?: (key: string, body: string) => Promise<void> }).put ===
+        'function'
+    ) {
+      return candidate as { put: (key: string, body: string) => Promise<void> };
+    }
     return null;
   }
 

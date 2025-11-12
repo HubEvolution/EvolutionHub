@@ -27,7 +27,13 @@ const run = async () => {
   });
 
   console.log('status =', res.status);
-  try { console.log('json  =', await res.json()); }
-  catch { console.log('text  =', await res.text()); }
+  try {
+    console.log('json  =', await res.json());
+  } catch {
+    console.log('text  =', await res.text());
+  }
 };
-run().catch((e) => { console.error(e); process.exit(1); });
+run().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

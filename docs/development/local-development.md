@@ -39,7 +39,7 @@ Bevor du mit der Entwicklung beginnst, stelle sicher, dass du folgende Tools ins
   ```bash
   # Überprüfe die installierte Version
   node --version
-  
+
   # Installiere Node.js mit nvm (empfohlen)
   nvm install 20
   nvm use 20
@@ -50,7 +50,7 @@ Bevor du mit der Entwicklung beginnst, stelle sicher, dass du folgende Tools ins
   ```bash
   # Überprüfe die installierte Version
   npm --version
-  
+
   # Aktualisiere npm
   npm install -g npm@latest
   ```
@@ -60,7 +60,7 @@ Bevor du mit der Entwicklung beginnst, stelle sicher, dass du folgende Tools ins
   ```bash
   # Überprüfe die installierte Version
   git --version
-  
+
   # Installiere Git auf macOS
   brew install git
   ```
@@ -70,7 +70,7 @@ Bevor du mit der Entwicklung beginnst, stelle sicher, dass du folgende Tools ins
   ```bash
   # Installiere Wrangler global
   npm install -g wrangler
-  
+
   # Überprüfe die Installation
   wrangler --version
   ```
@@ -78,7 +78,6 @@ Bevor du mit der Entwicklung beginnst, stelle sicher, dass du folgende Tools ins
 ### Empfohlene Tools
 
 - **Visual Studio Code**: Mit folgenden Erweiterungen:
-
   - ESLint
 
   - Prettier
@@ -101,7 +100,7 @@ Folge diesen Schritten, um deine lokale Entwicklungsumgebung einzurichten:
 
 ### 1. Repository klonen
 
-```bash
+````bash
 
 # Klone das Repository
 
@@ -118,11 +117,11 @@ cd evolution-hub
 ```bash
 # Installiere alle Projektabhängigkeiten
 npm install
-```
+````
 
 ### 3. Umgebungsvariablen konfigurieren
 
-```bash
+````bash
 
 # Kopiere die Beispiel-Umgebungsvariablen
 
@@ -141,11 +140,11 @@ Wichtige Umgebungsvariablen:
 NODE_ENV=development
 JWT_SECRET=your-local-jwt-secret
 D1_DATABASE=evolution-hub-local
-```
+````
 
 ### 4. Automatisches Setup (empfohlen)
 
-```bash
+````bash
 
 # Erstellt lokale D1-Datenbank, führt Migrationen aus und richtet R2/KV für Dev ein
 
@@ -158,7 +157,7 @@ npm run setup:local
 ```bash
 # Führt alle Migrationen erneut aus
 npm run db:migrate
-```
+````
 
 ---
 
@@ -168,7 +167,7 @@ npm run db:migrate
 
 Empfohlen ist ein Zwei-Terminal-Setup:
 
-```bash
+````bash
 
 # Terminal 1 – beobachtet Builds für den Worker-Ausgabeordner
 
@@ -203,7 +202,7 @@ npm run dev:worker:nobuild
 
 # Astro-Only Server auf Port 4321 (Standard-Astro-Port) starten
 npm run dev:astro -- --port 4321
-```
+````
 
 ---
 
@@ -213,7 +212,7 @@ Evolution Hub verwendet Cloudflare D1 als Datenbank. Für die lokale Entwicklung
 
 ### Lokale D1-Datenbank
 
-```bash
+````bash
 
 # Erstelle eine lokale D1-Datenbank
 
@@ -244,13 +243,13 @@ npm run db:migration:create -- --name add_new_table
 
 # Führe eine bestimmte Migration aus
 npm run db:migrate -- --name 20230101000000_add_new_table
-```
+````
 
 ### Datenbank-Explorer
 
 Wrangler bietet einen einfachen Datenbank-Explorer für D1:
 
-```bash
+````bash
 
 # Starte den D1-Explorer
 
@@ -280,11 +279,11 @@ npm run dev:worker
 
 # Nutzt explizit das development-Environment (Secrets/Buckets gemäß wrangler.toml)
 npm run dev:worker:dev
-```
+````
 
 ### D1-Operationen
 
-```bash
+````bash
 
 # Führe SQL direkt aus
 
@@ -344,7 +343,7 @@ Um die API-Dokumentation lokal anzuzeigen, kannst du den Swagger UI Docker-Conta
 
 ```bash
 docker run -p 8080:8080 -e SWAGGER_JSON=/docs/openapi.yaml -v $(pwd)/docs/api:/docs swaggerapi/swagger-ui
-```
+````
 
 Die Dokumentation ist dann unter `http://localhost:8080` verfügbar.
 
@@ -361,7 +360,7 @@ Bei der Entwicklung neuer API-Endpunkte solltest du folgende Schritte befolgen:
 
 Die OpenAPI-Spezifikation kann auch für automatisierte Tests verwendet werden:
 
-```bash
+````bash
 
 # Installiere OpenAPI-Validator (falls noch nicht installiert)
 
@@ -407,7 +406,7 @@ Das integrierte Debug Panel bietet Live-Log-Streaming für beide Umgebungen:
 # Öffne das Debug Panel im Browser
 http://localhost:4322/debug  # (Astro dev)
 http://localhost:8787/debug  # (Wrangler dev)
-```
+````
 
 **Features:**
 
@@ -425,7 +424,7 @@ http://localhost:8787/debug  # (Wrangler dev)
 
 **Wrangler-Logs**:
 
-```bash
+````bash
 
 # Zeige Logs an
 
@@ -438,7 +437,7 @@ wrangler tail
 ```bash
 # Starte mit Debugging-Flags
 NODE_OPTIONS="--inspect" npm run dev
-```
+````
 
 **Konsolen-Debugging**:
 
@@ -448,7 +447,7 @@ NODE_OPTIONS="--inspect" npm run dev
 
 ### Debugging von Tests
 
-```bash
+````bash
 
 # Führe Tests im Debug-Modus aus
 
@@ -476,7 +475,7 @@ wrangler login
 
 # Überprüfe den Authentifizierungsstatus
 wrangler whoami
-```
+````
 
 ### 2. D1-Datenbankfehler
 
@@ -484,7 +483,7 @@ wrangler whoami
 
 **Lösung**:
 
-```bash
+````bash
 
 # Überprüfe die Datenbank-ID in wrangler.toml
 
@@ -510,7 +509,7 @@ npm run type-check
 
 # Aktualisiere TypeScript-Definitionen
 npm install --save-dev @types/node@latest
-```
+````
 
 ### 4. Astro-Build-Fehler
 
@@ -518,7 +517,7 @@ npm install --save-dev @types/node@latest
 
 **Lösung**:
 
-```bash
+````bash
 
 # Lösche den Cache
 
@@ -541,10 +540,9 @@ npm ci
 
    ```bash
    git checkout -b feature/neue-funktion
-   ```
+````
 
 1. **Lokale Entwicklung**:
-
    - Implementiere die Funktion
 
    - Schreibe Tests
@@ -562,7 +560,6 @@ npm ci
    ```
 
 1. **Pull Request erstellen**:
-
    - Erstelle einen PR auf GitHub
 
    - Warte auf CI-Checks und Code Review
@@ -576,13 +573,11 @@ npm ci
    ```
 
 1. **Fehler reproduzieren**:
-
    - Schreibe einen Test, der den Fehler reproduziert
 
    - Überprüfe, dass der Test fehlschlägt
 
 1. **Fehler beheben**:
-
    - Implementiere die Fehlerbehebung
 
    - Stelle sicher, dass der Test erfolgreich ist
@@ -602,7 +597,6 @@ npm ci
 ### Frontend-Optimierung
 
 1. **Komponenten-Analyse**:
-
    - Verwende die Astro Dev Tools zur Analyse der Komponenten-Performance
 
    - Identifiziere unnötige Hydration
@@ -615,7 +609,6 @@ npm ci
    ```
 
 1. **Lazy Loading**:
-
    - Verwende `import()` für dynamisches Laden von Komponenten
 
    - Verwende das `client:visible`-Direktiv für verzögerte Hydration
@@ -623,21 +616,20 @@ npm ci
 ### Backend-Optimierung
 
 1. **Datenbank-Indizes**:
-
    - Füge Indizes für häufig abgefragte Felder hinzu
 
    - Analysiere langsame Abfragen
 
 1. **Caching**:
-
    - Implementiere Caching für häufig abgerufene Daten
 
    - Verwende Cloudflare Cache-APIs
 
 1. **Edge-Funktionen**:
-
    - Optimiere Code für Edge-Ausführung
 
    - Minimiere CPU-intensive Operationen
 
 ```text
+
+```

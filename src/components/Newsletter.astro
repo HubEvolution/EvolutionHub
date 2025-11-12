@@ -172,7 +172,12 @@ const locale = getLocale(Astro.url.pathname);
         const resultJson: unknown = await response.json().catch(() => null);
 
         if (resultJson && typeof resultJson === 'object' && 'success' in resultJson) {
-          const result: any = resultJson as any;
+          const result = resultJson as {
+            success: boolean;
+            next_step?: string;
+            message?: string;
+            info?: string;
+          };
           if (result.success) {
             // Success - show confirmation message
             if (result.next_step === 'confirmation_required') {

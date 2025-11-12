@@ -95,11 +95,12 @@ export function useTranscribeStream(initialJobId?: string) {
           setState((s) => ({
             ...s,
             partials: Array.isArray((data as { partials?: unknown }).partials)
-              ? ((data as { partials: string[] }).partials)
+              ? (data as { partials: string[] }).partials
               : s.partials,
             final: (data as { final?: string }).final ?? s.final,
-            usage: (data as { usage?: { used: number; limit: number; resetAt: number | null } })
-              .usage ?? s.usage,
+            usage:
+              (data as { usage?: { used: number; limit: number; resetAt: number | null } }).usage ??
+              s.usage,
           }));
         } catch {}
       }, intervalMs);

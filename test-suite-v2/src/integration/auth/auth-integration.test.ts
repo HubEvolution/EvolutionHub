@@ -5,7 +5,11 @@
 
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { setupTestDatabase, teardownTestDatabase } from '../../../utils/database-helpers';
-import { setupTestServer, teardownTestServer, makeTestRequest } from '../../../utils/server-helpers';
+import {
+  setupTestServer,
+  teardownTestServer,
+  makeTestRequest,
+} from '../../../utils/server-helpers';
 import { getTestLogger } from '../../../utils/logger';
 
 describe('Authentifizierung - Integration Tests', () => {
@@ -101,7 +105,7 @@ describe('Authentifizierung - Integration Tests', () => {
       // 4. Logout
       const logoutResponse = await makeTestRequest(testServer, 'POST', '/api/auth/logout', {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -283,7 +287,9 @@ describe('Authentifizierung - Integration Tests', () => {
       expect(maxResponseTime).toBeLessThan(500); // Maximum unter 500ms
       expect(minResponseTime).toBeGreaterThan(0); // Minimum über 0ms
 
-      logger.info(`Performance-Ergebnisse: Avg: ${avgResponseTime}ms, Min: ${minResponseTime}ms, Max: ${maxResponseTime}ms`);
+      logger.info(
+        `Performance-Ergebnisse: Avg: ${avgResponseTime}ms, Min: ${minResponseTime}ms, Max: ${maxResponseTime}ms`
+      );
 
       logger.test.pass('Authentication Performance', avgResponseTime);
     });
@@ -308,7 +314,7 @@ describe('Authentifizierung - Integration Tests', () => {
       const totalTime = Date.now() - startTime;
 
       // Alle Anfragen sollten erfolgreich sein
-      responses.forEach(response => {
+      responses.forEach((response) => {
         expect(response.status).toBe(200);
         expect(response.body).toHaveProperty('token');
       });
@@ -318,7 +324,9 @@ describe('Authentifizierung - Integration Tests', () => {
       expect(avgTimePerRequest).toBeLessThan(200); // Unter 200ms pro Anfrage
       expect(totalTime).toBeLessThan(5000); // Gesamt unter 5 Sekunden
 
-      logger.info(`Lasttest-Ergebnisse: ${concurrentRequests} Anfragen in ${totalTime}ms (${avgTimePerRequest}ms/Request)`);
+      logger.info(
+        `Lasttest-Ergebnisse: ${concurrentRequests} Anfragen in ${totalTime}ms (${avgTimePerRequest}ms/Request)`
+      );
 
       logger.test.pass('High Load Authentication', totalTime);
     });
@@ -341,8 +349,8 @@ describe('Authentifizierung - Integration Tests', () => {
 
       const results = await Promise.allSettled(overloadPromises);
 
-      const fulfilled = results.filter(r => r.status === 'fulfilled').length;
-      const rejected = results.filter(r => r.status === 'rejected').length;
+      const fulfilled = results.filter((r) => r.status === 'fulfilled').length;
+      const rejected = results.filter((r) => r.status === 'rejected').length;
 
       // Sollte keine oder nur sehr wenige Ablehnungen geben
       expect(rejected).toBeLessThan(5); // Weniger als 5% Fehler
@@ -373,7 +381,7 @@ describe('Authentifizierung - Integration Tests', () => {
         }
 
         // Kleine Pause zwischen Versuchen
-        await new Promise(resolve => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 10));
       }
 
       // Sollte mindestens einige erfolgreiche Anfragen haben
@@ -405,8 +413,8 @@ describe('Authentifizierung - Integration Tests', () => {
       const results = await Promise.all(registrationPromises);
 
       // Nur eine Registrierung sollte erfolgreich sein
-      const successful = results.filter(r => r.status === 201).length;
-      const conflicts = results.filter(r => r.status === 409).length;
+      const successful = results.filter((r) => r.status === 201).length;
+      const conflicts = results.filter((r) => r.status === 409).length;
 
       expect(successful + conflicts).toBe(concurrentRegistrations);
 
@@ -554,7 +562,9 @@ describe('AuthService Methoden', () => {
     vi.mocked(require('@/lib/auth-v2')).createSession = mockCreateSession;
     vi.mocked(require('@/lib/auth-v2')).validateSession = mockValidateSessionV2;
     vi.mocked(require('@/lib/auth-v2')).invalidateSession = mockInvalidateSession;
-    vi.mocked(require('@/server/utils/logger-factory')).loggerFactory.createSecurityLogger.mockReturnValue(mockSecurityLogger);
+    vi.mocked(
+      require('@/server/utils/logger-factory')
+    ).loggerFactory.createSecurityLogger.mockReturnValue(mockSecurityLogger);
 
     const deps = { db: mockDb, env: {}, logger: {} };
     authService = createAuthService(deps);
@@ -571,7 +581,12 @@ describe('AuthService Methoden', () => {
       email_verified: true,
       email_verified_at: '2023-01-01T00:00:00Z',
     };
-    const mockSession = { id: 'session123', userId: 'user123', expiresAt: '2024-01-01T00:00:00Z', createdAt: '2023-01-01T00:00:00Z' };
+    const mockSession = {
+      id: 'session123',
+      userId: 'user123',
+      expiresAt: '2024-01-01T00:00:00Z',
+      createdAt: '2023-01-01T00:00:00Z',
+    };
 
     it('sollte erfolgreich loggen mit gültigen Credentials', async () => {
       mockDb.first.mockResolvedValueOnce(mockUser);
@@ -592,8 +607,13 @@ describe('AuthService Methoden', () => {
       mockDb.first.mockResolvedValueOnce(mockUser);
       mockCompare.mockResolvedValueOnce(false);
 
-      await expect(authService.login('test@example.com', 'wrong', '127.0.0.1')).rejects.toThrow(ServiceError);
-      expect(mockSecurityLogger.logAuthFailure).toHaveBeenCalledWith(expect.objectContaining({ reason: 'invalid_password' }), expect.any(Object));
+      await expect(authService.login('test@example.com', 'wrong', '127.0.0.1')).rejects.toThrow(
+        ServiceError
+      );
+      expect(mockSecurityLogger.logAuthFailure).toHaveBeenCalledWith(
+        expect.objectContaining({ reason: 'invalid_password' }),
+        expect.any(Object)
+      );
       expect(mockCreateSession).not.toHaveBeenCalled();
     });
 
@@ -602,23 +622,38 @@ describe('AuthService Methoden', () => {
       mockDb.first.mockResolvedValueOnce(unverifiedUser);
       mockCompare.mockResolvedValueOnce(true);
 
-      await expect(authService.login('test@example.com', 'password', '127.0.0.1')).rejects.toThrow(ServiceError);
-      expect(mockSecurityLogger.logAuthFailure).toHaveBeenCalledWith(expect.objectContaining({ reason: 'email_not_verified' }), expect.any(Object));
+      await expect(authService.login('test@example.com', 'password', '127.0.0.1')).rejects.toThrow(
+        ServiceError
+      );
+      expect(mockSecurityLogger.logAuthFailure).toHaveBeenCalledWith(
+        expect.objectContaining({ reason: 'email_not_verified' }),
+        expect.any(Object)
+      );
     });
 
     it('sollte ServiceError werfen für fehlenden password_hash', async () => {
       const noHashUser = { ...mockUser, password_hash: null };
       mockDb.first.mockResolvedValueOnce(noHashUser);
 
-      await expect(authService.login('test@example.com', 'password', '127.0.0.1')).rejects.toThrow(ServiceError);
-      expect(mockSecurityLogger.logAuthFailure).toHaveBeenCalledWith(expect.objectContaining({ reason: 'missing_password_hash' }), expect.any(Object));
+      await expect(authService.login('test@example.com', 'password', '127.0.0.1')).rejects.toThrow(
+        ServiceError
+      );
+      expect(mockSecurityLogger.logAuthFailure).toHaveBeenCalledWith(
+        expect.objectContaining({ reason: 'missing_password_hash' }),
+        expect.any(Object)
+      );
     });
 
     it('sollte ServiceError werfen für nicht existierenden Benutzer', async () => {
       mockDb.first.mockResolvedValueOnce(null);
 
-      await expect(authService.login('nonexistent@example.com', 'password', '127.0.0.1')).rejects.toThrow(ServiceError);
-      expect(mockSecurityLogger.logAuthFailure).toHaveBeenCalledWith(expect.objectContaining({ reason: 'user_not_found' }), expect.any(Object));
+      await expect(
+        authService.login('nonexistent@example.com', 'password', '127.0.0.1')
+      ).rejects.toThrow(ServiceError);
+      expect(mockSecurityLogger.logAuthFailure).toHaveBeenCalledWith(
+        expect.objectContaining({ reason: 'user_not_found' }),
+        expect.any(Object)
+      );
     });
   });
 
@@ -641,10 +676,15 @@ describe('AuthService Methoden', () => {
       expect(mockDb.first).toHaveBeenNthCalledWith(1, 'SELECT id FROM users WHERE email = ?');
       expect(mockDb.first).toHaveBeenNthCalledWith(2, 'SELECT id FROM users WHERE username = ?');
       expect(mockHash).toHaveBeenCalledWith('newpass123', 12);
-      expect(mockDb.run).toHaveBeenCalledWith(
-        expect.stringContaining('INSERT INTO users'),
-        [expect.any(String), 'new@example.com', 'New User', 'newuser', '$2b$12$newhash', expect.any(String), null]
-      );
+      expect(mockDb.run).toHaveBeenCalledWith(expect.stringContaining('INSERT INTO users'), [
+        expect.any(String),
+        'new@example.com',
+        'New User',
+        'newuser',
+        '$2b$12$newhash',
+        expect.any(String),
+        null,
+      ]);
       expect(mockSecurityLogger.logAuthSuccess).toHaveBeenCalled();
       expect(result.user.email).toBe('new@example.com');
     });
@@ -653,17 +693,21 @@ describe('AuthService Methoden', () => {
       mockDb.first.mockResolvedValueOnce({ id: 'existing' });
 
       await expect(authService.register(registerData, '127.0.0.1')).rejects.toThrow(ServiceError);
-      expect(mockSecurityLogger.logAuthFailure).toHaveBeenCalledWith(expect.objectContaining({ reason: 'duplicate_user' }), expect.any(Object));
+      expect(mockSecurityLogger.logAuthFailure).toHaveBeenCalledWith(
+        expect.objectContaining({ reason: 'duplicate_user' }),
+        expect.any(Object)
+      );
       expect(mockDb.run).not.toHaveBeenCalled();
     });
 
     it('sollte ServiceError werfen für duplizierten Username', async () => {
-      mockDb.first
-        .mockResolvedValueOnce(null)
-        .mockResolvedValueOnce({ id: 'existing' });
+      mockDb.first.mockResolvedValueOnce(null).mockResolvedValueOnce({ id: 'existing' });
 
       await expect(authService.register(registerData, '127.0.0.1')).rejects.toThrow(ServiceError);
-      expect(mockSecurityLogger.logAuthFailure).toHaveBeenCalledWith(expect.objectContaining({ reason: 'duplicate_username' }), expect.any(Object));
+      expect(mockSecurityLogger.logAuthFailure).toHaveBeenCalledWith(
+        expect.objectContaining({ reason: 'duplicate_username' }),
+        expect.any(Object)
+      );
     });
   });
 
@@ -678,8 +722,23 @@ describe('AuthService Methoden', () => {
   });
 
   describe('validateSession', () => {
-    const mockValid = { session: { id: 's123', userId: 'u123', expiresAt: '2024-01-01T00:00:00Z', createdAt: '2023-01-01T00:00:00Z' }, user: { id: 'u123', email: 'test@example.com', name: 'Test', username: 'test', image: null } };
-    const mockSafeUser: SafeUser = { id: 'u123', email: 'test@example.com', name: 'Test', username: 'test', image: null, created_at: '2023-01-01T00:00:00Z' };
+    const mockValid = {
+      session: {
+        id: 's123',
+        userId: 'u123',
+        expiresAt: '2024-01-01T00:00:00Z',
+        createdAt: '2023-01-01T00:00:00Z',
+      },
+      user: { id: 'u123', email: 'test@example.com', name: 'Test', username: 'test', image: null },
+    };
+    const mockSafeUser: SafeUser = {
+      id: 'u123',
+      email: 'test@example.com',
+      name: 'Test',
+      username: 'test',
+      image: null,
+      created_at: '2023-01-01T00:00:00Z',
+    };
 
     it('sollte gültige Session und User zurückgeben', async () => {
       mockValidateSessionV2.mockResolvedValueOnce(mockValid);
@@ -713,14 +772,24 @@ describe('AuthService Methoden', () => {
       const result = await authService.createPasswordResetToken('test@example.com', '127.0.0.1');
 
       expect(result).toBe(true);
-      expect(mockDb.run).toHaveBeenCalledWith('DELETE FROM password_reset_tokens WHERE user_id = ?', ['u123']);
-      expect(mockSecurityLogger.logSecurityEvent).toHaveBeenCalledWith('PASSWORD_RESET', expect.any(Object), expect.any(Object));
+      expect(mockDb.run).toHaveBeenCalledWith(
+        'DELETE FROM password_reset_tokens WHERE user_id = ?',
+        ['u123']
+      );
+      expect(mockSecurityLogger.logSecurityEvent).toHaveBeenCalledWith(
+        'PASSWORD_RESET',
+        expect.any(Object),
+        expect.any(Object)
+      );
     });
 
     it('sollte true für nicht existierenden User zurückgeben', async () => {
       mockDb.first.mockResolvedValueOnce(null);
 
-      const result = await authService.createPasswordResetToken('nonexistent@example.com', '127.0.0.1');
+      const result = await authService.createPasswordResetToken(
+        'nonexistent@example.com',
+        '127.0.0.1'
+      );
 
       expect(result).toBe(true);
       expect(mockDb.run).not.toHaveBeenCalled();
@@ -745,7 +814,9 @@ describe('AuthService Methoden', () => {
       const result = await authService.validatePasswordResetToken('expired');
 
       expect(result).toBeNull();
-      expect(mockDb.run).toHaveBeenCalledWith('DELETE FROM password_reset_tokens WHERE id = ?', ['expired']);
+      expect(mockDb.run).toHaveBeenCalledWith('DELETE FROM password_reset_tokens WHERE id = ?', [
+        'expired',
+      ]);
     });
 
     it('sollte null für nicht existierendes Token zurückgeben', async () => {
@@ -759,7 +830,9 @@ describe('AuthService Methoden', () => {
 
   describe('resetPassword', () => {
     it('sollte Passwort erfolgreich zurücksetzen', async () => {
-      vi.doMock('@/lib/services/auth-service', () => ({ validatePasswordResetToken: vi.fn().mockResolvedValue('u123') }));
+      vi.doMock('@/lib/services/auth-service', () => ({
+        validatePasswordResetToken: vi.fn().mockResolvedValue('u123'),
+      }));
       mockHash.mockResolvedValueOnce('$2b$12$newhash');
       mockDb.run
         .mockResolvedValueOnce(undefined) // update
@@ -769,13 +842,21 @@ describe('AuthService Methoden', () => {
 
       expect(result).toBe(true);
       expect(mockHash).toHaveBeenCalled();
-      expect(mockSecurityLogger.logSecurityEvent).toHaveBeenCalledWith('PASSWORD_RESET', expect.any(Object), expect.any(Object));
+      expect(mockSecurityLogger.logSecurityEvent).toHaveBeenCalledWith(
+        'PASSWORD_RESET',
+        expect.any(Object),
+        expect.any(Object)
+      );
     });
 
     it('sollte ServiceError für ungültiges Token werfen', async () => {
-      vi.doMock('@/lib/services/auth-service', () => ({ validatePasswordResetToken: vi.fn().mockResolvedValue(null) }));
+      vi.doMock('@/lib/services/auth-service', () => ({
+        validatePasswordResetToken: vi.fn().mockResolvedValue(null),
+      }));
 
-      await expect(authService.resetPassword('invalid', 'newpass', '127.0.0.1')).rejects.toThrow(ServiceError);
+      await expect(authService.resetPassword('invalid', 'newpass', '127.0.0.1')).rejects.toThrow(
+        ServiceError
+      );
       expect(mockDb.run).not.toHaveBeenCalled();
     });
   });
@@ -802,7 +883,10 @@ describe('AuthService Methoden', () => {
       expect(result).toBe(true);
       expect(mockCompare).toHaveBeenCalled();
       expect(mockHash).toHaveBeenCalled();
-      expect(mockDb.run).toHaveBeenCalledWith('UPDATE users SET password_hash = ? WHERE id = ?', ['$2b$12$newhash', 'u123']);
+      expect(mockDb.run).toHaveBeenCalledWith('UPDATE users SET password_hash = ? WHERE id = ?', [
+        '$2b$12$newhash',
+        'u123',
+      ]);
       expect(mockSecurityLogger.logAuthSuccess).toHaveBeenCalled();
     });
 
@@ -810,7 +894,9 @@ describe('AuthService Methoden', () => {
       mockDb.first.mockResolvedValueOnce(mockUser);
       mockCompare.mockResolvedValueOnce(false);
 
-      await expect(authService.changePassword('u123', 'wrong', 'new', '127.0.0.1')).rejects.toThrow(ServiceError);
+      await expect(authService.changePassword('u123', 'wrong', 'new', '127.0.0.1')).rejects.toThrow(
+        ServiceError
+      );
       expect(mockSecurityLogger.logAuthFailure).toHaveBeenCalled();
       expect(mockHash).not.toHaveBeenCalled();
     });
@@ -819,7 +905,9 @@ describe('AuthService Methoden', () => {
       mockDb.first.mockResolvedValueOnce(mockUser);
       mockCompare.mockResolvedValueOnce(true);
 
-      await expect(authService.changePassword('u123', 'old', 'old', '127.0.0.1')).rejects.toThrow(ServiceError);
+      await expect(authService.changePassword('u123', 'old', 'old', '127.0.0.1')).rejects.toThrow(
+        ServiceError
+      );
       expect(mockCompare).toHaveBeenCalled();
       expect(mockHash).not.toHaveBeenCalled();
     });
@@ -827,7 +915,9 @@ describe('AuthService Methoden', () => {
     it('sollte ServiceError für nicht existierenden User werfen', async () => {
       mockDb.first.mockResolvedValueOnce(null);
 
-      await expect(authService.changePassword('nonexistent', 'old', 'new', '127.0.0.1')).rejects.toThrow(ServiceError);
+      await expect(
+        authService.changePassword('nonexistent', 'old', 'new', '127.0.0.1')
+      ).rejects.toThrow(ServiceError);
       expect(mockSecurityLogger.logAuthFailure).toHaveBeenCalled();
     });
 
@@ -835,7 +925,9 @@ describe('AuthService Methoden', () => {
       const noHashUser = { ...mockUser, password_hash: null };
       mockDb.first.mockResolvedValueOnce(noHashUser);
 
-      await expect(authService.changePassword('u123', 'old', 'new', '127.0.0.1')).rejects.toThrow(ServiceError);
+      await expect(authService.changePassword('u123', 'old', 'new', '127.0.0.1')).rejects.toThrow(
+        ServiceError
+      );
       expect(noHashUser.password_hash).toBeNull();
     });
   });

@@ -20,7 +20,9 @@ test.describe('Comment System E2E Tests', () => {
       await page.click('button:has-text("Kommentar posten")');
 
       // Verify comment appears
-      await expect(page.locator('.comment-content')).toContainText('This is a test comment from a guest user');
+      await expect(page.locator('.comment-content')).toContainText(
+        'This is a test comment from a guest user'
+      );
       await expect(page.locator('.comment-author')).toContainText('Guest Tester');
     });
 
@@ -43,7 +45,9 @@ test.describe('Comment System E2E Tests', () => {
       await page.click('button:has-text("Kommentar posten")');
 
       // Should show email format error
-      await expect(page.locator('.error-message')).toContainText('Bitte gib eine gültige E-Mail-Adresse ein');
+      await expect(page.locator('.error-message')).toContainText(
+        'Bitte gib eine gültige E-Mail-Adresse ein'
+      );
     });
 
     test('should enforce rate limiting for guest users', async ({ page }) => {
@@ -68,7 +72,10 @@ test.describe('Comment System E2E Tests', () => {
     test.beforeEach(async ({ page }) => {
       // Create a unique test user and sign in via Magic Link (local E2E uses fake provider)
       testUserEmail = generateUniqueEmail('comment-e2e');
-      await completeMagicLinkFlow(page, testUserEmail, { locale: 'en', targetAfterAuth: '/dashboard' });
+      await completeMagicLinkFlow(page, testUserEmail, {
+        locale: 'en',
+        targetAfterAuth: '/dashboard',
+      });
 
       // If first-time login redirects to welcome-profile, complete it
       if (/welcome-profile/.test(page.url())) {
@@ -84,13 +91,18 @@ test.describe('Comment System E2E Tests', () => {
 
     test('should allow authenticated users to post comments', async ({ page }) => {
       // Fill out comment form
-      await page.fill('textarea[name="content"]', 'This is a test comment from an authenticated user');
+      await page.fill(
+        'textarea[name="content"]',
+        'This is a test comment from an authenticated user'
+      );
 
       // Submit comment
       await page.click('button:has-text("Kommentar posten")');
 
       // Verify comment appears with user info
-      await expect(page.locator('.comment-content')).toContainText('This is a test comment from an authenticated user');
+      await expect(page.locator('.comment-content')).toContainText(
+        'This is a test comment from an authenticated user'
+      );
       await expect(page.locator('.comment-author')).toContainText('Test User');
     });
 
@@ -143,7 +155,9 @@ test.describe('Comment System E2E Tests', () => {
       await page.click('button:has-text("Antwort posten")');
 
       // Verify reply appears nested under parent
-      await expect(page.locator('.comment-reply')).toContainText('This is a reply to the parent comment');
+      await expect(page.locator('.comment-reply')).toContainText(
+        'This is a reply to the parent comment'
+      );
     });
 
     test('should allow users to report inappropriate comments', async ({ page }) => {
@@ -314,7 +328,7 @@ test.describe('Comment System E2E Tests', () => {
   test.describe('Error Handling', () => {
     test('should handle network errors gracefully', async ({ page }) => {
       // Simulate network error by intercepting API calls
-      await page.route('**/api/comments**', route => {
+      await page.route('**/api/comments**', (route) => {
         route.abort('failed');
       });
 
@@ -332,14 +346,14 @@ test.describe('Comment System E2E Tests', () => {
 
     test('should handle server errors gracefully', async ({ page }) => {
       // Simulate server error
-      await page.route('**/api/comments**', route => {
+      await page.route('**/api/comments**', (route) => {
         route.fulfill({
           status: 500,
           contentType: 'application/json',
           body: JSON.stringify({
             success: false,
-            error: { type: 'server_error', message: 'Internal server error' }
-          })
+            error: { type: 'server_error', message: 'Internal server error' },
+          }),
         });
       });
 

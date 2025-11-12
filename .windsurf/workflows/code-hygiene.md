@@ -13,6 +13,7 @@ This workflow runs a fast auto-fix pass (Prettier + ESLint --fix) and then execu
 - Dev servers are stopped to avoid port/file locks.
 
 ## 1) Auto-fix pass
+
 // turbo
 
 ```bash
@@ -26,6 +27,7 @@ mkdir -p reports && rm -f reports/code-hygiene-last.log
 ```
 
 ## 2) Core strict checks
+
 // turbo
 
 ```bash
@@ -33,6 +35,7 @@ run-s -c --print-label "format:check" "lint -- --max-warnings=0" "typecheck:src"
 ```
 
 ## 3) Validation suite
+
 // turbo
 
 ```bash
@@ -54,5 +57,5 @@ npm run test:e2e:chromium
 ```
 
 ## 5) What to do with failures
-- Lint/TypeScript/Test/OpenAPI errors that are not auto-fixable will be handled manually. Share the failing output and I will apply targeted fixes.
 
+- Lint/TypeScript/Test/OpenAPI errors that are not auto-fixable will be handled manually. Share the failing output and I will apply targeted fixes.

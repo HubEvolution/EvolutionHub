@@ -18,7 +18,6 @@ Stand: 2025‑09‑19 04:45 (lokale Zeit)
 - **Gesamteinschätzung**: Die Kopplung zwischen Plan/Entitlements → Server‑Enforcement → UI‑Anzeige ist funktionsfähig. Quoten, CSRF, Rate‑Limits und R2‑Owner‑Gating sind korrekt integriert. Die `UsagePill` zeigt den Verbrauch verlässlich; die Plan‑Badge wird angezeigt und ein Upgrade‑CTA erscheint in sinnvollen Situationen.
 
 - **Top‑Risiken/Verbesserungen**:
-
   - UI blendet planbasierte Einschränkungen (z. B. `faceEnhance`, max. Upscale) nicht aus; Enforcement erfolgt erst serverseitig → potentiell „harte“ Validierungsfehler im UI.
 
   - Doppelte Limit‑Quellen in API‑Responses (`usage.limit` aus Entitlements vs. `limits.user/guest` als konstante Defaults) können verwirren.
@@ -32,7 +31,6 @@ Stand: 2025‑09‑19 04:45 (lokale Zeit)
 ## Status‑Update (2025‑09‑19 04:45)
 
 - Phase 1 Frontend umgesetzt (per Feature‑Flag steuerbar):
-
   - Entitlements‑basiertes UI‑Gating (Scale/FaceEnhance) in `ImagEnhancerIsland.tsx` mit Helfern `gating.ts`.
 
   - Verfeinerte Upgrade‑CTA‑Regeln inkl. Tooltips; Client‑Telemetry‑Events (`enhancer_control_blocked_plan`, `enhancer_cta_impression/click`) via `useLog()`.
@@ -40,7 +38,6 @@ Stand: 2025‑09‑19 04:45 (lokale Zeit)
   - Feature‑Flag: Frontend aktiviert über `PUBLIC_ENHANCER_PLAN_GATING_V1=1`.
 
 - Modularisierung Phase A/B umgesetzt:
-
   - Shared Types: `src/components/tools/imag-enhancer/types.ts`.
 
   - API‑Client: `src/components/tools/imag-enhancer/api.ts`.
@@ -54,7 +51,6 @@ Stand: 2025‑09‑19 04:45 (lokale Zeit)
   - Phase C gestartet: `ModelControls.tsx` und `hooks/useCompareInteractions.ts` extrahiert und in `ImagEnhancerIsland.tsx` integriert (Pointer/Wheel/Key/Loupe).
 
 - Tests:
-
   - Unit‑Tests für Gating‑Ableitungen: `gating.test.ts` grün.
 
   - Nächste Schritte: Hook‑Unit‑Tests und E2E (EN/DE) für Gating/CTA.
@@ -64,13 +60,11 @@ Stand: 2025‑09‑19 04:45 (lokale Zeit)
 - **UI**: `src/components/tools/ImagEnhancerIsland.tsx` steuert Upload, Enhance, Compare, Plan‑Badge, UsagePill, Upgrade‑CTA.
 
 - **API**:
-
   - `GET /api/ai-image/usage` liefert `ownerType`, `usage`, `plan` (für User), sowie `entitlements` (planbasierte Fähigkeiten/Quoten).
 
   - `POST /api/ai-image/generate` führt Sync‑Enhance mit CSRF‑Schutz aus; 429 bei Rate‑Limit.
 
 - **Services**:
-
   - `AiImageService` (Sync): Validiert Content‑Type, Modell‑Fähigkeiten, setzt Plan‑Constraints (maxUpscale/faceEnhance), schreibt Artefakte in R2, inkrementiert Usage (daily/monthly, inkl. Credits‑Bypass), protokolliert strukturiert.
 
   - `AiJobsService` (Async Jobs): Validiert, queued, verarbeitet beim Polling, schreibt R2, inkrementiert Usage/Monthly; Logs eher minimal.
@@ -84,9 +78,7 @@ Stand: 2025‑09‑19 04:45 (lokale Zeit)
 ## Wichtige Beobachtungen (mit Evidenz)
 
 - **Plan‑Badge & UsagePill in der Toolbar**
-
   - `ImagEnhancerIsland.tsx`: Plan‑Badge und `UsagePill` werden im rechten Slot gerendert.
-
     - Plan‑Badge: Zeilen `1575–1582` zeigen `planLabel` (z. B. „Guest“/„Starter“).
 
     - `UsagePill`: Zeilen `1583–1590` mit `usage`, `ownerType`, `percent`, `critical`.
@@ -94,45 +86,36 @@ Stand: 2025‑09‑19 04:45 (lokale Zeit)
     - Upgrade‑CTA: Zeilen `1591–1598` zeigen CTA wenn Gast, Free‑Plan oder Quote erreicht ist.
 
 - **Plan‑Labeling**
-
   - `ImagEnhancerIsland.tsx` Zeilen `1148–1155`: Gäste → „Guest“, User ohne/mit `free` → „Starter“, sonst Capitalized Plan.
 
 - **Usage‑Fallback und Prozent/Status**
-
   - `ImagEnhancerIsland.tsx` Zeilen `1159–1176`: Fallback `usage` für Anzeige (bis API‑Antwort vorliegt), Berechnung von Prozent/Kritisch.
 
 - **Model‑Controls & fehlendes UI‑Gating der Plan‑Features**
-
   - `ImagEnhancerIsland.tsx` Zeilen `1447–1487`: UI zeigt `scale` und `faceEnhance` abhängig von Modell‑Fähigkeiten – jedoch nicht vom Plan.
 
   - Server erzwingt Plan‑Limits: `AiImageService.generate()` Zeilen `232–249` blockieren zu hohes `scale` bzw. `face_enhance` bei Plan‑Verbot.
 
 - **429‑Handling im UI**
-
   - `ImagEnhancerIsland.tsx` Zeilen `1051–1066`: Behandelt 429 (`Retry-After`/JSON `retryAfter`), setzt Countdown/Toast.
 
 - **Nutzungsabfrage & Response‑Form**
-
   - `src/pages/api/ai-image/usage.ts` Zeilen `49–59`: Response enthält `ownerType`, `usage`, `limits.user/guest` (statische Defaults), optional `plan` und `entitlements`.
 
   - Response‑Header setzen introspektive Felder: Zeilen `70–83` (`Cache-Control`, `X-Usage-*`, `X-Debug-*`).
 
 - **Rate‑Limiter Konfiguration**
-
   - `src/lib/rate-limiter.ts` Zeilen `170–175`: `aiGenerateLimiter` 15/min.
 
 - **R2 Owner‑Gating**
-
   - `src/pages/r2-ai/[...path].ts` Zeilen `62–76`: Zugriff auf `results/…` nur für passenden Owner (Typ & ID), sonst 403.
 
 - **UsagePill Verhalten**
-
   - `src/components/tools/imag-enhancer/UsagePill.tsx` Zeilen `43–72`: Tooltip mit `usage.used/limit`, optional `reset` (formatiert) und `owner`.
 
   - Visualisierung (Pill + Progress‑Bar): Zeilen `74–91`, `critical` färbt rot.
 
 - **Credits‑Checkout (In‑App CTA)**
-
   - `ImagEnhancerIsland.tsx` Zeilen `1228–1260`: POST `/api/billing/credits` (200/1000) mit CSRF‑Header; bei 401 Redirect `/login`.
 
 ## Befunde (priorisiert)
@@ -180,9 +163,7 @@ Stand: 2025‑09‑19 04:45 (lokale Zeit)
 ## Empfehlungen
 
 - **UI‑Gating für Plan‑Features**
-
   - Entitlements von `/api/ai-image/usage` an `ImagEnhancerIsland` propagieren und Controls entsprechend rendern/disable:
-
     - `scale`‑Buttons nur bis `entitlements.maxUpscale` aktivieren.
 
     - `faceEnhance` nur rendern, wenn `entitlements.faceEnhance === true`.
@@ -190,25 +171,20 @@ Stand: 2025‑09‑19 04:45 (lokale Zeit)
   - Optional: Inline‑Hinweis/Tooltip „Upgrade erforderlich für x4/Face Enhance“.
 
 - **Limits‑Felder vereinheitlichen**
-
   - Auf API‑Ebene klar dokumentieren: `usage.limit` ist maßgeblich (plan‑bereinigt). `limits.user/guest` als Debug/Legacy deklarieren oder entfernen.
 
 - **CTA‑Logik verfeinern**
-
   - CTA anzeigen bei: `quotaExceeded` oder `Feature gesperrt durch Plan` oder `Restquote < 10%`.
 
   - Gäste weiterhin frühe CTAs (Onboarding‑Funnel), aber Free‑User kontextsensitiver.
 
 - **Observability angleichen**
-
   - Jobs‑Service auf strukturierten Logger heben (Korrelation/reqId, Dauer‑Metriken), analog `AiImageService`.
 
 - **i18n/UX für Reset‑Zeit**
-
   - `UsagePill`: Reset‑Zeit i18n‑fähig gestalten (z. B. `toLocaleString` per Locale aus App‑Kontext), mit Fallback auf ISO‑ähnlich für Tests.
 
 - **Dokumentation**
-
   - In `docs/` Abschnitt „Entitlements & UI‑Gating“ ergänzen: Wie UI Plan‑Constraints spiegelt; Beispiel‑Screenshots.
 
 ## Nächste Schritte (konkret)
@@ -226,7 +202,6 @@ Stand: 2025‑09‑19 04:45 (lokale Zeit)
 ## Anhang: Code‑Referenzen
 
 - `src/components/tools/ImagEnhancerIsland.tsx`
-
   - Plan‑Badge/Usage/CTA: `1670–1689`
 
   - Usage‑Berechnung: `1175–1212`
@@ -240,11 +215,9 @@ Stand: 2025‑09‑19 04:45 (lokale Zeit)
   - Plan‑Label: `1167–1174`
 
 - `src/components/tools/imag-enhancer/UsagePill.tsx`
-
   - Tooltip/Anzeige: `43–72`, Visualisierung: `74–91`
 
 - Neue Module (Modularisierung A/B):
-
   - `src/components/tools/imag-enhancer/gating.ts` · Helfer `computeAllowedScales`, `computeCanUseFaceEnhance` (+ Tests in `gating.test.ts`).
 
   - `src/components/tools/imag-enhancer/types.ts` · Shared Types (Usage, API‑Schemas).
@@ -258,20 +231,18 @@ Stand: 2025‑09‑19 04:45 (lokale Zeit)
   - `src/components/tools/imag-enhancer/hooks/useRateLimit.ts` · 429/Retry‑After (Header/JSON) + Countdown.
 
   - `src/components/tools/imag-enhancer/hooks/useEnhance.ts` · POST‑Generate inkl. CSRF.
-  Neue Module (Modularisierung C, laufend):
+    Neue Module (Modularisierung C, laufend):
 
   - `src/components/tools/imag-enhancer/ModelControls.tsx` · UI‑Komponente für Scale/Face inkl. Tooltips/Telemetry.
 
   - `src/components/tools/imag-enhancer/hooks/useCompareInteractions.ts` · Compare/Zoom/Loupe Interaktionen (Pointer/Wheel/Key) als Hook.
 
 - `src/pages/api/ai-image/usage.ts`
-
   - Response‑Shape inkl. `plan`/`entitlements`: `49–59`
 
   - Introspektions‑Header: `70–83`
 
 - `src/lib/services/ai-image-service.ts`
-
   - Plan‑Enforcement (scale/faceEnhance): `232–249`
 
   - Monthly/Daily Quota inkl. Credits: u. a. `294–325`, `410–415`
@@ -279,17 +250,14 @@ Stand: 2025‑09‑19 04:45 (lokale Zeit)
   - Dev‑Echo & Provider‑Call: `343–381`, `383–394`, `396–419`
 
 - `src/lib/services/ai-jobs-service.ts`
-
   - Monthly/Daily Quota (overridefähig): `121–146`, `281–289`
 
   - Provider‑Error‑Mapping (vereinfachte Logs): `417–439`
 
 - `src/pages/r2-ai/[...path].ts`
-
   - Owner‑Gating für Results: `62–76`
 
 - `src/lib/rate-limiter.ts`
-
   - `aiGenerateLimiter` 15/min: `170–175`
 
 ## SOTA‑Umsetzungsplan (Plan‑Gating, Usage‑Pill, CTA, Services)
@@ -312,14 +280,12 @@ Plan‑basierte Entitlements. Credits (In‑App) werden konsistent in Sync/Jobs 
 ### 1) API & Verträge
 
 - `src/pages/api/ai-image/usage.ts`
-
   - Beibehalten: Response enthält `ownerType`, `usage`, `plan`, `entitlements`.
 
   - Klarstellung: `limits.user/guest` als „legacy/debug“ markieren. Empfehlung: OpenAPI Doku
-    anpassen („usage.limit ist maßgeblich; limits.* sind statische Defaults“).
+    anpassen („usage.limit ist maßgeblich; limits.\* sind statische Defaults“).
 
 - OpenAPI (`openapi.yaml`)
-
   - Response‑Schemas für `usage`/`generate` aktualisieren: `entitlements` aufnehmen;
     Fehlerobjekte standardisieren (`{ success: false, error: { type, message, details? } }`).
 
@@ -332,25 +298,21 @@ Plan‑basierte Entitlements. Credits (In‑App) werden konsistent in Sync/Jobs 
 - State: `entitlements` aus `usage` speichern (bereits vorhanden in Response; im State halten).
 
 - Abgeleitete Flags/Funktionen:
-
   - `canUseFaceEnhance = selectedModel?.supportsFaceEnhance && entitlements.faceEnhance`.
 
   - `allowedScales = selectedModel?.supportsScale ? [2,4].filter(s => s <= entitlements.maxUpscale) : []`.
 
 - Rendering‑Änderungen:
-
   - `scale`‑Buttons nur bis `entitlements.maxUpscale` aktiv; höhere Optionen verstecken oder disabled
     mit Tooltip „Upgrade erforderlich“ (lokalisiert, z. B. `strings.ui.upgrade`).
 
   - `faceEnhance` nur anzeigen, wenn `canUseFaceEnhance`; sonst optional disabled mit Tooltip.
 
 - CTA‑Logik:
-
   - Zeige Upgrade‑CTA, wenn: `quotaExceeded` OR `!canUseFaceEnhance` (bei Model‑Support) OR
     `requestedScale > entitlements.maxUpscale` OR `usagePercent >= 90` OR `ownerType==='guest'`.
 
 - Telemetrie (nur Events, ohne PII):
-
   - `enhancer_control_blocked_plan` (welches Feature, Plan, modelSlug).
 
   - `enhancer_cta_impression` / `enhancer_cta_click` (Kontext: quota/feature/guest).
@@ -358,13 +320,11 @@ Plan‑basierte Entitlements. Credits (In‑App) werden konsistent in Sync/Jobs 
 ### 3) Services: Entitlements‑Kohärenz & Credits
 
 - `src/lib/services/ai-image-service.ts` (Sync)
-
   - Bereits vorhanden: Plan‑Enforcement (`scale`, `face_enhance`), Credits‑Bypass bei monatlichem Limit.
 
   - Ergänzen: Explizite Logzeilen für „credits_consumed“ und „credits_missing“.
 
 - `src/lib/services/ai-jobs-service.ts` (Async)
-
   - Hinzufügen: Credits‑Bypass (analog Sync) bei monatlichem Limit.
 
   - Übernahme der Plan‑Overrides (`limitOverride`, `monthlyLimitOverride`) aus API‑Schicht;
@@ -378,11 +338,9 @@ Plan‑basierte Entitlements. Credits (In‑App) werden konsistent in Sync/Jobs 
 - Einheitlicher strukturierter Logger in Jobs‑Service (via `loggerFactory`).
 
 - Korrelations‑IDs:
-
   - Sync: `reqId` (bereits vorhanden). Jobs: `jobId` als Korrelationsanker; bei Poll mitschleifen.
 
 - Metriken (z. B. Log‑basierte SLI):
-
   - Provider‑Dauer (P95), R2 PUT/GET‑Dauer, Fehlerraten je Fehlerklasse, 429‑Rate.
 
 - Minimal redacted Logging (keine Roh‑Provider‑Payloads; Snippets trunkiert, bereits in Sync vorhanden).
@@ -409,13 +367,11 @@ Plan‑basierte Entitlements. Credits (In‑App) werden konsistent in Sync/Jobs 
 ### 7) Tests (Unit, Integration, E2E)
 
 - Unit
-
   - Provider‑Error‑Mapping: Sync/Jobs (Mocked fetch), Mapping 401/403/4xx/5xx.
 
   - UI‑Gating Logik: Ableitungen `allowedScales`, `canUseFaceEnhance` (reine Funktionen).
 
 - Integration
-
   - `GET /api/ai-image/usage` liefert `entitlements` + korrekte `X-Usage-*` Header.
 
   - `POST /api/ai-image/generate` mit verbotenen Parametern → `validation_error` (400)
@@ -424,7 +380,6 @@ Plan‑basierte Entitlements. Credits (In‑App) werden konsistent in Sync/Jobs 
   - 429‑Flow inkl. Countdown‑Header/JSON.
 
 - E2E
-
   - EN/DE‑Route: Controls disabled/hidden gemäß Entitlements (Guest/Free/Pro Szenarien).
 
   - CTA‑Sichtbarkeit: Gast, Free nahe Limit, Feature‑Gating.
@@ -443,7 +398,6 @@ Plan‑basierte Entitlements. Credits (In‑App) werden konsistent in Sync/Jobs 
 - Feature‑Flag: `enhancer.planGating.v1` (Front‑ und Backend toggelbar via Env/Config). Frontend: `PUBLIC_ENHANCER_PLAN_GATING_V1`.
 
 - Stufen:
-
   1. Dev: Flag ON, Tests grün (CI: `astro check`, `vitest`, Playwright E2E EN/DE).
   1. Staging: Limitierte Nutzer, Monitoring aktiv, Log‑Sampling prüfen.
   1. Production: Canary 5–10%, dann 50%, dann 100% bei grünem Monitoring.
@@ -473,7 +427,6 @@ Plan‑basierte Entitlements. Credits (In‑App) werden konsistent in Sync/Jobs 
 ### 12) Umsetzungsschritte (Backlog fein)
 
 - Backend
-
   - [ ] OpenAPI aktualisieren (usage/generate, Fehlerformen, 429 Doku).
 
   - [ ] Jobs‑Service: Credits‑Bypass + Logger‑Harmonisierung.
@@ -481,7 +434,6 @@ Plan‑basierte Entitlements. Credits (In‑App) werden konsistent in Sync/Jobs 
   - [ ] Einheitliches Fehler‑Mapping in Jobs.
 
 - Frontend
-
   - [ ] Entitlements in `ImagEnhancerIsland` einlesen und `allowedScales`/`canUseFaceEnhance` ableiten.
 
   - [ ] Controls per Entitlements rendern/disable (+ Tooltips, i18n).
@@ -491,7 +443,6 @@ Plan‑basierte Entitlements. Credits (In‑App) werden konsistent in Sync/Jobs 
   - [ ] `UsagePill` optional mit lokalisierter Reset‑Zeit (Fallback beibehalten).
 
 - Tests/CI
-
   - [ ] Unit: Mapping, Ableitungen.
 
   - [ ] Integration: usage/generate Fehlerfälle, 429.
@@ -506,7 +457,7 @@ Plan‑basierte Entitlements. Credits (In‑App) werden konsistent in Sync/Jobs 
 
 - Woche 3: Staging Canary, Monitoring‑Feinschliff, Prod Rollout.
 
-```mermaid
+````mermaid
 flowchart TD
   A[GET /api/ai-image/usage] -->|entitlements| B[ImagEnhancerIsland]
   B -->|allowedScales, canUseFaceEnhance| C[Controls rendern]
@@ -521,3 +472,4 @@ flowchart TD
 — Ende —
 
 ```text
+````

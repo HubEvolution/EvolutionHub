@@ -155,7 +155,6 @@ Die Astro-Frontend-Architektur wird wie folgt implementiert:
    ```
 
 1. **Komponenten-Strategie**:
-
    - Statische UI-Elemente als Astro-Komponenten
 
    - Interaktive Elemente als React-Komponenten mit expliziter Hydration
@@ -163,7 +162,6 @@ Die Astro-Frontend-Architektur wird wie folgt implementiert:
    - Wiederverwendbare Komponenten in einer gemeinsamen Bibliothek
 
 1. **Daten-Fetching**:
-
    - Server-seitiges Daten-Fetching in Astro-Komponenten
 
    - Client-seitiges Daten-Fetching in React-Komponenten für dynamische Updates
@@ -171,7 +169,6 @@ Die Astro-Frontend-Architektur wird wie folgt implementiert:
    - API-Endpunkte unter `/src/pages/api/` für Backend-Kommunikation
 
 1. **Styling-Ansatz**:
-
    - Tailwind CSS für alle Styling-Bedürfnisse
 
    - Globale Styles für Typografie, Farben und Layout-Grundlagen
@@ -179,7 +176,6 @@ Die Astro-Frontend-Architektur wird wie folgt implementiert:
    - Komponenten-spezifische Styles durch Tailwind-Klassen
 
 1. **Performance-Optimierungen**:
-
    - Selektive Hydration mit `client:idle`, `client:visible`, etc.
 
    - Bildoptimierung mit Astro's integrierten Bildkomponenten

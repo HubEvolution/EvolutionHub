@@ -20,13 +20,17 @@ const IS_REMOTE = isRemoteTarget();
 
 test.describe('OAuth Error Handling', () => {
   test.describe('OAuth Start Errors', () => {
-    test('should display error if OAuth button is clicked without proper config', async ({ page }) => {
+    test('should display error if OAuth button is clicked without proper config', async ({
+      page,
+    }) => {
       // This test would require temporarily removing STYTCH_PUBLIC_TOKEN env var
       // In practice, this is tested via the ServerConfig error redirect
       test.skip(true, 'Requires dynamic env config - tested manually');
     });
 
-    test('should redirect to login with ServerConfig error if STYTCH_PUBLIC_TOKEN is missing', async ({ page }) => {
+    test('should redirect to login with ServerConfig error if STYTCH_PUBLIC_TOKEN is missing', async ({
+      page,
+    }) => {
       // Navigate directly to OAuth start endpoint (simulating button click)
       // If STYTCH_PUBLIC_TOKEN is missing, should redirect to login?magic_error=ServerConfig
 
@@ -36,7 +40,9 @@ test.describe('OAuth Error Handling', () => {
   });
 
   test.describe('OAuth Callback Errors', () => {
-    test('should redirect to login with MissingToken error when accessing callback without token', async ({ page }) => {
+    test('should redirect to login with MissingToken error when accessing callback without token', async ({
+      page,
+    }) => {
       // Navigate directly to OAuth callback without token parameter
       await page.goto('/api/auth/oauth/github/callback');
 
@@ -51,7 +57,9 @@ test.describe('OAuth Error Handling', () => {
       expect(currentUrl).toMatch(/magic_error=(MissingToken|InvalidOrExpired)/);
     });
 
-    test('should redirect to login with InvalidOrExpired error for invalid token', async ({ page }) => {
+    test('should redirect to login with InvalidOrExpired error for invalid token', async ({
+      page,
+    }) => {
       // Navigate to OAuth callback with invalid token
       const invalidToken = 'definitely-invalid-token-12345';
       await page.goto(`/api/auth/oauth/github/callback?token=${invalidToken}`);
@@ -61,7 +69,9 @@ test.describe('OAuth Error Handling', () => {
 
       const currentUrl = page.url();
       expect(currentUrl, 'Should redirect to login page').toMatch(/\/login/);
-      expect(currentUrl, 'Should include InvalidOrExpired error').toContain('magic_error=InvalidOrExpired');
+      expect(currentUrl, 'Should include InvalidOrExpired error').toContain(
+        'magic_error=InvalidOrExpired'
+      );
     });
 
     test('should preserve locale in error redirect (EN)', async ({ page }) => {
@@ -198,7 +208,10 @@ test.describe('OAuth Error Handling', () => {
     });
 
     test('should clear error param after successful OAuth flow', async ({ browser }) => {
-      test.skip(process.env.E2E_FAKE_STYTCH !== '1' || IS_REMOTE, 'Requires E2E_FAKE_STYTCH=1 and local dev');
+      test.skip(
+        process.env.E2E_FAKE_STYTCH !== '1' || IS_REMOTE,
+        'Requires E2E_FAKE_STYTCH=1 and local dev'
+      );
 
       const context = await browser.newContext();
       const page = await context.newPage();
@@ -233,7 +246,9 @@ test.describe('OAuth Error Handling', () => {
         state: 'javascript:void(0)',
       };
 
-      await page.goto(`/api/auth/oauth/github/callback?token=${encodeURIComponent(maliciousParams.token)}&state=${encodeURIComponent(maliciousParams.state)}`);
+      await page.goto(
+        `/api/auth/oauth/github/callback?token=${encodeURIComponent(maliciousParams.token)}&state=${encodeURIComponent(maliciousParams.state)}`
+      );
 
       await page.waitForLoadState('domcontentloaded');
 

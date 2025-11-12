@@ -225,4 +225,4 @@ testRefs: 'N/A'
 
 ---
 
-*Siehe auch: [spec.md](spec.md), [guidelines.md](guidelines.md), [testing.md](testing.md)*
+_Siehe auch: [spec.md](spec.md), [guidelines.md](guidelines.md), [testing.md](testing.md)_

@@ -21,9 +21,9 @@ get:
               id: 550e8400-e29b-41d4-a716-446655440000
               email: user@example.com
               name: John Doe
-              roles: ["user"]
-              created_at: "2023-01-01T00:00:00Z"
-              updated_at: "2023-01-01T00:00:00Z"
+              roles: ['user']
+              created_at: '2023-01-01T00:00:00Z'
+              updated_at: '2023-01-01T00:00:00Z'
     '401':
       $ref: '../../openapi.yaml#/components/responses/Unauthorized'
     '429':

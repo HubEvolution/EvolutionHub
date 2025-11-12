@@ -105,7 +105,9 @@ export async function navigateToRoute(
       return;
     } catch (error) {
       if (attempt === retries) {
-        throw new Error(`Failed to navigate to ${targetRoute} after ${retries + 1} attempts: ${error}`);
+        throw new Error(
+          `Failed to navigate to ${targetRoute} after ${retries + 1} attempts: ${error}`
+        );
       }
       // Wait before retry
       await page.waitForTimeout(1000 * (attempt + 1));
@@ -138,7 +140,10 @@ export async function waitForPageReady(
   if (checkSelectors.length > 0) {
     await Promise.all(
       checkSelectors.map((selector) =>
-        page.locator(selector).first().waitFor({ state: 'attached', timeout: timeout / 2 })
+        page
+          .locator(selector)
+          .first()
+          .waitFor({ state: 'attached', timeout: timeout / 2 })
       )
     );
   }
@@ -209,7 +214,12 @@ export async function fillForm(
       } else {
         await element.uncheck();
       }
-    } else if (tagName === 'textarea' || type === 'text' || type === 'email' || type === 'password') {
+    } else if (
+      tagName === 'textarea' ||
+      type === 'text' ||
+      type === 'email' ||
+      type === 'password'
+    ) {
       await element.fill(String(value));
     } else {
       // Default: try to fill
@@ -365,7 +375,10 @@ export async function expectSuccessMessage(page: Page, message: string): Promise
     }
   }
 
-  expect(successFound, `Expected success message containing "${message}" to be visible`).toBeTruthy();
+  expect(
+    successFound,
+    `Expected success message containing "${message}" to be visible`
+  ).toBeTruthy();
 }
 
 /**
@@ -392,7 +405,11 @@ export async function waitForElement(
  * @param selector - Element selector
  * @param timeout - Timeout in ms
  */
-export async function waitForElementGone(page: Page, selector: string, timeout = 5000): Promise<void> {
+export async function waitForElementGone(
+  page: Page,
+  selector: string,
+  timeout = 5000
+): Promise<void> {
   const element = page.locator(selector).first();
   await element.waitFor({ state: 'hidden', timeout });
 }

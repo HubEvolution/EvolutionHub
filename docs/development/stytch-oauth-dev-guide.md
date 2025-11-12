@@ -24,13 +24,11 @@ Dieser Leitfaden bündelt alle Informationen zu Stytch Magic Link und Social OAu
 - Auth-Provider: Stytch Magic Link + Social OAuth
 
 - Custom Domains (Public OAuth Start):
-
   - Dev/Testing → `login-test.hub-evolution.com`
 
   - Staging/Prod → `login.hub-evolution.com`
 
 - Server→Stytch API-Base:
-
   - TEST: `https://test.stytch.com/v1/...`
 
   - LIVE: `https://api.stytch.com/v1/...`
@@ -83,7 +81,7 @@ Empfohlene Zuordnung:
 
 Beispiele (setzen ohne Werte im Repo):
 
-```sh
+````sh
 
 # Development
 
@@ -147,20 +145,18 @@ startUrl.searchParams.set('public_token', publicToken);
 startUrl.searchParams.set('login_redirect_url', loginCbUrl);
 startUrl.searchParams.set('signup_redirect_url', signupCbUrl);
 return Response.redirect(startUrl, 302);
-```
+````
 
 ---
 
 ## 5. Cookies
 
 - HTTPS-Umgebungen (Testing/Staging/Prod)
-
   - `__Host-session`: HttpOnly; Secure; SameSite=Strict; Path=/
 
   - `session_id`: HttpOnly; Secure; SameSite=Lax; Path=/
 
 - Lokal (HTTP):
-
   - `session_id` aktiv, `__Host-session` nicht gesetzt (erfordert HTTPS)
 
 ---
@@ -176,7 +172,6 @@ return Response.redirect(startUrl, 302);
 ## 7. Entwicklung & Tests
 
 - Local Dev:
-
   - `npm run dev:worker:dev` (oder `dev:open`)
 
   - Optional Dev ohne Custom Domain: `STYTCH_CUSTOM_DOMAIN` entfernen → Start nutzt `https://test.stytch.com`.
@@ -185,7 +180,7 @@ return Response.redirect(startUrl, 302);
 
 - Preflight-Checks (302 + Location):
 
-```sh
+````sh
 curl -sI "http://127.0.0.1:8787/api/auth/oauth/github/start" | sed -n '1p;/^Location:/Ip'
 curl -sI "https://ci.hub-evolution.com/api/auth/oauth/github/start" | sed -n '1p;/^Location:/Ip'
 curl -sI "https://staging.hub-evolution.com/api/auth/oauth/github/start" | sed -n '1p;/^Location:/Ip'
@@ -242,3 +237,4 @@ curl -sI "https://hub-evolution.com/api/auth/oauth/github/start" | sed -n '1p;/^
 - 2025-10-10: Konsolidierte Doku erstellt; ältere, verstreute Dokumente ausgemistet.
 
 ```text
+````

@@ -20,7 +20,12 @@ vi.mock('@/server/utils/logger-factory', () => {
   };
 });
 
-function makeContext(urlPath: string, method: string, headers?: Record<string, string>, clientIp?: string) {
+function makeContext(
+  urlPath: string,
+  method: string,
+  headers?: Record<string, string>,
+  clientIp?: string
+) {
   const url = `http://localhost${urlPath}`;
   const request = new Request(url, {
     method,
@@ -43,10 +48,15 @@ describe('Security logging for deprecated endpoints (response helpers)', () => {
 
   describe('createDeprecatedGoneHtml()', () => {
     it('logs USER_EVENT with reason deprecated_endpoint_access for GET /api/auth/logout', async () => {
-      const ctx = makeContext('/api/auth/logout', 'GET', {
-        'user-agent': 'Vitest UA',
-        referer: 'http://localhost/de/some-page',
-      }, '203.0.113.5');
+      const ctx = makeContext(
+        '/api/auth/logout',
+        'GET',
+        {
+          'user-agent': 'Vitest UA',
+          referer: 'http://localhost/de/some-page',
+        },
+        '203.0.113.5'
+      );
 
       const resp = createDeprecatedGoneHtml(ctx);
 
@@ -69,9 +79,14 @@ describe('Security logging for deprecated endpoints (response helpers)', () => {
     });
 
     it('logs with correct method for POST /api/auth/logout', async () => {
-      const ctx = makeContext('/api/auth/logout', 'POST', {
-        'user-agent': 'Vitest UA 2',
-      }, '198.51.100.10');
+      const ctx = makeContext(
+        '/api/auth/logout',
+        'POST',
+        {
+          'user-agent': 'Vitest UA 2',
+        },
+        '198.51.100.10'
+      );
 
       const resp = createDeprecatedGoneHtml(ctx);
 
@@ -93,9 +108,14 @@ describe('Security logging for deprecated endpoints (response helpers)', () => {
     });
 
     it('logs for GET /api/auth/verify-email', async () => {
-      const ctx = makeContext('/api/auth/verify-email', 'GET', {
-        'user-agent': 'Vitest Verify',
-      }, '192.0.2.55');
+      const ctx = makeContext(
+        '/api/auth/verify-email',
+        'GET',
+        {
+          'user-agent': 'Vitest Verify',
+        },
+        '192.0.2.55'
+      );
 
       const resp = createDeprecatedGoneHtml(ctx);
 
@@ -119,9 +139,14 @@ describe('Security logging for deprecated endpoints (response helpers)', () => {
 
   describe('createDeprecatedGoneJson()', () => {
     it('logs with details for PUT /api/auth/logout', async () => {
-      const ctx = makeContext('/api/auth/logout', 'PUT', {
-        'user-agent': 'Vitest JSON',
-      }, '203.0.113.99');
+      const ctx = makeContext(
+        '/api/auth/logout',
+        'PUT',
+        {
+          'user-agent': 'Vitest JSON',
+        },
+        '203.0.113.99'
+      );
 
       const extra = { attemptedMethod: 'PUT' } as const;
       const resp = createDeprecatedGoneJson(ctx, undefined, extra);
@@ -146,9 +171,14 @@ describe('Security logging for deprecated endpoints (response helpers)', () => {
     });
 
     it('logs for DELETE /api/auth/verify-email', async () => {
-      const ctx = makeContext('/api/auth/verify-email', 'DELETE', {
-        'user-agent': 'Vitest JSON 2',
-      }, '198.51.100.77');
+      const ctx = makeContext(
+        '/api/auth/verify-email',
+        'DELETE',
+        {
+          'user-agent': 'Vitest JSON 2',
+        },
+        '198.51.100.77'
+      );
 
       const resp = createDeprecatedGoneJson(ctx);
 
@@ -168,9 +198,14 @@ describe('Security logging for deprecated endpoints (response helpers)', () => {
     });
 
     it('logs for HEAD /api/auth/logout (JSON 410)', async () => {
-      const ctx = makeContext('/api/auth/logout', 'HEAD', {
-        'user-agent': 'Vitest JSON HEAD',
-      }, '203.0.113.200');
+      const ctx = makeContext(
+        '/api/auth/logout',
+        'HEAD',
+        {
+          'user-agent': 'Vitest JSON HEAD',
+        },
+        '203.0.113.200'
+      );
 
       const extra = { attemptedMethod: 'HEAD' } as const;
       const resp = createDeprecatedGoneJson(ctx, undefined, extra);
@@ -195,9 +230,14 @@ describe('Security logging for deprecated endpoints (response helpers)', () => {
     });
 
     it('logs for HEAD /api/auth/verify-email (JSON 410)', async () => {
-      const ctx = makeContext('/api/auth/verify-email', 'HEAD', {
-        'user-agent': 'Vitest JSON HEAD 2',
-      }, '198.51.100.201');
+      const ctx = makeContext(
+        '/api/auth/verify-email',
+        'HEAD',
+        {
+          'user-agent': 'Vitest JSON HEAD 2',
+        },
+        '198.51.100.201'
+      );
 
       const extra = { attemptedMethod: 'HEAD' } as const;
       const resp = createDeprecatedGoneJson(ctx, undefined, extra);

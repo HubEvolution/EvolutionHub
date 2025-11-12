@@ -7,18 +7,23 @@ export {};
 
 /**
  * Unit-Tests für das Rate-Limiter Modul
- * 
+ *
  * Diese Tests decken die Kernfunktionen von src/lib/rate-limiter.ts ab:
  * - createRateLimiter: Erstellung der Middleware mit Config
  * - getRateLimitKey: Generierung des Schlüssels aus IP und User-ID
  * - Rate-Limiting-Logik: Inkrement, Limit-Check (429 bei Überschreitung), TTL-Reset
  * - Prekonfigurierte Limiter (z.B. authLimiter)
- * 
+ *
  * @module rate-limiter.test
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { createRateLimiter, getRateLimitKey, authLimiter, standardApiLimiter } from '../../../src/lib/rate-limiter';
+import {
+  createRateLimiter,
+  getRateLimitKey,
+  authLimiter,
+  standardApiLimiter,
+} from '../../../src/lib/rate-limiter';
 import { logRateLimitExceeded } from '../../../src/lib/security-logger';
 
 // Mock für logRateLimitExceeded

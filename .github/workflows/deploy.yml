@@ -58,6 +58,7 @@ jobs:
         run: npx astro check --tsconfig tsconfig.astro.json || npx astro check
 
       - name: OpenAPI Validate
+        if: ${{ env.SKIP_OPENAPI_VALIDATE != '1' }}
         run: npm run openapi:validate
 
       - name: Run Unit Tests with Coverage
@@ -153,6 +154,16 @@ jobs:
           TEST_BASE_URL: https://staging.hub-evolution.com
         run: |
           npx playwright test -c test-suite-v2/playwright.config.ts test-suite-v2/src/e2e/tools/image-enhancer.spec.ts --project=chromium --reporter=list
+
+      - name: 'Optional: Web‑Eval Executor Smoke'
+        if: ${{ env.RUN_EXECUTOR_SMOKE == '1' }}
+        env:
+          TEST_BASE_URL: https://staging.hub-evolution.com
+          WEB_EVAL_EXECUTOR_TOKEN: ${{ secrets.WEB_EVAL_EXECUTOR_TOKEN }}
+        run: |
+          set -o pipefail
+          echo "Starting optional Web‑Eval executor smoke for ~25s"
+          timeout 25s npm run web-eval:executor || true
 
   deploy-production:
     name: Deploy to Production

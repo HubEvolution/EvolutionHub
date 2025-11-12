@@ -1,1 +1,13 @@
-Token "VoiceTranscribeSuccessResponse" does not exist.
+
+> evolution-hub@0.0.1 openapi:validate
+> npx swagger-cli validate openapi.yaml
+
+Error parsing /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/openapi.yaml: duplicated mapping key (4172:5)
+
+ 4169 |         data:
+ 4170 |           $ref: '#/components/sche ...
+ 4171 |       required: [success, data]
+ 4172 |     WebEvalTaskRequest:
+------------^
+ 4173 |       type: object
+ 4174 |       additionalProperties: false

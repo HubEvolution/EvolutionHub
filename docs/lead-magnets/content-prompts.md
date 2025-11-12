@@ -56,14 +56,14 @@ Rahmen:
 
 Inhalt:
 
-1) Einleitung: Warum New Work? Ziele, Mythen, ROI-Überblick.
-1) Kultur & Führung: Vertrauenskultur, Ergebnisorientierung, Feedback-Mechanismen.
-1) Organisation & Prozesse: autonome Teams, Meeting-Hygiene, Entscheidungsregeln.
-1) Arbeitsmodelle: Hybrid/Remote, asynchrone Kollaboration, Fokuszeiten.
-1) Tools & Infrastruktur: Kommunikations- und Kollaborationsformen, Automatisierungsklassen.
-1) Kompetenzen: Rollenprofile, Upskilling, Lernpfade.
-1) Change-Management: Stakeholder-Map, Pilotierung, Metriken, Risiken.
-1) Roadmap (90 Tage): Quick Wins (30), Mid-Term (60), Verankerung (90).
+1. Einleitung: Warum New Work? Ziele, Mythen, ROI-Überblick.
+1. Kultur & Führung: Vertrauenskultur, Ergebnisorientierung, Feedback-Mechanismen.
+1. Organisation & Prozesse: autonome Teams, Meeting-Hygiene, Entscheidungsregeln.
+1. Arbeitsmodelle: Hybrid/Remote, asynchrone Kollaboration, Fokuszeiten.
+1. Tools & Infrastruktur: Kommunikations- und Kollaborationsformen, Automatisierungsklassen.
+1. Kompetenzen: Rollenprofile, Upskilling, Lernpfade.
+1. Change-Management: Stakeholder-Map, Pilotierung, Metriken, Risiken.
+1. Roadmap (90 Tage): Quick Wins (30), Mid-Term (60), Verankerung (90).
 
 Pro Kapitel:
 
@@ -92,7 +92,7 @@ CTA-Seiten (2):
 Ausgabeformat:
 
 - Markdown mit H1/H2/H3, Listen, Tabellen. Grafiken als Platzhalter kennzeichnen.
-"""
+  """
 
 ---
 
@@ -114,10 +114,9 @@ Rahmen:
 
 Struktur:
 
-1) Einleitung: Einsatzfelder, Nutzen, Risiken (kurz, 1 Seite)
-1) Evaluations-Checkliste (Matrix): Kriterien wie Datenschutz, Kosten, Reifegrad, Integrationen, UX, Support.
-1) Kategorie-Übersichten (je 1 Seite):
-
+1. Einleitung: Einsatzfelder, Nutzen, Risiken (kurz, 1 Seite)
+1. Evaluations-Checkliste (Matrix): Kriterien wie Datenschutz, Kosten, Reifegrad, Integrationen, UX, Support.
+1. Kategorie-Übersichten (je 1 Seite):
    - Automation (Workflows, Agenten)
 
    - Content (Text, Bild, Video)
@@ -126,8 +125,8 @@ Struktur:
 
    - Collaboration (Meeting, Notetaking, Übersetzung)
 
-1) Governance & Compliance: Richtlinien, Freigabeprozess, Shadow-IT vermeiden.
-1) Rollout-Plan (30/60/90 Tage) mit Verantwortlichkeiten.
+1. Governance & Compliance: Richtlinien, Freigabeprozess, Shadow-IT vermeiden.
+1. Rollout-Plan (30/60/90 Tage) mit Verantwortlichkeiten.
 
 Artefakte (für ZIP, optional):
 
@@ -140,7 +139,7 @@ Ausgabeformat:
 - PDF-Inhalt in Markdown. Tabellen als Markdown-Tabellen.
 
 - CSV/MD-Templates im Klartext als separate Dateien (falls ZIP-Variante).
-"""
+  """
 
 ---
 
@@ -162,12 +161,12 @@ Rahmen:
 
 Module (Beispiele):
 
-1) Fokus & Priorisierung: Eisenhower, Pareto, WIP‑Limits. Hinweis: Grafik „Prioritäten-Quadranten“ einfügen.
-1) Zeitgestaltung: Time‑Boxing, Deep Work, Meeting‑Diät. Hinweis: Tabelle „Wochenplan-Raster“ einfügen.
-1) Aufgabenfluss: Kanban für 1–3 Personen, Definition of Done. Hinweis: Grafik „Kanban-Flow“ ergänzen.
-1) Digitale Hygiene: Inbox‑Zero, Tool‑Minimalismus, Benachrichtigungen.
-1) Team‑Rituale: Weeklies, Retros, Entscheidungslog.
-1) KPI‑Mini‑Set: Leading vs. Lagging, persönliche KPI‑Liste (max. 5).
+1. Fokus & Priorisierung: Eisenhower, Pareto, WIP‑Limits. Hinweis: Grafik „Prioritäten-Quadranten“ einfügen.
+1. Zeitgestaltung: Time‑Boxing, Deep Work, Meeting‑Diät. Hinweis: Tabelle „Wochenplan-Raster“ einfügen.
+1. Aufgabenfluss: Kanban für 1–3 Personen, Definition of Done. Hinweis: Grafik „Kanban-Flow“ ergänzen.
+1. Digitale Hygiene: Inbox‑Zero, Tool‑Minimalismus, Benachrichtigungen.
+1. Team‑Rituale: Weeklies, Retros, Entscheidungslog.
+1. KPI‑Mini‑Set: Leading vs. Lagging, persönliche KPI‑Liste (max. 5).
 
 Pro Modul:
 
@@ -192,7 +191,7 @@ Ausgabeformat:
 - Markdown mit H1/H2/H3, nummerierten Listen, Tabellen.
 
 - Platzhalter für Vorlagen klar kennzeichnen.
-"""
+  """
 
 ---
 

@@ -96,7 +96,6 @@ testRefs: 'N/A'
 - **Config:** `tailwind.config.js`
 
 - **Theme:**
-
   - Primary: Cyan (#06B6D4)
 
   - Secondary: Emerald (#10B981)
@@ -104,7 +103,6 @@ testRefs: 'N/A'
   - Gray: Slate
 
 - **Custom Utilities:**
-
   - `.glass` - Glassmorphism effect
 
   - `.glass-header` - Transparent header
@@ -120,7 +118,6 @@ testRefs: 'N/A'
 - **Pfad:** `src/styles/global.css`
 
 - **Features:**
-
   - Tailwind Layers (base, components, utilities)
 
   - Animations: `fadeIn`, `blobMove`, `typewriter`
@@ -138,7 +135,6 @@ testRefs: 'N/A'
 - **Pfad:** `src/styles/future-tokens.css`
 
 - **Inhalt:**
-
   - CSS Custom Properties für Neon-Farben
 
   - `.glass-future` - Enhanced glassmorphism
@@ -244,7 +240,6 @@ testRefs: 'N/A'
 - **Pfad:** `src/scripts/neural-mesh.ts`
 
 - **Features:**
-
   - Canvas 2D Neural Network Visualization
 
   - **Dark Mode:** Dunkles Netz (gray-900) + Neon-Akzente (cyan/magenta/emerald)
@@ -264,7 +259,6 @@ testRefs: 'N/A'
 - **Pfad:** `src/scripts/orchestrate-entrance.ts`
 
 - **Features:**
-
   - Web Animations API (WAAPI)
 
   - IntersectionObserver (threshold: 0.1)
@@ -394,20 +388,20 @@ testRefs: 'N/A'
 
 ## 9. Risiken & Mitigations
 
-| Risiko | Wahrscheinlichkeit | Impact | Mitigation |
-|--------|-------------------|--------|------------|
-| Canvas Performance auf Low-End Devices | Medium | Medium | requestAnimationFrame throttling, particle count limits |
-| Layout Shift durch Canvas | Low | High | Position: absolute, z-index: -10, keine height/width Änderungen |
-| i18n Translations fehlen | Low | Low | Fallback zu bestehenden Keys, dann Manual Translation |
-| Build Errors (Astro/Cloudflare) | Low | High | Inkrementelle Tests nach jedem Script |
-| Accessibility Violations | Medium | Medium | Regelmäßige axe-core Checks, Kontrast-Checker |
+| Risiko                                 | Wahrscheinlichkeit | Impact | Mitigation                                                      |
+| -------------------------------------- | ------------------ | ------ | --------------------------------------------------------------- |
+| Canvas Performance auf Low-End Devices | Medium             | Medium | requestAnimationFrame throttling, particle count limits         |
+| Layout Shift durch Canvas              | Low                | High   | Position: absolute, z-index: -10, keine height/width Änderungen |
+| i18n Translations fehlen               | Low                | Low    | Fallback zu bestehenden Keys, dann Manual Translation           |
+| Build Errors (Astro/Cloudflare)        | Low                | High   | Inkrementelle Tests nach jedem Script                           |
+| Accessibility Violations               | Medium             | Medium | Regelmäßige axe-core Checks, Kontrast-Checker                   |
 
 ---
 
 ## 10. Changelog
 
-| Datum | Änderung | Author |
-|-------|----------|--------|
+| Datum      | Änderung               | Author      |
+| ---------- | ---------------------- | ----------- |
 | 2025-10-02 | Initial Audit erstellt | Claude Code |
 
 ---

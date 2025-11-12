@@ -24,7 +24,6 @@ This document consolidates the current source of truth for Evolution Hub's admin
 - **Authentication**: Every admin/notifications endpoint uses `withAuthApiMiddleware`, providing security headers, same-origin enforcement for unsafe methods, unified JSON envelopes, audit logging, and rate limiting (`standardApiLimiter` unless overridden).@src/lib/api-middleware.ts
 
 - **Role gating**:
-
   - `requireAdmin` restricts access to users with the `admin` role.@src/lib/auth-helpers.ts#104-134
 
   - `requireModerator` allows `moderator` or `admin` roles (used for comment moderation UIs).@src/lib/auth-helpers.ts#136-145
@@ -128,7 +127,6 @@ Refer to the file for additional sub-routes and structured logging (each request
 - `POST /api/notifications/queue/process` — Processes the email queue (default limit 10, overridable via `?limit=`). Requires admin auth, resolves `RESEND_API_KEY`, `EMAIL_FROM`, and `BASE_URL` from environment bindings. Same-origin enforced; CSRF disabled because the endpoint is invoked from internal tooling or cron.@src/pages/api/notifications/queue/process.ts#80-139
 
 - Processing loop:
-
   1. Load pending queue items (status `pending`, `scheduled_for <= now`), ordered by priority.@src/lib/services/notification-service.ts#578-588
   1. Resolve template (`reply-notification`, `moderation-decision`, …) and render HTML/subject using `{{variable}}` substitution.@src/lib/services/notification-service.ts#470-540
   1. Send through Resend via `createEmailService`; successes mark `status=sent` with timestamp.@src/lib/services/notification-service.ts#607-616
@@ -145,7 +143,7 @@ Refer to the file for additional sub-routes and structured logging (each request
 
 `scripts/warmup.ts` preheats key pages/APIs after deploys. Usage:@scripts/warmup.ts#1-109
 
-```bash
+````bash
 tsx scripts/warmup.ts --url https://example.evolution-hub.com --env production \
   --concurrency 4 --internal-health-token "$INTERNAL_HEALTH_TOKEN"
 
@@ -184,3 +182,4 @@ The script exits non-zero if health checks fail, but soft-fails on internal auth
 - [System Architecture Overview](../architecture/system-overview.md)
 
 ```text
+````

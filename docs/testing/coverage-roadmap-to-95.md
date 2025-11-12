@@ -32,7 +32,6 @@ Dieser Plan priorisiert Lücken nach Risiko, definiert phasierte Schritte, Resso
 Die Lücken werden nach Risiko gruppiert:
 
 - **Hoch (kritisch: Sicherheit, Core-Funktionen; hoher Impact bei Fehlern)**: AI-Services und API-Routen. Diese Bereiche handhaben sensible Daten (z.B. AI-Jobs, Bildgenerierung) und sind anfällig für Sicherheitslücken. Geschätzter Aufwand: 40-60 Stunden (komplexe Mocks für Cloudflare-Bindings). Betroffene Dateien/Verzeichnisse:
-
   - `src/lib/services/ai-image-service.ts` (0%)
 
   - `src/lib/services/ai-jobs-service.ts` (0%)
@@ -42,19 +41,17 @@ Die Lücken werden nach Risiko gruppiert:
   - `src/pages/api/dashboard/*` (0%)
 
   - `src/lib/auth-v2.ts` (0%)
-  Potenzielles Delta: +30-40% Coverage durch Unit/Integrationstests.
+    Potenzielles Delta: +30-40% Coverage durch Unit/Integrationstests.
 
 - **Mittel (mittlere Kritikalität: UI-Interaktionen; Benutzererfahrung)**: UI-Komponenten, die interaktive Features umsetzen. Weniger sicherheitskritisch, aber essenziell für Funktionalität. Geschätzter Aufwand: 20-40 Stunden (E2E-Tests mit Playwright). Betroffene Dateien/Verzeichnisse:
-
   - `src/components/tools/imag-enhancer/*` (0%)
 
   - `src/pages/r2/*` (0%)
-  Potenzielles Delta: +20-30% Coverage.
+    Potenzielles Delta: +20-30% Coverage.
 
 - **Niedrig (niedriges Risiko: Hilfsfunktionen; intern, wiederverwendbar)**: Utility- und Hilfsdateien. Geringer Impact, aber notwendig für Vollständigkeit. Geschätzter Aufwand: 10-20 Stunden (einfache Unit-Tests). Betroffene Dateien/Verzeichnisse:
-
   - `src/lib/db/helpers.ts` (0%)
-  Potenzielles Delta: +10-15% Coverage.
+    Potenzielles Delta: +10-15% Coverage.
 
 Priorisierung basiert auf Kritikalität (Sicherheit/Core > UI > Utilities) und Aufwand (komplexe Dependencies zuerst angehen, um Reuse zu ermöglichen).
 
@@ -67,7 +64,6 @@ Der Plan ist in 5 Phasen unterteilt, mit kumulativen Zielen (von aktuell ~30% Du
 - **Ziel**: +25% Coverage (Ziel: Statements/Functions >30%). Fokus auf Core-Logik (z.B. Job-Handling, Auth-Integration).
 
 - **Spezifische Test-Cases**:
-
   - Für `src/lib/services/ai-image-service.ts`: 5-10 Unit/Integration-Tests, z.B. generateImage() mit gültigen/ungültigen Prompts, uploadToR2() für erfolgreichen/ fehlgeschlagenen Upload, error-Handling für API-Fehler (z.B. Rate-Limits), Validierung von Bild-Parametern, Integration mit Drizzle für Job-Speicherung.
 
   - Für `src/lib/services/ai-jobs-service.ts`: 5-8 Tests, z.B. createJob(), getJobById(), updateJobStatus(), cancelJob(), error-Handling bei ungültigen IDs, Integration mit KV für Status-Tracking.
@@ -79,7 +75,6 @@ Der Plan ist in 5 Phasen unterteilt, mit kumulativen Zielen (von aktuell ~30% Du
   - Für `src/lib/auth-v2.ts`: 7-10 Tests, z.B. validateSession(), generateToken(), refreshAuth(), Error-Handling für abgelaufene Tokens, Integration mit KV/D1.
 
 - **Benötigte Ressourcen**:
-
   - Mocks: vi.mock für Drizzle/R2/KV-Bindings, MSW für Hono-Requests und externe AI-APIs.
 
   - Neue Test-Dateien: z.B. `test-suite-v2/src/unit/services/ai-image-service.test.ts`, `test-suite-v2/src/integration/api/ai-jobs.test.ts`.
@@ -87,7 +82,6 @@ Der Plan ist in 5 Phasen unterteilt, mit kumulativen Zielen (von aktuell ~30% Du
   - Dependencies: vi.mock('@cloudflare/workers-types'), @mswjs/interceptors für API-Mocking, vitest-mocks für Cloudflare-Env.
 
 - **Geschätzte Tests und Aufwand**:
-
   - Gesamt: 20-30 Unit-Tests, 10 Integration-Tests, 5 E2E-Tests.
 
   - Aufwand pro Datei: 8-10h für ai-image-service.ts (komplexe Mocks), 6-8h für ai-jobs-service.ts, 7-9h für API-Routen, 10-12h für Dashboard (mehrere Dateien), 5-7h für auth-v2.ts.
@@ -95,7 +89,6 @@ Der Plan ist in 5 Phasen unterteilt, mit kumulativen Zielen (von aktuell ~30% Du
   - Gesamtaufwand Phase 1: 40-50 Stunden.
 
 - **Abhängigkeiten/Sequenz**:
-
   1. Mocks und Test-Setup konfigurieren (z.B. globale vi.mock in vitest.config.ts).
   1. Unit-Tests implementieren (isolierte Funktionen).
   1. Integration-Tests (mit Wrangler-Dev-Server für echte Bindings).
@@ -103,7 +96,6 @@ Der Plan ist in 5 Phasen unterteilt, mit kumulativen Zielen (von aktuell ~30% Du
   1. CI-Anpassung (Threshold 30% in vitest.config.ts).
 
 - **Schritte**:
-
   1. Unit-Tests für Services (z.B. `ai-image-service.ts`: Mock Cloudflare R2/D1, testen von generate/upload-Funktionen).
   1. Integrationstests für APIs (z.B. `ai-image/jobs/[id].ts`: Vitest mit Hono-Mocks, simulierte Requests).
   1. E2E-Tests für kritische Flows (Playwright: AI-Job-Submission).
@@ -116,10 +108,9 @@ Der Plan ist in 5 Phasen unterteilt, mit kumulativen Zielen (von aktuell ~30% Du
 
 ### Phase 2: Hochrisiko – Auth und Dashboard-APIs (Woche 2-3)
 
-- **Ziel**: +20% Coverage (Ziel: Branches/Lines >50%). Fokus auf Auth und Dashboard-APIs, integrierend offene Lücken aus Phase 1 (Vollständige Dashboard-API-Coverage in src/pages/api/dashboard/*, E2E gegen ci.hub-evolution.com). Abweichung: Rate-Limiting extern in rate-limiter.ts implementiert.
+- **Ziel**: +20% Coverage (Ziel: Branches/Lines >50%). Fokus auf Auth und Dashboard-APIs, integrierend offene Lücken aus Phase 1 (Vollständige Dashboard-API-Coverage in src/pages/api/dashboard/\*, E2E gegen ci.hub-evolution.com). Abweichung: Rate-Limiting extern in rate-limiter.ts implementiert.
 
 - **Spezifische Test-Cases**:
-
   - 10-15 Unit-Tests für auth-v2.ts (validateSession(), createSession(), invalidateSession(), Session-Handling mit KV, Error-Handling für abgelaufene Tokens, Integration mit KV/D1).
 
   - 5-8 Unit-Tests für rate-limiter.ts (createRateLimiter(), IP-Keys-Generierung, Mock KV für TTL und Hit-Tracking, Edge-Cases wie Reset).
@@ -131,7 +122,6 @@ Der Plan ist in 5 Phasen unterteilt, mit kumulativen Zielen (von aktuell ~30% Du
   - 7-10 E2E-Tests (Dashboard-Navigation, API-Calls gegen ci.hub-evolution.com, Flows: Dashboard-Zugriff mit gültiger/invalider Auth, Auth-Error-Handling, Notifications- und Projects-Panel-Interaktionen, Rate-Limit-Simulation).
 
 - **Benötigte Ressourcen**:
-
   - Erweiterte Mocks (MSW für Dashboard-Endpoints, vi.mock für KV/Sessions und externe APIs, speziell für Rate-Limiting mit Mock KV).
 
   - Neue Dateien: test-suite-v2/src/unit/security/rate-limiter.test.ts, test-suite-v2/src/integration/api/api-middleware.test.ts, test-suite-v2/src/integration/api/dashboard.test.ts, test-suite-v2/src/e2e/dashboard-flow.spec.ts.
@@ -139,20 +129,17 @@ Der Plan ist in 5 Phasen unterteilt, mit kumulativen Zielen (von aktuell ~30% Du
   - Dependencies: @mswjs/interceptors für API-Mocking, Playwright mit BASE_URL=ci.hub-evolution.com für E2E.
 
 - **Geschätzte Tests und Aufwand**:
-
   - Gesamt: 30-40 Unit-Tests, 14-18 Integration-Tests, 7-10 E2E-Tests.
 
   - Aufwand: +5-10h für Rate-Limiting-Tests und Abweichungen (gesamt 35-50h); Sequenz: Unit zuerst (15h), dann Integration (15h), E2E mit realer URL (10-15h).
 
 - **Abhängigkeiten/Sequenz**:
-
   1. Unit-Tests für auth-v2.ts, rate-limiter.ts und Dashboard-Handler.
   1. Integration-Tests mit Mocks für KV/Sessions und Rate-Limiting.
   1. E2E-Tests gegen ci.hub-evolution.com (Playwright mit BASE_URL).
 
 - **Schritte**:
-
-  1. Integriere Tests für dashboard/* und rate-limiter.ts (Unit/Integration: API-Handler, Auth-Integration mit Middleware und Rate-Limiting).
+  1. Integriere Tests für dashboard/\* und rate-limiter.ts (Unit/Integration: API-Handler, Auth-Integration mit Middleware und Rate-Limiting).
   1. E2E gegen ci.hub-evolution.com (Playwright mit BASE_URL, Flows: Dashboard-Zugriff, Auth-Error-Handling, Rate-Limit-Überprüfung).
 
 - **Test-Typen**: 55% Unit, 30% Integration, 15% E2E.
@@ -166,7 +153,6 @@ Der Plan ist in 5 Phasen unterteilt, mit kumulativen Zielen (von aktuell ~30% Du
 - **Ziel**: +20% Coverage (Ziel: Functions >70%). Fokus auf Interaktivität (z.B. Image-Enhancer).
 
 - **Schritte**:
-
   1. Unit-Tests für Hooks/Komponenten (z.B. `useValidation.ts` in imag-enhancer: Vitest mit React-Testing-Library).
   1. Integrationstests für R2-Uploads (Mock Storage).
   1. E2E-Tests für Tool-Flows (Playwright: Bild-Upload und Enhancement).
@@ -182,7 +168,6 @@ Der Plan ist in 5 Phasen unterteilt, mit kumulativen Zielen (von aktuell ~30% Du
 - **Ziel**: +15% Coverage (Ziel: Alle Metriken >85%). Abschluss der Utilities.
 
 - **Schritte**:
-
   1. Unit-Tests für `db/helpers.ts` (Mock Drizzle-Queries).
   1. Refactoring bestehender Tests für bessere Branch-Coverage.
   1. Vollständige E2E-Suite für Cross-Features (z.B. Auth + AI).
@@ -198,7 +183,6 @@ Der Plan ist in 5 Phasen unterteilt, mit kumulativen Zielen (von aktuell ~30% Du
 - **Ziel**: +5% Coverage (Ziel: 95% für alle). Polishing und Maintenance.
 
 - **Schritte**:
-
   1. Code-Review aller neuen Tests.
   1. Accessibility- und Mobile-Tests (WCAG 2.1 AA via Playwright).
   1. CI-Threshold auf 95% setzen; automatisierte Smoke-Tests post-Deploy.
@@ -209,7 +193,7 @@ Der Plan ist in 5 Phasen unterteilt, mit kumulativen Zielen (von aktuell ~30% Du
 
 - **Meilenstein**: Grüner CI-Status bei 95%.
 
-```mermaid
+````mermaid
 flowchart TD
     A[Start: Aktuelle Coverage ~30%] --> B[Phase 1: Hochrisiko AI/APIs +25%]
     B --> C[Phase 2: Auth/Dashboard +20%]
@@ -261,3 +245,4 @@ flowchart TD
 Dieser Plan ist iterativ und anpassbar. Nach jeder Phase Coverage neu messen und anpassen.
 
 ```text
+````

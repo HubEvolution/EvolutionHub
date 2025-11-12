@@ -5,7 +5,7 @@
   --cs-panel-bg-dark: #071018;
   --cs-text: #ffffff;
   --cs-text-dark: #e6eef8;
-  --cs-shadow: 0 30px 90px rgba(2,6,23,0.85);
+  --cs-shadow: 0 30px 90px rgba(2, 6, 23, 0.85);
   --cs-radius: 0.75rem;
 }
 
@@ -26,7 +26,7 @@
 /* Panel */
 #coming-soon-overlay > div {
   width: min(96%, 42rem);
-  background-color: rgba(10,15,25,0.98); /* nearly opaque dark panel */
+  background-color: rgba(10, 15, 25, 0.98); /* nearly opaque dark panel */
   color: var(--cs-text);
   border-radius: var(--cs-radius);
   padding: 2rem;
@@ -71,7 +71,7 @@ body.coming-soon-open footer {
 /* Focus styles */
 #coming-soon-overlay a:focus,
 #coming-soon-overlay button:focus {
-  outline: 3px solid rgba(255,255,255,0.08);
+  outline: 3px solid rgba(255, 255, 255, 0.08);
   outline-offset: 3px;
   border-radius: 0.5rem;
 }
@@ -111,7 +111,12 @@ body.coming-soon-open {
 /* Utility visually-hidden */
 .cs-visually-hidden {
   position: absolute !important;
-  height: 1px; width: 1px;
-  overflow: hidden; clip: rect(1px, 1px, 1px, 1px);
-  white-space: nowrap; border: 0; padding: 0; margin: -1px;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+  clip: rect(1px, 1px, 1px, 1px);
+  white-space: nowrap;
+  border: 0;
+  padding: 0;
+  margin: -1px;
 }

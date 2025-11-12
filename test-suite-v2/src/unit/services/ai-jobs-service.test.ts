@@ -4,7 +4,12 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createJob, updateJob, deleteJob, getJobById } from '../../../src/lib/services/ai-jobs-service';
+import {
+  createJob,
+  updateJob,
+  deleteJob,
+  getJobById,
+} from '../../../src/lib/services/ai-jobs-service';
 import { db } from '../../../src/lib/db'; // Mocked
 import { authService } from '../../../src/lib/services/auth-service'; // Mocked
 import type { AIImageJob } from '../../../src/types/ai';
@@ -34,7 +39,12 @@ describe('AI Jobs Service', () => {
   describe('createJob', () => {
     const mockPrompt = 'Test prompt';
     const mockUserId = 'user123';
-    const mockJobData = { id: 'job1', prompt: mockPrompt, userId: mockUserId, status: 'pending' } as AIImageJob;
+    const mockJobData = {
+      id: 'job1',
+      prompt: mockPrompt,
+      userId: mockUserId,
+      status: 'pending',
+    } as AIImageJob;
 
     it('sollte Job erfolgreich erstellen', async () => {
       // Arrange
@@ -46,7 +56,9 @@ describe('AI Jobs Service', () => {
 
       // Assert
       expect(result.success).toBe(true);
-      expect(db.insert).toHaveBeenCalledWith(expect.anything(), [expect.objectContaining({ prompt: mockPrompt, userId: mockUserId })]);
+      expect(db.insert).toHaveBeenCalledWith(expect.anything(), [
+        expect.objectContaining({ prompt: mockPrompt, userId: mockUserId }),
+      ]);
       expect(result.data).toEqual({ id: 'job1', status: 'pending' });
     });
 

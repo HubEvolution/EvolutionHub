@@ -1,118 +1,126 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
+'use strict';
+Object.defineProperty(exports, '__esModule', { value: true });
 exports.POST = void 0;
-const api_middleware_1 = require("@/lib/api-middleware");
-const confirm_1 = require("./confirm");
-const logger_factory_1 = require("@/server/utils/logger-factory");
-const rate_limiter_1 = require("@/lib/rate-limiter");
-const validation_1 = require("@/lib/validation");
-const newsletter_1 = require("@/lib/validation/schemas/newsletter");
+const api_middleware_1 = require('@/lib/api-middleware');
+const confirm_1 = require('./confirm');
+const logger_factory_1 = require('@/server/utils/logger-factory');
+const rate_limiter_1 = require('@/lib/rate-limiter');
+const validation_1 = require('@/lib/validation');
+const newsletter_1 = require('@/lib/validation/schemas/newsletter');
 // Tracking von Newsletter-Anmeldungen erfolgt clientseitig via window.evolutionAnalytics
 // Logger-Instanzen erstellen
 const logger = logger_factory_1.loggerFactory.createLogger('newsletter-subscribe');
 // Rate-Limiter für Newsletter-Subscribe (10/Minute)
 const newsletterLimiter = (0, rate_limiter_1.createRateLimiter)({
-    maxRequests: 10,
-    windowMs: 60 * 1000,
-    name: 'newsletterSubscribe',
+  maxRequests: 10,
+  windowMs: 60 * 1000,
+  name: 'newsletterSubscribe',
 });
 // Note: response typing is inferred from createApiSuccess/createApiError contracts
 /**
  * Newsletter subscription API endpoint
  * Handles email validation, consent verification, and triggers email automation
  */
-exports.POST = (0, api_middleware_1.withApiMiddleware)(async (context) => {
+exports.POST = (0, api_middleware_1.withApiMiddleware)(
+  async (context) => {
     const { request } = context;
     const unknownBody = await request.json().catch(() => null);
     const parsed = newsletter_1.newsletterSubscribeSchema.safeParse(unknownBody);
     if (!parsed.success) {
-        return (0, api_middleware_1.createApiError)('validation_error', 'Invalid JSON body', {
-            details: (0, validation_1.formatZodError)(parsed.error),
-        });
+      return (0, api_middleware_1.createApiError)('validation_error', 'Invalid JSON body', {
+        details: (0, validation_1.formatZodError)(parsed.error),
+      });
     }
     const data = parsed.data;
     // Create pending subscription with secure token
-    const confirmationToken = (0, confirm_1.createPendingSubscription)(data.email, data.source || 'website');
+    const confirmationToken = (0, confirm_1.createPendingSubscription)(
+      data.email,
+      data.source || 'website'
+    );
     // Generate confirmation URL
     const baseUrl = new URL(request.url).origin;
     const confirmationUrl = `${baseUrl}/newsletter/confirm?token=${confirmationToken}&email=${encodeURIComponent(data.email)}`;
     // Send double opt-in confirmation email
     const emailSent = await sendConfirmationEmail(data.email, confirmationUrl);
     if (!emailSent) {
-        logger.error('Failed to send confirmation email', {
-            metadata: {
-                email: data.email.substring(0, 3) + '***', // PII-Redaction
-                source: data.source || 'website',
-            },
-        });
-        return (0, api_middleware_1.createApiError)('server_error', 'Failed to send confirmation email. Please try again.');
+      logger.error('Failed to send confirmation email', {
+        metadata: {
+          email: data.email.substring(0, 3) + '***', // PII-Redaction
+          source: data.source || 'website',
+        },
+      });
+      return (0, api_middleware_1.createApiError)(
+        'server_error',
+        'Failed to send confirmation email. Please try again.'
+      );
     }
     logger.info('Double opt-in email sent successfully', {
-        metadata: {
-            email: data.email.substring(0, 3) + '***', // PII-Redaction
-            confirmationUrl: confirmationUrl,
-            source: data.source || 'website',
-        },
+      metadata: {
+        email: data.email.substring(0, 3) + '***', // PII-Redaction
+        confirmationUrl: confirmationUrl,
+        source: data.source || 'website',
+      },
     });
     // Analytics event tracking (stubbed for now)
     logger.info('Newsletter subscription pending - analytics event', {
-        metadata: {
-            email: data.email.substring(0, 3) + '***', // PII-Redaction
-            source: data.source || 'website',
-            event: 'newsletter_subscribe_pending',
-        },
+      metadata: {
+        email: data.email.substring(0, 3) + '***', // PII-Redaction
+        source: data.source || 'website',
+        event: 'newsletter_subscribe_pending',
+      },
     });
     return (0, api_middleware_1.createApiSuccess)({
-        message: 'Please check your email to confirm your subscription!',
-        email: data.email,
-        nextStep: 'confirmation_required',
-        info: 'We have sent a confirmation email to your address. Please click the link in the email to complete your subscription.',
+      message: 'Please check your email to confirm your subscription!',
+      email: data.email,
+      nextStep: 'confirmation_required',
+      info: 'We have sent a confirmation email to your address. Please click the link in the email to complete your subscription.',
     });
-}, {
+  },
+  {
     rateLimiter: newsletterLimiter,
     enforceCsrfToken: false, // Newsletter-Anmeldung ist öffentlich
     disableAutoLogging: false,
-});
+  }
+);
 /**
  * Send double opt-in confirmation email
  * TODO: Replace with actual email service integration
  */
 async function sendConfirmationEmail(email, confirmationUrl) {
-    try {
-        // TODO: Integration with email service (Resend, SendGrid, etc.)
-        logger.info('Sending confirmation email', {
-            metadata: {
-                email: email,
-                confirmationUrl: confirmationUrl,
-            },
-        });
-        // Mock email sending - in production, integrate with email service
-        const emailContent = generateConfirmationEmailHTML(email, confirmationUrl);
-        logger.info('Email content generated for confirmation', {
-            metadata: {
-                email: email,
-                contentLength: emailContent.length,
-            },
-        });
-        // Simulate email sending delay
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        return true; // Mock success
-    }
-    catch (error) {
-        logger.error('Error sending confirmation email', {
-            metadata: {
-                email: email,
-                error: error instanceof Error ? error.message : 'unknown',
-            },
-        });
-        return false;
-    }
+  try {
+    // TODO: Integration with email service (Resend, SendGrid, etc.)
+    logger.info('Sending confirmation email', {
+      metadata: {
+        email: email,
+        confirmationUrl: confirmationUrl,
+      },
+    });
+    // Mock email sending - in production, integrate with email service
+    const emailContent = generateConfirmationEmailHTML(email, confirmationUrl);
+    logger.info('Email content generated for confirmation', {
+      metadata: {
+        email: email,
+        contentLength: emailContent.length,
+      },
+    });
+    // Simulate email sending delay
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    return true; // Mock success
+  } catch (error) {
+    logger.error('Error sending confirmation email', {
+      metadata: {
+        email: email,
+        error: error instanceof Error ? error.message : 'unknown',
+      },
+    });
+    return false;
+  }
 }
 /**
  * Generate HTML content for confirmation email
  */
 function generateConfirmationEmailHTML(email, confirmationUrl) {
-    return `
+  return `
 <!DOCTYPE html>
 <html lang="de">
 <head>

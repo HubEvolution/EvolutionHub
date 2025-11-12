@@ -1,11 +1,11 @@
 /**
  * E2E-Tests für Dashboard-Flows
- * 
+ *
  * Diese Tests verwenden Playwright gegen BASE_URL=ci.hub-evolution.com.
  * Fokus: Navigation zu Dashboard, Auth-Handling (valid/invalid -> redirect/401),
  * Flows: Load activity/notifications/projects/stats, perform-action (create project),
  * Error-Cases: No auth, rate-limit (multiple API calls), network/DB errors.
- * 
+ *
  * @file dashboard-flow.spec.ts
  */
 
@@ -85,7 +85,7 @@ test('sollte Perform Action (Create Project) ausführen', async ({ page }) => {
 });
 
 test('sollte bei Rate-Limit (multiple API calls) 429 Error handhaben', async ({ page }) => {
-  await page.route('**/api/dashboard/**', async route => {
+  await page.route('**/api/dashboard/**', async (route) => {
     // Simulate rate limit after 2 calls
     const calls = (route.request().headers()['x-test-call'] || 0) as number;
     if (calls >= 2) {
@@ -105,7 +105,7 @@ test('sollte bei Rate-Limit (multiple API calls) 429 Error handhaben', async ({ 
 });
 
 test('sollte bei Network/DB Error graceful degradieren', async ({ page }) => {
-  await page.route('**/api/dashboard/**', route => {
+  await page.route('**/api/dashboard/**', (route) => {
     route.fulfill({ status: 500, body: JSON.stringify({ error: 'DB Error' }) });
   });
 

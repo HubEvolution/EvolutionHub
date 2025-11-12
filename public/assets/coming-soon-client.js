@@ -11,14 +11,14 @@
   };
   var getFocusable = function (el) {
     if (!el) return [];
-    var selector = 'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
+    var selector =
+      'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
     var nodes = Array.from(el.querySelectorAll(selector));
     return nodes.filter(isVisible);
   };
   function trapFocus(container) {
     var focusable = getFocusable(container);
-    if (focusable.length === 0)
-      return function () { };
+    if (focusable.length === 0) return function () {};
     var first = focusable[0];
     var last = focusable[focusable.length - 1];
     function onKey(e) {
@@ -28,8 +28,7 @@
             e.preventDefault();
             last.focus();
           }
-        }
-        else {
+        } else {
           if (document.activeElement === last) {
             e.preventDefault();
             first.focus();
@@ -38,12 +37,13 @@
       }
     }
     document.addEventListener('keydown', onKey);
-    return function () { return document.removeEventListener('keydown', onKey); };
+    return function () {
+      return document.removeEventListener('keydown', onKey);
+    };
   }
   function init() {
     var overlayEl = document.getElementById('coming-soon-overlay');
-    if (!(overlayEl instanceof HTMLElement))
-      return;
+    if (!(overlayEl instanceof HTMLElement)) return;
     var overlay = overlayEl;
     var dismissible = overlay.getAttribute('data-dismissible') === 'true';
     document.body.classList.add(BODY_LOCK_CLASS);
@@ -51,28 +51,24 @@
     var primary = overlay.querySelector('[data-cs-primary]') || focusable[0];
     if (primary) {
       primary.focus();
-    }
-    else {
+    } else {
       overlay.tabIndex = -1;
       overlay.focus();
     }
-    var removeTrap = function () { };
+    var removeTrap = function () {};
     if (dismissible) {
       removeTrap = trapFocus(overlay);
     }
     function closeOverlay() {
       document.body.classList.remove(BODY_LOCK_CLASS);
-      if (overlay && overlay.parentNode)
-        overlay.parentNode.removeChild(overlay);
+      if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
       removeTrap();
       document.removeEventListener('keydown', onKeydown);
       var closeBtn = overlay.querySelector('.cs-close');
-      if (closeBtn)
-        closeBtn.removeEventListener('click', onCloseClick);
+      if (closeBtn) closeBtn.removeEventListener('click', onCloseClick);
     }
     function onKeydown(e) {
-      if (!dismissible)
-        return;
+      if (!dismissible) return;
       if (e.key === 'Escape') {
         closeOverlay();
       }
@@ -88,12 +84,11 @@
         closeBtn.addEventListener('click', onCloseClick);
       }
     }
-    window.addEventListener('resize', function () { });
+    window.addEventListener('resize', function () {});
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
-  }
-  else {
+  } else {
     init();
   }
 })();

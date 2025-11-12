@@ -28,14 +28,14 @@ const QuickActions: React.FC<{
             <button
               key={action.id}
               className={`p-4 rounded-lg text-left transition-colors ${
-                action.variant === 'primary' 
-                  ? 'bg-blue-500/10 hover:bg-blue-500/20' 
+                action.variant === 'primary'
+                  ? 'bg-blue-500/10 hover:bg-blue-500/20'
                   : 'bg-gray-500/10 hover:bg-gray-500/20'
               }`}
               onClick={action.action}
             >
               <div className="flex items-center space-x-3">
-                <div 
+                <div
                   className={`flex items-center justify-center w-10 h-10 rounded-full ${
                     action.variant === 'primary' ? 'bg-blue-500/10' : 'bg-gray-500/10'
                   }`}
@@ -43,12 +43,8 @@ const QuickActions: React.FC<{
                   {action.icon}
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900 dark:text-white">
-                    {action.title}
-                  </h4>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {action.description}
-                  </p>
+                  <h4 className="font-medium text-gray-900 dark:text-white">{action.title}</h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{action.description}</p>
                 </div>
               </div>
             </button>
@@ -120,7 +116,7 @@ describe('QuickActions', () => {
 
   it('displays the correct action titles and descriptions', () => {
     render(<QuickActions actions={mockActions} />);
-    
+
     mockActions.forEach((action) => {
       expect(screen.getByText(action.title)).toBeInTheDocument();
       expect(screen.getByText(action.description)).toBeInTheDocument();
@@ -134,13 +130,14 @@ describe('QuickActions', () => {
 
   it('applies the correct variant class to action buttons', () => {
     render(<QuickActions actions={mockActions} />);
-    
+
     mockActions.forEach((action, index) => {
       const button = screen.getAllByRole('button')[index];
-      const expectedClass = action.variant === 'primary' 
-        ? 'bg-blue-500/10 hover:bg-blue-500/20' 
-        : 'bg-gray-500/10 hover:bg-gray-500/20';
-      
+      const expectedClass =
+        action.variant === 'primary'
+          ? 'bg-blue-500/10 hover:bg-blue-500/20'
+          : 'bg-gray-500/10 hover:bg-gray-500/20';
+
       expect(button).toHaveClass(expectedClass);
     });
   });

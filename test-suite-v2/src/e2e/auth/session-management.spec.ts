@@ -100,7 +100,9 @@ test.describe('Session Management', () => {
         // Session cookie should persist
         const sessionId = await getCookieValue(page, 'session_id');
         expect(sessionId, `Session should persist on ${pagePath}`).toBeTruthy();
-        expect(sessionId, `Session ID should remain the same on ${pagePath}`).toBe(initialSessionId);
+        expect(sessionId, `Session ID should remain the same on ${pagePath}`).toBe(
+          initialSessionId
+        );
 
         // Should not be redirected to login
         const currentUrl = page.url();
@@ -129,11 +131,15 @@ test.describe('Session Management', () => {
 
         const sessionId = await getCookieValue(page, 'session_id');
         expect(sessionId, `Session should persist after reload ${i + 1}`).toBeTruthy();
-        expect(sessionId, `Session ID should remain the same after reload ${i + 1}`).toBe(initialSessionId);
+        expect(sessionId, `Session ID should remain the same after reload ${i + 1}`).toBe(
+          initialSessionId
+        );
 
         // Should still be on dashboard
         const currentUrl = page.url();
-        expect(currentUrl, `Should still be on dashboard after reload ${i + 1}`).toMatch(/dashboard/);
+        expect(currentUrl, `Should still be on dashboard after reload ${i + 1}`).toMatch(
+          /dashboard/
+        );
       }
 
       await context.close();
@@ -255,7 +261,9 @@ test.describe('Session Management', () => {
       await context.close();
     });
 
-    test('should redirect to login when accessing protected routes after logout', async ({ browser }) => {
+    test('should redirect to login when accessing protected routes after logout', async ({
+      browser,
+    }) => {
       const context = await browser.newContext();
       const page = await context.newPage();
 

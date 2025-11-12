@@ -29,13 +29,21 @@ test.describe('Image Enhancer', () => {
     await ImageEnhancer.uploadImage(page, SAMPLE_IMAGE);
 
     // Select model, honoring FORCE_CF_MODELS to force Workers AI even if Replicate is present
-    const replicateValue = 'nightmareai/real-esrgan:f0992969a94014d73864d08e6d9a39286868328e4263d9ce2da6fc4049d01a1a';
+    const replicateValue =
+      'nightmareai/real-esrgan:f0992969a94014d73864d08e6d9a39286868328e4263d9ce2da6fc4049d01a1a';
     const cfFallbackValue = '@cf/runwayml/stable-diffusion-v1-5-img2img';
-    const forceCF = ((process.env.FORCE_CF_MODELS || '').toLowerCase() === '1') || ((process.env.FORCE_CF_MODELS || '').toLowerCase() === 'true');
+    const forceCF =
+      (process.env.FORCE_CF_MODELS || '').toLowerCase() === '1' ||
+      (process.env.FORCE_CF_MODELS || '').toLowerCase() === 'true';
     const modelSelect = page.locator('select#model, [data-testid="model-select"]').first();
-    const replicatePresent = (await modelSelect.locator(`option[value="${replicateValue}"]`).count()) > 0;
+    const replicatePresent =
+      (await modelSelect.locator(`option[value="${replicateValue}"]`).count()) > 0;
     const useReplicate = replicatePresent && !forceCF;
-    await selectOption(page, 'select#model, [data-testid="model-select"]', useReplicate ? replicateValue : cfFallbackValue);
+    await selectOption(
+      page,
+      'select#model, [data-testid="model-select"]',
+      useReplicate ? replicateValue : cfFallbackValue
+    );
 
     // Capability-driven controls only when Replicate model is used
     if (useReplicate) {
@@ -78,7 +86,9 @@ test.describe('Image Enhancer', () => {
 
     // Toast/i18n: success message (best-effort; don't fail test if toast portal timing differs)
     try {
-      const successToast = page.getByText(/(Image enhanced successfully|Bild erfolgreich verbessert)/i);
+      const successToast = page.getByText(
+        /(Image enhanced successfully|Bild erfolgreich verbessert)/i
+      );
       await expect(successToast).toBeVisible({ timeout: 2000 });
     } catch {}
 
@@ -121,7 +131,9 @@ test.describe('Image Enhancer', () => {
     const z0 = await zoomPercent.textContent();
     await zoomInBtn.click();
     const z1 = await zoomPercent.textContent();
-    expect(Number((z1 || '').replace('%',''))).toBeGreaterThan(Number((z0 || '').replace('%','')));
+    expect(Number((z1 || '').replace('%', ''))).toBeGreaterThan(
+      Number((z0 || '').replace('%', ''))
+    );
 
     // Reset zoom to 100% via dedicated control
     const resetZoomBtn = page.getByRole('button', { name: /^Reset zoom$/i });
@@ -154,7 +166,11 @@ test.describe('Image Enhancer', () => {
       if (await changeModel.isVisible().catch(() => false)) {
         await changeModel.click();
       }
-      await selectOption(page, 'select#model, [data-testid="model-select"]', 'tencentarc/gfpgan:0fbacf7afc6c144e5be9767cff80f25aff23e52b0708f17e20f9879b2f21516c');
+      await selectOption(
+        page,
+        'select#model, [data-testid="model-select"]',
+        'tencentarc/gfpgan:0fbacf7afc6c144e5be9767cff80f25aff23e52b0708f17e20f9879b2f21516c'
+      );
       await expect(page.getByRole('button', { name: /^x2$/ })).toHaveCount(0);
       await expect(page.getByRole('button', { name: /^x4$/ })).toHaveCount(0);
     }
@@ -164,124 +180,140 @@ test.describe('Image Enhancer', () => {
     await test.info().attach('enhancer-final', { body: png, contentType: 'image/png' });
   });
   test.describe('Responsive UI/UX Tests', () => {
-  const viewports = [
-    { name: 'Desktop', width: 1920, height: 1080 },
-    { name: 'Tablet', width: 768, height: 1024 },
-    { name: 'Mobile', width: 375, height: 667 }
-  ];
+    const viewports = [
+      { name: 'Desktop', width: 1920, height: 1080 },
+      { name: 'Tablet', width: 768, height: 1024 },
+      { name: 'Mobile', width: 375, height: 667 },
+    ];
 
-  for (const vp of viewports) {
-    test(`Image Enhancer on ${vp.name} viewport`, async ({ page }) => {
-      // Set viewport
-      await page.setViewportSize({ width: vp.width, height: vp.height });
+    for (const vp of viewports) {
+      test(`Image Enhancer on ${vp.name} viewport`, async ({ page }) => {
+        // Set viewport
+        await page.setViewportSize({ width: vp.width, height: vp.height });
 
-      // Seed guest cookie and navigate
-      await seedGuestId(page);
-      await navigateToTool(page, 'image-enhancer', { locale: 'en' });
-      await dismissCookieConsent(page);
+        // Seed guest cookie and navigate
+        await seedGuestId(page);
+        await navigateToTool(page, 'image-enhancer', { locale: 'en' });
+        await dismissCookieConsent(page);
 
-      // Wait for usage fetch
-      await page
-        .waitForResponse(
-          (r) => r.url().includes('/api/ai-image/usage') && r.request().method() === 'GET',
-          { timeout: 10000 }
-        )
-        .catch(() => {});
+        // Wait for usage fetch
+        await page
+          .waitForResponse(
+            (r) => r.url().includes('/api/ai-image/usage') && r.request().method() === 'GET',
+            { timeout: 10000 }
+          )
+          .catch(() => {});
 
-      // Screenshot before interactions
-      await test.info().attach(`${vp.name}-before`, {
-        body: await page.screenshot({ fullPage: true }),
-        contentType: 'image/png'
-      });
+        // Screenshot before interactions
+        await test.info().attach(`${vp.name}-before`, {
+          body: await page.screenshot({ fullPage: true }),
+          contentType: 'image/png',
+        });
 
-      // Dismiss consent
-      const acceptConsent = page.getByRole('button', { name: /(Accept|Akzeptieren)/i });
-      if (await acceptConsent.isVisible().catch(() => false)) {
-        await acceptConsent.click();
-      }
-
-      // Upload image
-      await ImageEnhancer.uploadImage(page, SAMPLE_IMAGE);
-
-      // Select model and options (Replicate when available and not forced, otherwise Workers AI fallback)
-      const replicateValue2 = 'nightmareai/real-esrgan:f0992969a94014d73864d08e6d9a39286868328e4263d9ce2da6fc4049d01a1a';
-      const cfFallbackValue2 = '@cf/runwayml/stable-diffusion-v1-5-img2img';
-      const forceCF2 = ((process.env.FORCE_CF_MODELS || '').toLowerCase() === '1') || ((process.env.FORCE_CF_MODELS || '').toLowerCase() === 'true');
-      const modelSelect2 = page.locator('select#model, [data-testid="model-select"]').first();
-      const replicatePresent2 = (await modelSelect2.locator(`option[value="${replicateValue2}"]`).count()) > 0;
-      const useReplicate2 = replicatePresent2 && !forceCF2;
-      await selectOption(page, 'select#model, [data-testid="model-select"]', useReplicate2 ? replicateValue2 : cfFallbackValue2);
-      if (useReplicate2) {
-        const scaleX2 = page.getByRole('button', { name: /^x2$/ });
-        await scaleX2.click();
-        const faceEnhance = page.getByLabel(/Face enhance/i);
-        if (await faceEnhance.isEnabled().catch(() => false)) {
-          await faceEnhance.check();
-        } else {
+        // Dismiss consent
+        const acceptConsent = page.getByRole('button', { name: /(Accept|Akzeptieren)/i });
+        if (await acceptConsent.isVisible().catch(() => false)) {
+          await acceptConsent.click();
         }
-      }
 
-      // Enhance
-      await ImageEnhancer.clickEnhance(page);
+        // Upload image
+        await ImageEnhancer.uploadImage(page, SAMPLE_IMAGE);
 
-      // Wait for API success to avoid race conditions on slower machines
-      const genResp = await page.waitForResponse(
-        (r) => r.url().includes('/api/ai-image/generate') && r.request().method() === 'POST',
-        { timeout: 30000 }
-      );
-      try {
-        const body = await genResp.json();
-        expect(body && typeof body === 'object' && 'success' in body && (body as any).success).toBe(
-          true
+        // Select model and options (Replicate when available and not forced, otherwise Workers AI fallback)
+        const replicateValue2 =
+          'nightmareai/real-esrgan:f0992969a94014d73864d08e6d9a39286868328e4263d9ce2da6fc4049d01a1a';
+        const cfFallbackValue2 = '@cf/runwayml/stable-diffusion-v1-5-img2img';
+        const forceCF2 =
+          (process.env.FORCE_CF_MODELS || '').toLowerCase() === '1' ||
+          (process.env.FORCE_CF_MODELS || '').toLowerCase() === 'true';
+        const modelSelect2 = page.locator('select#model, [data-testid="model-select"]').first();
+        const replicatePresent2 =
+          (await modelSelect2.locator(`option[value="${replicateValue2}"]`).count()) > 0;
+        const useReplicate2 = replicatePresent2 && !forceCF2;
+        await selectOption(
+          page,
+          'select#model, [data-testid="model-select"]',
+          useReplicate2 ? replicateValue2 : cfFallbackValue2
         );
-      } catch {}
+        if (useReplicate2) {
+          const scaleX2 = page.getByRole('button', { name: /^x2$/ });
+          await scaleX2.click();
+          const faceEnhance = page.getByLabel(/Face enhance/i);
+          if (await faceEnhance.isEnabled().catch(() => false)) {
+            await faceEnhance.check();
+          } else {
+          }
+        }
 
-      // Wait for slider
-      const slider = page.getByRole('slider');
-      await expect(slider).toBeVisible({ timeout: 30000 });
+        // Enhance
+        await ImageEnhancer.clickEnhance(page);
 
-      // Interact with slider (touch simulation for mobile)
-      if (vp.name === 'Mobile') {
-        // Simulate touch drag
-        await slider.hover();
-        await page.mouse.move(vp.width / 2, vp.height / 2); // Drag to center
-        await page.mouse.up();
-      } else {
-        await slider.press('ArrowRight');
-        await page.keyboard.press('R'); // Reset
-      }
+        // Wait for API success to avoid race conditions on slower machines
+        const genResp = await page.waitForResponse(
+          (r) => r.url().includes('/api/ai-image/generate') && r.request().method() === 'POST',
+          { timeout: 30000 }
+        );
+        try {
+          const body = await genResp.json();
+          expect(
+            body && typeof body === 'object' && 'success' in body && (body as any).success
+          ).toBe(true);
+        } catch {}
 
-      // Screenshot after interactions
-      await test.info().attach(`${vp.name}-after`, {
-        body: await page.screenshot({ fullPage: true }),
-        contentType: 'image/png'
+        // Wait for slider
+        const slider = page.getByRole('slider');
+        await expect(slider).toBeVisible({ timeout: 30000 });
+
+        // Interact with slider (touch simulation for mobile)
+        if (vp.name === 'Mobile') {
+          // Simulate touch drag
+          await slider.hover();
+          await page.mouse.move(vp.width / 2, vp.height / 2); // Drag to center
+          await page.mouse.up();
+        } else {
+          await slider.press('ArrowRight');
+          await page.keyboard.press('R'); // Reset
+        }
+
+        // Screenshot after interactions
+        await test.info().attach(`${vp.name}-after`, {
+          body: await page.screenshot({ fullPage: true }),
+          contentType: 'image/png',
+        });
+
+        // Visual snapshot check disabled in E2E v2; screenshot attached as artifact above
+
+        // Test DE locale separately for this viewport
+        await navigateToTool(page, 'image-enhancer', { locale: 'de' });
+        await dismissCookieConsent(page);
+        await test.info().attach(`${vp.name}-de-before`, {
+          body: await page.screenshot({ fullPage: true }),
+          contentType: 'image/png',
+        });
+        // Quick upload and enhance for DE
+        await ImageEnhancer.uploadImage(page, SAMPLE_IMAGE);
+        const replicateValueDe =
+          'nightmareai/real-esrgan:f0992969a94014d73864d08e6d9a39286868328e4263d9ce2da6fc4049d01a1a';
+        const cfFallbackValueDe = '@cf/runwayml/stable-diffusion-v1-5-img2img';
+        const forceCFDe =
+          (process.env.FORCE_CF_MODELS || '').toLowerCase() === '1' ||
+          (process.env.FORCE_CF_MODELS || '').toLowerCase() === 'true';
+        const modelSelectDe = page.locator('select#model, [data-testid="model-select"]').first();
+        const replicatePresentDe =
+          (await modelSelectDe.locator(`option[value="${replicateValueDe}"]`).count()) > 0;
+        const useReplicateDe = replicatePresentDe && !forceCFDe;
+        await selectOption(
+          page,
+          'select#model, [data-testid="model-select"]',
+          useReplicateDe ? replicateValueDe : cfFallbackValueDe
+        );
+        await ImageEnhancer.clickEnhance(page);
+        await expect(slider).toBeVisible();
+        await test.info().attach(`${vp.name}-de-after`, {
+          body: await page.screenshot({ fullPage: true }),
+          contentType: 'image/png',
+        });
       });
-
-      // Visual snapshot check disabled in E2E v2; screenshot attached as artifact above
-
-      // Test DE locale separately for this viewport
-      await navigateToTool(page, 'image-enhancer', { locale: 'de' });
-      await dismissCookieConsent(page);
-      await test.info().attach(`${vp.name}-de-before`, {
-        body: await page.screenshot({ fullPage: true }),
-        contentType: 'image/png'
-      });
-      // Quick upload and enhance for DE
-      await ImageEnhancer.uploadImage(page, SAMPLE_IMAGE);
-      const replicateValueDe = 'nightmareai/real-esrgan:f0992969a94014d73864d08e6d9a39286868328e4263d9ce2da6fc4049d01a1a';
-      const cfFallbackValueDe = '@cf/runwayml/stable-diffusion-v1-5-img2img';
-      const forceCFDe = ((process.env.FORCE_CF_MODELS || '').toLowerCase() === '1') || ((process.env.FORCE_CF_MODELS || '').toLowerCase() === 'true');
-      const modelSelectDe = page.locator('select#model, [data-testid="model-select"]').first();
-      const replicatePresentDe = (await modelSelectDe.locator(`option[value="${replicateValueDe}"]`).count()) > 0;
-      const useReplicateDe = replicatePresentDe && !forceCFDe;
-      await selectOption(page, 'select#model, [data-testid="model-select"]', useReplicateDe ? replicateValueDe : cfFallbackValueDe);
-      await ImageEnhancer.clickEnhance(page);
-      await expect(slider).toBeVisible();
-      await test.info().attach(`${vp.name}-de-after`, {
-        body: await page.screenshot({ fullPage: true }),
-        contentType: 'image/png'
-      });
-    });
-  }
-});
+    }
+  });
 });

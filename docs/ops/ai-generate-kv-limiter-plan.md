@@ -28,7 +28,6 @@ Goal: Deterministic 429s in production regardless of multi‑edge routing by sha
 - One DO instance keyed by a stable shard, e.g., `rate:aiGenerate:<ip>` or `rate:aiGenerate:<owner>`.
 
 - On request:
-
   - Compute key (IP + ownerType+ownerId suffix to reduce hot keys).
 
   - `state.storage.get(key)`, mutate `{count, resetAt}`, `put` with TTL.
@@ -65,7 +64,7 @@ Goal: Deterministic 429s in production regardless of multi‑edge routing by sha
 
 1. Add DO binding in `wrangler.toml`:
 
-```toml
+````toml
 [[durable_objects.bindings]]
 name = "DO_RATE"
 class_name = "RateLimiterDO"
@@ -84,7 +83,7 @@ export class RateLimiterDO {
   constructor(state: DurableObjectState, env: Env) { this.state = state }
   async fetch(req: Request) { /* increment + return JSON {ok, retryAfter?} */ }
 }
-```
+````
 
 1. In `src/lib/rate-limiter.ts`, add `aiGenerateLimiterDO(context)` that calls DO fetch with key computed from IP/owner, returns Response when limited or `{success:true}` otherwise.
 1. Swap `aiGenerateLimiter` usage in `withApiMiddleware` options for `/api/ai-image/generate` to the DO-backed version (guarded by env flag `AI_LIMITER_DO=1`).

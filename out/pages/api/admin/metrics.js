@@ -1,58 +1,78 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.HEAD = exports.OPTIONS = exports.DELETE = exports.PATCH = exports.PUT = exports.POST = exports.GET = void 0;
-const api_middleware_1 = require("@/lib/api-middleware");
-const rate_limiter_1 = require("@/lib/rate-limiter");
-const auth_helpers_1 = require("@/lib/auth-helpers");
+'use strict';
+Object.defineProperty(exports, '__esModule', { value: true });
+exports.HEAD =
+  exports.OPTIONS =
+  exports.DELETE =
+  exports.PATCH =
+  exports.PUT =
+  exports.POST =
+  exports.GET =
+    void 0;
+const api_middleware_1 = require('@/lib/api-middleware');
+const rate_limiter_1 = require('@/lib/rate-limiter');
+const auth_helpers_1 = require('@/lib/auth-helpers');
 function getAdminEnv(context) {
-    const env = (context.locals?.runtime?.env ?? {});
-    return (env ?? {});
+  const env = context.locals?.runtime?.env ?? {};
+  return env ?? {};
 }
-exports.GET = (0, api_middleware_1.withAuthApiMiddleware)(async (context) => {
+exports.GET = (0, api_middleware_1.withAuthApiMiddleware)(
+  async (context) => {
     const env = getAdminEnv(context);
     const db = env.DB;
     if (!db) {
-        return (0, api_middleware_1.createApiError)('server_error', 'Database unavailable');
+      return (0, api_middleware_1.createApiError)('server_error', 'Database unavailable');
     }
     const database = db;
     try {
-        await (0, auth_helpers_1.requireAdmin)({ request: context.request, env: { DB: database } });
-    }
-    catch {
-        return (0, api_middleware_1.createApiError)('forbidden', 'Insufficient permissions');
+      await (0, auth_helpers_1.requireAdmin)({ request: context.request, env: { DB: database } });
+    } catch {
+      return (0, api_middleware_1.createApiError)('forbidden', 'Insufficient permissions');
     }
     // Helpers to run scalar queries safely
     async function scalar(sql, ...binds) {
-        try {
-            const row = await database
-                .prepare(sql)
-                .bind(...binds)
-                .first();
-            return row?.v ?? null;
-        }
-        catch {
-            return null;
-        }
+      try {
+        const row = await database
+          .prepare(sql)
+          .bind(...binds)
+          .first();
+        return row?.v ?? null;
+      } catch {
+        return null;
+      }
     }
     // Active sessions and users (expires_at treated as ISO or epoch seconds)
-    const activeSessionsByIso = await scalar(`SELECT COUNT(*) as v FROM sessions WHERE datetime(expires_at) > datetime('now')`);
-    const activeSessionsByEpoch = await scalar(`SELECT COUNT(*) as v FROM sessions WHERE CAST(expires_at AS INTEGER) > strftime('%s','now')`);
+    const activeSessionsByIso = await scalar(
+      `SELECT COUNT(*) as v FROM sessions WHERE datetime(expires_at) > datetime('now')`
+    );
+    const activeSessionsByEpoch = await scalar(
+      `SELECT COUNT(*) as v FROM sessions WHERE CAST(expires_at AS INTEGER) > strftime('%s','now')`
+    );
     const activeSessions = (activeSessionsByIso ?? 0) || (activeSessionsByEpoch ?? 0) || 0;
-    const activeUsersByIso = await scalar(`SELECT COUNT(DISTINCT user_id) as v FROM sessions WHERE datetime(expires_at) > datetime('now')`);
-    const activeUsersByEpoch = await scalar(`SELECT COUNT(DISTINCT user_id) as v FROM sessions WHERE CAST(expires_at AS INTEGER) > strftime('%s','now')`);
+    const activeUsersByIso = await scalar(
+      `SELECT COUNT(DISTINCT user_id) as v FROM sessions WHERE datetime(expires_at) > datetime('now')`
+    );
+    const activeUsersByEpoch = await scalar(
+      `SELECT COUNT(DISTINCT user_id) as v FROM sessions WHERE CAST(expires_at AS INTEGER) > strftime('%s','now')`
+    );
     const activeUsers = (activeUsersByIso ?? 0) || (activeUsersByEpoch ?? 0) || 0;
     const usersTotal = (await scalar(`SELECT COUNT(*) as v FROM users`)) ?? 0;
-    const usersNew24hIso = await scalar(`SELECT COUNT(*) as v FROM users WHERE datetime(created_at) >= datetime('now','-1 day')`);
-    const usersNew24hEpoch = await scalar(`SELECT COUNT(*) as v FROM users WHERE CAST(created_at AS INTEGER) >= strftime('%s','now','-1 day')`);
+    const usersNew24hIso = await scalar(
+      `SELECT COUNT(*) as v FROM users WHERE datetime(created_at) >= datetime('now','-1 day')`
+    );
+    const usersNew24hEpoch = await scalar(
+      `SELECT COUNT(*) as v FROM users WHERE CAST(created_at AS INTEGER) >= strftime('%s','now','-1 day')`
+    );
     const usersNew24h = (usersNew24hIso ?? 0) || (usersNew24hEpoch ?? 0) || 0;
     return (0, api_middleware_1.createApiSuccess)({
-        activeSessions,
-        activeUsers,
-        usersTotal,
-        usersNew24h,
-        ts: Date.now(),
+      activeSessions,
+      activeUsers,
+      usersTotal,
+      usersNew24h,
+      ts: Date.now(),
     });
-}, { rateLimiter: rate_limiter_1.apiRateLimiter, logMetadata: { action: 'admin_metrics' } });
+  },
+  { rateLimiter: rate_limiter_1.apiRateLimiter, logMetadata: { action: 'admin_metrics' } }
+);
 // 405 for unsupported methods
 const methodNotAllowed = () => (0, api_middleware_1.createMethodNotAllowed)('GET');
 exports.POST = methodNotAllowed;

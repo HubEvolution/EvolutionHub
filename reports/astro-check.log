@@ -1,23 +1,23 @@
-15:57:44 [@astrojs/cloudflare] Enabling sessions with Cloudflare KV with the "SESSION" KV binding.
-15:57:44 [@astrojs/cloudflare] If you see the error "Invalid binding `SESSION`" in your build output, you need to add the binding to your wrangler config file.
-15:57:44 [WARN] [adapter] Cloudflare does not support sharp at runtime. However, you can configure `imageService: "compile"` to optimize images with sharp on prerendered pages during build time.
-15:57:44 [vite] Re-optimizing dependencies because vite config has changed
-15:57:45 [content] Syncing content
-15:57:45 [content] Content config changed
-15:57:45 [content] Clearing content store
-15:57:45 [content] Synced content
-15:57:45 [types] Generated 1.24s
-15:57:45 [check] Getting diagnostics for Astro files in /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub...
-[96msrc/components/AosWrapper.astro[0m:[93m83[0m:[93m6[0m - [91merror[0m[90m ts(2322): [0mType '{ children: any; class: string | undefined; }' is not assignable to type 'IntrinsicAttributes'.
-  Property 'class' does not exist on type 'IntrinsicAttributes'.
+01:46:29 [@astrojs/cloudflare] Enabling sessions with Cloudflare KV with the "SESSION" KV binding.
+01:46:29 [@astrojs/cloudflare] If you see the error "Invalid binding `SESSION`" in your build output, you need to add the binding to your wrangler config file.
+01:46:29 [WARN] [adapter] Cloudflare does not support sharp at runtime. However, you can configure `imageService: "compile"` to optimize images with sharp on prerendered pages during build time.
+01:46:31 [content] Syncing content
+01:46:31 [content] Synced content
+01:46:31 [types] Generated 1.52s
+01:46:31 [check] Getting diagnostics for Astro files in /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub...
+[96msrc/components/BlogList.astro[0m:[93m67[0m:[93m36[0m - [91merror[0m[90m ts(7006): [0mParameter 'idx' implicitly has an 'any' type.
 
-[7m83[0m <Tag class={className} {...aosAttrs}>
-[7m  [0m [91m     ~~~~~[0m
+[7m67[0m         {remainingPosts.map((post, idx) => (
+[7m  [0m [91m                                   ~~~[0m
+[96msrc/components/BlogList.astro[0m:[93m67[0m:[93m30[0m - [91merror[0m[90m ts(7006): [0mParameter 'post' implicitly has an 'any' type.
 
-[96msrc/components/BlogPost.astro[0m:[93m56[0m:[93m3[0m - [91merror[0m[90m ts(2339): [0mProperty 'ctas' does not exist on type 'BlogPostData'.
+[7m67[0m         {remainingPosts.map((post, idx) => (
+[7m  [0m [91m                             ~~~~[0m
 
-[7m56[0m   ctas = [],
-[7m  [0m [91m  ~~~~[0m
+[96msrc/components/blog/LeadMagnetCTA.astro[0m:[93m93[0m:[93m29[0m - [91merror[0m[90m ts(7053): [0mElement implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ card: string; inline: string; banner: string; }'.
+
+[7m93[0m   class={`lead-magnet-cta ${variantStyles[variant]} transition-all duration-300 hover:shadow-xl group my-8`}
+[7m  [0m [91m                            ~~~~~~~~~~~~~~~~~~~~~~[0m
 
 [96msrc/components/dashboard/RecommendationsCard.astro[0m:[93m51[0m:[93m19[0m - [91merror[0m[90m ts(2322): [0mType '{ children: any[]; key: string; href: string; class: string; }' is not assignable to type 'AnchorHTMLAttributes'.
   Property 'key' does not exist on type 'AnchorHTMLAttributes'.
@@ -30,10 +30,14 @@
 [7m28[0m                   key={tool.id}
 [7m  [0m [91m                  ~~~[0m
 
-[96msrc/components/pricing/PricingTable.astro[0m:[93m359[0m:[93m20[0m - [93mwarning[0m[90m ts(6133): [0m'createCreditsCheckout' is declared but its value is never read.
+[96msrc/components/forms/LeadMagnetForm.astro[0m:[93m48[0m:[93m56[0m - [91merror[0m[90m ts(7053): [0mElement implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ sm: string; md: string; lg: string; }'.
 
-[7m359[0m     async function createCreditsCheckout(pack) {
-[7m   [0m [93m                   ~~~~~~~~~~~~~~~~~~~~~[0m
+[7m48[0m   class={`lead-magnet-form ${variantStyles[variant]} ${sizeStyles[size]} transition-all duration-300`}
+[7m  [0m [91m                                                       ~~~~~~~~~~~~~~~~[0m
+[96msrc/components/forms/LeadMagnetForm.astro[0m:[93m48[0m:[93m30[0m - [91merror[0m[90m ts(7053): [0mElement implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ modal: string; inline: string; sidebar: string; }'.
+
+[7m48[0m   class={`lead-magnet-form ${variantStyles[variant]} ${sizeStyles[size]} transition-all duration-300`}
+[7m  [0m [91m                             ~~~~~~~~~~~~~~~~~~~~~~[0m
 
 [96msrc/components/projects/ProjectModal.tsx[0m:[93m264[0m:[93m19[0m - [93mwarning[0m[90m ts(6385): [0m'onKeyPress' is deprecated.
 
@@ -45,20 +49,46 @@
 [7m38[0m   as="article"
 [7m  [0m [91m  ~~[0m
 
-[96msrc/components/tools/imag-enhancer/__tests__/ModelControls.test.tsx[0m:[93m1[0m:[93m1[0m - [93mwarning[0m[90m ts(6133): [0m'React' is declared but its value is never read.
+[96msrc/components/tools/imag-enhancer/__tests__/ModelControls.test.tsx[0m:[93m1[0m:[93m1[0m - [91merror[0m[90m ts(6133): [0m'React' is declared but its value is never read.
 
 [7m1[0m import React from 'react';
-[7m [0m [93m~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[7m [0m [91m~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
 
-[96msrc/components/tools/imag-enhancer/__tests__/useCompareInteractions.test.tsx[0m:[93m3[0m:[93m1[0m - [93mwarning[0m[90m ts(6133): [0m'userEvent' is declared but its value is never read.
+[96msrc/components/tools/imag-enhancer/__tests__/useCompareInteractions.test.tsx[0m:[93m3[0m:[93m1[0m - [91merror[0m[90m ts(6133): [0m'userEvent' is declared but its value is never read.
 
 [7m3[0m import userEvent from '@testing-library/user-event';
-[7m [0m [93m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[7m [0m [91m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
 
 [96msrc/components/tools/webscraper/WebscraperIsland.tsx[0m:[93m97[0m:[93m7[0m - [93mwarning[0m[90m ts(80007): [0m'await' has no effect on the type of this expression.
 
 [7m97[0m       await ensureCsrfToken();
 [7m  [0m [93m      ~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/layouts/AuthLayout.astro[0m:[93m8[0m:[93m5[0m - [93mwarning[0m[90m astro(4000): [0mThis script will be treated as if it has the `is:inline` directive because it contains an attribute. Therefore, features that require processing (e.g. using TypeScript or npm packages in the script) are unavailable.
+
+See docs for more details: https://docs.astro.build/en/guides/client-side-scripts/#script-processing.
+
+Add the `is:inline` directive explicitly to silence this hint.
+
+[7m8[0m     src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+[7m [0m [93m    ~~~[0m
+
+[96msrc/layouts/BaseLayout.astro[0m:[93m254[0m:[93m11[0m - [93mwarning[0m[90m astro(4000): [0mThis script will be treated as if it has the `is:inline` directive because it contains an attribute. Therefore, features that require processing (e.g. using TypeScript or npm packages in the script) are unavailable.
+
+See docs for more details: https://docs.astro.build/en/guides/client-side-scripts/#script-processing.
+
+Add the `is:inline` directive explicitly to silence this hint.
+
+[7m254[0m           src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+[7m   [0m [93m          ~~~[0m
+[96msrc/layouts/BaseLayout.astro[0m:[93m250[0m:[93m13[0m - [93mwarning[0m[90m astro(4000): [0mThis script will be treated as if it has the `is:inline` directive because it contains an attribute. Therefore, features that require processing (e.g. using TypeScript or npm packages in the script) are unavailable.
+
+See docs for more details: https://docs.astro.build/en/guides/client-side-scripts/#script-processing.
+
+Add the `is:inline` directive explicitly to silence this hint.
+
+[7m250[0m     <script type="module" src={landingBgUrl} defer nonce={Astro.locals.cspNonce}></script>
+[7m   [0m [93m            ~~~~[0m
 
 [96msrc/lib/auth.ts[0m:[93m13[0m:[93m48[0m - [93mwarning[0m[90m ts(6385): [0m'LegacyLucia' is deprecated.
 
@@ -70,217 +100,470 @@
 [7m12[0m import { createKVNamespaceMock } from '../../tests/utils/kv-mock';
 [7m  [0m [91m                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
 
-[96msrc/lib/services/ai-image-service.ts[0m:[93m531[0m:[93m77[0m - [91merror[0m[90m ts(2345): [0mArgument of type 'string' is not assignable to parameter of type 'RunRetrieveParams'.
+[96msrc/pages/faq.astro[0m:[93m197[0m:[93m11[0m - [93mwarning[0m[90m astro(4000): [0mThis script will be treated as if it has the `is:inline` directive because it contains an attribute. Therefore, features that require processing (e.g. using TypeScript or npm packages in the script) are unavailable.
 
-[7m531[0m         const runStatus = await openai.beta.threads.runs.retrieve(threadId, runId);
-[7m   [0m [91m                                                                            ~~~~~[0m
-[96msrc/lib/services/ai-image-service.ts[0m:[93m540[0m:[93m59[0m - [93mwarning[0m[90m ts(6387): [0mThe signature '(threadID: string, query?: MessageListParams | null | undefined, options?: RequestOptions | undefined): PagePromise<MessagesPage, Message>' of 'openai.beta.threads.messages.list' is deprecated.
+See docs for more details: https://docs.astro.build/en/guides/client-side-scripts/#script-processing.
 
-[7m540[0m       const messages = await openai.beta.threads.messages.list(threadId);
-[7m   [0m [93m                                                          ~~~~[0m
-[96msrc/lib/services/ai-image-service.ts[0m:[93m531[0m:[93m58[0m - [93mwarning[0m[90m ts(6387): [0mThe signature '(runID: string, params: RunRetrieveParams, options?: RequestOptions | undefined): APIPromise<Run>' of 'openai.beta.threads.runs.retrieve' is deprecated.
+Add the `is:inline` directive explicitly to silence this hint.
 
-[7m531[0m         const runStatus = await openai.beta.threads.runs.retrieve(threadId, runId);
-[7m   [0m [93m                                                         ~~~~~~~~[0m
-[96msrc/lib/services/ai-image-service.ts[0m:[93m508[0m:[93m50[0m - [93mwarning[0m[90m ts(6387): [0mThe signature '(threadID: string, params: RunCreateParamsNonStreaming, options?: RequestOptions | undefined): APIPromise<Run>' of 'openai.beta.threads.runs.create' is deprecated.
+[7m197[0m   <script type="module">
+[7m   [0m [93m          ~~~~[0m
 
-[7m508[0m       const run = await openai.beta.threads.runs.create(threadId, {
-[7m   [0m [93m                                                 ~~~~~~[0m
-[96msrc/lib/services/ai-image-service.ts[0m:[93m503[0m:[93m42[0m - [93mwarning[0m[90m ts(6387): [0mThe signature '(threadID: string, body: MessageCreateParams, options?: RequestOptions | undefined): APIPromise<Message>' of 'openai.beta.threads.messages.create' is deprecated.
+[96msrc/pages/kontakt.astro[0m:[93m337[0m:[93m9[0m - [93mwarning[0m[90m astro(4000): [0mThis script will be treated as if it has the `is:inline` directive because it contains an attribute. Therefore, features that require processing (e.g. using TypeScript or npm packages in the script) are unavailable.
 
-[7m503[0m       await openai.beta.threads.messages.create(threadId, {
-[7m   [0m [93m                                         ~~~~~~[0m
-[96msrc/lib/services/ai-image-service.ts[0m:[93m496[0m:[93m48[0m - [93mwarning[0m[90m ts(6387): [0mThe signature '(body?: ThreadCreateParams | null | undefined, options?: RequestOptions | undefined): APIPromise<Thread>' of 'openai.beta.threads.create' is deprecated.
+See docs for more details: https://docs.astro.build/en/guides/client-side-scripts/#script-processing.
 
-[7m496[0m       const thread = await openai.beta.threads.create();
-[7m   [0m [93m                                               ~~~~~~[0m
+Add the `is:inline` directive explicitly to silence this hint.
 
-[96msrc/lib/services/comment-service-extended.ts[0m:[93m625[0m:[93m44[0m - [91merror[0m[90m ts(2769): [0mNo overload matches this call.
-  Overload 1 of 2, '(value: { action: "view" | "delete" | SQL<unknown> | "create" | "update" | "moderate" | "report" | Placeholder<string, any>; createdAt: number | SQL<unknown> | Placeholder<string, any>; ... 8 more ...; newValues?: string | ... 3 more ... | undefined; }): SQLiteInsertBase<...>', gave the following error.
-  Overload 2 of 2, '(values: { action: "view" | "delete" | SQL<unknown> | "create" | "update" | "moderate" | "report" | Placeholder<string, any>; createdAt: number | SQL<unknown> | Placeholder<string, any>; ... 8 more ...; newValues?: string | ... 3 more ... | undefined; }[]): SQLiteInsertBase<...>', gave the following error.
+[7m337[0m <script type="module">
+[7m   [0m [93m        ~~~~[0m
 
-[7m625[0m     await this.db.insert(commentAuditLogs).values({
-[7m   [0m [91m                                           ~~~~~~[0m
-[96msrc/lib/services/comment-service-extended.ts[0m:[93m545[0m:[93m7[0m - [91merror[0m[90m ts(2345): [0mArgument of type '(row: { comment: Comment; reports: string | null; latestModeration?: string | null; }) => { comment: Comment; reports: any; latestModeration: any; priority: "medium" | "low" | "high"; }' is not assignable to parameter of type '(value: { comment: { id: string; content: string; authorId: string | null; authorName: string; authorEmail: string; parentId: string | null; entityType: "blog_post" | "project" | "general"; ... 5 more ...; updatedAt: number; }; reports: CommentReport[]; latestModeration: CommentModeration; }, index: number, array: {...'.
-  Types of parameters 'row' and 'value' are incompatible.
+[96msrc/pages/pricing.astro[0m:[93m238[0m:[93m19[0m - [91merror[0m[90m ts(2322): [0mType '{ children: string; id: string; type: "button"; variant: "link" | "primary" | "secondary" | "outline" | "ghost" | "accent"; size: "md"; className: string; }' is not assignable to type 'IntrinsicAttributes & Props'.
+  Property 'id' does not exist on type 'IntrinsicAttributes & Props'.
 
-[7m545[0m       (row: { comment: Comment; reports: string | null; latestModeration?: string | null }) => ({
-[7m   [0m [91m      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
-[7m546[0m         comment: row.comment,
-[7m   [0m [91m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
-[7m...[0m 
-[7m549[0m         priority: this.calculatePriority(row.comment, JSON.parse(row.reports || '[]')),
-[7m   [0m [91m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
-[7m550[0m       })
-[7m   [0m [91m~~~~~~~~[0m
-[96msrc/lib/services/comment-service-extended.ts[0m:[93m419[0m:[93m8[0m - [91merror[0m[90m ts(2769): [0mNo overload matches this call.
-  Overload 1 of 2, '(value: { reason: "spam" | "harassment" | "inappropriate" | "off_topic" | "other" | SQL<unknown> | Placeholder<string, any>; createdAt: number | SQL<unknown> | Placeholder<string, any>; ... 7 more ...; reviewedBy?: string | ... 3 more ... | undefined; }): SQLiteInsertBase<...>', gave the following error.
-  Overload 2 of 2, '(values: { reason: "spam" | "harassment" | "inappropriate" | "off_topic" | "other" | SQL<unknown> | Placeholder<string, any>; createdAt: number | SQL<unknown> | Placeholder<string, any>; ... 7 more ...; reviewedBy?: string | ... 3 more ... | undefined; }[]): SQLiteInsertBase<...>', gave the following error.
+[7m238[0m                   id={`buy-credits-${pack.id}`}
+[7m   [0m [91m                  ~~[0m
 
-[7m419[0m       .values({
-[7m   [0m [91m       ~~~~~~[0m
-[96msrc/lib/services/comment-service-extended.ts[0m:[93m366[0m:[93m8[0m - [91merror[0m[90m ts(2769): [0mNo overload matches this call.
-  Overload 1 of 2, '(value: { action: "approve" | "reject" | "flag" | "hide" | SQL<unknown> | "unhide" | Placeholder<string, any>; createdAt: number | SQL<unknown> | Placeholder<string, any>; commentId: string | ... 1 more ... | Placeholder<...>; id?: number | ... 2 more ... | undefined; reason?: string | ... 3 more ... | undefined; moderatorId?: string | ... 3 more ... | undefined; }): SQLiteInsertBase<...>', gave the following error.
-  Overload 2 of 2, '(values: { action: "approve" | "reject" | "flag" | "hide" | SQL<unknown> | "unhide" | Placeholder<string, any>; createdAt: number | SQL<unknown> | Placeholder<string, any>; commentId: string | ... 1 more ... | Placeholder<...>; id?: number | ... 2 more ... | undefined; reason?: string | ... 3 more ... | undefined; moderatorId?: string | ... 3 more ... | undefined; }[]): SQLiteInsertBase<...>', gave the following error.
+[96msrc/pages/account/settings.astro[0m:[93m5[0m:[93m7[0m - [91merror[0m[90m ts(6133): [0m'target' is declared but its value is never read.
 
-[7m366[0m       .values({
-[7m   [0m [91m       ~~~~~~[0m
-[96msrc/lib/services/comment-service-extended.ts[0m:[93m344[0m:[93m29[0m - [91merror[0m[90m ts(2345): [0mArgument of type '(row: { comment: Comment; reportCount: number | null; }) => { reportCount: number; id: string; content: string; authorId: string | null; authorName: string; authorEmail: string; ... 11 more ...; helpfulCount?: number; }' is not assignable to parameter of type '(value: { comment: { id: string; content: string; authorId: string | null; authorName: string; authorEmail: string; parentId: string | null; entityType: "blog_post" | "project" | "general"; ... 5 more ...; updatedAt: number; }; reportCount: number; }, index: number, array: { ...; }[]) => { ...; }'.
-  Types of parameters 'row' and 'value' are incompatible.
+[7m5[0m const target =
+[7m [0m [91m      ~~~~~~[0m
 
-[7m344[0m     return replyResults.map((row: { comment: Comment; reportCount: number | null }) => ({
-[7m   [0m [91m                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
-[7m345[0m       ...row.comment,
-[7m   [0m [91m~~~~~~~~~~~~~~~~~~~~~[0m
-[7m346[0m       reportCount: row.reportCount || 0,
-[7m   [0m [91m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
-[7m347[0m     })) as Comment[];
-[7m   [0m [91m~~~~~~[0m
-[96msrc/lib/services/comment-service-extended.ts[0m:[93m306[0m:[93m7[0m - [91merror[0m[90m ts(2345): [0mArgument of type '(row: { comment: Comment; reportCount: number | null; }) => { reportCount: number; id: string; content: string; authorId: string | null; authorName: string; authorEmail: string; ... 11 more ...; helpfulCount?: number; }' is not assignable to parameter of type '(value: { comment: { id: string; content: string; authorId: string | null; authorName: string; authorEmail: string; parentId: string | null; entityType: "blog_post" | "project" | "general"; ... 5 more ...; updatedAt: number; }; reportCount: number; }, index: number, array: { ...; }[]) => { ...; }'.
-  Types of parameters 'row' and 'value' are incompatible.
+[96msrc/pages/blog/[...slug].astro[0m:[93m202[0m:[93m13[0m - [91merror[0m[90m ts(2322): [0mType '{ id: string; name: string | undefined; email: string | undefined; image: string | undefined; } | null' is not assignable to type '{ id: string; name: string; email: string; image?: string | undefined; } | null | undefined'.
+  Type '{ id: string; name: string | undefined; email: string | undefined; image: string | undefined; }' is not assignable to type '{ id: string; name: string; email: string; image?: string | undefined; }'.
 
-[7m306[0m       (row: { comment: Comment; reportCount: number | null }) => ({
-[7m   [0m [91m      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
-[7m307[0m         ...row.comment,
-[7m   [0m [91m~~~~~~~~~~~~~~~~~~~~~~~[0m
-[7m308[0m         reportCount: row.reportCount || 0,
-[7m   [0m [91m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
-[7m309[0m       })
-[7m   [0m [91m~~~~~~~~[0m
-[96msrc/lib/services/comment-service-extended.ts[0m:[93m199[0m:[93m46[0m - [91merror[0m[90m ts(2769): [0mNo overload matches this call.
-  Overload 1 of 3, '(left: SQLiteColumn<{ name: "author_id"; tableName: "comments"; dataType: "string"; columnType: "SQLiteText"; data: string; driverParam: string; notNull: false; hasDefault: false; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, { ...; }>, right: string | SQLWrapper): SQL<...>', gave the following error.
-  Overload 2 of 3, '(left: Aliased<number>, right: number | SQLWrapper): SQL<unknown>', gave the following error.
-  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+[7m202[0m             initialUser={initialUser}
+[7m   [0m [91m            ~~~~~~~~~~~[0m
+[96msrc/pages/blog/[...slug].astro[0m:[93m180[0m:[93m70[0m - [91merror[0m[90m ts(2339): [0mProperty 'name' does not exist on type 'string | AuthorInfo'.
+  Property 'name' does not exist on type 'string'.
 
-[7m199[0m       .where(and(eq(comments.id, commentId), eq(comments.authorId, userId)));
-[7m   [0m [91m                                             ~~[0m
-[96msrc/lib/services/comment-service-extended.ts[0m:[93m157[0m:[93m46[0m - [91merror[0m[90m ts(2769): [0mNo overload matches this call.
-  Overload 1 of 3, '(left: SQLiteColumn<{ name: "author_id"; tableName: "comments"; dataType: "string"; columnType: "SQLiteText"; data: string; driverParam: string; notNull: false; hasDefault: false; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, { ...; }>, right: string | SQLWrapper): SQL<...>', gave the following error.
-  Overload 2 of 3, '(left: Aliased<number>, right: number | SQLWrapper): SQL<unknown>', gave the following error.
-  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+[7m180[0m   author={Array.isArray(data.author) ? data.author[0] : data.author?.name || 'EvolutionHub Team'}
+[7m   [0m [91m                                                                     ~~~~[0m
+[96msrc/pages/blog/[...slug].astro[0m:[93m145[0m:[93m70[0m - [91merror[0m[90m ts(2339): [0mProperty 'name' does not exist on type 'string | AuthorInfo'.
+  Property 'name' does not exist on type 'string'.
 
-[7m157[0m       .where(and(eq(comments.id, commentId), eq(comments.authorId, userId)));
-[7m   [0m [91m                                             ~~[0m
-[96msrc/lib/services/comment-service-extended.ts[0m:[93m88[0m:[93m36[0m - [91merror[0m[90m ts(2769): [0mNo overload matches this call.
-  Overload 1 of 2, '(value: { id: string | SQL<unknown> | Placeholder<string, any>; content: string | SQL<unknown> | Placeholder<string, any>; entityType: "blog_post" | "project" | "general" | SQL<...> | Placeholder<...>; ... 9 more ...; editedAt?: number | ... 3 more ... | undefined; }): SQLiteInsertBase<...>', gave the following error.
-  Overload 2 of 2, '(values: { id: string | SQL<unknown> | Placeholder<string, any>; content: string | SQL<unknown> | Placeholder<string, any>; entityType: "blog_post" | "project" | "general" | SQL<...> | Placeholder<...>; ... 9 more ...; editedAt?: number | ... 3 more ... | undefined; }[]): SQLiteInsertBase<...>', gave the following error.
+[7m145[0m     name: Array.isArray(data.author) ? data.author[0] : data.author?.name || 'EvolutionHub Team',
+[7m   [0m [91m                                                                     ~~~~[0m
+[96msrc/pages/blog/[...slug].astro[0m:[93m7[0m:[93m28[0m - [91merror[0m[90m ts(2305): [0mModule '"@/lib/blog"' has no exported member 'BlogCollectionEntry'.
 
-[7m88[0m     await this.db.insert(comments).values({
-[7m  [0m [91m                                   ~~~~~~[0m
-[96msrc/lib/services/comment-service-extended.ts[0m:[93m78[0m:[93m16[0m - [91merror[0m[90m ts(2769): [0mNo overload matches this call.
-  Overload 1 of 3, '(left: SQLiteColumn<{ name: "id"; tableName: "users"; dataType: "string"; columnType: "SQLiteText"; data: string; driverParam: string; notNull: true; hasDefault: false; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, { ...; }>, right: string | SQLWrapper): SQL<...>', gave the following error.
-  Overload 2 of 3, '(left: Aliased<number>, right: number | SQLWrapper): SQL<unknown>', gave the following error.
-  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+[7m7[0m import { blogService, type BlogCollectionEntry } from '@/lib/blog';
+[7m [0m [91m                           ~~~~~~~~~~~~~~~~~~~[0m
 
-[7m78[0m         .where(eq(users.id, userId))
-[7m  [0m [91m               ~~[0m
+[96msrc/pages/en/blog/[...slug].astro[0m:[93m5[0m:[93m2[0m - [91merror[0m[90m ts(2322): [0mType '{}' is not assignable to type 'never'.
 
-[96msrc/lib/services/comment-service.ts[0m:[93m641[0m:[93m9[0m - [91merror[0m[90m ts(2345): [0mArgument of type '(row: { comment: Comment; reportCount: number; authorImage: string | null; }) => void' is not assignable to parameter of type '(value: { comment: { id: string; content: string; authorId: string | null; authorName: string; authorEmail: string; parentId: string | null; entityType: "blog_post" | "project" | "general"; ... 5 more ...; updatedAt: number; }; reportCount: number; authorImage: string; }, index: number, array: { ...; }[]) => void'.
-  Types of parameters 'row' and 'value' are incompatible.
+[7m5[0m <Page />
+[7m [0m [91m ~~~~[0m
 
-[7m641[0m         (row: { comment: Comment; reportCount: number; authorImage: string | null }) => {
-[7m   [0m [91m        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
-[96msrc/lib/services/comment-service.ts[0m:[93m602[0m:[93m7[0m - [91merror[0m[90m ts(2345): [0mArgument of type '(row: { comment: Comment; reportCount: number; authorImage: string | null; }) => Comment' is not assignable to parameter of type '(value: { comment: { id: string; content: string; authorId: string | null; authorName: string; authorEmail: string; parentId: string | null; entityType: "blog_post" | "project" | "general"; ... 5 more ...; updatedAt: number; }; reportCount: number; authorImage: string; }, index: number, array: { ...; }[]) => Comment'.
-  Types of parameters 'row' and 'value' are incompatible.
+[96mtests/integration/billing-api.test.ts[0m:[93m425[0m:[93m18[0m - [91merror[0m[90m ts(18048): [0m'json.error' is possibly 'undefined'.
 
-[7m602[0m       (row: { comment: Comment; reportCount: number; authorImage: string | null }) => {
-[7m   [0m [91m      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[7m425[0m           expect(json.error.message).toBeDefined();
+[7m   [0m [91m                 ~~~~~~~~~~[0m
+[96mtests/integration/billing-api.test.ts[0m:[93m425[0m:[93m18[0m - [91merror[0m[90m ts(18047): [0m'json' is possibly 'null'.
 
-[96msrc/lib/services/notification-service.ts[0m:[93m719[0m:[93m7[0m - [91merror[0m[90m ts(2740): [0mType 'Omit<SQLiteSelectBase<"notifications", "async", D1Response & { results: unknown[]; }, { type: SQLiteColumn<{ name: "type"; tableName: "notifications"; dataType: "string"; columnType: "SQLiteText"; data: "comment_reply" | "comment_mention" | "comment_approved" | "comment_rejected" | "system"; ... 9 more ...; generate...' is missing the following properties from type 'SQLiteSelectBase<"notifications", "async", D1Result<unknown>, { type: SQLiteColumn<{ name: "type"; tableName: "notifications"; dataType: "string"; columnType: "SQLiteText"; data: "comment_reply" | "comment_mention" | "comment_approved" | "comment_rejected" | "system"; ... 9 more ...; generated: undefined; }, {}, { ....': joinsNotNullableMap, tableName, isPartialSelect, session, and 5 more.
+[7m425[0m           expect(json.error.message).toBeDefined();
+[7m   [0m [91m                 ~~~~[0m
+[96mtests/integration/billing-api.test.ts[0m:[93m424[0m:[93m18[0m - [91merror[0m[90m ts(18048): [0m'json.error' is possibly 'undefined'.
 
-[7m719[0m       statsQuery = statsQuery.where(baseWhere);
+[7m424[0m           expect(json.error.type).toBeDefined();
+[7m   [0m [91m                 ~~~~~~~~~~[0m
+[96mtests/integration/billing-api.test.ts[0m:[93m424[0m:[93m18[0m - [91merror[0m[90m ts(18047): [0m'json' is possibly 'null'.
+
+[7m424[0m           expect(json.error.type).toBeDefined();
+[7m   [0m [91m                 ~~~~[0m
+[96mtests/integration/billing-api.test.ts[0m:[93m423[0m:[93m18[0m - [91merror[0m[90m ts(18047): [0m'json' is possibly 'null'.
+
+[7m423[0m           expect(json.success).toBe(false);
+[7m   [0m [91m                 ~~~~[0m
+
+[96mtests/integration/comments-api.test.ts[0m:[93m111[0m:[93m11[0m - [91merror[0m[90m ts(2322): [0mType '{ res: Response; json: { success: boolean; } | null; }' is not assignable to type 'CommentsResponse<{ success: boolean; }>'.
+  Types of property 'json' are incompatible.
+
+[7m111[0m     const { res, json }: CommentsResponse<{ success: boolean }> = await sendJson(
+[7m   [0m [91m          ~~~~~~~~~~~~~[0m
+[96mtests/integration/comments-api.test.ts[0m:[93m97[0m:[93m11[0m - [91merror[0m[90m ts(2322): [0mType '{ res: Response; json: { success: boolean; } | null; }' is not assignable to type 'CommentsResponse<{ success: boolean; }>'.
+  Types of property 'json' are incompatible.
+
+[7m97[0m     const { res, json }: CommentsResponse<{ success: boolean }> = await sendJson(
+[7m  [0m [91m          ~~~~~~~~~~~~~[0m
+[96mtests/integration/comments-api.test.ts[0m:[93m86[0m:[93m11[0m - [91merror[0m[90m ts(2322): [0mType '{ res: Response; json: { success: boolean; data?: { id?: string | undefined; } | undefined; } | null; }' is not assignable to type 'CommentsResponse<{ success: boolean; data?: { id?: string | undefined; } | undefined; }>'.
+  Types of property 'json' are incompatible.
+
+[7m86[0m     const {
+[7m  [0m [91m          ~[0m
+[7m87[0m       json: created,
+[7m  [0m [91m~~~~~~~~~~~~~~~~~~~~[0m
+[7m88[0m     }: CommentsResponse<{
+[7m  [0m [91m~~~~~[0m
+[96mtests/integration/comments-api.test.ts[0m:[93m73[0m:[93m11[0m - [91merror[0m[90m ts(2322): [0mType '{ res: Response; json: { success: boolean; } | null; }' is not assignable to type 'CommentsResponse<{ success: boolean; }>'.
+  Types of property 'json' are incompatible.
+
+[7m73[0m     const { res, json }: CommentsResponse<{ success: boolean }> = await sendJson(
+[7m  [0m [91m          ~~~~~~~~~~~~~[0m
+[96mtests/integration/comments-api.test.ts[0m:[93m62[0m:[93m11[0m - [91merror[0m[90m ts(2322): [0mType '{ res: Response; json: { success: boolean; data?: { id?: string | undefined; } | undefined; } | null; }' is not assignable to type 'CommentsResponse<{ success: boolean; data?: { id?: string | undefined; } | undefined; }>'.
+  Types of property 'json' are incompatible.
+
+[7m62[0m     const {
+[7m  [0m [91m          ~[0m
+[7m63[0m       json: created,
+[7m  [0m [91m~~~~~~~~~~~~~~~~~~~~[0m
+[7m64[0m     }: CommentsResponse<{
+[7m  [0m [91m~~~~~[0m
+[96mtests/integration/comments-api.test.ts[0m:[93m44[0m:[93m11[0m - [91merror[0m[90m ts(2322): [0mType '{ res: Response; json: { success: boolean; data: { id: string; entityId: string; }; } | null; }' is not assignable to type 'CommentsResponse<{ success: boolean; data: { id: string; entityId: string; }; }>'.
+  Types of property 'json' are incompatible.
+
+[7m44[0m     const {
+[7m  [0m [91m          ~[0m
+[7m45[0m       res,
+[7m  [0m [91m~~~~~~~~~~[0m
+[7m46[0m       json,
+[7m  [0m [91m~~~~~~~~~~~[0m
+[7m47[0m     }: CommentsResponse<{ success: boolean; data: { id: string; entityId: string } }> =
+[7m  [0m [91m~~~~~[0m
+[96mtests/integration/comments-api.test.ts[0m:[93m31[0m:[93m11[0m - [91merror[0m[90m ts(2322): [0mType '{ res: Response; json: { success: boolean; error: { type: string; }; } | null; }' is not assignable to type 'CommentsResponse<{ success: boolean; error: { type: string; }; }>'.
+  Types of property 'json' are incompatible.
+
+[7m31[0m     const { res, json }: CommentsResponse<{ success: boolean; error: { type: string } }> =
+[7m  [0m [91m          ~~~~~~~~~~~~~[0m
+[96mtests/integration/comments-api.test.ts[0m:[93m14[0m:[93m11[0m - [91merror[0m[90m ts(2322): [0mType '{ res: Response; json: { success: boolean; data: { comments: unknown[]; total: number; hasMore: boolean; }; } | null; }' is not assignable to type 'CommentsResponse<{ success: boolean; data: { comments: unknown[]; total: number; hasMore: boolean; }; }>'.
+  Types of property 'json' are incompatible.
+
+[7m14[0m     const {
+[7m  [0m [91m          ~[0m
+[7m15[0m       res,
+[7m  [0m [91m~~~~~~~~~~[0m
+[7m16[0m       json,
+[7m  [0m [91m~~~~~~~~~~~[0m
+[7m17[0m     }: CommentsResponse<{
+[7m  [0m [91m~~~~~[0m
+
+[96mtests/integration/comments.test.ts[0m:[93m516[0m:[93m9[0m - [91merror[0m[90m ts(2322): [0mType '"invalid_type"' is not assignable to type 'CommentEntityType'.
+
+[7m516[0m         entityType: 'invalid_type',
+[7m   [0m [91m        ~~~~~~~~~~[0m
+[96mtests/integration/comments.test.ts[0m:[93m3[0m:[93m10[0m - [91merror[0m[90m ts(2724): [0m'"../../src/lib/services/comment-service"' has no exported member named 'commentService'. Did you mean 'CommentService'?
+
+[7m3[0m import { commentService } from '../../src/lib/services/comment-service';
+[7m [0m [91m         ~~~~~~~~~~~~~~[0m
+[96mtests/integration/comments.test.ts[0m:[93m2[0m:[93m10[0m - [91merror[0m[90m ts(2305): [0mModule '"../../src/lib/db/helpers"' has no exported member 'getDb'.
+
+[7m2[0m import { getDb } from '../../src/lib/db/helpers';
+[7m [0m [91m         ~~~~~[0m
+
+[96mtests/integration/lead-magnet-api.test.ts[0m:[93m388[0m:[93m24[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'safeParseJson'.
+
+[7m388[0m           const json = safeParseJson(response.text);
+[7m   [0m [91m                       ~~~~~~~~~~~~~[0m
+[96mtests/integration/lead-magnet-api.test.ts[0m:[93m362[0m:[93m22[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'safeParseJson'.
+
+[7m362[0m         const json = safeParseJson(response.text);
+[7m   [0m [91m                     ~~~~~~~~~~~~~[0m
+[96mtests/integration/lead-magnet-api.test.ts[0m:[93m329[0m:[93m22[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'safeParseJson'.
+
+[7m329[0m         const json = safeParseJson(text);
+[7m   [0m [91m                     ~~~~~~~~~~~~~[0m
+[96mtests/integration/lead-magnet-api.test.ts[0m:[93m301[0m:[93m22[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'safeParseJson'.
+
+[7m301[0m         const json = safeParseJson(await response.text());
+[7m   [0m [91m                     ~~~~~~~~~~~~~[0m
+[96mtests/integration/lead-magnet-api.test.ts[0m:[93m287[0m:[93m22[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'safeParseJson'.
+
+[7m287[0m         const json = safeParseJson(response.text);
+[7m   [0m [91m                     ~~~~~~~~~~~~~[0m
+[96mtests/integration/lead-magnet-api.test.ts[0m:[93m269[0m:[93m22[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'safeParseJson'.
+
+[7m269[0m         const json = safeParseJson(response.text);
+[7m   [0m [91m                     ~~~~~~~~~~~~~[0m
+[96mtests/integration/lead-magnet-api.test.ts[0m:[93m251[0m:[93m22[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'safeParseJson'.
+
+[7m251[0m         const json = safeParseJson(response.text);
+[7m   [0m [91m                     ~~~~~~~~~~~~~[0m
+[96mtests/integration/lead-magnet-api.test.ts[0m:[93m233[0m:[93m22[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'safeParseJson'.
+
+[7m233[0m         const json = safeParseJson(response.text);
+[7m   [0m [91m                     ~~~~~~~~~~~~~[0m
+[96mtests/integration/lead-magnet-api.test.ts[0m:[93m215[0m:[93m22[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'safeParseJson'.
+
+[7m215[0m         const json = safeParseJson(responses[0].text);
+[7m   [0m [91m                     ~~~~~~~~~~~~~[0m
+[96mtests/integration/lead-magnet-api.test.ts[0m:[93m57[0m:[93m16[0m - [91merror[0m[90m ts(6133): [0m'fetchPage' is declared but its value is never read.
+
+[7m57[0m async function fetchPage(path: string): Promise<FetchResponse> {
+[7m  [0m [91m               ~~~~~~~~~[0m
+
+[96mtests/integration/projects-api.test.ts[0m:[93m501[0m:[93m25[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'safeParseJson'.
+
+[7m501[0m       const projects = (safeParseJson(listResponse.text) || {}).data as ProjectItem[];
+[7m   [0m [91m                        ~~~~~~~~~~~~~[0m
+[96mtests/integration/projects-api.test.ts[0m:[93m494[0m:[93m31[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'safeParseJson'.
+
+[7m494[0m       const createdProject = (safeParseJson(createResponse.text) || {}).data
+[7m   [0m [91m                              ~~~~~~~~~~~~~[0m
+[96mtests/integration/projects-api.test.ts[0m:[93m473[0m:[93m24[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'safeParseJson'.
+
+[7m473[0m           const json = safeParseJson(response.text);
+[7m   [0m [91m                       ~~~~~~~~~~~~~[0m
+[96mtests/integration/projects-api.test.ts[0m:[93m455[0m:[93m24[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'safeParseJson'.
+
+[7m455[0m           const json = safeParseJson(response.text);
+[7m   [0m [91m                       ~~~~~~~~~~~~~[0m
+[96mtests/integration/projects-api.test.ts[0m:[93m381[0m:[93m22[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'safeParseJson'.
+
+[7m381[0m         const json = safeParseJson(response.text);
+[7m   [0m [91m                     ~~~~~~~~~~~~~[0m
+[96mtests/integration/projects-api.test.ts[0m:[93m365[0m:[93m22[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'safeParseJson'.
+
+[7m365[0m         const json = safeParseJson(response.text) as { success: true; data: ProjectItem[] };
+[7m   [0m [91m                     ~~~~~~~~~~~~~[0m
+[96mtests/integration/projects-api.test.ts[0m:[93m350[0m:[93m22[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'safeParseJson'.
+
+[7m350[0m         const json = safeParseJson(response.text) as { success: true; data: ProjectItem[] };
+[7m   [0m [91m                     ~~~~~~~~~~~~~[0m
+[96mtests/integration/projects-api.test.ts[0m:[93m319[0m:[93m22[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'safeParseJson'.
+
+[7m319[0m         const json = safeParseJson(response.text);
+[7m   [0m [91m                     ~~~~~~~~~~~~~[0m
+
+[96mtests/integration/user-avatar-api.test.ts[0m:[93m84[0m:[93m74[0m - [93mwarning[0m[90m ts(6385): [0m'(from: number, length?: number | undefined): string' is deprecated.
+
+[7m84[0m   const boundary = '----WebKitFormBoundary' + Math.random().toString(36).substr(2, 9);
+[7m  [0m [93m                                                                         ~~~~~~[0m
+
+[96mtests/integration/api/web-eval-complete.test.ts[0m:[93m104[0m:[93m18[0m - [91merror[0m[90m ts(2339): [0mProperty 'data' does not exist on type '{}'.
+
+[7m104[0m     expect(json?.data?.taskId).toBe(taskId);
+[7m   [0m [91m                 ~~~~[0m
+[96mtests/integration/api/web-eval-complete.test.ts[0m:[93m103[0m:[93m18[0m - [91merror[0m[90m ts(2339): [0mProperty 'success' does not exist on type '{}'.
+
+[7m103[0m     expect(json?.success).toBe(true);
+[7m   [0m [91m                 ~~~~~~~[0m
+[96mtests/integration/api/web-eval-complete.test.ts[0m:[93m88[0m:[93m18[0m - [91merror[0m[90m ts(2339): [0mProperty 'error' does not exist on type '{}'.
+
+[7m88[0m     expect(json?.error?.type).toBe('validation_error');
+[7m  [0m [91m                 ~~~~~[0m
+[96mtests/integration/api/web-eval-complete.test.ts[0m:[93m87[0m:[93m18[0m - [91merror[0m[90m ts(2339): [0mProperty 'success' does not exist on type '{}'.
+
+[7m87[0m     expect(json?.success).toBe(false);
+[7m  [0m [91m                 ~~~~~~~[0m
+[96mtests/integration/api/web-eval-complete.test.ts[0m:[93m76[0m:[93m18[0m - [91merror[0m[90m ts(2339): [0mProperty 'error' does not exist on type '{}'.
+
+[7m76[0m     expect(json?.error?.type).toBe('auth_error');
+[7m  [0m [91m                 ~~~~~[0m
+[96mtests/integration/api/web-eval-complete.test.ts[0m:[93m75[0m:[93m18[0m - [91merror[0m[90m ts(2339): [0mProperty 'success' does not exist on type '{}'.
+
+[7m75[0m     expect(json?.success).toBe(false);
+[7m  [0m [91m                 ~~~~~~~[0m
+[96mtests/integration/api/web-eval-complete.test.ts[0m:[93m47[0m:[93m46[0m - [91merror[0m[90m ts(18046): [0m'json' is of type 'unknown'.
+
+[7m47[0m     taskId: (json.data.taskId as string) ?? (json.data.task?.id as string),
+[7m  [0m [91m                                             ~~~~[0m
+[96mtests/integration/api/web-eval-complete.test.ts[0m:[93m47[0m:[93m14[0m - [91merror[0m[90m ts(18046): [0m'json' is of type 'unknown'.
+
+[7m47[0m     taskId: (json.data.taskId as string) ?? (json.data.task?.id as string),
+[7m  [0m [91m             ~~~~[0m
+[96mtests/integration/api/web-eval-complete.test.ts[0m:[93m43[0m:[93m16[0m - [91merror[0m[90m ts(2339): [0mProperty 'success' does not exist on type '{}'.
+
+[7m43[0m   expect(json?.success).toBe(true);
+[7m  [0m [91m               ~~~~~~~[0m
+
+[96mtests/integration/api/webscraper.test.ts[0m:[93m5[0m:[93m44[0m - [91merror[0m[90m ts(6133): [0m'vi' is declared but its value is never read.
+
+[7m5[0m import { describe, it, expect, beforeEach, vi } from 'vitest';
+[7m [0m [91m                                           ~~[0m
+[96mtests/integration/api/webscraper.test.ts[0m:[93m5[0m:[93m32[0m - [91merror[0m[90m ts(6133): [0m'beforeEach' is declared but its value is never read.
+
+[7m5[0m import { describe, it, expect, beforeEach, vi } from 'vitest';
+[7m [0m [91m                               ~~~~~~~~~~[0m
+
+[96mtests/performance/rate-limiting-perf.test.ts[0m:[93m292[0m:[93m16[0m - [91merror[0m[90m ts(6133): [0m'index' is declared but its value is never read.
+
+[7m292[0m         async (index) => {
+[7m   [0m [91m               ~~~~~[0m
+[96mtests/performance/rate-limiting-perf.test.ts[0m:[93m197[0m:[93m16[0m - [91merror[0m[90m ts(6133): [0m'index' is declared but its value is never read.
+
+[7m197[0m         async (index) => {
+[7m   [0m [91m               ~~~~~[0m
+[96mtests/performance/rate-limiting-perf.test.ts[0m:[93m59[0m:[93m9[0m - [91merror[0m[90m ts(6133): [0m'failed' is declared but its value is never read.
+
+[7m59[0m   const failed = responses.filter((r) => r.status === 'rejected').length;
+[7m  [0m [91m        ~~~~~~[0m
+[96mtests/performance/rate-limiting-perf.test.ts[0m:[93m19[0m:[93m7[0m - [91merror[0m[90m ts(6133): [0m'RATE_LIMITS' is declared but its value is never read.
+
+[7m19[0m const RATE_LIMITS = {
+[7m  [0m [91m      ~~~~~~~~~~~[0m
+[96mtests/performance/rate-limiting-perf.test.ts[0m:[93m224[0m:[93m78[0m - [93mwarning[0m[90m ts(6385): [0m'(from: number, length?: number | undefined): string' is deprecated.
+
+[7m224[0m       const boundary = '----WebKitFormBoundary' + Math.random().toString(36).substr(2, 9);
+[7m   [0m [93m                                                                             ~~~~~~[0m
+
+[96mtests/performance/run-load-tests.ts[0m:[93m300[0m:[93m11[0m - [91merror[0m[90m ts(6133): [0m'report' is declared but its value is never read.
+
+[7m300[0m     const report = saveResults(results, testType);
+[7m   [0m [91m          ~~~~~~[0m
+[96mtests/performance/run-load-tests.ts[0m:[93m115[0m:[93m39[0m - [91merror[0m[90m ts(18046): [0m'apiConfig' is of type 'unknown'.
+
+[7m115[0m             return fetch(`${baseUrl}${apiConfig.endpoint}`, {
+[7m   [0m [91m                                      ~~~~~~~~~[0m
+[96mtests/performance/run-load-tests.ts[0m:[93m110[0m:[93m19[0m - [91merror[0m[90m ts(18046): [0m'apiConfig' is of type 'unknown'.
+
+[7m110[0m               ...(apiConfig.endpoint.includes('lead-magnets') && {
+[7m   [0m [91m                  ~~~~~~~~~[0m
+[96mtests/performance/run-load-tests.ts[0m:[93m105[0m:[93m39[0m - [91merror[0m[90m ts(18046): [0m'apiConfig' is of type 'unknown'.
+
+[7m105[0m             return fetch(`${baseUrl}${apiConfig.endpoint}`);
+[7m   [0m [91m                                      ~~~~~~~~~[0m
+[96mtests/performance/run-load-tests.ts[0m:[93m104[0m:[93m15[0m - [91merror[0m[90m ts(18046): [0m'apiConfig' is of type 'unknown'.
+
+[7m104[0m           if (apiConfig.method === 'GET') {
+[7m   [0m [91m              ~~~~~~~~~[0m
+[96mtests/performance/run-load-tests.ts[0m:[93m101[0m:[93m9[0m - [91merror[0m[90m ts(18046): [0m'apiConfig' is of type 'unknown'.
+
+[7m101[0m         apiConfig.endpoint,
+[7m   [0m [91m        ~~~~~~~~~[0m
+[96mtests/performance/run-load-tests.ts[0m:[93m94[0m:[93m28[0m - [91merror[0m[90m ts(18046): [0m'apiConfig' is of type 'unknown'.
+
+[7m94[0m     for (const scenario of apiConfig.testScenarios) {
+[7m  [0m [91m                           ~~~~~~~~~[0m
+[96mtests/performance/run-load-tests.ts[0m:[93m42[0m:[93m3[0m - [91merror[0m[90m ts(6133): [0m'baseUrl' is declared but its value is never read.
+
+[7m42[0m   baseUrl: string,
+[7m  [0m [91m  ~~~~~~~[0m
+
+[96mtests/src/legacy/utils/database-helpers.ts[0m:[93m33[0m:[93m69[0m - [93mwarning[0m[90m ts(6385): [0m'(from: number, length?: number | undefined): string' is deprecated.
+
+[7m33[0m     const dbName = `test_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+[7m  [0m [93m                                                                    ~~~~~~[0m
+
+[96mtests/src/legacy/utils/server-helpers.ts[0m:[93m401[0m:[93m15[0m - [91merror[0m[90m ts(6133): [0m'req' is declared but its value is never read.
+
+[7m401[0m     handler: (req, res) => {
+[7m   [0m [91m              ~~~[0m
+
+[96mtests/src/lib/auth-v2.test.ts[0m:[93m6[0m:[93m8[0m - [91merror[0m[90m ts(6133): [0m'User' is declared but its value is never read.
+
+[7m6[0m   type User,
+[7m [0m [91m       ~~~~[0m
+
+[96mtests/src/pages/api/ai-video/generate.test.ts[0m:[93m55[0m:[93m31[0m - [91merror[0m[90m ts(6133): [0m'init' is declared but its value is never read.
+
+[7m55[0m     vi.fn(async (url: string, init?: any) => {
+[7m  [0m [91m                              ~~~~[0m
+
+[96mtests/unit/comment-service-simple.test.ts[0m:[93m162[0m:[93m71[0m - [93mwarning[0m[90m ts(6385): [0m'(from: number, length?: number | undefined): string' is deprecated.
+
+[7m162[0m       const id2 = `comment_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+[7m   [0m [93m                                                                      ~~~~~~[0m
+[96mtests/unit/comment-service-simple.test.ts[0m:[93m161[0m:[93m71[0m - [93mwarning[0m[90m ts(6385): [0m'(from: number, length?: number | undefined): string' is deprecated.
+
+[7m161[0m       const id1 = `comment_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+[7m   [0m [93m                                                                      ~~~~~~[0m
+
+[96mtests/unit/lib/ai-image-service.test.ts[0m:[93m68[0m:[93m47[0m - [91merror[0m[90m ts(2345): [0mArgument of type 'string' is not assignable to parameter of type 'Map<string, unknown>'.
+
+[7m68[0m       vi.mocked(kv.get).mockResolvedValueOnce(JSON.stringify({ count: 2, resetAt: 1700000000 }));
+[7m  [0m [91m                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96mtests/unit/lib/ai-image-service.test.ts[0m:[93m58[0m:[93m47[0m - [91merror[0m[90m ts(2345): [0mArgument of type 'null' is not assignable to parameter of type 'Map<string, unknown>'.
+
+[7m58[0m       vi.mocked(kv.get).mockResolvedValueOnce(null);
+[7m  [0m [91m                                              ~~~~[0m
+
+[96mtests/unit/lib/rate-limiter-kv.test.ts[0m:[93m6[0m:[93m8[0m - [91merror[0m[90m ts(6133): [0m'RateLimiter' is declared but its value is never read.
+
+[7m6[0m   type RateLimiter,
+[7m [0m [91m       ~~~~~~~~~~~[0m
+
+[96mtests/unit/lib/rate-limiter.test.ts[0m:[93m15[0m:[93m8[0m - [91merror[0m[90m ts(6133): [0m'RateLimiter' is declared but its value is never read.
+
+[7m15[0m   type RateLimiter,
+[7m  [0m [91m       ~~~~~~~~~~~[0m
+
+[96mtests/unit/pages/api/user/profile.test.ts[0m:[93m10[0m:[93m58[0m - [91merror[0m[90m ts(2345): [0mArgument of type 'null' is not assignable to parameter of type 'RateLimiterResult'.
+
+[7m10[0m   apiRateLimiter: vi.fn<RateLimiter>().mockResolvedValue(null),
+[7m  [0m [91m                                                         ~~~~[0m
+[96mtests/unit/pages/api/user/profile.test.ts[0m:[93m9[0m:[93m62[0m - [91merror[0m[90m ts(2345): [0mArgument of type 'null' is not assignable to parameter of type 'RateLimiterResult'.
+
+[7m9[0m   standardApiLimiter: vi.fn<RateLimiter>().mockResolvedValue(null),
+[7m [0m [91m                                                             ~~~~[0m
+
+[96mtests/unit/utils/server-helpers.test.ts[0m:[93m623[0m:[93m13[0m - [91merror[0m[90m ts(6133): [0m'startTime' is declared but its value is never read.
+
+[7m623[0m       const startTime = testServer.startTime;
+[7m   [0m [91m            ~~~~~~~~~[0m
+
+[96mscripts/docs-auto-fix.ts[0m:[93m84[0m:[93m13[0m - [91merror[0m[90m ts(6133): [0m'blockIdxStart' is declared but its value is never read.
+
+[7m84[0m       const blockIdxStart = i;
+[7m  [0m [91m            ~~~~~~~~~~~~~[0m
+
+[96mscripts/generate-wordmark-outlined.ts[0m:[93m3[0m:[93m22[0m - [91merror[0m[90m ts(7016): [0mCould not find a declaration file for module 'opentype.js'. '/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/node_modules/opentype.js/dist/opentype.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/opentype.js` if it exists or add a new declaration (.d.ts) file containing `declare module 'opentype.js';`
+
+[7m3[0m import opentype from 'opentype.js';
+[7m [0m [91m                     ~~~~~~~~~~~~~[0m
+
+[96mscripts/health-check.ts[0m:[93m107[0m:[93m16[0m - [91merror[0m[90m ts(2393): [0mDuplicate function implementation.
+
+[7m107[0m async function main() {
+[7m   [0m [91m               ~~~~[0m
+[96mscripts/health-check.ts[0m:[93m22[0m:[93m16[0m - [91merror[0m[90m ts(2393): [0mDuplicate function implementation.
+
+[7m22[0m async function checkHealth(
+[7m  [0m [91m               ~~~~~~~~~~~[0m
+
+[96mscripts/onboarding.ts[0m:[93m347[0m:[93m16[0m - [91merror[0m[90m ts(6133): [0m'showDocumentation' is declared but its value is never read.
+
+[7m347[0m async function showDocumentation() {
+[7m   [0m [91m               ~~~~~~~~~~~~~~~~~[0m
+[96mscripts/onboarding.ts[0m:[93m275[0m:[93m16[0m - [91merror[0m[90m ts(6133): [0m'setupShellAliases' is declared but its value is never read.
+
+[7m275[0m async function setupShellAliases() {
+[7m   [0m [91m               ~~~~~~~~~~~~~~~~~[0m
+[96mscripts/onboarding.ts[0m:[93m79[0m:[93m16[0m - [91merror[0m[90m ts(6133): [0m'createTestUser' is declared but its value is never read.
+
+[7m79[0m async function createTestUser() {
+[7m  [0m [91m               ~~~~~~~~~~~~~~[0m
+
+[96mscripts/setup-local-dev.ts[0m:[93m363[0m:[93m7[0m - [91merror[0m[90m ts(6133): [0m'KV_BINDING' is declared but its value is never read.
+
+[7m363[0m const KV_BINDING = extractConfigValue(WRANGLER_CONFIG, 'binding') || 'SESSION';
 [7m   [0m [91m      ~~~~~~~~~~[0m
-[96msrc/lib/services/notification-service.ts[0m:[93m653[0m:[93m5[0m - [91merror[0m[90m ts(2322): [0mType '{ id: string; to: string; templateId: string; variables: string; status: "pending" | "cancelled" | "failed" | "sending" | "sent" | null; priority: number; scheduledFor: number; attempts: number; maxAttempts: number; lastError: string | undefined; sentAt: number | undefined; createdAt: number; }[]' is not assignable to type 'EmailQueueItem[]'.
-  Type '{ id: string; to: string; templateId: string; variables: string; status: "pending" | "cancelled" | "failed" | "sending" | "sent" | null; priority: number; scheduledFor: number; attempts: number; maxAttempts: number; lastError: string | undefined; sentAt: number | undefined; createdAt: number; }' is not assignable to type 'EmailQueueItem'.
+[96mscripts/setup-local-dev.ts[0m:[93m360[0m:[93m7[0m - [91merror[0m[90m ts(6133): [0m'R2_BINDING' is declared but its value is never read.
 
-[7m653[0m     return results.map((e: typeof emailQueue.$inferSelect) => ({
-[7m   [0m [91m    ~~~~~~[0m
-[96msrc/lib/services/notification-service.ts[0m:[93m201[0m:[93m7[0m - [91merror[0m[90m ts(2345): [0mArgument of type 'SQL<unknown> | undefined' is not assignable to parameter of type 'SQL<unknown>'.
-  Type 'undefined' is not assignable to type 'SQL<unknown>'.
+[7m360[0m const R2_BINDING = extractConfigValue(WRANGLER_CONFIG, 'binding') || 'R2_AVATARS';
+[7m   [0m [91m      ~~~~~~~~~~[0m
+[96mscripts/setup-local-dev.ts[0m:[93m357[0m:[93m7[0m - [91merror[0m[90m ts(6133): [0m'DB_BINDING' is declared but its value is never read.
 
-[7m201[0m       or(sql`${notifications.expiresAt} IS NULL`, gte(notifications.expiresAt, now))
-[7m   [0m [91m      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[7m357[0m const DB_BINDING = extractConfigValue(WRANGLER_CONFIG, 'binding') || 'DB';
+[7m   [0m [91m      ~~~~~~~~~~[0m
 
-[96msrc/lib/services/performance-service.ts[0m:[93m342[0m:[93m63[0m - [91merror[0m[90m ts(2769): [0mNo overload matches this call.
-  Overload 1 of 3, '(left: SQLiteColumn<{ name: "author_id"; tableName: "comments"; dataType: "string"; columnType: "SQLiteText"; data: string; driverParam: string; notNull: false; hasDefault: false; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, { ...; }>, right: string | SQLWrapper): SQL<...>', gave the following error.
-  Overload 2 of 3, '(left: Aliased<number>, right: number | SQLWrapper): SQL<unknown>', gave the following error.
-  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+[96mscripts/warmup.ts[0m:[93m191[0m:[93m16[0m - [91merror[0m[90m ts(2393): [0mDuplicate function implementation.
 
-[7m342[0m       whereConditions.push(or(...filters.authorId.map((id) => eq(comments.authorId, id))));
-[7m   [0m [91m                                                              ~~[0m
-[96msrc/lib/services/performance-service.ts[0m:[93m335[0m:[93m65[0m - [91merror[0m[90m ts(2769): [0mNo overload matches this call.
-  Overload 1 of 3, '(left: SQLiteColumn<{ name: "status"; tableName: "comments"; dataType: "string"; columnType: "SQLiteText"; data: "hidden" | "pending" | "approved" | "rejected" | "flagged"; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; }, {}, { ...; }>, right: "hidden" | ... 4 more ... | SQLWrapper): SQL<...>', gave the following error.
-  Overload 2 of 3, '(left: Aliased<string>, right: string | SQLWrapper): SQL<unknown>', gave the following error.
-  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+[7m191[0m async function main() {
+[7m   [0m [91m               ~~~~[0m
+[96mscripts/warmup.ts[0m:[93m76[0m:[93m67[0m - [91merror[0m[90m ts(2339): [0mProperty 'data' does not exist on type '{}'.
 
-[7m335[0m       whereConditions.push(or(...filters.status.map((status) => eq(comments.status, status))));
-[7m   [0m [91m                                                                ~~[0m
-[96msrc/lib/services/performance-service.ts[0m:[93m247[0m:[93m48[0m - [91merror[0m[90m ts(2769): [0mNo overload matches this call.
-  Overload 1 of 3, '(left: SQLiteColumn<{ name: "parent_id"; tableName: "comments"; dataType: "string"; columnType: "SQLiteText"; data: string; driverParam: string; notNull: false; hasDefault: false; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, { ...; }>, right: string | SQLWrapper): SQL<...>', gave the following error.
-  Overload 2 of 3, '(left: Aliased<null>, right: SQLWrapper | null): SQL<unknown>', gave the following error.
-  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+[7m76[0m       const statusVal: string | undefined = body?.status ?? body?.data?.status;
+[7m  [0m [91m                                                                  ~~~~[0m
+[96mscripts/warmup.ts[0m:[93m76[0m:[93m51[0m - [91merror[0m[90m ts(2339): [0mProperty 'status' does not exist on type '{}'.
 
-[7m247[0m           options.includeReplies ? undefined : eq(comments.parentId, null)
-[7m   [0m [91m                                               ~~[0m
-[96msrc/lib/services/performance-service.ts[0m:[93m220[0m:[93m48[0m - [91merror[0m[90m ts(2769): [0mNo overload matches this call.
-  Overload 1 of 3, '(left: SQLiteColumn<{ name: "parent_id"; tableName: "comments"; dataType: "string"; columnType: "SQLiteText"; data: string; driverParam: string; notNull: false; hasDefault: false; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, { ...; }>, right: string | SQLWrapper): SQL<...>', gave the following error.
-  Overload 2 of 3, '(left: Aliased<null>, right: SQLWrapper | null): SQL<unknown>', gave the following error.
-  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+[7m76[0m       const statusVal: string | undefined = body?.status ?? body?.data?.status;
+[7m  [0m [91m                                                  ~~~~~~[0m
+[96mscripts/warmup.ts[0m:[93m69[0m:[93m16[0m - [91merror[0m[90m ts(2393): [0mDuplicate function implementation.
 
-[7m220[0m           options.includeReplies ? undefined : eq(comments.parentId, null)
-[7m   [0m [91m                                               ~~[0m
+[7m69[0m async function checkHealth(baseUrl: string, retries = 3, timeout = REQUEST_TIMEOUT_MS) {
+[7m  [0m [91m               ~~~~~~~~~~~[0m
 
-[96msrc/lib/services/prompt-enhancer-service.ts[0m:[93m670[0m:[93m9[0m - [91merror[0m[90m ts(2769): [0mNo overload matches this call.
-  Overload 1 of 3, '(body: ChatCompletionCreateParamsNonStreaming, options?: RequestOptions | undefined): APIPromise<ChatCompletion>', gave the following error.
-  Overload 2 of 3, '(body: ChatCompletionCreateParamsStreaming, options?: RequestOptions | undefined): APIPromise<Stream<ChatCompletionChunk>>', gave the following error.
-  Overload 3 of 3, '(body: ChatCompletionCreateParamsBase, options?: RequestOptions | undefined): APIPromise<ChatCompletion | Stream<...>>', gave the following error.
+[96mscripts/remark/remark-demote-h1.ts[0m:[93m17[0m:[93m14[0m - [91merror[0m[90m ts(2339): [0mProperty 'depth' does not exist on type 'never'.
 
-[7m670[0m         params as unknown as {
-[7m   [0m [91m        ~~~~~~~~~~~~~~~~~~~~~~[0m
-[7m671[0m           model: string;
-[7m   [0m [91m~~~~~~~~~~~~~~~~~~~~~~~~[0m
-[7m...[0m 
-[7m675[0m           top_p: number;
-[7m   [0m [91m~~~~~~~~~~~~~~~~~~~~~~~~[0m
-[7m676[0m         }
-[7m   [0m [91m~~~~~~~~~[0m
+[7m17[0m         node.depth = 2;
+[7m  [0m [91m             ~~~~~[0m
+[96mscripts/remark/remark-demote-h1.ts[0m:[93m16[0m:[93m16[0m - [91merror[0m[90m ts(2339): [0mProperty 'depth' does not exist on type 'never'.
 
-[96msrc/lib/services/referral-event-service.ts[0m:[93m71[0m:[93m5[0m - [91merror[0m[90m ts(2769): [0mNo overload matches this call.
-  Overload 2 of 2, '(values: { id: string | SQL<unknown> | Placeholder<string, any>; status: "pending" | "verified" | "paid" | "cancelled" | SQL<unknown> | Placeholder<string, any>; ... 7 more ...; creditsAwarded?: number | ... 2 more ... | undefined; }[]): SQLiteInsertBase<...>', gave the following error.
+[7m16[0m       if (node.depth === 1) {
+[7m  [0m [91m               ~~~~~[0m
 
-[7m71[0m     id: crypto.randomUUID(),
-[7m  [0m [91m    ~~[0m
-
-[96msrc/lib/services/referral-profile-service.ts[0m:[93m123[0m:[93m5[0m - [91merror[0m[90m ts(2322): [0mType 'number' is not assignable to type 'Date'.
-
-[7m123[0m     updatedAt: now,
-[7m   [0m [91m    ~~~~~~~~~[0m
-[96msrc/lib/services/referral-profile-service.ts[0m:[93m122[0m:[93m5[0m - [91merror[0m[90m ts(2322): [0mType 'number' is not assignable to type 'Date'.
-
-[7m122[0m     createdAt: now,
-[7m   [0m [91m    ~~~~~~~~~[0m
-[96msrc/lib/services/referral-profile-service.ts[0m:[93m89[0m:[93m9[0m - [91merror[0m[90m ts(2322): [0mType 'number' is not assignable to type 'Date'.
-
-[7m89[0m         updatedAt: now,
-[7m  [0m [91m        ~~~~~~~~~[0m
-[96msrc/lib/services/referral-profile-service.ts[0m:[93m88[0m:[93m9[0m - [91merror[0m[90m ts(2322): [0mType 'number' is not assignable to type 'Date'.
-
-[7m88[0m         createdAt: now,
-[7m  [0m [91m        ~~~~~~~~~[0m
-
-[96msrc/lib/services/referral-reward-service.ts[0m:[93m80[0m:[93m58[0m - [91merror[0m[90m ts(2345): [0mArgument of type 'KVNamespace<string>' is not assignable to parameter of type 'import("/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/node_modules/@cloudflare/workers-types/index").KVNamespace<string>'.
-  Types of property 'get' are incompatible.
-
-[7m80[0m     creditsBalanceTenths = await getCreditsBalanceTenths(kv, event.ownerUserId, now);
-[7m  [0m [91m                                                         ~~[0m
-[96msrc/lib/services/referral-reward-service.ts[0m:[93m79[0m:[93m31[0m - [91merror[0m[90m ts(2345): [0mArgument of type 'KVNamespace<string>' is not assignable to parameter of type 'import("/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/node_modules/@cloudflare/workers-types/index").KVNamespace<string>'.
-  Types of property 'get' are incompatible.
-
-[7m79[0m     await addCreditPackTenths(kv, event.ownerUserId, packId, safeRewardTenths, now);
-[7m  [0m [91m                              ~~[0m
-
-Result (301 files): 
-- 34 errors
+Result (764 files): 
+- 101 errors
 - 0 warnings
-- 11 hints
+- 13 hints
 

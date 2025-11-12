@@ -4,7 +4,7 @@ test.describe('Image Enhancer MVP Flow', () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to Image Enhancer with MVP mode enabled
     await page.goto('/en/tools/imag-enhancer/app');
-    
+
     // Wait for MVP component to load
     await page.waitForSelector('#imag-enhancer-root');
   });
@@ -14,11 +14,11 @@ test.describe('Image Enhancer MVP Flow', () => {
     await expect(page.locator('text=Drop an image here or click to select')).toBeVisible();
     await expect(page.locator('text=Allowed: JPG, PNG, WEBP')).toBeVisible();
     await expect(page.locator('text=Max size 10MB')).toBeVisible();
-    
+
     // Should show model selection
     await expect(page.locator('label:has-text("Model")')).toBeVisible();
     await expect(page.locator('select#model')).toBeVisible();
-    
+
     // Should have Workers AI models only
     const modelOptions = await page.locator('select#model option').count();
     expect(modelOptions).toBeGreaterThan(0);
@@ -31,17 +31,17 @@ test.describe('Image Enhancer MVP Flow', () => {
       mimeType: 'image/jpeg',
       buffer: Buffer.from('fake-image-data'),
     };
-    
+
     // Get the upload area
     const uploadArea = page.locator('div').filter({ hasText: 'Drop an image here' }).first();
-    
+
     // Drag and drop file
     await uploadArea.dispatchEvent('dragover');
     await uploadArea.setInputFiles(testFile);
-    
+
     // Should show preview
     await expect(page.locator('img[alt="Preview"]')).toBeVisible();
-    
+
     // Should enable enhance button
     const enhanceButton = page.locator('button:has-text("Enhance")');
     await expect(enhanceButton).toBeEnabled();
@@ -54,29 +54,29 @@ test.describe('Image Enhancer MVP Flow', () => {
       mimeType: 'image/jpeg',
       buffer: Buffer.from('fake-image-data'),
     };
-    
+
     // Click upload area to trigger file input
     const uploadArea = page.locator('div').filter({ hasText: 'Drop an image here' }).first();
     await uploadArea.click();
-    
+
     // Handle file input (may need to wait for input to appear)
     const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles(testFile);
-    
+
     // Should show preview
     await expect(page.locator('img[alt="Preview"]')).toBeVisible();
   });
 
   test('should show model selection with Workers AI models', async ({ page }) => {
     const modelSelect = page.locator('select#model');
-    
+
     // Should have at least one option
     const options = await modelSelect.locator('option').allTextContents();
     expect(options.length).toBeGreaterThan(0);
-    
+
     // Should contain Workers AI models
-    const hasWorkersAiModel = options.some(option => 
-      option.includes('Enhance') && option.includes('img2img')
+    const hasWorkersAiModel = options.some(
+      (option) => option.includes('Enhance') && option.includes('img2img')
     );
     expect(hasWorkersAiModel).toBe(true);
   });
@@ -88,11 +88,11 @@ test.describe('Image Enhancer MVP Flow', () => {
       mimeType: 'text/plain',
       buffer: Buffer.from('invalid-file-data'),
     };
-    
+
     // Try to upload invalid file
     const uploadArea = page.locator('div').filter({ hasText: 'Drop an image here' }).first();
     await uploadArea.setInputFiles(invalidFile);
-    
+
     // Should show error toast or message
     // Note: This depends on the toast implementation
     await expect(page.locator('text=Unsupported file type')).toBeVisible({ timeout: 5000 });
@@ -105,11 +105,11 @@ test.describe('Image Enhancer MVP Flow', () => {
       mimeType: 'image/jpeg',
       buffer: Buffer.alloc(15 * 1024 * 1024), // 15MB
     };
-    
+
     // Try to upload large file
     const uploadArea = page.locator('div').filter({ hasText: 'Drop an image here' }).first();
     await uploadArea.setInputFiles(largeFile);
-    
+
     // Should show error toast or message
     await expect(page.locator('text=File is too large')).toBeVisible({ timeout: 5000 });
   });
@@ -131,10 +131,10 @@ test.describe('Image Enhancer MVP Flow', () => {
       mimeType: 'image/jpeg',
       buffer: Buffer.from('fake-image-data'),
     };
-    
+
     const uploadArea = page.locator('div').filter({ hasText: 'Drop an image here' }).first();
     await uploadArea.setInputFiles(testFile);
-    
+
     // Enhance button should be enabled
     const enhanceButton = page.locator('button:has-text("Enhance")');
     await expect(enhanceButton).toBeEnabled();
@@ -147,14 +147,14 @@ test.describe('Image Enhancer MVP Flow', () => {
       mimeType: 'image/jpeg',
       buffer: Buffer.from('fake-image-data'),
     };
-    
+
     const uploadArea = page.locator('div').filter({ hasText: 'Drop an image here' }).first();
     await uploadArea.setInputFiles(testFile);
-    
+
     // Click enhance button
     const enhanceButton = page.locator('button:has-text("Enhance")');
     await enhanceButton.click();
-    
+
     // Should show processing state
     await expect(page.locator('button:has-text("Processing…")')).toBeVisible({ timeout: 5000 });
     await expect(page.locator('text=Processing…')).toBeVisible();
@@ -175,24 +175,24 @@ test.describe('Image Enhancer MVP Flow', () => {
         }),
       });
     });
-    
+
     // Upload and enhance
     const testFile = {
       name: 'test-image.jpg',
       mimeType: 'image/jpeg',
       buffer: Buffer.from('fake-image-data'),
     };
-    
+
     const uploadArea = page.locator('div').filter({ hasText: 'Drop an image here' }).first();
     await uploadArea.setInputFiles(testFile);
-    
+
     const enhanceButton = page.locator('button:has-text("Enhance")');
     await enhanceButton.click();
-    
+
     // Should show result section
     await expect(page.locator('text=Original')).toBeVisible({ timeout: 10000 });
     await expect(page.locator('text=Result')).toBeVisible();
-    
+
     // Should show download and start over buttons
     await expect(page.locator('button:has-text("Download")')).toBeVisible();
     await expect(page.locator('button:has-text("Start over")')).toBeVisible();
@@ -213,27 +213,27 @@ test.describe('Image Enhancer MVP Flow', () => {
         }),
       });
     });
-    
+
     // Upload and enhance
     const testFile = {
       name: 'test-image.jpg',
       mimeType: 'image/jpeg',
       buffer: Buffer.from('fake-image-data'),
     };
-    
+
     const uploadArea = page.locator('div').filter({ hasText: 'Drop an image here' }).first();
     await uploadArea.setInputFiles(testFile);
-    
+
     const enhanceButton = page.locator('button:has-text("Enhance")');
     await enhanceButton.click();
-    
+
     // Wait for result
     await expect(page.locator('text=Result')).toBeVisible({ timeout: 10000 });
-    
+
     // Click start over
     const startOverButton = page.locator('button:has-text("Start over")');
     await startOverButton.click();
-    
+
     // Should return to upload state
     await expect(page.locator('text=Drop an image here or click to select')).toBeVisible();
     await expect(page.locator('text=Result')).not.toBeVisible();
@@ -254,32 +254,32 @@ test.describe('Image Enhancer MVP Flow', () => {
         }),
       });
     });
-    
+
     // Setup download handler
     let downloadTriggered = false;
     page.on('download', () => {
       downloadTriggered = true;
     });
-    
+
     // Upload and enhance
     const testFile = {
       name: 'test-image.jpg',
       mimeType: 'image/jpeg',
       buffer: Buffer.from('fake-image-data'),
     };
-    
+
     const uploadArea = page.locator('div').filter({ hasText: 'Drop an image here' }).first();
     await uploadArea.setInputFiles(testFile);
-    
+
     const enhanceButton = page.locator('button:has-text("Enhance")');
     await enhanceButton.click();
-    
+
     // Wait for result and click download
     await expect(page.locator('text=Result')).toBeVisible({ timeout: 10000 });
-    
+
     const downloadButton = page.locator('button:has-text("Download")');
     await downloadButton.click();
-    
+
     // Download should be triggered (implementation dependent)
     // This test may need adjustment based on actual download implementation
   });

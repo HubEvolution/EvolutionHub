@@ -64,7 +64,10 @@ function collectIssues({ data }, expectedFields) {
 async function scaffoldFrontmatter(file, existingData, templateKeys) {
   const content = await fs.readFile(file, 'utf8');
   const { content: body } = matter(content);
-  const template = templateKeys.reduce((acc, key) => ({ ...acc, ...FRONTMATTER_TEMPLATES[key] }), {});
+  const template = templateKeys.reduce(
+    (acc, key) => ({ ...acc, ...FRONTMATTER_TEMPLATES[key] }),
+    {}
+  );
   const merged = { ...FRONTMATTER_TEMPLATES.default, ...template, ...existingData };
   const newContent = matter.stringify(body.trimStart(), merged);
   await fs.writeFile(file, `${newContent.trim()}\n`);
@@ -80,7 +83,10 @@ async function validateFile(file) {
   if (!data || Object.keys(data).length === 0) {
     if (scaffoldMode) {
       await scaffoldFrontmatter(file, {}, templateKeys);
-      return { relativePath, issues: [`Frontmatter automatisch ergänzt (${templateKeys.join('+')})`] };
+      return {
+        relativePath,
+        issues: [`Frontmatter automatisch ergänzt (${templateKeys.join('+')})`],
+      };
     }
     return { relativePath, issues: ['fehlende Frontmatter'] };
   }

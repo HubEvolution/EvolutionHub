@@ -25,7 +25,9 @@ const FAKE_STYTCH = process.env.E2E_FAKE_STYTCH === '1';
 
 test.describe('Auth Middleware', () => {
   test.describe('Protected Routes - Unauthenticated Access', () => {
-    test('should redirect unauthenticated user to login when accessing /dashboard', async ({ browser }) => {
+    test('should redirect unauthenticated user to login when accessing /dashboard', async ({
+      browser,
+    }) => {
       const context = await browser.newContext();
       const page = await context.newPage();
 
@@ -39,7 +41,9 @@ test.describe('Auth Middleware', () => {
       await context.close();
     });
 
-    test('should redirect unauthenticated user to login when accessing /profile', async ({ browser }) => {
+    test('should redirect unauthenticated user to login when accessing /profile', async ({
+      browser,
+    }) => {
       const context = await browser.newContext();
       const page = await context.newPage();
 
@@ -51,7 +55,9 @@ test.describe('Auth Middleware', () => {
       await context.close();
     });
 
-    test('should redirect unauthenticated user to login when accessing /settings', async ({ browser }) => {
+    test('should redirect unauthenticated user to login when accessing /settings', async ({
+      browser,
+    }) => {
       const context = await browser.newContext();
       const page = await context.newPage();
 
@@ -117,7 +123,9 @@ test.describe('Auth Middleware', () => {
       await context.close();
     });
 
-    test('should allow authenticated user to navigate between protected routes', async ({ browser }) => {
+    test('should allow authenticated user to navigate between protected routes', async ({
+      browser,
+    }) => {
       const context = await browser.newContext();
       const page = await context.newPage();
 
@@ -226,7 +234,9 @@ test.describe('Auth Middleware', () => {
 
       // Should redirect to original target (or dashboard if target is not allowed)
       const currentUrl = page.url();
-      expect(currentUrl, 'Should redirect to target after login').toMatch(/prompt-enhancer|dashboard/);
+      expect(currentUrl, 'Should redirect to target after login').toMatch(
+        /prompt-enhancer|dashboard/
+      );
 
       await context.close();
     });
@@ -276,7 +286,9 @@ test.describe('Auth Middleware', () => {
   test.describe('Middleware Behavior After Logout', () => {
     test.skip(!FAKE_STYTCH || IS_REMOTE, 'Requires E2E_FAKE_STYTCH=1 and local dev');
 
-    test('should redirect to login after logout when accessing protected route', async ({ browser }) => {
+    test('should redirect to login after logout when accessing protected route', async ({
+      browser,
+    }) => {
       const context = await browser.newContext();
       const page = await context.newPage();
 
@@ -377,7 +389,10 @@ test.describe('Auth Middleware', () => {
 
       // Check for security headers (CSP, HSTS, etc.)
       // Exact headers depend on middleware implementation
-      expect(headers['content-security-policy'] || headers['Content-Security-Policy'], 'Should set CSP header').toBeTruthy();
+      expect(
+        headers['content-security-policy'] || headers['Content-Security-Policy'],
+        'Should set CSP header'
+      ).toBeTruthy();
 
       await context.close();
     });

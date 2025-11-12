@@ -30,7 +30,6 @@ Diese Seite dient als zentrale Referenz für die aktuelle Blog- und Comments-Imp
 ### Komponenten & Konventionen (Astro)
 
 - **BlogPost Rendering** ([`src/components/BlogPost.astro`](../../src/components/BlogPost.astro))
-
   - Bilder über Astro `<Image>`; Frontmatter-Bilder als `ImageMetadata` getypt (defensive Guards für `src/width/height`).
 
   - Alt-Text strikt normalisiert (`imageAltText: string`); Caption nur bei `typeof imageAlt === 'string'`.
@@ -42,13 +41,11 @@ Diese Seite dient als zentrale Referenz für die aktuelle Blog- und Comments-Imp
   - Kategorie-Handling: Normalisierung auf `categoryStr` für URL/Label.
 
 - **CTAs**
-
   - `BlogCTA` ([`src/components/blog/BlogCTA.astro`](../../src/components/blog/BlogCTA.astro)): akzeptiert Branding-Varianten (`'primary'|'secondary'|'subtle'`).
 
   - `LeadMagnetCTA` ([`src/components/blog/LeadMagnetCTA.astro`](../../src/components/blog/LeadMagnetCTA.astro)): erwartet Layout-Varianten (`'card'|'inline'|'banner'`).
 
 - **BlogCard** ([`src/components/BlogCard.astro`](../../src/components/BlogCard.astro))
-
   - Zeigt Comment-Count-Badge (über `/api/comments/count`).
 
   - Bilddarstellung konsistent mit Astro `<Image>` (siehe Phase 2.3 – Status: in Arbeit/teils umgesetzt).
@@ -60,7 +57,6 @@ Diese Seite dient als zentrale Referenz für die aktuelle Blog- und Comments-Imp
 - Begründung: Die Middleware normalisiert neutrale Pfade abhängig von Cookies/Referer und verursacht sonst 30x-Redirects (weißes Redirect-Zwischendokument). Refs: `src/middleware.ts:332-356`, `src/middleware.ts:447-469`.
 
 - Umsetzung:
-
   - Beitragstitel/Bilder/„Weiterlesen“ in `BlogCard` verwenden lokalisierte URL.
 
   - Kategorie-/Tag-Links in `BlogPost` lokalisieren.
@@ -132,7 +128,6 @@ Weitere UI-Details sind in [`docs/frontend/ui-components.md`](../frontend/ui-com
 
 1. Mindestens 8 weitere Blog-Posts erstellen (Ziel: 20+)
 1. Fehlende Images hochladen/erstellen:
-
    - `digital-detox-focus.webp`
 
    - Weitere Post-Images (min 1200x675)
@@ -206,7 +201,6 @@ Hinweis: Build-Warnungen zu `Astro.request.headers` auf SSG-Seiten wurden beobac
 Umsetzungsstand:
 
 - ✅ KV Namespaces erstellt:
-
   - Testing `KV_COMMENTS`: `41475ea385094b3f9b13c12e06954dd5`
 
   - Staging `KV_COMMENTS`: `61878c1a1cd3402499476e7804ccc8ef`
@@ -260,7 +254,6 @@ Umsetzungsstand:
 **Lösung**:
 
 1. Moderation-Flow-Tests:
-
    - Admin approved Pending Comment
 
    - Admin rejects Spam Comment
@@ -295,7 +288,6 @@ Umsetzungsstand:
 **Lösung**:
 
 1. Analytics-Events:
-
    - `comment_created` (Props: entityType, isReply, isGuest)
 
    - `comment_moderated` (Props: action, reason)
@@ -330,13 +322,11 @@ Umsetzungsstand:
 **Lösung**:
 
 1. K6 Load-Test-Skripte:
-
    - 100 concurrent users, 1000 Comments/min
 
    - Blog-Index mit 100+ Posts
 
 1. Performance-Baselines definieren:
-
    - Comment-Creation: <500ms (p95)
 
    - Blog-Index: <1s (p95)
@@ -521,7 +511,6 @@ Umsetzungsstand:
 ## Nächste Schritte
 
 1. Phase 2.2 finalisieren (KV-Caching)
-
    - Staging: `KV_COMMENTS` Binding im `wrangler.toml` prüfen/fixieren → redeploy
 
    - Kurztest (Testing & Staging): zweimaliger GET auf identische Entity → Cache-Hit
@@ -529,13 +518,11 @@ Umsetzungsstand:
    - Logging optional: Cache-Hit/Miss im `CommentService` (debug-level)
 
 1. Phase 2.3 umsetzen (Image-Optimierung)
-
    - `src/components/BlogCard.astro` und `src/components/BlogPost.astro` auf `<Image>` + `srcset` + WebP
 
    - Build & Smoke; Light-Perf-Check
 
 1. Step 3 abgeschlossen (Scripts/Stores/Tests/API)
-
    - Scripts/Stores gehärtet, Unit-Tests für Stores ergänzt, Dashboard-APIs angepasst (Env-Guards/Typen)
 
    - Optional: weitere Integrationstests für Dashboard-APIs hinzufügen

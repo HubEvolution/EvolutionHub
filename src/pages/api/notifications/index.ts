@@ -23,7 +23,7 @@ function ensureNumericUserId(rawId: unknown): number {
   return numericId;
 }
 
-type NotificationBindings = { DB: D1Database; JWT_SECRET: string };
+type NotificationBindings = { DB: D1Database; JWT_SECRET: string; SESSION?: KVNamespace };
 type NotificationVariables = { jwtPayload?: { id?: string | number } };
 type NotificationEnv = { Bindings: NotificationBindings; Variables: NotificationVariables };
 
@@ -48,7 +48,7 @@ const enforceRateLimit = async (
   windowSeconds: number
 ): Promise<Response | undefined> => {
   try {
-    await rateLimit(key, maxRequests, windowSeconds, { kv: (c.env as any).SESSION as KVNamespace });
+    await rateLimit(key, maxRequests, windowSeconds, { kv: c.env.SESSION });
     return undefined;
   } catch (error) {
     const message =
@@ -107,10 +107,7 @@ app.get('/', async (c: NotificationContext) => {
       });
     }
 
-    const notificationService = new NotificationService(
-      c.env.DB,
-      (c.env as any).SESSION as KVNamespace
-    );
+    const notificationService = new NotificationService(c.env.DB, c.env.SESSION);
     const result = await notificationService.listNotifications(userId, parsedQuery.data);
 
     return createApiSuccess(result);
@@ -136,10 +133,7 @@ app.post('/mark-read', async (c: NotificationContext) => {
       });
     }
 
-    const notificationService = new NotificationService(
-      c.env.DB,
-      (c.env as any).SESSION as KVNamespace
-    );
+    const notificationService = new NotificationService(c.env.DB, c.env.SESSION);
     const notification = await notificationService.markAsRead(
       parsedBody.data.notificationId,
       userId
@@ -168,10 +162,7 @@ app.post('/mark-all-read', async (c: NotificationContext) => {
       });
     }
 
-    const notificationService = new NotificationService(
-      c.env.DB,
-      (c.env as any).SESSION as KVNamespace
-    );
+    const notificationService = new NotificationService(c.env.DB, c.env.SESSION);
 
     await notificationService.markAllAsRead(userId);
 
@@ -197,10 +188,7 @@ app.delete('/:id', async (c: NotificationContext) => {
     const limited = await enforceRateLimit(c, `notifications:delete:${userId}`, 10, 60);
     if (limited) return limited;
 
-    const notificationService = new NotificationService(
-      c.env.DB,
-      (c.env as any).SESSION as KVNamespace
-    );
+    const notificationService = new NotificationService(c.env.DB, c.env.SESSION);
 
     await notificationService.deleteNotification(parsedPath.data.id, userId);
 
@@ -227,10 +215,7 @@ app.get('/stats', async (c: NotificationContext) => {
       });
     }
 
-    const notificationService = new NotificationService(
-      c.env.DB,
-      (c.env as any).SESSION as KVNamespace
-    );
+    const notificationService = new NotificationService(c.env.DB, c.env.SESSION);
 
     const stats = await notificationService.getNotificationStats(userId);
 

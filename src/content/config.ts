@@ -2,7 +2,6 @@ import { defineCollection, z } from 'astro:content';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 
-
 // Exportiere die Collections
 // Testimonials collection (PR5)
 export const testimonialsCollection = defineCollection({

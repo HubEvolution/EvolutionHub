@@ -71,7 +71,9 @@ describe('TestConfig - Validierung', () => {
 
       const exitSpy = vi
         .spyOn(process, 'exit')
-        .mockImplementation(((_code?: string | number | null | undefined) => undefined) as unknown as never);
+        .mockImplementation(
+          ((_code?: string | number | null | undefined) => undefined) as unknown as never
+        );
       const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       // Dynamischer Import, der die Validierung und den Exit-Branch triggert

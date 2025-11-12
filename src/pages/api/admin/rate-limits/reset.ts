@@ -5,11 +5,7 @@ import {
   createApiSuccess,
   createMethodNotAllowed,
 } from '@/lib/api-middleware';
-import {
-  sensitiveActionLimiter,
-  resetLimiterKey,
-  type AnyEnv,
-} from '@/lib/rate-limiter';
+import { sensitiveActionLimiter, resetLimiterKey, type AnyEnv } from '@/lib/rate-limiter';
 import { requireAdmin } from '@/lib/auth-helpers';
 import type { AdminBindings } from '@/lib/types/admin';
 
@@ -22,7 +18,7 @@ export const POST = withAuthApiMiddleware(
   async (context: APIContext) => {
     const { locals, request } = context;
     const runtimeEnv = (locals.runtime?.env ?? {}) as AnyEnv;
-    const adminEnv = (runtimeEnv as unknown) as AdminBindings;
+    const adminEnv = runtimeEnv as unknown as AdminBindings;
 
     if (!adminEnv.DB) {
       return createApiError('server_error', 'Infrastructure unavailable');

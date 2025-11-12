@@ -36,7 +36,6 @@ Die Datenbank muss verschiedene Entitäten wie Benutzer, Projekte, Aktivitäten 
 Wir haben uns für folgende Datenbankstrategie entschieden:
 
 1. **Cloudflare D1** als primäre Datenbank:
-
    - SQLite-kompatible, serverless SQL-Datenbank
 
    - Vollständig in die Cloudflare-Plattform integriert
@@ -44,7 +43,6 @@ Wir haben uns für folgende Datenbankstrategie entschieden:
    - Automatische Replikation und Skalierung durch Cloudflare
 
 1. **Relationales Datenbankschema** mit folgenden Haupttabellen:
-
    - `users`: Benutzerinformationen und Anmeldedaten
 
    - `sessions`: Aktive Benutzersitzungen (für Token-Blacklisting)
@@ -62,7 +60,6 @@ Wir haben uns für folgende Datenbankstrategie entschieden:
    - `password_resets`: Passwort-Reset-Tokens und Metadaten
 
 1. **Migrationsbasierter Ansatz** für Schemaevolution:
-
    - Versionierte SQL-Migrationsdateien
 
    - Automatisierte Migrationsausführung bei Deployment
@@ -70,7 +67,6 @@ Wir haben uns für folgende Datenbankstrategie entschieden:
    - Rollback-Möglichkeit für fehlgeschlagene Migrationen
 
 1. **TypeScript-Typen** für Datenbankentitäten:
-
    - Strikte Typdefinitionen für alle Datenbankentitäten
 
    - Automatische Typableitung für Abfrageergebnisse
@@ -82,7 +78,6 @@ Wir haben uns für folgende Datenbankstrategie entschieden:
 ### Positive Konsequenzen
 
 1. **Nahtlose Integration**:
-
    - D1 ist vollständig in das Cloudflare-Ökosystem integriert
 
    - Einfache Verbindung von Workers zu D1 ohne externe Abhängigkeiten
@@ -90,7 +85,6 @@ Wir haben uns für folgende Datenbankstrategie entschieden:
    - Konsistente Plattform für Hosting und Datenbank
 
 1. **Entwicklungseffizienz**:
-
    - SQL als bekannte und mächtige Abfragesprache
 
    - Typsicherheit durch TypeScript-Integration
@@ -98,7 +92,6 @@ Wir haben uns für folgende Datenbankstrategie entschieden:
    - Einfache lokale Entwicklung mit Wrangler CLI
 
 1. **Kosteneffizienz**:
-
    - Serverless Modell ohne laufende Infrastrukturkosten
 
    - Pay-as-you-go-Preismodell für tatsächliche Nutzung
@@ -106,7 +99,6 @@ Wir haben uns für folgende Datenbankstrategie entschieden:
    - Keine Notwendigkeit für separate Datenbankserver
 
 1. **Skalierbarkeit**:
-
    - Automatische Skalierung durch Cloudflare's Edge-Netzwerk
 
    - Effiziente Abfragen durch Indexierung und SQL-Optimierung
@@ -116,7 +108,6 @@ Wir haben uns für folgende Datenbankstrategie entschieden:
 ### Negative Konsequenzen
 
 1. **Einschränkungen von D1**:
-
    - Als relativ neuer Dienst hat D1 einige Feature-Einschränkungen
 
    - Begrenzte Unterstützung für komplexe SQL-Funktionen
@@ -124,7 +115,6 @@ Wir haben uns für folgende Datenbankstrategie entschieden:
    - Eingeschränkte Transaktionsunterstützung im Vergleich zu traditionellen RDBMS
 
 1. **Vendor Lock-in**:
-
    - Starke Kopplung an die Cloudflare-Plattform
 
    - Migration zu anderen Datenbankanbietern könnte aufwändig sein
@@ -132,7 +122,6 @@ Wir haben uns für folgende Datenbankstrategie entschieden:
    - Abhängigkeit von Cloudflare's Roadmap für neue Features
 
 1. **Komplexität bei Joins**:
-
    - Komplexe Joins können in serverless Umgebungen Performance-Probleme verursachen
 
    - Notwendigkeit für denormalisierte Daten in einigen Fällen
@@ -140,7 +129,6 @@ Wir haben uns für folgende Datenbankstrategie entschieden:
    - Sorgfältige Abfrageoptimierung erforderlich
 
 1. **Lokale Entwicklung**:
-
    - Lokale Entwicklung erfordert Wrangler für D1-Emulation
 
    - Potenzielle Unterschiede zwischen lokalem und Produktionsverhalten

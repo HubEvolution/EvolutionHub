@@ -93,7 +93,10 @@ describe('AI Image Service', () => {
 
       // Assert
       expect(result).toBe(true);
-      expect(R2_BUCKET.put).toHaveBeenCalledWith(mockKey, expect.objectContaining({ body: mockBuffer }));
+      expect(R2_BUCKET.put).toHaveBeenCalledWith(
+        mockKey,
+        expect.objectContaining({ body: mockBuffer })
+      );
     });
 
     it('sollte bei Upload-Fehler fehlschlagen', async () => {

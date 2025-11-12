@@ -67,7 +67,7 @@ Die Migrations liegen im Verzeichnis `/migrations`. Aktuell vorhandene Migration
 
 Die Datenbank wird typischerweise mit dem Setup‑Script `scripts/setup-local-dev.ts` erstellt und migriert:
 
-```bash
+````bash
 npm run setup:local
 
 # oder
@@ -92,7 +92,7 @@ Alternativ können Sie Migrationen manuell mit Wrangler ausführen:
 npx wrangler d1 execute evolution-hub-main-local --local --file=./migrations/0000_initial_schema.sql
 npx wrangler d1 execute evolution-hub-main-local --local --file=./migrations/0001_add_sessions_table.sql
 # ... weitere Dateien in aufsteigender Reihenfolge
-```
+````
 
 ## Lokale Datenbank‑Dateien
 
@@ -107,13 +107,11 @@ Das Setup‑Script versucht, Migrationen in allen gefundenen Wrangler‑Datenban
 ## Änderungen durch die jüngsten Migrationen
 
 - `0006_create_download_audit.sql`:
-
   - Fügt Tabelle `download_audit(id, created_at, ip, user_id, asset_key, status, bytes)`
 
   - Indizes: `idx_download_audit_created_at`, `idx_download_audit_asset_key`, `idx_download_audit_status`
 
 - `0007_add_email_verification.sql`:
-
   - Fügt Spalten `email_verified` (INTEGER), `email_verified_at` zu `users`
 
   - Legt Tabelle `email_verification_tokens(token, user_id, email, created_at, expires_at, used_at)` an
@@ -121,7 +119,6 @@ Das Setup‑Script versucht, Migrationen in allen gefundenen Wrangler‑Datenban
   - Indizes für Performance und Backfill: markiert alle bestehenden Benutzer als verifiziert für Kompatibilität
 
 - `0008_create_ai_jobs_table.sql`:
-
   - Erstellt Tabelle `ai_jobs` für asynchrone AI-Bildbearbeitung
 
   - Felder: id, user_id, type, status, input_params, output_url, created_at, updated_at, completed_at, error_message
@@ -129,7 +126,6 @@ Das Setup‑Script versucht, Migrationen in allen gefundenen Wrangler‑Datenban
   - Indizes für Performance: idx_ai_jobs_user_id, idx_ai_jobs_status, idx_ai_jobs_created_at
 
 - `0009_update_ai_jobs_guest_ownership.sql`:
-
   - Fügt Unterstützung für Gastbenutzer zu AI-Jobs hinzu
 
   - Neue Felder: owner_type, owner_id für flexiblere Besitzverhältnisse
@@ -140,7 +136,7 @@ Das Setup‑Script versucht, Migrationen in allen gefundenen Wrangler‑Datenban
 
 Die `ai_jobs`-Tabelle ist speziell für die KI-Bildbearbeitungsfunktionalität optimiert und unterstützt Benutzer wie auch Gäste:
 
-```sql
+````sql
 CREATE TABLE ai_jobs (
   id TEXT PRIMARY KEY,
   user_id TEXT,                    -- nullable für Gäste
@@ -171,7 +167,7 @@ CREATE INDEX IF NOT EXISTS idx_ai_jobs_owner_created_at ON ai_jobs (owner_type, 
 CREATE INDEX IF NOT EXISTS idx_ai_jobs_provider_job_id ON ai_jobs (provider_job_id);
 CREATE INDEX IF NOT EXISTS idx_ai_jobs_status ON ai_jobs (status);
 CREATE INDEX IF NOT EXISTS idx_ai_jobs_created_at ON ai_jobs (created_at);
-```
+````
 
 ## Fehlerbehebung bei Migrationen
 
@@ -195,7 +191,7 @@ Wenn Migrationen fehlschlagen oder Tabellen fehlen:
 
 Um die lokale Datenbank zurückzusetzen:
 
-```bash
+````bash
 rm .wrangler/d1/miniflare/databases/evolution-hub-main-local.sqlite
 rm .wrangler/state/v3/d1/miniflare-D1DatabaseObject/*.sqlite
 npm run setup:local
@@ -218,3 +214,4 @@ npm run setup:local
 - AI-Jobs-Service: [`src/lib/services/ai-jobs-service.ts`](src/lib/services/ai-jobs-service.ts:1)
 
 ```text
+````

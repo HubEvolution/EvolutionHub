@@ -1,238 +1,239 @@
-"use strict";
+'use strict';
 /**
  * Resend Email Service Implementation
  *
  * Diese Klasse implementiert das EmailService-Interface unter Verwendung der Resend API.
  * Sie unterstützt E-Mail-Verifikation, Willkommens-E-Mails und allgemeine E-Mail-Versendung.
  */
-Object.defineProperty(exports, "__esModule", { value: true });
+Object.defineProperty(exports, '__esModule', { value: true });
 exports.ResendEmailService = void 0;
 exports.createEmailService = createEmailService;
-const resend_1 = require("resend");
-const base_service_1 = require("./base-service");
-const types_1 = require("./types");
-const logger_1 = require("@/server/utils/logger");
+const resend_1 = require('resend');
+const base_service_1 = require('./base-service');
+const types_1 = require('./types');
+const logger_1 = require('@/server/utils/logger');
 function maskEmail(email) {
-    try {
-        const [user, domain] = email.split('@');
-        if (!user || !domain)
-            return email;
-        const maskedUser = user.length <= 2 ? user[0] + '*' : user[0] + '***' + user[user.length - 1];
-        return `${maskedUser}@${domain}`;
-    }
-    catch {
-        return email;
-    }
+  try {
+    const [user, domain] = email.split('@');
+    if (!user || !domain) return email;
+    const maskedUser = user.length <= 2 ? user[0] + '*' : user[0] + '***' + user[user.length - 1];
+    return `${maskedUser}@${domain}`;
+  } catch {
+    return email;
+  }
 }
 /**
  * Implementierung des EmailService mit Resend API
  */
 class ResendEmailService extends base_service_1.AbstractBaseService {
-    /**
-     * Erstellt eine neue Instanz des Resend Email Service
-     *
-     * @param deps Service-Abhängigkeiten inklusive Resend API-Key
-     */
-    constructor(deps) {
-        super(deps);
-        if (!deps.resendApiKey) {
-            throw new types_1.ServiceError('Resend API Key ist erforderlich', types_1.ServiceErrorType.VALIDATION, {
-                missingConfig: 'resendApiKey',
-            });
+  /**
+   * Erstellt eine neue Instanz des Resend Email Service
+   *
+   * @param deps Service-Abhängigkeiten inklusive Resend API-Key
+   */
+  constructor(deps) {
+    super(deps);
+    if (!deps.resendApiKey) {
+      throw new types_1.ServiceError(
+        'Resend API Key ist erforderlich',
+        types_1.ServiceErrorType.VALIDATION,
+        {
+          missingConfig: 'resendApiKey',
         }
-        if (!deps.fromEmail) {
-            throw new types_1.ServiceError('From-E-Mail-Adresse ist erforderlich', types_1.ServiceErrorType.VALIDATION, {
-                missingConfig: 'fromEmail',
-            });
-        }
-        if (!deps.baseUrl) {
-            throw new types_1.ServiceError('Base URL ist erforderlich', types_1.ServiceErrorType.VALIDATION, {
-                missingConfig: 'baseUrl',
-            });
-        }
-        this.resend = new resend_1.Resend(deps.resendApiKey);
-        this.fromEmail = deps.fromEmail;
-        this.baseUrl = deps.baseUrl.replace(/\/$/, ''); // Remove trailing slash
+      );
     }
-    /**
-     * Sendet eine E-Mail-Verifikations-E-Mail an einen neuen Benutzer
-     *
-     * @param request Verifikations-E-Mail-Anfrage
-     * @returns Promise mit dem Ergebnis der E-Mail-Versendung
-     */
-    async sendVerificationEmail(request) {
-        try {
-            const subject = 'Konto aktivieren - Willkommen bei EvolutionHub';
-            const html = this.generateVerificationEmailHTML(request);
-            const { data, error } = await this.resend.emails.send({
-                from: this.fromEmail,
-                to: [request.email],
-                subject,
-                html,
-            });
-            if (error) {
-                const em = typeof error.message === 'string'
-                    ? error.message
-                    : String(error);
-                (0, logger_1.log)('error', 'Resend API error (verification email)', {
-                    errorMessage: em,
-                    to: maskEmail(request.email),
-                    kind: 'verification',
-                });
-                return {
-                    success: false,
-                    error: em || 'Failed to send verification email',
-                };
-            }
-            if (this.isDevelopment) {
-                (0, logger_1.log)('info', 'Verification email sent successfully', {
-                    to: maskEmail(request.email),
-                    messageId: data?.id,
-                });
-            }
-            return {
-                success: true,
-                messageId: data?.id,
-            };
+    if (!deps.fromEmail) {
+      throw new types_1.ServiceError(
+        'From-E-Mail-Adresse ist erforderlich',
+        types_1.ServiceErrorType.VALIDATION,
+        {
+          missingConfig: 'fromEmail',
         }
-        catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-            (0, logger_1.log)('error', 'Error sending verification email', {
-                errorMessage,
-                to: maskEmail(request.email),
-            });
-            return {
-                success: false,
-                error: errorMessage,
-            };
-        }
+      );
     }
-    /**
-     * Sendet eine Willkommens-E-Mail an einen verifizierten Benutzer
-     *
-     * @param email E-Mail-Adresse des Benutzers
-     * @param userName Name des Benutzers
-     * @returns Promise mit dem Ergebnis der E-Mail-Versendung
-     */
-    async sendWelcomeEmail(email, userName) {
-        try {
-            const subject = 'Willkommen bei EvolutionHub - Ihr Konto ist jetzt aktiv!';
-            const html = this.generateWelcomeEmailHTML(email, userName);
-            const { data, error } = await this.resend.emails.send({
-                from: this.fromEmail,
-                to: [email],
-                subject,
-                html,
-            });
-            if (error) {
-                const em = typeof error.message === 'string'
-                    ? error.message
-                    : String(error);
-                (0, logger_1.log)('error', 'Resend API error (welcome email)', {
-                    errorMessage: em,
-                    to: maskEmail(email),
-                    kind: 'welcome',
-                });
-                return {
-                    success: false,
-                    error: em || 'Failed to send welcome email',
-                };
-            }
-            if (this.isDevelopment) {
-                (0, logger_1.log)('info', 'Welcome email sent successfully', {
-                    to: maskEmail(email),
-                    userName,
-                    messageId: data?.id,
-                });
-            }
-            return {
-                success: true,
-                messageId: data?.id,
-            };
+    if (!deps.baseUrl) {
+      throw new types_1.ServiceError(
+        'Base URL ist erforderlich',
+        types_1.ServiceErrorType.VALIDATION,
+        {
+          missingConfig: 'baseUrl',
         }
-        catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-            (0, logger_1.log)('error', 'Error sending welcome email', {
-                errorMessage,
-                to: maskEmail(email),
-            });
-            return {
-                success: false,
-                error: errorMessage,
-            };
-        }
+      );
     }
-    /**
-     * Sendet eine allgemeine E-Mail
-     *
-     * @param request E-Mail-Anfrage
-     * @returns Promise mit dem Ergebnis der E-Mail-Versendung
-     */
-    async sendEmail(request) {
-        try {
-            const { data, error } = await this.resend.emails.send({
-                from: request.from || this.fromEmail,
-                to: request.to,
-                subject: request.subject,
-                html: request.html,
-            });
-            if (error) {
-                const em = typeof error.message === 'string'
-                    ? error.message
-                    : String(error);
-                (0, logger_1.log)('error', 'Resend API error (generic email)', {
-                    errorMessage: em,
-                    to: (request.to || []).map(maskEmail).join(','),
-                    kind: 'generic',
-                });
-                return {
-                    success: false,
-                    error: em || 'Failed to send email',
-                };
-            }
-            if (this.isDevelopment) {
-                (0, logger_1.log)('info', 'Email sent successfully', {
-                    to: (request.to || []).map(maskEmail),
-                    subject: request.subject,
-                    messageId: data?.id,
-                });
-            }
-            return {
-                success: true,
-                messageId: data?.id,
-            };
-        }
-        catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-            (0, logger_1.log)('error', 'Error sending email', {
-                errorMessage,
-                to: (request.to || []).map(maskEmail),
-            });
-            return {
-                success: false,
-                error: errorMessage,
-            };
-        }
+    this.resend = new resend_1.Resend(deps.resendApiKey);
+    this.fromEmail = deps.fromEmail;
+    this.baseUrl = deps.baseUrl.replace(/\/$/, ''); // Remove trailing slash
+  }
+  /**
+   * Sendet eine E-Mail-Verifikations-E-Mail an einen neuen Benutzer
+   *
+   * @param request Verifikations-E-Mail-Anfrage
+   * @returns Promise mit dem Ergebnis der E-Mail-Versendung
+   */
+  async sendVerificationEmail(request) {
+    try {
+      const subject = 'Konto aktivieren - Willkommen bei EvolutionHub';
+      const html = this.generateVerificationEmailHTML(request);
+      const { data, error } = await this.resend.emails.send({
+        from: this.fromEmail,
+        to: [request.email],
+        subject,
+        html,
+      });
+      if (error) {
+        const em = typeof error.message === 'string' ? error.message : String(error);
+        (0, logger_1.log)('error', 'Resend API error (verification email)', {
+          errorMessage: em,
+          to: maskEmail(request.email),
+          kind: 'verification',
+        });
+        return {
+          success: false,
+          error: em || 'Failed to send verification email',
+        };
+      }
+      if (this.isDevelopment) {
+        (0, logger_1.log)('info', 'Verification email sent successfully', {
+          to: maskEmail(request.email),
+          messageId: data?.id,
+        });
+      }
+      return {
+        success: true,
+        messageId: data?.id,
+      };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      (0, logger_1.log)('error', 'Error sending verification email', {
+        errorMessage,
+        to: maskEmail(request.email),
+      });
+      return {
+        success: false,
+        error: errorMessage,
+      };
     }
-    /**
-     * Validiert eine E-Mail-Adresse auf Korrektheit
-     *
-     * @param email Zu validierende E-Mail-Adresse
-     * @returns true wenn die E-Mail-Adresse gültig ist, false andernfalls
-     */
-    validateEmail(email) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email) && email.length <= 254;
+  }
+  /**
+   * Sendet eine Willkommens-E-Mail an einen verifizierten Benutzer
+   *
+   * @param email E-Mail-Adresse des Benutzers
+   * @param userName Name des Benutzers
+   * @returns Promise mit dem Ergebnis der E-Mail-Versendung
+   */
+  async sendWelcomeEmail(email, userName) {
+    try {
+      const subject = 'Willkommen bei EvolutionHub - Ihr Konto ist jetzt aktiv!';
+      const html = this.generateWelcomeEmailHTML(email, userName);
+      const { data, error } = await this.resend.emails.send({
+        from: this.fromEmail,
+        to: [email],
+        subject,
+        html,
+      });
+      if (error) {
+        const em = typeof error.message === 'string' ? error.message : String(error);
+        (0, logger_1.log)('error', 'Resend API error (welcome email)', {
+          errorMessage: em,
+          to: maskEmail(email),
+          kind: 'welcome',
+        });
+        return {
+          success: false,
+          error: em || 'Failed to send welcome email',
+        };
+      }
+      if (this.isDevelopment) {
+        (0, logger_1.log)('info', 'Welcome email sent successfully', {
+          to: maskEmail(email),
+          userName,
+          messageId: data?.id,
+        });
+      }
+      return {
+        success: true,
+        messageId: data?.id,
+      };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      (0, logger_1.log)('error', 'Error sending welcome email', {
+        errorMessage,
+        to: maskEmail(email),
+      });
+      return {
+        success: false,
+        error: errorMessage,
+      };
     }
-    /**
-     * Generiert HTML-Inhalt für die E-Mail-Verifikations-E-Mail
-     *
-     * @param request Verifikations-E-Mail-Anfrage
-     * @returns HTML-String für die E-Mail
-     */
-    generateVerificationEmailHTML(request) {
-        const userName = request.userName || 'dort';
-        return `
+  }
+  /**
+   * Sendet eine allgemeine E-Mail
+   *
+   * @param request E-Mail-Anfrage
+   * @returns Promise mit dem Ergebnis der E-Mail-Versendung
+   */
+  async sendEmail(request) {
+    try {
+      const { data, error } = await this.resend.emails.send({
+        from: request.from || this.fromEmail,
+        to: request.to,
+        subject: request.subject,
+        html: request.html,
+      });
+      if (error) {
+        const em = typeof error.message === 'string' ? error.message : String(error);
+        (0, logger_1.log)('error', 'Resend API error (generic email)', {
+          errorMessage: em,
+          to: (request.to || []).map(maskEmail).join(','),
+          kind: 'generic',
+        });
+        return {
+          success: false,
+          error: em || 'Failed to send email',
+        };
+      }
+      if (this.isDevelopment) {
+        (0, logger_1.log)('info', 'Email sent successfully', {
+          to: (request.to || []).map(maskEmail),
+          subject: request.subject,
+          messageId: data?.id,
+        });
+      }
+      return {
+        success: true,
+        messageId: data?.id,
+      };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      (0, logger_1.log)('error', 'Error sending email', {
+        errorMessage,
+        to: (request.to || []).map(maskEmail),
+      });
+      return {
+        success: false,
+        error: errorMessage,
+      };
+    }
+  }
+  /**
+   * Validiert eine E-Mail-Adresse auf Korrektheit
+   *
+   * @param email Zu validierende E-Mail-Adresse
+   * @returns true wenn die E-Mail-Adresse gültig ist, false andernfalls
+   */
+  validateEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email) && email.length <= 254;
+  }
+  /**
+   * Generiert HTML-Inhalt für die E-Mail-Verifikations-E-Mail
+   *
+   * @param request Verifikations-E-Mail-Anfrage
+   * @returns HTML-String für die E-Mail
+   */
+  generateVerificationEmailHTML(request) {
+    const userName = request.userName || 'dort';
+    return `
 <!DOCTYPE html>
 <html lang="de" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
@@ -442,17 +443,17 @@ class ResendEmailService extends base_service_1.AbstractBaseService {
 </body>
 </html>
 `;
-    }
-    /**
-     * Generiert HTML-Inhalt für die Willkommens-E-Mail
-     *
-     * @param email E-Mail-Adresse des Benutzers
-     * @param userName Name des Benutzers
-     * @returns HTML-String für die E-Mail
-     */
-    generateWelcomeEmailHTML(_email, userName) {
-        const dashboardUrl = `${this.baseUrl}/dashboard`;
-        return `
+  }
+  /**
+   * Generiert HTML-Inhalt für die Willkommens-E-Mail
+   *
+   * @param email E-Mail-Adresse des Benutzers
+   * @param userName Name des Benutzers
+   * @returns HTML-String für die E-Mail
+   */
+  generateWelcomeEmailHTML(_email, userName) {
+    const dashboardUrl = `${this.baseUrl}/dashboard`;
+    return `
 <!DOCTYPE html>
 <html lang="de" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
@@ -702,7 +703,7 @@ class ResendEmailService extends base_service_1.AbstractBaseService {
 </body>
 </html>
 `;
-    }
+  }
 }
 exports.ResendEmailService = ResendEmailService;
 /**
@@ -712,5 +713,5 @@ exports.ResendEmailService = ResendEmailService;
  * @returns Eine neue EmailService-Instanz
  */
 function createEmailService(deps) {
-    return new ResendEmailService(deps);
+  return new ResendEmailService(deps);
 }

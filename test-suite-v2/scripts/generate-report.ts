@@ -146,7 +146,8 @@ export class TestReportGenerator {
    */
   private generateHtmlReport(suiteResult: TestSuiteResult): string {
     const { summary } = suiteResult;
-    const passRate = summary.total > 0 ? (summary.passed / summary.total * 100).toFixed(2) : '0.00';
+    const passRate =
+      summary.total > 0 ? ((summary.passed / summary.total) * 100).toFixed(2) : '0.00';
 
     return `
 <!DOCTYPE html>
@@ -207,7 +208,9 @@ export class TestReportGenerator {
         </div>
     </div>
 
-    ${summary.coverage ? `
+    ${
+      summary.coverage
+        ? `
     <div class="summary">
         <h2>Coverage</h2>
         <div class="metric"><h4>Statements</h4><div>${summary.coverage.statements}%</div></div>
@@ -215,18 +218,24 @@ export class TestReportGenerator {
         <div class="metric"><h4>Functions</h4><div>${summary.coverage.functions}%</div></div>
         <div class="metric"><h4>Lines</h4><div>${summary.coverage.lines}%</div></div>
     </div>
-    ` : ''}
+    `
+        : ''
+    }
 
     <div class="tests">
         <h2>Test-Ergebnisse</h2>
-        ${suiteResult.results.map(test => `
+        ${suiteResult.results
+          .map(
+            (test) => `
             <div class="test-item test-${test.status}">
                 <h3>${test.name}</h3>
                 <div class="duration">Dauer: ${test.duration}ms | Kategorie: ${test.category}</div>
                 ${test.error ? `<div class="error">${test.error}</div>` : ''}
                 ${test.metadata ? `<pre>${JSON.stringify(test.metadata, null, 2)}</pre>` : ''}
             </div>
-        `).join('')}
+        `
+          )
+          .join('')}
     </div>
 </body>
 </html>`;
@@ -236,11 +245,15 @@ export class TestReportGenerator {
    * Generiert JSON-Bericht
    */
   private generateJsonReport(suiteResult: TestSuiteResult): string {
-    return JSON.stringify({
-      ...suiteResult,
-      generatedAt: new Date().toISOString(),
-      config: this.config,
-    }, null, 2);
+    return JSON.stringify(
+      {
+        ...suiteResult,
+        generatedAt: new Date().toISOString(),
+        config: this.config,
+      },
+      null,
+      2
+    );
   }
 
   /**
@@ -252,11 +265,15 @@ export class TestReportGenerator {
     return `<?xml version="1.0" encoding="UTF-8"?>
 <testsuites name="${suiteResult.suiteName}" tests="${summary.total}" failures="${summary.failed}" skipped="${summary.skipped}" time="${summary.duration / 1000}">
     <testsuite name="${suiteResult.suiteName}" tests="${summary.total}" failures="${summary.failed}" skipped="${summary.skipped}" time="${summary.duration / 1000}">
-        ${suiteResult.results.map(test => `
+        ${suiteResult.results
+          .map(
+            (test) => `
         <testcase name="${test.name}" classname="${test.category}" time="${test.duration / 1000}">
             ${test.error ? `<failure message="${test.error}">${test.error}</failure>` : ''}
             ${test.status === 'skipped' ? '<skipped/>' : ''}
-        </testcase>`).join('')}
+        </testcase>`
+          )
+          .join('')}
     </testsuite>
 </testsuites>`;
   }
@@ -266,7 +283,8 @@ export class TestReportGenerator {
    */
   private generateMarkdownReport(suiteResult: TestSuiteResult): string {
     const { summary } = suiteResult;
-    const passRate = summary.total > 0 ? (summary.passed / summary.total * 100).toFixed(2) : '0.00';
+    const passRate =
+      summary.total > 0 ? ((summary.passed / summary.total) * 100).toFixed(2) : '0.00';
 
     return `# Test-Bericht: ${suiteResult.suiteName}
 
@@ -288,7 +306,9 @@ ${suiteResult.environment.commit ? `- **Commit:** ${suiteResult.environment.comm
 | Erfolgsrate | ${passRate}% |
 | Gesamtdauer | ${summary.duration}ms |
 
-${summary.coverage ? `
+${
+  summary.coverage
+    ? `
 ## Coverage
 
 | Typ | Prozent |
@@ -297,11 +317,15 @@ ${summary.coverage ? `
 | Branches | ${summary.coverage.branches}% |
 | Functions | ${summary.coverage.functions}% |
 | Lines | ${summary.coverage.lines}% |
-` : ''}
+`
+    : ''
+}
 
 ## Test-Ergebnisse
 
-${suiteResult.results.map(test => `
+${suiteResult.results
+  .map(
+    (test) => `
 ### ${test.status === 'passed' ? '✅' : test.status === 'failed' ? '❌' : '⏭️'} ${test.name}
 
 - **Dauer:** ${test.duration}ms
@@ -309,7 +333,9 @@ ${suiteResult.results.map(test => `
 - **Zeitstempel:** ${test.timestamp.toLocaleString('de-DE')}
 ${test.error ? `\n**Fehler:**\n\`\`\`\n${test.error}\n\`\`\`\n` : ''}
 ${test.metadata ? `\n**Metadaten:**\n\`\`\`json\n${JSON.stringify(test.metadata, null, 2)}\n\`\`\`\n` : ''}
-`).join('')}
+`
+  )
+  .join('')}
 
 ---
 *Bericht generiert von Test-Suite v2*
@@ -336,9 +362,10 @@ ${test.metadata ? `\n**Metadaten:**\n\`\`\`json\n${JSON.stringify(test.metadata,
       { total: 0, passed: 0, failed: 0, skipped: 0, pending: 0, duration: 0 }
     );
 
-    const overallPassRate = totalSummary.total > 0
-      ? (totalSummary.passed / totalSummary.total * 100).toFixed(2)
-      : '0.00';
+    const overallPassRate =
+      totalSummary.total > 0
+        ? ((totalSummary.passed / totalSummary.total) * 100).toFixed(2)
+        : '0.00';
 
     const content = `# Test-Suite v2 - Zusammenfassungsbericht
 
@@ -361,12 +388,14 @@ ${test.metadata ? `\n**Metadaten:**\n\`\`\`json\n${JSON.stringify(test.metadata,
 
 ## Suite-Ergebnisse
 
-${suiteResults.map(suite => {
-  const passRate = suite.summary.total > 0
-    ? (suite.summary.passed / suite.summary.total * 100).toFixed(2)
-    : '0.00';
+${suiteResults
+  .map((suite) => {
+    const passRate =
+      suite.summary.total > 0
+        ? ((suite.summary.passed / suite.summary.total) * 100).toFixed(2)
+        : '0.00';
 
-  return `### ${suite.suiteName}
+    return `### ${suite.suiteName}
 
 - **Tests:** ${suite.summary.total}
 - **Bestanden:** ${suite.summary.passed} (${passRate}%)
@@ -376,7 +405,8 @@ ${suiteResults.map(suite => {
 
 **Status:** ${suite.summary.failed === 0 ? '✅ Alle Tests bestanden' : `❌ ${suite.summary.failed} Tests fehlgeschlagen`}
 `;
-}).join('\n')}
+  })
+  .join('\n')}
 
 ## Empfehlungen
 
@@ -523,10 +553,9 @@ async function main() {
     console.log(`📁 Generierte Dateien: ${generatedFiles.length}`);
     console.log(`📂 Output-Verzeichnis: ./reports`);
     console.log('\n📋 Dateien:');
-    generatedFiles.forEach(file => {
+    generatedFiles.forEach((file) => {
       console.log(`  ✅ ${path.relative(process.cwd(), file)}`);
     });
-
   } catch (error) {
     logger.error('Fehler bei der Berichts-Generierung', error);
     process.exit(1);

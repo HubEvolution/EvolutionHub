@@ -22,13 +22,13 @@ import CardReact from '@/components/ui/CardReact.jsx';
  * @param {QuickActionsProps} props
  * @returns {React.ReactElement}
  */
-const QuickActions = ({ 
+const QuickActions = ({
   initialActions = [],
   title = 'Quick Actions',
-  emptyLabel = 'No quick actions available'
+  emptyLabel = 'No quick actions available',
 }) => {
   const { actions, setActions, executeAction } = useQuickActionStore();
-  
+
   // Beim ersten Rendern die Aktionen laden
   useEffect(() => {
     if (initialActions && initialActions.length > 0 && actions.length === 0) {
@@ -73,19 +73,14 @@ const QuickActions = ({
               className="group w-full h-full p-4 rounded-xl transition-all bg-gray-50 dark:bg-transparent hover:bg-gray-100 dark:hover:bg-white/5 flex items-start space-x-3 text-left"
               aria-label={action.title}
             >
-              <div 
-                className={getVariantClasses(action.variant)}
-                aria-hidden="true"
-              >
+              <div className={getVariantClasses(action.variant)} aria-hidden="true">
                 <img src={action.icon} alt={action.title} className="w-6 h-6" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-gray-800 dark:text-white group-hover:text-primary dark:group-hover:text-primary-light transition-colors">
                   {action.title}
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {action.description}
-                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{action.description}</p>
               </div>
             </button>
           ))

@@ -60,7 +60,12 @@ export const LOG_CONFIG = {
     getEnabled(): string[] {
       const raw =
         (typeof process !== 'undefined' && process.env.LOG_TRANSPORTS) ||
-        (typeof import.meta !== 'undefined' && (import.meta as any).env?.LOG_TRANSPORTS) ||
+        (typeof import.meta !== 'undefined'
+          ? String(
+              (import.meta as unknown as { env?: Record<string, unknown> }).env?.LOG_TRANSPORTS ??
+                ''
+            )
+          : '') ||
         (typeof process !== 'undefined' && process.env.LOG_TRANSPORT) ||
         '';
       const list = String(raw)
@@ -72,7 +77,12 @@ export const LOG_CONFIG = {
       // Fallback je Umgebung
       const httpEndpoint =
         (typeof process !== 'undefined' && process.env.LOG_HTTP_ENDPOINT) ||
-        (typeof import.meta !== 'undefined' && (import.meta as any).env?.LOG_HTTP_ENDPOINT) ||
+        (typeof import.meta !== 'undefined'
+          ? String(
+              (import.meta as unknown as { env?: Record<string, unknown> }).env
+                ?.LOG_HTTP_ENDPOINT ?? ''
+            )
+          : '') ||
         '';
       if (LOG_CONFIG.environment.isProduction() && httpEndpoint) return ['http'];
       return ['console'];

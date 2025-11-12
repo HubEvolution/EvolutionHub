@@ -65,9 +65,7 @@ describe('AiImageService', () => {
 
     it('parses KV payload when present', async () => {
       const { service, kv } = createService();
-      vi.mocked(kv.get).mockResolvedValueOnce(
-        JSON.stringify({ count: 2, resetAt: 1700000000 })
-      );
+      vi.mocked(kv.get).mockResolvedValueOnce(JSON.stringify({ count: 2, resetAt: 1700000000 }));
 
       const result = await service.getUsage('guest' as OwnerType, 'guest-99', 5);
 

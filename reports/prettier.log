@@ -1,0 +1,3006 @@
+.claude/agents/ui-auditor.md 45ms
+.claude/settings.local.json 12ms
+.github/agents/evolutionhub-agent.md 7ms
+.github/ISSUE_TEMPLATE/bug_report.md 3ms (unchanged)
+.github/ISSUE_TEMPLATE/feature_request.md 3ms (unchanged)
+.github/PULL_REQUEST_TEMPLATE.md 2ms (unchanged)
+.github/renovate.json 9ms (unchanged)
+.github/SECURITY.md 2ms (unchanged)
+.github/workflows/auth-dryrun.yml 9ms (unchanged)
+.github/workflows/deploy.yml 14ms (unchanged)
+.github/workflows/docs-inventory.yml 6ms (unchanged)
+.github/workflows/docs-sync.yml 9ms (unchanged)
+.github/workflows/e2e-optin.yml 6ms
+.github/workflows/e2e-tests.yml 9ms
+.github/workflows/enhancer-e2e-smoke.yml 10ms
+.github/workflows/i18n-validate.yml 3ms
+.github/workflows/openapi-release.yml 6ms (unchanged)
+.github/workflows/openapi-zod-diff.yml 6ms (unchanged)
+.github/workflows/pricing-smoke.yml 4ms
+.github/workflows/prod-auth-smoke.yml 8ms
+.github/workflows/prompt-enhancer-e2e-smoke.yml 3ms
+.github/workflows/quality-gate.yml 4ms (unchanged)
+.github/workflows/testing-auth-smoke.yml 4ms
+.github/workflows/unit-coverage.yml 2ms (unchanged)
+.kilocode/mcp.json 2ms (unchanged)
+.kilocode/README.md 6ms (unchanged)
+.kilocode/rules/template_arbeitsbereich_regeln.md 1ms (unchanged)
+.kilocode/rules/validated_global_rules.md 0ms (unchanged)
+.kilocode/rules/validated_workspace_rules.md 43ms
+.lintstagedrc.json 1ms (unchanged)
+.logs/stripe-live-setup/20250914-212349/prod_pro.json 2ms (unchanged)
+.logs/stripe-live-setup/20250915-035205/checkout.session.json 1ms (unchanged)
+.logs/stripe-live-setup/20250915-035255/checkout.body.json 1ms (unchanged)
+.logs/stripe-live-setup/20250915-040604/checkout.body.json 1ms
+.logs/stripe-live-setup/20250915-040932/checkout.body.json 1ms (unchanged)
+.logs/stripe-live-setup/20250915-181741/sessions.json 1ms
+.logs/stripe-live-setup/20250915-181936/events.json 1ms (unchanged)
+.markdownlint-cli2.jsonc 3ms
+.markdownlint.json 1ms (unchanged)
+.markdownlint.jsonc 3ms
+.prettierrc.json 2ms (unchanged)
+.windsurf/rules/api-and-security.md 16ms (unchanged)
+.windsurf/rules/auth.md 15ms (unchanged)
+.windsurf/rules/content.md 5ms (unchanged)
+.windsurf/rules/cookies-and-consent.md 21ms
+.windsurf/rules/docs-documentation.md 15ms (unchanged)
+.windsurf/rules/image-enhancer.md 11ms (unchanged)
+.windsurf/rules/infra.md 7ms (unchanged)
+.windsurf/rules/pricing.md 15ms
+.windsurf/rules/project-structure.md 3ms (unchanged)
+.windsurf/rules/prompt.md 9ms (unchanged)
+.windsurf/rules/scraper.md 10ms (unchanged)
+.windsurf/rules/testing-and-ci.md 5ms (unchanged)
+.windsurf/rules/tooling-and-style.md 3ms (unchanged)
+.windsurf/rules/transcriptor.md 3ms (unchanged)
+.windsurf/rules/video-enhancer.md 6ms
+.windsurf/rules/zod-openapi.md 3ms (unchanged)
+.windsurf/workflows/code-hygiene.md 3ms
+.windsurf/workflows/hygiene-handoff.md 4ms
+AGENTS.md 10ms
+api-extractor.json 1ms (unchanged)
+assets/brand/colors/colors.css 20ms
+assets/brand/colors/colors.json 1ms (unchanged)
+assets/README.md 125ms
+astro.config.mjs 31ms
+blog-post-content-type.json 2ms (unchanged)
+cache-rules-ci.json 4ms (unchanged)
+cache-rules-create.json 1ms (unchanged)
+cache-rules-rules.json 4ms (unchanged)
+cf-create-ruleset.json 2ms (unchanged)
+CHANGELOG.md 9ms (unchanged)
+CLAUDE.md 0ms (unchanged)
+CODE_OF_CONDUCT.md 1ms (unchanged)
+combined-rules.json 1ms (unchanged)
+contentful-import-error-log-tmtc6fophkx8-2025-11-08T05-09-01.json 1ms (unchanged)
+contentful-import-error-log-tmtc6fophkx8-2025-11-08T05-11-11.json 1ms (unchanged)
+contentful-import-error-log-tmtc6fophkx8-2025-11-08T05-16-05.json 1ms (unchanged)
+contentful-import-error-log-tmtc6fophkx8-2025-11-08T05-21-42.json 2ms (unchanged)
+CONTRIBUTING.md 9ms (unchanged)
+developer.mozilla.org--mdn-web-docs--20251025-090628_scrapedwithhub-evolutioncom.json 3ms (unchanged)
+[error] docs/animation.md: SyntaxError: Unexpected token, expected "}" (1:9)
+[error] > 1 |  text: string; delay?: number 
+[error]     |         ^
+[error] docs/api/admin_api.md: SyntaxError: 'BinaryExpression' is not allowed in JSON. (3:13)
+[error]   1 | {
+[error]   2 |   "referralEventId": "refevt_...",
+[error] > 3 |   "action": "mark_paid" | "cancel",
+[error]     |             ^^^^^^^^^^^^^^^^^^^^^^
+[error]   4 |   "reason": "optional admin note"
+[error]   5 | }
+[error] docs/api/ai-image_api.md: SyntaxError: The input should contain exactly one expression, but the first expression is followed by the unexpected character `j`. (36:4)
+[error]   34 | **Validierungsfehler (400):**
+[error]   35 |
+[error] > 36 | ```json
+[error]      |    ^
+[error]   37 | {
+[error]   38 |   "success": false,
+[error]   39 |   "error": {
+[error] docs/api/api-guidelines.md: SyntaxError: The input should contain exactly one expression, but the first expression is followed by the unexpected character `t`. (15:4)
+[error]   13 | **✅ Do:**
+[error]   14 |
+[error] > 15 | ```typescript
+[error]      |    ^
+[error]   16 | // Verwende die standardisierten Helper-Funktionen
+[error]   17 | import { createApiSuccess, createApiError } from '@/lib/api-middleware';
+[error]   18 |
+[error] docs/api/api-overview.md: SyntaxError: The input should contain exactly one expression, but the first expression is followed by the unexpected character `a`. (35:19)
+[error]   33 | ### Content-Types
+[error]   34 |
+[error] > 35 | - **JSON APIs**: `application/json`
+[error]      |                   ^
+[error]   36 |
+[error]   37 | - **File Uploads**: `multipart/form-data`
+[error]   38 |
+docs/api/auth_api.md 7ms
+[error] docs/api/billing_api.md: SyntaxError: The input should contain exactly one expression, but the first expression is followed by the unexpected character `i`. (10:4)
+[error]    8 | ```json
+[error]    9 |
+[error] > 10 | - `interval` standardmäßig `monthly`; gültige Preis-IDs kommen aus `PRICING_TABLE[_ANNUAL]`.
+[error]      |    ^
+[error]   11 |
+[error]   12 | - `returnTo` und `Referer` werden sanitisiert und als Query-Parameter an `/api/billing/sync` weitergegeben.
+[error]   13 |
+[error] docs/api/comments_api.md: SyntaxError: Module declaration names may only use ' or " quoted strings. (20:2)
+[error]   18 | ### Status-Workflow
+[error]   19 |
+[error] > 20 | ```mermaid
+[error]      |  ^
+[error]   21 | stateDiagram-v2
+[error]   22 |     [*] --> pending
+[error]   23 |     pending --> approved
+[error] docs/api/dashboard_api.md: SyntaxError: The input should contain exactly one expression, but the first expression is followed by the unexpected character `G`. (27:22)
+[error]   25 | Ruft eine Liste der letzten Aktivitäten des authentifizierten Benutzers ab.
+[error]   26 |
+[error] > 27 | - **HTTP-Methode:** `GET`
+[error]      |                      ^
+[error]   28 |
+[error]   29 | - **Pfad:** `/api/dashboard/activity`
+[error]   30 |
+[error] docs/api/error-handling.md: SyntaxError: The input should contain exactly one expression, but the first expression is followed by the unexpected character `j`. (12:4)
+[error]   10 | ### Fehler-Response
+[error]   11 |
+[error] > 12 | ```json
+[error]      |    ^
+[error]   13 | {
+[error]   14 |   "success": false,
+[error]   15 |   "error": {
+[error] docs/api/known-issues.md: SyntaxError: Module declaration names may only use ' or " quoted strings. (18:2)
+[error]   16 | Diese Verbesserungen würden nicht nur die Codebasis robuster machen, sondern auch die Benutzererfahrung verbessern und die Sicherheit erhöhen.
+[error]   17 |
+[error] > 18 | ```text
+[error]      |  ^
+docs/api/openapi/paths/auth-logout.yaml 2ms (unchanged)
+docs/api/openapi/paths/comments-id.yaml 5ms
+docs/api/openapi/paths/projects-id-comments.yaml 9ms
+docs/api/openapi/paths/projects-id.yaml 9ms
+docs/api/openapi/paths/projects.yaml 2ms
+docs/api/openapi/paths/tools-id.yaml 6ms
+docs/api/openapi/paths/tools.yaml 8ms
+docs/api/openapi/paths/user-me.yaml 2ms
+docs/api/openapi/paths/user-profile.yaml 2ms
+docs/api/openapi/schemas.yaml 11ms
+[error] docs/api/projects_api.md: SyntaxError: The input should contain exactly one expression, but the first expression is followed by the unexpected character `4`. (18:27)
+[error]   16 | ```text
+[error]   17 |
+[error] > 18 | ### Fehlerhafte Antwort (`401 Unauthorized`)
+[error]      |                           ^
+[error]   19 |
+[error]   20 | ```json
+[error]   21 | { "success": false, "error": { "type": "auth_error", "message": "Für diese Aktion ist eine Anmeldung erforderlich" } }
+[error] docs/api/prompt-enhance.md: SyntaxError: The input should contain exactly one expression, but the first expression is followed by the unexpected character `j`. (11:4)
+[error]    9 | #### Vollständige Anfrage
+[error]   10 |
+[error] > 11 | ```json
+[error]      |    ^
+[error]   12 | {
+[error]   13 |   "input": {
+[error]   14 |     "text": "Analysiere diese Marketing-Strategie und schlage Verbesserungen vor"
+[error] docs/api/public_api.md: SyntaxError: Unexpected token (24:11)
+[error]   22 |             "content": "Thanks!",
+[error]   23 |             ...
+[error] > 24 |           }
+[error]      |           ^
+[error]   25 |         ],
+[error]   26 |         "reportCount": 0
+[error]   27 |       }
+[error] docs/api/rate-limiting-api.md: SyntaxError: The input should contain exactly one expression, but the first expression is followed by the unexpected character `h`. (13:4)
+[error]   11 | Header:
+[error]   12 |
+[error] > 13 | ```http
+[error]      |    ^
+[error]   14 | X-RateLimit-Limit: 15
+[error]   15 | X-RateLimit-Remaining: 14
+[error]   16 | X-RateLimit-Reset: 1634567890
+[error] docs/api/README.md: SyntaxError: The input should contain exactly one expression, but the first expression is followed by the unexpected character `e`. (13:41)
+[error]   11 |   - Unsichere Methoden (POST/PUT/PATCH/DELETE) erfordern Same‑Origin; dies wird durch die API‑Middleware erzwungen.
+[error]   12 |
+[error] > 13 |   - Optionaler Double‑Submit‑CSRF über `enforceCsrfToken: true` (Header `X-CSRF-Token` muss dem Cookie `csrf_token` entsprechen).
+[error]      |                                         ^
+[error]   14 |
+[error]   15 |   - Allowed Origins können zusätzlich per Env (`ALLOWED_ORIGINS`, `ALLOW_ORIGINS`, `APP_ORIGIN`, `PUBLIC_APP_ORIGIN`) erweitert werden.
+[error]   16 |
+[error] docs/api/user_api.md: SyntaxError: The input should contain exactly one expression, but the first expression is followed by the unexpected character `j`. (16:4)
+[error]   14 | ### Fehlerhafte Antwort – /api/user/me (401 Unauthorized)
+[error]   15 |
+[error] > 16 | ```json
+[error]      |    ^
+[error]   17 | {
+[error]   18 |   "success": false,
+[error]   19 |   "error": {
+[error] docs/api/voice_api.md: SyntaxError: The input should contain exactly one expression, but the first expression is followed by the unexpected character `j`. (13:4)
+[error]   11 | **Quota überschritten (403):**
+[error]   12 |
+[error] > 13 | ```json
+[error]      |    ^
+[error]   14 | {
+[error]   15 |   "success": false,
+[error]   16 |   "error": {
+[error] docs/api/webscraper_api.md: SyntaxError: The input should contain exactly one expression, but the first expression is followed by the unexpected character `#`. (16:2)
+[error]   14 |
+[error]   15 | Hinweis: Der kanonische Request ist in der OpenAPI‑Spezifikation als Komponente definiert:
+[error] > 16 | `#/components/schemas/WebscraperRequest`. Der Server führt zusätzlich SSRF‑Sicherheitsprüfungen
+[error]      |  ^
+[error]   17 | (http/https only; localhost/private Netze blockiert) zur Laufzeit durch.
+[error]   18 |
+[error]   19 | #### Request-Parameter
+docs/architecture.md 8ms
+docs/architecture/adrs/0000-adr-template.md 3ms (unchanged)
+docs/architecture/adrs/0001-astro-cloudflare-stack.md 8ms
+docs/architecture/adrs/0002-cloudflare-architecture.md 11ms
+docs/architecture/adrs/0003-astro-frontend-architecture.md 10ms
+docs/architecture/adrs/0004-database-schema.md 9ms
+docs/architecture/adrs/0005-auth-route-locale-normalisierung.md 12ms
+docs/architecture/adrs/0006-dev-echo-non-prod.md 13ms (unchanged)
+docs/architecture/adrs/deprecated/0001-jwt-authentication.md 16ms
+docs/architecture/adrs/deprecated/0002-jwt-authentication.md 17ms
+docs/architecture/adrs/deprecated/0003-database-schema.md 12ms
+[error] docs/architecture/ai-image-enhancer.md: SyntaxError: ';' expected. (27:19)
+[error]   25 | #### Sicherheitsfeatures
+[error]   26 |
+[error] > 27 | - Rate-Limiting: `aiGenerate` 15/min, `aiJobs` 10/min; sonst `api` 30/min
+[error]      |                   ^
+[error]   28 |
+[error]   29 | - Input-Validierung: MIME-Type (JPEG/PNG/WebP) und Dateigröße (max. 10 MB); keine Inhaltsprüfung auf Server-Seite
+[error]   30 |
+docs/architecture/ai-orchestrator-open-questions.md 13ms
+docs/architecture/api-middleware-inventory.md 57ms
+[error] docs/architecture/auth-architecture.md: SyntaxError: Module declaration names may only use ' or " quoted strings. (31:2)
+[error]   29 | ### Rollenbasierte Zugriffskontrolle
+[error]   30 |
+[error] > 31 | ```typescript
+[error]      |  ^
+[error]   32 | // src/lib/auth.ts
+[error]   33 | export function requireRole(roles) {
+[error]   34 |   return async ({ request, env, next }) => {
+[error] docs/architecture/auth-flow.md: SyntaxError: Module declaration names may only use ' or " quoted strings. (31:2)
+[error]   29 | ### Rollenbasierte Zugriffskontrolle
+[error]   30 |
+[error] > 31 | ```typescript
+[error]      |  ^
+[error]   32 | // src/lib/auth.ts
+[error]   33 | export function requireRole(roles) {
+[error]   34 |   return async ({ request, env, next }) => {
+[error] docs/architecture/data-flow.md: SyntaxError: Module declaration names may only use ' or " quoted strings. (33:2)
+[error]   31 | ```text
+[error]   32 |
+[error] > 33 | ```text
+[error]      |  ^
+docs/architecture/database-schema.md 26ms
+docs/architecture/locale-middleware.md 17ms
+docs/architecture/prompt-enhancer.md 9ms
+docs/architecture/README.md 8ms (unchanged)
+docs/architecture/reviews/BEWERTUNG_LOGIKREVIEW_IMAGE-ENHANCER_USAGE-PILL_PLANANZEIGE.md 34ms
+docs/architecture/system-overview.md 17ms
+docs/architecture/voice-visualizer-transcriptor.md 11ms
+docs/archive/documentation-gap-analysis.md 17ms
+docs/archive/README.md 12ms (unchanged)
+docs/archive/status-assessment.md 16ms
+docs/AUDIT.md 15ms
+docs/business/infra-costs/ai-operations-cost-report.md 24ms
+docs/cheat-sheet.md 2ms
+docs/compliance/ai-enhancer-licensing.md 5ms
+[error] docs/content.md: SyntaxError: Plain value cannot start with reserved character ` (15:1)
+[error]   13 | ---
+[error]   14 |
+[error] > 15 | ```text
+[error]      | ^^^^^^^
+[error]   16 |
+[error]   17 | #### Optional Fields
+[error]   18 |
+docs/db_schema_update.md 6ms
+docs/deployment/image-enhancer-mvp.md 5ms
+docs/development/api-validation.md 5ms
+[error] docs/development/bugfix-session-cookie-fallback.md: SyntaxError: Module declaration names may only use ' or " quoted strings. (4:3)
+[error]   2 | const sessionId = context.cookies.get('__Host-session')?.value ?? context.cookies.get('session_id')?.value ?? null;
+[error]   3 |
+[error] > 4 | ```text
+[error]     |   ^
+[error]   5 |
+[error]   6 | Die Middleware prüft jetzt **beide Cookie-Namen** mit Fallback-Logik:
+[error]   7 |
+[error] docs/development/ci-cd.md: TypeError: Cannot set properties of null (setting 'spaceBefore')
+[error]     at Ca (file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/node_modules/prettier/plugins/yaml.mjs:139:1880)
+[error]     at je.parse (file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/node_modules/prettier/plugins/yaml.mjs:145:2101)
+[error]     at file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/node_modules/prettier/plugins/yaml.mjs:160:23493
+[error]     at Array.map (<anonymous>)
+[error]     at _i (file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/node_modules/prettier/plugins/yaml.mjs:160:23434)
+[error]     at Object.tc [as parse] (file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/node_modules/prettier/plugins/yaml.mjs:160:23939)
+[error]     at parse5 (file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/node_modules/prettier/index.mjs:16731:24)
+[error]     at async textToDoc (file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/node_modules/prettier/index.mjs:16842:19)
+[error]     at async file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/node_modules/prettier/plugins/markdown.mjs:52:612
+[error]     at async printEmbeddedLanguages (file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/node_modules/prettier/index.mjs:16782:20)
+[error] docs/development/debug-panel-usage.md: SyntaxError: Module declaration names may only use ' or " quoted strings. (15:2)
+[error]   13 | ### Security-bewusst
+[error]   14 |
+[error] > 15 | ```typescript
+[error]      |  ^
+[error]   16 | // ✅ Sicher
+[error]   17 | log('info', 'Password reset', {
+[error]   18 |   userId: user.id,
+[error] docs/development/docs-style-guide.md: SyntaxError: Plain value cannot start with reserved character ` (10:1)
+[error]    8 | ---
+[error]    9 |
+[error] > 10 | ```text
+[error]      | ^^^^^^^
+[error]   11 |
+[error]   12 | ### CI-Prüfungen
+[error]   13 |
+[error] docs/development/hybrid-logging-system.md: SyntaxError: Module declaration names may only use ' or " quoted strings. (13:2)
+[error]   11 | **Environment-Detection:**
+[error]   12 |
+[error] > 13 | ```typescript
+[error]      |  ^
+[error]   14 | // Automatische Erkennung der Umgebung
+[error]   15 | isAstroDevEnvironment(): boolean    // Node.js + development + !Wrangler
+[error]   16 | isWranglerEnvironment(): boolean   // Wrangler || CF_PAGES || Edge Runtime
+[error] docs/development/icon-guidelines.md: SyntaxError: Unexpected token (2:3)
+[error]   1 |
+[error] > 2 |   return (
+[error]     |   ^
+[error]   3 |     <a className="inline-flex items-center gap-2">
+[error]   4 |       <Icon name="rocket" className="w-5 h-5 text-white" ariaLabel="Go to dashboard" />
+[error]   5 |       Go to dashboard
+docs/development/inline-ts-refactor.md 28ms
+docs/development/local-development.md 15ms
+docs/development/prs/imag-enhancer-help-ui.md 8ms
+docs/development/README.md 13ms
+docs/development/stripe-setup.md 10ms
+docs/development/stytch-oauth-dev-guide.md 8ms
+[error] docs/development/testing-guidelines.md: SyntaxError: Module declaration names may only use ' or " quoted strings. (17:3)
+[error]   15 | });
+[error]   16 |
+[error] > 17 | ```text
+[error]      |   ^
+[error]   18 |
+[error]   19 | ---
+[error]   20 |
+[error] docs/development/typescript-integration.md: SyntaxError: The input should contain exactly one expression, but the first expression is followed by the unexpected character `a`. (49:13)
+[error]   47 | - Nutze Interfaces für komplexe Datenstrukturen
+[error]   48 |
+[error] > 49 | - Vermeide `any` wo möglich, verwende stattdessen `unknown` für unbekannte Typen
+[error]      |             ^
+[error]   50 |
+[error]   51 | - Nutze Generics für wiederverwendbare Typdefinitionen
+[error]   52 |
+docs/features/admin-notifications.md 17ms
+docs/features/blog+commentsystem-plan.md 33ms
+docs/features/pricing-system.md 4ms
+docs/features/production-logging.md 3ms (unchanged)
+[error] docs/frontend/aos-coordinator.md: SyntaxError: Module declaration names may only use ' or " quoted strings. (10:3)
+[error]    8 | // Returns: { 'data-aos': 'fade-left', 'data-aos-delay': '100', 'data-aos-duration': '700' }
+[error]    9 |
+[error] > 10 | ```text
+[error]      |   ^
+[error]   11 |
+[error]   12 | - Reduzierte Bewegung respektieren: Es ist keine zusätzliche Arbeit nötig – Nutzerpräferenz wird automatisch erkannt.
+[error]   13 |
+[error] docs/frontend/card-components.md: SyntaxError: Unexpected token (2:3)
+[error]   1 |
+[error] > 2 |   return (
+[error]     |   ^
+[error]   3 |     <CardReact>
+[error]   4 |       <h2>Titel</h2>
+[error]   5 |       <p>Inhalt</p>
+docs/frontend/coming-soon.md 32ms
+[error] docs/frontend/components.md: SyntaxError: Module declaration names may only use ' or " quoted strings. (10:3)
+[error]    8 | />
+[error]    9 |
+[error] > 10 | ```text
+[error]      |   ^
+[error]   11 |
+[error]   12 | ### CommentMobile
+[error]   13 |
+[error] docs/frontend/design-system.md: SyntaxError: Missing semicolon. (30:39)
+[error]   28 | #### Integration & Architektur
+[error]   29 |
+[error] > 30 | - Dedizierte Koordinator-Komponente: `src/components/scripts/AOSCoordinator.astro`
+[error]      |                                       ^
+[error]   31 |
+[error]   32 | - AOS-CSS wird im `<head>` nur geladen, wenn `enableAOS === true` (siehe `src/layouts/BaseLayout.astro`).
+[error]   33 |
+docs/frontend/entitlements-ui-gating.md 15ms
+docs/frontend/header-scroll-animation.md 61ms
+[error] docs/frontend/imag-enhancer-ui-upgrade.md: SyntaxError: Module declaration names may only use ' or " quoted strings. (30:3)
+[error]   28 | }
+[error]   29 |
+[error] > 30 | ```text
+[error]      |   ^
+[error]   31 |
+[error]   32 | Hinweis Dev-Fallback: In Entwicklung/Test kann der Service das Originalbild zurückgeben (Echo), wenn Upstream/Token fehlt oder generell in lokalen Dev-/Test-Umgebungen. UI kennzeichnet dies als Demo-Modus (siehe unten).
+[error]   33 |
+[error] docs/frontend/README.md: SyntaxError: Module declaration names may only use ' or " quoted strings. (11:2)
+[error]    9 | ```text
+[error]   10 |
+[error] > 11 | ```astro
+[error]      |  ^
+[error]   12 | ---
+[error]   13 | import MyIsland from '@/components/islands/MyIsland';
+[error]   14 | ---
+docs/frontend/toast-notifications.md 70ms
+[error] docs/frontend/ui-components.md: SyntaxError: JSX expressions must have one parent element. (1:1)
+[error] > 1 | <Button variant="primary" size="md">Action</Button>
+[error]     | ^
+[error]   2 | <Button variant="secondary" size="sm">Secondary</Button>
+docs/frontend/ui-ux.md 57ms
+[error] docs/i18n.md: SyntaxError: Module declaration names may only use ' or " quoted strings. (4:3)
+[error]   2 | const locale = getLocale(Astro.url.pathname); // 'de' oder 'en'
+[error]   3 |
+[error] > 4 | ```text
+[error]     |   ^
+[error]   5 |
+[error]   6 | ### navigateLocale(locale: 'de' | 'en'): void
+[error]   7 |
+docs/lead-magnets/content-prompts.md 25ms
+docs/lead-magnets/prompts.md 17ms (unchanged)
+docs/lead-magnets/r2-optimization-plan.md 17ms
+docs/lead-magnets/README.md 6ms (unchanged)
+docs/media/lottie-preview.html 10ms
+docs/meta/registry.json 336ms
+docs/meta/schema.json 2ms
+docs/ops/ai-generate-kv-limiter-plan.md 9ms
+docs/ops/cloudflare-cache-rules.md 4ms
+docs/ops/deployment-guide.md 10ms
+docs/ops/monitoring.md 14ms
+docs/ops/README.md 5ms (unchanged)
+docs/ops/runbook-image-enhancer-go-live.md 5ms
+docs/README.md 14ms
+docs/reference/auth-envs-and-secrets.md 10ms
+docs/reference/environment.md 3ms
+docs/rules/project-rules-deltas.md 4ms
+docs/rules/project-structure.md 4ms
+docs/runbooks/logging-pipeline.md 4ms (unchanged)
+[error] docs/SECURITY.md: SyntaxError: Module declaration names may only use ' or " quoted strings. (17:2)
+[error]   15 | Wenn ein Client das Rate-Limit überschreitet, erhält er eine strukturierte JSON-Antwort mit HTTP-Status 429:
+[error]   16 |
+[error] > 17 | ```json
+[error]      |  ^
+[error]   18 | {
+[error]   19 |   "error": "Rate limit exceeded",
+[error]   20 |   "retryAfter": 45
+[error] docs/security/improvements.md: SyntaxError: ';' expected. (35:74)
+[error]   33 | Alle User-APIs wurden mit einheitlichem Fehlerhandling implementiert:
+[error]   34 |
+[error] > 35 | - **JSON-strukturierte Fehler**: Alle Fehlerantworten folgen dem Format `{ "error": "Spezifische Fehlermeldung" }`
+[error]      |                                                                          ^
+[error]   36 |
+[error]   37 | - **Aussagekräftige Statuscodes**: Verwendung von HTTP-Standards (400 für Validierungsfehler, 401 für Authentifizierungsfehler, 409 für Konflikte)
+[error]   38 |
+[error] docs/security/rate_limiting.md: SyntaxError: Module declaration names may only use ' or " quoted strings. (15:2)
+[error]   13 | ### Beispiel: Image Enhancer
+[error]   14 |
+[error] > 15 | ```typescript
+[error]      |  ^
+[error]   16 | import { withApiMiddleware } from '@/lib/api-middleware';
+[error]   17 | import { aiGenerateLimiter } from '@/lib/rate-limiter';
+[error]   18 |
+[error] docs/security/README.md: SyntaxError: Module declaration names may only use ' or " quoted strings. (10:3)
+[error]    8 | import { sensitiveActionLimiter } from '@/lib/rate-limiter';
+[error]    9 |
+[error] > 10 | ```text
+[error]      |   ^
+[error]   11 |
+[error]   12 | ## Security Headers (2)
+[error]   13 |
+docs/security/security_headers.md 17ms
+[error] docs/seo.md: SyntaxError: Module declaration names may only use ' or " quoted strings. (6:3)
+[error]   4 | };
+[error]   5 |
+[error] > 6 | ```json
+[error]     |   ^
+[error]   7 |
+[error]   8 | ## Verwendung (Beispiel)
+[error]   9 |
+[error] docs/SETUP.md: SyntaxError: The input should contain exactly one expression, but the first expression is followed by the unexpected character `:`. (1:19)
+[error] > 1 | "test:integration": "vitest run --config vitest.integration.config.ts"
+[error]     |                   ^
+docs/testing/coverage-roadmap-to-95.md 19ms
+[error] docs/testing/integration-hardening.md: SyntaxError: Module declaration names may only use ' or " quoted strings. (4:3)
+[error]   2 | if (res.status !== 200) return;
+[error]   3 |
+[error] > 4 | ```text
+[error]     |   ^
+[error]   5 |
+[error]   6 | ## Same‑Origin and CSRF
+[error]   7 |
+[error] docs/testing/README.md: SyntaxError: ';' expected. (3:8)
+[error]   1 | coverage: {
+[error]   2 |   reporter: ['text', 'json', 'html'],
+[error] > 3 |   lines: 70,
+[error]     |        ^
+[error]   4 |   branches: 70,
+[error]   5 |   functions: 70,
+[error]   6 |   statements: 70
+[error] docs/testing/testing-strategy.md: SyntaxError: Module declaration names may only use ' or " quoted strings. (77:2)
+[error]   75 | **Beispiel**:
+[error]   76 |
+[error] > 77 | ```typescript
+[error]      |  ^
+[error]   78 | // tests/e2e/auth.spec.ts
+[error]   79 | import { test, expect } from '@playwright/test';
+[error]   80 |
+docs/testing/web-eval-executor.md 3ms (unchanged)
+docs/tools/debug-panel.md 7ms
+[error] docs/tools/image-enhancer.md: SyntaxError: Module declaration names may only use ' or " quoted strings. (16:3)
+[error]   14 | }
+[error]   15 |
+[error] > 16 | ```text
+[error]      |   ^
+[error]   17 |
+[error]   18 | ### Cloudflare-Bindings (`wrangler.toml`)
+[error]   19 |
+[error] docs/tools/prompt-enhancer.en.md: SyntaxError: The input should contain exactly one expression, but the first expression is followed by the unexpected character `t`. (19:4)
+[error]   17 | See also: docs/api/README.md (CSRF/Origin, examples).
+[error]   18 |
+[error] > 19 | ```text
+[error]      |    ^
+[error] docs/tools/prompt-enhancer.md: SyntaxError: The input should contain exactly one expression, but the first expression is followed by the unexpected character `E`. (13:18)
+[error]   11 | ```text
+[error]   12 |
+[error] > 13 | **UI-Anzeige** (`EnhancerForm.tsx:649-665`):
+[error]      |                  ^
+[error]   14 |
+[error]   15 | - Gelbe Infobox unterhalb des Outputs
+[error]   16 |
+[error] docs/tools/webscraper/guidelines.md: SyntaxError: Invalid character. (3:1)
+[error]   1 | // Bevorzugte Projektstruktur:
+[error]   2 | src/
+[error] > 3 | ├── components/tools/webscraper/
+[error]     | ^
+[error]   4 | │   ├── WebscraperIsland.tsx          // Haupt-UI-Komponente
+[error]   5 | │   ├── WebscraperForm.tsx            // Eingabeformular
+[error]   6 | │   ├── WebscraperResults.tsx         // Ergebnis-Display
+[error] docs/tools/webscraper/IMPLEMENTATION_COMPLETE.md: SyntaxError: The input should contain exactly one expression, but the first expression is followed by the unexpected character `j`. (9:4)
+[error]    7 | **Success Response (200 OK):**
+[error]    8 |
+[error] >  9 | ```json
+[error]      |    ^
+[error]   10 | {
+[error]   11 |   "success": true,
+[error]   12 |   "data": {
+[error] docs/tools/webscraper/README.md: SyntaxError: The input should contain exactly one expression, but the first expression is followed by the unexpected character `j`. (27:4)
+[error]   25 | **Response (Error):**
+[error]   26 |
+[error] > 27 | ```json
+[error]      |    ^
+[error]   28 | {
+[error]   29 |   "success": false,
+[error]   30 |   "error": {
+docs/tools/webscraper/roadmap.md 12ms
+[error] docs/tools/webscraper/spec.md: SyntaxError: Module declaration names may only use ' or " quoted strings. (217:2)
+[error]   215 | *Siehe auch: [roadmap.md](roadmap.md), [guidelines.md](guidelines.md), [testing.md](testing.md)*
+[error]   216 |
+[error] > 217 | ```text
+[error]       |  ^
+[error] docs/tools/webscraper/testing.md: SyntaxError: Module declaration names may only use ' or " quoted strings. (41:2)
+[error]   39 | ### Test-Setup
+[error]   40 |
+[error] > 41 | ```typescript
+[error]      |  ^
+[error]   42 | // Playwright-Konfiguration
+[error]   43 | import { test, expect } from '@playwright/test';
+[error]   44 |
+eslint.config.dev.js 2ms
+eslint.config.js 3ms (unchanged)
+example.spec.ts 2ms (unchanged)
+existing-rules.json 1ms (unchanged)
+HAR/hub-evolution.comIPLOOKUP.har 0ms
+HAR/hub-evolution.pages.HARAcontactform.har 2ms
+HAR/hub-evolution.pages.HARAcookieconsent.har 8ms
+HAR/hub-evolution.pages.HARAdmindashboard.har 5ms
+markdownlint-cli2.jsonc 1ms
+migrate-to-contentful.mjs 21ms
+out/components/account/DeleteAccountSection.tsx 38ms (unchanged)
+out/components/admin/AdminClient.tsx 1ms (unchanged)
+out/components/admin/BulkActions.tsx 5ms (unchanged)
+out/components/AosWrapper.astro 8ms (unchanged)
+out/components/auth/MagicLinkForm.astro 35ms (unchanged)
+out/components/AvatarUploadModal.astro 27ms (unchanged)
+out/components/BillingNotice.tsx 20ms (unchanged)
+out/components/blog/BlogCTA.astro 54ms (unchanged)
+out/components/blog/LeadMagnetCTA.astro 40ms (unchanged)
+out/components/blog/NewsletterCTA.astro 40ms (unchanged)
+out/components/BlogCard.astro 31ms (unchanged)
+out/components/BlogList.astro 20ms (unchanged)
+out/components/BlogPost.astro 67ms (unchanged)
+out/components/brand/EvolutionHubWordmark.astro 15ms (unchanged)
+out/components/brand/EvolutionHubWordmarkChamfered.astro 9ms (unchanged)
+out/components/brand/EvolutionHubWordmarkOutlined.astro 23ms (unchanged)
+out/components/CategoryFilter.astro 23ms (unchanged)
+out/components/comments/CommentErrorBoundary.tsx 16ms (unchanged)
+out/components/comments/CommentForm.tsx 15ms (unchanged)
+out/components/comments/CommentKeyboardNav.tsx 67ms (unchanged)
+out/components/comments/CommentList.astro 1ms (unchanged)
+out/components/comments/CommentList.tsx 26ms (unchanged)
+out/components/comments/CommentMobile.tsx 42ms (unchanged)
+out/components/comments/CommentSection.tsx 12ms (unchanged)
+out/components/comments/CommentStats.tsx 12ms (unchanged)
+out/components/comments/CommentThreading.tsx 27ms (unchanged)
+out/components/dashboard/AccountSettingsSection.astro 49ms (unchanged)
+out/components/dashboard/ActivityFeed.jsx 6ms
+out/components/dashboard/BillingCard.tsx 11ms (unchanged)
+out/components/dashboard/CommunicationBillingCard.astro 10ms (unchanged)
+out/components/dashboard/ConsentPreferencesCard.tsx 14ms (unchanged)
+out/components/dashboard/NewsletterPreferencesCard.tsx 7ms (unchanged)
+out/components/dashboard/Notifications.jsx 3ms
+out/components/dashboard/ProfileAccountCard.astro 5ms (unchanged)
+out/components/dashboard/ProjectsPanel.jsx 5ms
+out/components/dashboard/QuickActions.jsx 4ms
+out/components/dashboard/RecentCommentsCard.tsx 9ms (unchanged)
+out/components/dashboard/RecommendationsCard.astro 21ms (unchanged)
+out/components/dashboard/ReferralCard.tsx 15ms
+out/components/dashboard/StatsCard.astro 7ms (unchanged)
+out/components/dashboard/ToolShortcutsCard.astro 11ms (unchanged)
+out/components/dashboard/UserProfile.astro 15ms (unchanged)
+out/components/DebugPanelIsland.astro 2ms (unchanged)
+out/components/ErrorBoundary.astro 12ms (unchanged)
+out/components/Fallback.astro 33ms (unchanged)
+out/components/Footer.astro 70ms (unchanged)
+out/components/forms/LeadMagnetForm.astro 57ms (unchanged)
+out/components/Header.astro 105ms (unchanged)
+out/components/landing/CardGraph.tsx 24ms (unchanged)
+out/components/landing/ConnectionCTA.astro 4ms (unchanged)
+out/components/landing/EchoAvatars.tsx 2ms (unchanged)
+out/components/landing/EchoBackdrop.tsx 7ms (unchanged)
+out/components/landing/FeatureConnections.tsx 5ms (unchanged)
+out/components/landing/HeroNebula.tsx 7ms (unchanged)
+out/components/landing/HeroStatusLights.tsx 20ms (unchanged)
+out/components/landing/HoloFeaturePanel.astro 6ms (unchanged)
+out/components/landing/LottieIcon.tsx 5ms (unchanged)
+out/components/landing/StarfieldBackdrop.tsx 7ms (unchanged)
+out/components/landing/TestimonialCard.astro 10ms (unchanged)
+out/components/landing/TestimonialsGrid.astro 4ms (unchanged)
+out/components/landing/TestimonialsRotatingGrid.tsx 12ms (unchanged)
+out/components/Newsletter.astro 49ms (unchanged)
+out/components/notifications/NotificationCenter.tsx 11ms (unchanged)
+out/components/notifications/NotificationSettings.tsx 12ms (unchanged)
+out/components/Pagination.astro 16ms (unchanged)
+out/components/pricing/FeatureComparison.astro 24ms (unchanged)
+out/components/pricing/PricingTable.astro 81ms (unchanged)
+out/components/projects/ProjectList.tsx 13ms (unchanged)
+out/components/projects/ProjectManagement.tsx 4ms (unchanged)
+out/components/projects/ProjectModal.tsx 13ms (unchanged)
+out/components/scripts/AnalyticsCoordinator.astro 23ms (unchanged)
+out/components/scripts/AOSCoordinator.astro 14ms (unchanged)
+out/components/scripts/AuthSessionPoller.tsx 4ms (unchanged)
+out/components/scripts/AuthStatusNotifier.tsx 9ms (unchanged)
+out/components/scripts/DebugInterceptors.tsx 2ms (unchanged)
+out/components/scripts/HeaderScroll.astro 18ms (unchanged)
+out/components/scripts/MagicLinkFormEnhancer.tsx 10ms (unchanged)
+out/components/scripts/ProfileFormEnhancer.tsx 4ms (unchanged)
+out/components/scripts/TypewriterComponent.astro 9ms (unchanged)
+out/components/scripts/VerifyEmailCoordinator.astro 9ms (unchanged)
+out/components/SettingsScript.astro 3ms (unchanged)
+out/components/SkipLink.astro 2ms (unchanged)
+out/components/TestimonialCarousel.astro 16ms (unchanged)
+out/components/ThemeProvider.astro 5ms (unchanged)
+out/components/ThemeToggle.astro 3ms (unchanged)
+out/components/Toaster.tsx 1ms (unchanged)
+out/components/tools/faq/ContactTeaser.astro 20ms (unchanged)
+out/components/tools/imag-enhancer/__tests__/ModelControls.test.tsx 4ms (unchanged)
+out/components/tools/imag-enhancer/__tests__/useCompareInteractions.test.tsx 11ms (unchanged)
+out/components/tools/imag-enhancer/ActionsGroup.tsx 6ms (unchanged)
+out/components/tools/imag-enhancer/api.js 6ms
+out/components/tools/imag-enhancer/CompareSlider.tsx 11ms (unchanged)
+out/components/tools/imag-enhancer/CompareView.tsx 6ms (unchanged)
+out/components/tools/imag-enhancer/CreditsPanel.tsx 2ms (unchanged)
+out/components/tools/imag-enhancer/Dropzone.tsx 4ms (unchanged)
+out/components/tools/imag-enhancer/EnhancerActions.tsx 7ms (unchanged)
+out/components/tools/imag-enhancer/gating.js 1ms
+out/components/tools/imag-enhancer/gating.test.js 4ms
+out/components/tools/imag-enhancer/HeaderBar.tsx 3ms (unchanged)
+out/components/tools/imag-enhancer/HelpModal.tsx 9ms (unchanged)
+out/components/tools/imag-enhancer/hooks/useClipboardImagePaste.js 1ms
+out/components/tools/imag-enhancer/hooks/useCompareInteractions.js 17ms
+out/components/tools/imag-enhancer/hooks/useCreditsCheckout.js 2ms
+out/components/tools/imag-enhancer/hooks/useDownload.js 2ms
+out/components/tools/imag-enhancer/hooks/useEnhance.js 1ms
+out/components/tools/imag-enhancer/hooks/useGlobalShortcuts.js 1ms
+out/components/tools/imag-enhancer/hooks/useImageBoxSize.js 5ms
+out/components/tools/imag-enhancer/hooks/usePlanGating.js 2ms
+out/components/tools/imag-enhancer/hooks/useRateLimit.js 4ms
+out/components/tools/imag-enhancer/hooks/useUsage.js 3ms
+out/components/tools/imag-enhancer/hooks/useValidation.js 1ms
+out/components/tools/imag-enhancer/hooks/useViewportUiMetrics.js 3ms
+out/components/tools/imag-enhancer/ModelControls.tsx 4ms (unchanged)
+out/components/tools/imag-enhancer/ModelSelect.tsx 2ms (unchanged)
+out/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx 8ms (unchanged)
+out/components/tools/imag-enhancer/mvp/__tests__/SimpleResult.test.tsx 6ms (unchanged)
+out/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx 8ms (unchanged)
+out/components/tools/imag-enhancer/mvp/__tests__/useUploadMVP.test.tsx 7ms (unchanged)
+out/components/tools/imag-enhancer/mvp/EnhancerActionsMVP.tsx 4ms (unchanged)
+out/components/tools/imag-enhancer/mvp/hooks/useEnhanceMVP.js 1ms
+out/components/tools/imag-enhancer/mvp/hooks/useUploadMVP.js 2ms
+out/components/tools/imag-enhancer/mvp/ImagEnhancerMVP.tsx 12ms (unchanged)
+out/components/tools/imag-enhancer/mvp/ImagEnhancerRouter.tsx 2ms (unchanged)
+out/components/tools/imag-enhancer/mvp/SimpleResult.tsx 7ms (unchanged)
+out/components/tools/imag-enhancer/mvp/types.js 2ms
+out/components/tools/imag-enhancer/StatusUsagePill.tsx 4ms (unchanged)
+out/components/tools/imag-enhancer/types.js 1ms
+out/components/tools/imag-enhancer/UploadSection.tsx 9ms (unchanged)
+out/components/tools/imag-enhancer/UsagePill.tsx 20ms (unchanged)
+out/components/tools/imag-enhancer/utils/ui.js 2ms
+out/components/tools/ImagEnhancerIsland.tsx 84ms (unchanged)
+out/components/tools/prompt-enhancer/api.js 3ms
+out/components/tools/prompt-enhancer/EnhancerForm.test.tsx 12ms (unchanged)
+out/components/tools/prompt-enhancer/EnhancerForm.tsx 47ms (unchanged)
+out/components/tools/prompt-enhancer/hooks/useEnhance.js 2ms
+out/components/tools/prompt-enhancer/hooks/useRateLimit.js 5ms
+out/components/tools/prompt-enhancer/hooks/useUsage.js 8ms
+out/components/tools/prompt-enhancer/types.js 1ms
+out/components/tools/shared/islandStyles.js 1ms
+out/components/tools/shared/ToolPageHeader.astro 11ms (unchanged)
+out/components/tools/ToolCard.astro 25ms (unchanged)
+out/components/tools/ToolFilter.astro 15ms (unchanged)
+out/components/tools/video-enhancer/VideoEnhancerIsland.tsx 20ms (unchanged)
+out/components/tools/voice-visualizer/api.js 5ms
+out/components/tools/voice-visualizer/hooks/useMicrophone.js 4ms
+out/components/tools/voice-visualizer/hooks/useTranscribeStream.js 4ms
+out/components/tools/voice-visualizer/VisualizerCanvas.tsx 3ms (unchanged)
+out/components/tools/voice-visualizer/VoiceVisualizerIsland.tsx 22ms (unchanged)
+out/components/tools/webscraper/WebscraperForm.tsx 5ms (unchanged)
+out/components/tools/webscraper/WebscraperIsland.tsx 9ms (unchanged)
+out/components/tools/webscraper/WebscraperResults.tsx 27ms (unchanged)
+out/components/ui/Alert.tsx 2ms (unchanged)
+out/components/ui/Button.astro 5ms (unchanged)
+out/components/ui/Button.tsx 3ms (unchanged)
+out/components/ui/buttonStyles.js 1ms
+out/components/ui/Card.tsx 2ms (unchanged)
+out/components/ui/CardReact.jsx 2ms
+out/components/ui/ComingSoon.astro 19ms (unchanged)
+out/components/ui/DebugPanel.tsx 57ms (unchanged)
+out/components/ui/DebugPanelOverlay.tsx 35ms (unchanged)
+out/components/ui/FormLabel.astro 2ms (unchanged)
+out/components/ui/Icon.astro 491ms (unchanged)
+out/components/ui/Icon.tsx 43ms (unchanged)
+out/components/ui/icons/Icon.astro 22ms (unchanged)
+out/components/ui/icons/SpriteDefs.astro 14ms (unchanged)
+out/components/ui/icons/Upload.tsx 6ms (unchanged)
+out/components/ui/Input.astro 11ms (unchanged)
+out/components/ui/Skeleton.astro 11ms (unchanged)
+out/config/ai-image.js 5ms
+out/config/ai-image/entitlements.js 4ms
+out/config/ai-video.js 3ms
+out/config/ai-video/entitlements.js 1ms
+out/config/coming-soon.js 4ms
+out/config/contact.js 1ms
+out/config/logging.js 4ms
+out/config/prompt-enhancer.js 4ms
+out/config/social.js 3ms
+out/config/voice/entitlements.js 2ms
+out/config/voice/index.js 3ms
+out/config/webscraper.js 3ms
+out/config/webscraper/entitlements.js 1ms
+out/content/blog/ai-ethics-workplace.mdx 17ms (unchanged)
+out/content/blog/digital-detox-kreativitaet.mdx 10ms (unchanged)
+out/content/blog/digital-leadership.mdx 14ms (unchanged)
+out/content/blog/gig-economy-chancen-risiken.mdx 7ms (unchanged)
+out/content/blog/imposter-syndrom-ueberwinden.mdx 8ms (unchanged)
+out/content/blog/KI-als-Kollege.mdx 8ms
+out/content/blog/ki-im-alltag.mdx 7ms (unchanged)
+out/content/blog/konstruktives-feedback-geben.mdx 10ms (unchanged)
+out/content/blog/lebenslanges-lernen-karriere.mdx 10ms (unchanged)
+out/content/blog/mentoring-2-0.mdx 8ms (unchanged)
+out/content/blog/new-work-ist-eine-haltung.mdx 8ms (unchanged)
+out/content/blog/pomodoro-technik-home-office.mdx 10ms (unchanged)
+out/content/blog/sustainable-productivity.mdx 26ms (unchanged)
+out/content/blog/vom-ziel-zur-gewohnheit.mdx 7ms (unchanged)
+out/content/blog/wissensmanagement-second-brain.mdx 6ms (unchanged)
+out/content/blog/zukunft-der-fuehrung.mdx 7ms (unchanged)
+out/content/config.js 9ms
+out/content/testimonials/imag/de/leila-m.md 1ms (unchanged)
+out/content/testimonials/imag/de/nina-p.md 1ms (unchanged)
+out/content/testimonials/imag/en/amira-k.md 1ms (unchanged)
+out/content/testimonials/imag/en/mika-s.md 4ms (unchanged)
+out/content/testimonials/prompt/de/andreas-b.md 2ms (unchanged)
+out/content/testimonials/prompt/de/karla-s.md 1ms (unchanged)
+out/content/testimonials/prompt/en/alex-r.md 1ms (unchanged)
+out/content/testimonials/prompt/en/sara-t.md 1ms (unchanged)
+out/content/testimonials/video/de/jonas-k.md 1ms (unchanged)
+out/content/testimonials/video/de/lina-r.md 1ms (unchanged)
+out/content/testimonials/video/en/chris-p.md 1ms (unchanged)
+out/content/testimonials/video/en/ivy-l.md 1ms (unchanged)
+out/content/testimonials/voice/de/diego-r.md 1ms (unchanged)
+out/content/testimonials/voice/de/hania-l.md 1ms (unchanged)
+out/content/testimonials/voice/en/jane-d.md 1ms (unchanged)
+out/content/testimonials/voice/en/omar-a.md 1ms (unchanged)
+out/content/testimonials/web/de/felix-h.md 1ms (unchanged)
+out/content/testimonials/web/de/sabine-k.md 4ms (unchanged)
+out/content/testimonials/web/en/lucy-w.md 1ms (unchanged)
+out/content/testimonials/web/en/mark-g.md 1ms (unchanged)
+out/content/types.js 1ms
+out/env.d.js 0ms (unchanged)
+out/layouts/AuthLayout.astro 8ms (unchanged)
+out/layouts/BaseLayout.astro 56ms (unchanged)
+out/lib/aos.js 1ms
+out/lib/aos.test.js 2ms
+out/lib/api-middleware.js 10ms
+out/lib/auth-helpers.js 3ms
+out/lib/auth-v2.js 2ms
+out/lib/auth.js 1ms
+out/lib/beacon-interceptor.js 3ms
+out/lib/blog.js 10ms
+out/lib/client-logger.js 7ms
+out/lib/client/telemetry.js 4ms
+out/lib/console-interceptor.js 11ms
+out/lib/content.js 4ms
+out/lib/content/testimonials.js 3ms
+out/lib/db/helpers.js 17ms
+out/lib/db/schema.js 30ms
+out/lib/db/types.js 2ms
+out/lib/env/environment.js 3ms
+out/lib/error-handler.js 7ms
+out/lib/global-error-interceptor.js 3ms
+out/lib/handlers.js 2ms
+out/lib/i18n.js 4ms
+out/lib/i18n.test.js 3ms
+out/lib/i18n/accept-language.js 4ms
+out/lib/kv/usage.js 16ms
+out/lib/kv/usage.test.js 6ms
+out/lib/locale-path.js 3ms
+out/lib/locale-path.test.js 9ms
+out/lib/network-interceptor.js 8ms
+out/lib/notify.js 1ms
+out/lib/rate-limiter.js 6ms
+out/lib/referrals/utils.js 1ms
+out/lib/response-helpers.js 3ms
+out/lib/script-coordinator.js 6ms
+out/lib/security-headers.js 6ms
+out/lib/security-logger.js 10ms
+out/lib/security/csrf.d.js 1ms
+out/lib/security/csrf.js 3ms
+out/lib/security/sanitize.d.js 1ms
+out/lib/security/sanitize.js 2ms
+out/lib/seo.js 1ms
+out/lib/services/ai-image-service.js 40ms
+out/lib/services/ai-image/providers/workers-ai.js 2ms
+out/lib/services/ai-jobs-service.js 15ms
+out/lib/services/audit-log-service.js 3ms
+out/lib/services/auth-service-impl.js 9ms
+out/lib/services/auth-service.js 2ms
+out/lib/services/backup-service.js 17ms
+out/lib/services/base-service.js 2ms
+out/lib/services/comment-service-extended.js 22ms
+out/lib/services/comment-service.js 20ms
+out/lib/services/data-export-service.js 16ms
+out/lib/services/email-service-impl.js 5ms
+out/lib/services/email-service.js 1ms
+out/lib/services/logger-utils.js 1ms
+out/lib/services/notification-service.js 17ms
+out/lib/services/performance-service.js 16ms
+out/lib/services/project-service.js 1ms
+out/lib/services/prompt-attachments.js 3ms
+out/lib/services/prompt-enhancer-service.js 21ms
+out/lib/services/provider-error.d.js 1ms
+out/lib/services/provider-error.js 1ms
+out/lib/services/referral-event-service.js 2ms
+out/lib/services/referral-profile-service.js 5ms
+out/lib/services/referral-summary-service.js 3ms
+out/lib/services/tools/scratch/voice-probe.mjs 3ms
+out/lib/services/types.js 2ms
+out/lib/services/user-service.js 2ms
+out/lib/services/voice-stream-aggregator.js 6ms
+out/lib/services/voice-transcribe-service.js 15ms
+out/lib/services/webscraper-service.js 14ms
+out/lib/settings-module.js 10ms
+out/lib/spam-detection.d.js 1ms
+out/lib/spam-detection.js 5ms
+out/lib/stores/project-store.js 6ms
+out/lib/stytch.js 7ms
+out/lib/tools-data.js 3ms
+out/lib/types/admin.js 1ms
+out/lib/types/audit.js 2ms
+out/lib/types/comments.js 1ms
+out/lib/types/data-management.js 1ms
+out/lib/types/notifications.js 1ms
+out/lib/types/performance.js 1ms
+out/lib/typewriter.js 2ms
+out/lib/utils/assert.js 1ms
+out/lib/utils/id-generator.d.js 1ms
+out/lib/utils/id-generator.js 1ms
+out/lib/utils/mime.js 2ms
+out/lib/validation/errors.js 1ms
+out/lib/validation/index.js 2ms
+out/lib/validation/schemas/admin.js 2ms
+out/lib/validation/schemas/ai-image.js 3ms
+out/lib/validation/schemas/ai-video.js 1ms
+out/lib/validation/schemas/billing.js 1ms
+out/lib/validation/schemas/common.js 1ms
+out/lib/validation/schemas/contact.js 2ms
+out/lib/validation/schemas/dashboard.js 1ms
+out/lib/validation/schemas/newsletter.js 1ms
+out/lib/validation/schemas/prompt.js 1ms
+out/lib/validation/schemas/templates.js 1ms
+out/lib/validation/schemas/users.js 1ms
+out/lib/validation/schemas/voice.js 2ms
+out/lib/validation/schemas/webscraper.js 3ms
+out/lib/validators.js 6ms
+out/lib/xhr-interceptor.js 5ms
+out/locales/archived/de-archived-2025-08-17T05-44-11-726Z.json 1ms (unchanged)
+out/locales/archived/de.backup.json 6ms (unchanged)
+out/locales/archived/en-archived-2025-08-17T05-44-11-722Z.json 1ms (unchanged)
+out/locales/archived/en.backup.json 1ms (unchanged)
+out/locales/de.json 28ms (unchanged)
+out/locales/en.json 30ms (unchanged)
+out/middleware-old.js 16ms
+out/middleware.js 34ms
+out/pages/account/settings.astro 5ms (unchanged)
+out/pages/admin/comments.astro 106ms (unchanged)
+out/pages/admin/index.astro 100ms (unchanged)
+out/pages/admin/index.client.js 38ms
+out/pages/admin/status.astro 27ms (unchanged)
+out/pages/agb.astro 21ms (unchanged)
+out/pages/api/admin/audit/logs/[id].js 2ms
+out/pages/api/admin/audit/logs/index.js 2ms
+out/pages/api/admin/backup.legacy.hono.js 13ms
+out/pages/api/admin/backup/cleanup.js 3ms
+out/pages/api/admin/backup/create.js 2ms
+out/pages/api/admin/backup/jobs/[id]/index.js 2ms
+out/pages/api/admin/backup/jobs/[id]/progress.js 2ms
+out/pages/api/admin/backup/jobs/index.js 3ms
+out/pages/api/admin/backup/maintenance/jobs/[id].js 2ms
+out/pages/api/admin/backup/maintenance/jobs/index.js 2ms
+out/pages/api/admin/backup/maintenance/perform.js 2ms
+out/pages/api/admin/backup/schedule.js 2ms
+out/pages/api/admin/backup/stats.js 3ms
+out/pages/api/admin/backup/verify/[id].js 2ms
+out/pages/api/admin/comments/[id]/index.js 3ms
+out/pages/api/admin/comments/[id]/moderate.js 3ms
+out/pages/api/admin/comments/bulk-moderate.js 3ms
+out/pages/api/admin/comments/index.js 5ms
+out/pages/api/admin/credits/deduct.js 7ms
+out/pages/api/admin/credits/grant.js 4ms
+out/pages/api/admin/credits/history.js 2ms
+out/pages/api/admin/credits/usage.js 6ms
+out/pages/api/admin/ip-geo.js 4ms
+out/pages/api/admin/metrics.js 2ms
+out/pages/api/admin/rate-limits/reset.js 2ms
+out/pages/api/admin/rate-limits/state.js 2ms
+out/pages/api/admin/status.js 2ms
+out/pages/api/admin/traffic-24h.js 6ms
+out/pages/api/admin/users/revoke-sessions.js 3ms
+out/pages/api/admin/users/sessions.js 3ms
+out/pages/api/admin/users/set-plan.js 5ms
+out/pages/api/admin/users/summary.js 4ms
+out/pages/api/ai-image/generate.js 6ms
+out/pages/api/ai-image/jobs/[id].js 3ms
+out/pages/api/ai-image/jobs/[id]/cancel.js 3ms
+out/pages/api/ai-image/jobs/index.js 4ms
+out/pages/api/ai-image/usage.js 4ms
+out/pages/api/ai-video/generate.js 9ms
+out/pages/api/ai-video/jobs/[id].js 4ms
+out/pages/api/ai-video/upload.js 4ms
+out/pages/api/analytics/views.js 3ms
+out/pages/api/auth/callback.js 13ms
+out/pages/api/auth/change-password.js 3ms
+out/pages/api/auth/forgot-password.js 2ms
+out/pages/api/auth/login.js 3ms
+out/pages/api/auth/logout.js 1ms
+out/pages/api/auth/magic/request.js 11ms
+out/pages/api/auth/oauth/[provider]/callback.js 10ms
+out/pages/api/auth/oauth/[provider]/start.js 5ms
+out/pages/api/auth/register.js 2ms
+out/pages/api/auth/resend-verification.js 3ms
+out/pages/api/auth/reset-password.js 2ms
+out/pages/api/auth/verify-email.js 2ms
+out/pages/api/billing/cancel.js 2ms
+out/pages/api/billing/credits.js 5ms
+out/pages/api/billing/link-pending.js 4ms
+out/pages/api/billing/portal.js 3ms
+out/pages/api/billing/session.js 7ms
+out/pages/api/billing/stripe-webhook.js 12ms
+out/pages/api/billing/sync-callback.js 3ms
+out/pages/api/billing/sync.js 8ms
+out/pages/api/comments/[id].js 9ms
+out/pages/api/comments/[id]/report.js 3ms
+out/pages/api/comments/count.js 6ms
+out/pages/api/comments/create.js 3ms
+out/pages/api/comments/index.js 6ms
+out/pages/api/comments/moderate.js 10ms
+out/pages/api/comments/performance.js 15ms
+out/pages/api/comments/recent.js 5ms
+out/pages/api/contact/index.js 6ms
+out/pages/api/csp-report.js 4ms
+out/pages/api/dashboard/activity.js 5ms
+out/pages/api/dashboard/billing-summary.js 6ms
+out/pages/api/dashboard/notifications.js 5ms
+out/pages/api/dashboard/perform-action.js 3ms
+out/pages/api/dashboard/projects.js 2ms
+out/pages/api/dashboard/quick-actions.js 3ms
+out/pages/api/dashboard/recommendations.js 2ms
+out/pages/api/dashboard/referral-summary.js 3ms
+out/pages/api/dashboard/stats.js 2ms
+out/pages/api/data-export/index.js 10ms
+out/pages/api/debug-login.js 5ms
+out/pages/api/debug/client-log.js 5ms
+out/pages/api/debug/logs-stream.js 5ms
+out/pages/api/health.js 7ms
+out/pages/api/health/auth.js 6ms
+out/pages/api/internal/users/sync.js 7ms
+out/pages/api/lead-magnets/download.js 21ms
+out/pages/api/newsletter/confirm.js 8ms
+out/pages/api/newsletter/subscribe.js 15ms
+out/pages/api/newsletter/unsubscribe.js 2ms
+out/pages/api/notifications/index.js 10ms
+out/pages/api/notifications/queue/process.js 7ms
+out/pages/api/notifications/settings.js 11ms
+out/pages/api/projects/index.js 8ms
+out/pages/api/prompt-enhance.js 12ms
+out/pages/api/prompt/usage.js 4ms
+out/pages/api/telemetry.js 2ms
+out/pages/api/templates.js 2ms
+out/pages/api/test/seed-email-token.js 4ms
+out/pages/api/test/seed-suite-v2.js 5ms
+out/pages/api/tools.js 2ms
+out/pages/api/user/account.js 11ms
+out/pages/api/user/avatar.js 8ms
+out/pages/api/user/logout-v2.js 3ms
+out/pages/api/user/logout.js 2ms
+out/pages/api/user/me.js 2ms
+out/pages/api/user/password.js 1ms
+out/pages/api/user/profile.js 7ms
+out/pages/api/user/settings.js 1ms
+out/pages/api/voice/poll.js 2ms
+out/pages/api/voice/stream.js 3ms
+out/pages/api/voice/transcribe.js 5ms
+out/pages/api/voice/usage.js 12ms
+out/pages/api/webscraper/extract.js 11ms
+out/pages/api/webscraper/usage.js 3ms
+out/pages/auth/notify.astro 9ms (unchanged)
+out/pages/auth/password-reset-sent.astro 11ms (unchanged)
+out/pages/auth/password-reset-success.astro 4ms (unchanged)
+out/pages/blog/[...slug].astro 42ms (unchanged)
+out/pages/blog/comments-demo.astro 10ms (unchanged)
+out/pages/blog/index.astro 49ms (unchanged)
+out/pages/cookie-einstellungen.astro 31ms (unchanged)
+out/pages/dashboard.astro 51ms (unchanged)
+out/pages/datenschutz.astro 2ms (unchanged)
+out/pages/de/agb.astro 17ms (unchanged)
+out/pages/de/cookie-einstellungen.astro 1ms (unchanged)
+out/pages/de/datenschutz.astro 47ms (unchanged)
+out/pages/de/faq.astro 1ms (unchanged)
+out/pages/de/impressum.astro 81ms (unchanged)
+out/pages/de/index.astro 45ms (unchanged)
+out/pages/de/login.astro 29ms (unchanged)
+out/pages/de/register.astro 6ms (unchanged)
+out/pages/de/tools/prompt-enhancer/app.astro 4ms (unchanged)
+out/pages/de/tools/prompt-enhancer/index.astro 1ms (unchanged)
+out/pages/de/tools/voice-visualizer/app.astro 7ms (unchanged)
+out/pages/de/tools/webscraper/app.astro 5ms (unchanged)
+out/pages/de/welcome-profile.astro 13ms (unchanged)
+out/pages/docs/index.astro 25ms (unchanged)
+out/pages/email-verified.astro 43ms (unchanged)
+out/pages/en/account/settings.astro 1ms (unchanged)
+out/pages/en/agb.astro 30ms (unchanged)
+out/pages/en/blog/[...slug].astro 1ms (unchanged)
+out/pages/en/blog/index.astro 1ms (unchanged)
+out/pages/en/cookie-settings.astro 1ms (unchanged)
+out/pages/en/dashboard.astro 45ms (unchanged)
+out/pages/en/datenschutz.astro 60ms (unchanged)
+out/pages/en/docs/index.astro 1ms (unchanged)
+out/pages/en/email-verified.astro 40ms (unchanged)
+out/pages/en/faq.astro 1ms (unchanged)
+out/pages/en/impressum.astro 58ms (unchanged)
+out/pages/en/index.astro 38ms (unchanged)
+out/pages/en/kontakt.astro 1ms (unchanged)
+out/pages/en/login.astro 17ms (unchanged)
+out/pages/en/pricing.astro 1ms (unchanged)
+out/pages/en/register.astro 6ms (unchanged)
+out/pages/en/tools/imag-enhancer/app.astro 133ms (unchanged)
+out/pages/en/tools/imag-enhancer/index.astro 156ms (unchanged)
+out/pages/en/tools/index.astro 88ms (unchanged)
+out/pages/en/tools/prompt-enhancer/app.astro 14ms (unchanged)
+out/pages/en/tools/prompt-enhancer/index.astro 1ms (unchanged)
+out/pages/en/tools/video-enhancer/app.astro 15ms (unchanged)
+out/pages/en/tools/voice-visualizer/app.astro 9ms (unchanged)
+out/pages/en/tools/webscraper/app.astro 18ms (unchanged)
+out/pages/en/verify-email.astro 25ms (unchanged)
+out/pages/en/welcome-profile.astro 25ms (unchanged)
+out/pages/faq.astro 77ms (unchanged)
+out/pages/impressum.astro 79ms (unchanged)
+out/pages/index.astro 2ms (unchanged)
+out/pages/kontakt.astro 64ms (unchanged)
+out/pages/login.astro 13ms (unchanged)
+out/pages/newsletter/confirm.astro 56ms (unchanged)
+out/pages/pricing.astro 35ms (unchanged)
+out/pages/r2-ai/[...path].js 4ms
+out/pages/r2/[...path].js 2ms
+out/pages/register.astro 11ms (unchanged)
+out/pages/rss.xml.js 3ms
+out/pages/sitemap.xml.js 2ms
+out/pages/tools/imag-enhancer/app.astro 15ms (unchanged)
+out/pages/tools/imag-enhancer/index.astro 36ms (unchanged)
+out/pages/tools/index.astro 21ms (unchanged)
+out/pages/tools/prompt-enhancer/app.astro 5ms (unchanged)
+out/pages/tools/prompt-enhancer/index.astro 1ms (unchanged)
+out/pages/tools/video-enhancer/app.astro 5ms (unchanged)
+out/pages/tools/voice-visualizer/app.astro 4ms (unchanged)
+out/pages/tools/webscraper/app.astro 5ms (unchanged)
+out/pages/verify-email.astro 22ms (unchanged)
+out/pages/welcome-profile.astro 12ms (unchanged)
+out/pages/welcome.astro 15ms (unchanged)
+out/scripts/blog-post-enhancements.js 2ms
+out/scripts/landing-bg.js 11ms
+out/scripts/neural-mesh.js 8ms
+out/scripts/orchestrate-entrance.js 3ms
+out/scripts/settings.js 12ms
+out/server/actions.js 4ms
+out/server/utils/hashing.js 1ms
+out/server/utils/jwt.js 4ms
+out/server/utils/logger-factory.js 18ms
+out/server/utils/logger.js 10ms
+out/setupTests.js 5ms
+out/stores/activityStore.js 1ms
+out/stores/comment-store.js 14ms
+out/stores/index.js 1ms
+out/stores/notificationStore.js 2ms
+out/stores/projectStore.js 5ms
+out/stores/quickActionStore.js 3ms
+out/styles/coming-soon.css 11ms
+out/styles/future-tokens.css 15ms
+out/styles/global.css 22ms
+out/types/blog.js 1ms
+out/types/dashboard.js 1ms
+out/types/logger.js 1ms
+out/types/stubs/rate-limiter.d.js 4ms
+out/types/webscraper.js 1ms
+out/utils/feature-flags.js 3ms
+out/utils/i18n.js 4ms
+out/utils/sanitizeReturnTo.js 2ms
+out/utils/sanitizeReturnTo.test.js 3ms
+package.json 1ms (unchanged)
+playwright.config.ts 6ms
+postcss.config.js 1ms
+public/_routes.json 1ms
+public/assets/coming-soon-client.js 3ms
+public/assets/lottie/loader.json 66ms
+public/assets/lottie/outline-edit.json 2ms
+public/assets/lottie/outline-mic.json 2ms
+public/assets/lottie/outline-photo.json 1ms
+public/assets/lottie/outline-search.json 2ms
+public/favicons/site.webmanifest 1ms
+public/site.webmanifest 1ms
+README.md 43ms (unchanged)
+renovate.json 1ms (unchanged)
+resp.html 0ms (unchanged)
+ruleset-current-staging.json 1ms (unchanged)
+rulesets-list.json 1ms (unchanged)
+rulesets-staging-list.json 1ms (unchanged)
+scripts/ae-run.mjs 6ms (unchanged)
+scripts/AGENTS.md 2ms
+scripts/align-de-to-en.mjs 5ms (unchanged)
+scripts/blog-images-audit.ts 7ms (unchanged)
+scripts/blog-images-generate.ts 5ms (unchanged)
+scripts/check-readme-structure.mjs 3ms (unchanged)
+scripts/check-wrangler-secrets.ts 12ms (unchanged)
+scripts/cloudflare/mcp-tunnel.yml 2ms
+scripts/coming-soon-client.ts 7ms (unchanged)
+scripts/contentful_assets.json 1ms
+scripts/contentful_migration.json 161ms
+scripts/deploy.ts 9ms (unchanged)
+scripts/dev-menu.ts 92ms (unchanged)
+scripts/dev/capture-readme-screenshots.mjs 6ms (unchanged)
+scripts/dev/clean-contentful-slug-drafts.ts 14ms (unchanged)
+scripts/dev/docs-linkgraph.mjs 11ms (unchanged)
+scripts/dev/fix-contentful-slug.ts 6ms (unchanged)
+scripts/dev/gen-cascade-rules-coverage.mjs 6ms (unchanged)
+scripts/dev/gen-memory-index.mjs 5ms (unchanged)
+scripts/dev/generate-contentful-migration.ts 13ms (unchanged)
+scripts/dev/import-config.json 1ms (unchanged)
+scripts/dev/memory-audit.mjs 9ms (unchanged)
+scripts/dev/patch-windsurf-rules.mjs 6ms (unchanged)
+scripts/dev/publish-contentful-assets.ts 10ms (unchanged)
+scripts/dev/publish-contentful-blog-posts.ts 3ms (unchanged)
+scripts/dev/sync-windsurf-rules.mjs 3ms (unchanged)
+scripts/dev/test-contentful-fetch.ts 5ms (unchanged)
+scripts/dev/update-windsurf-rules.mjs 6ms (unchanged)
+scripts/dev/upload-contentful-assets.ts 7ms (unchanged)
+scripts/dev/verify-enhancer-download.mjs 19ms (unchanged)
+scripts/doc-drift.mjs 3ms (unchanged)
+scripts/doc-inventory.mjs 7ms (unchanged)
+scripts/doc-links.mjs 5ms (unchanged)
+scripts/docs-auto-fix.ts 16ms (unchanged)
+scripts/docs-disable-md051.ts 3ms (unchanged)
+scripts/docs-fix-anchors.ts 9ms (unchanged)
+scripts/docs-fix-heading-levels.ts 24ms (unchanged)
+scripts/docs-harmonize-anchors.ts 26ms (unchanged)
+scripts/docs-link-audit.mjs 3ms (unchanged)
+scripts/emoji-to-icon-codemod.mjs 21ms (unchanged)
+scripts/fix-blog-images.ts 10ms (unchanged)
+scripts/fix-de-faq-structure.mjs 13ms (unchanged)
+scripts/gen-env-doc.mjs 5ms (unchanged)
+scripts/gen-openapi.mjs 10ms (unchanged)
+scripts/generate-test-fixtures.ts 4ms (unchanged)
+scripts/generate-wordmark-outlined.ts 11ms (unchanged)
+scripts/health-check.ts 6ms (unchanged)
+scripts/hygiene-copy.mjs 1ms (unchanged)
+scripts/hygiene-to-assistant.mjs 3ms (unchanged)
+scripts/i18n-copy-de-to-en.mjs 7ms (unchanged)
+scripts/i18n-diff.mjs 6ms (unchanged)
+scripts/i18n-diff.ts 5ms (unchanged)
+scripts/i18n-empty-report.mjs 3ms (unchanged)
+scripts/i18n-fill-missing.mjs 12ms (unchanged)
+scripts/i18n-identical.mjs 4ms (unchanged)
+scripts/i18n-migrate-paths.mjs 6ms (unchanged)
+scripts/i18n-prune-unused.mjs 6ms (unchanged)
+scripts/i18n-validate.mjs 4ms (unchanged)
+scripts/migrate-blog.mts 14ms
+scripts/migrate-imports.js 11ms (unchanged)
+scripts/migrate-imports.mjs 14ms (unchanged)
+scripts/migrate-imports.ts 21ms (unchanged)
+scripts/onboarding.ts 18ms (unchanged)
+scripts/quality-check.js 3ms (unchanged)
+scripts/remark/remark-demote-h1.ts 3ms (unchanged)
+scripts/resend-check.mjs 8ms (unchanged)
+scripts/run-hygiene.mjs 8ms (unchanged)
+scripts/sanitize-locale.mjs 4ms (unchanged)
+scripts/security/scan-secrets.mjs 3ms (unchanged)
+scripts/setup-contentful-blog.mjs 8ms (unchanged)
+scripts/setup-local-dev.js 42ms (unchanged)
+scripts/setup-local-dev.ts 33ms (unchanged)
+scripts/smoke-inject-enhancer.mjs 3ms (unchanged)
+scripts/validate-env.ts 3ms (unchanged)
+scripts/validate-frontmatter.mjs 6ms
+scripts/warmup.ts 11ms (unchanged)
+scripts/web-eval-executor/executor.ts 11ms
+scripts/web-eval-executor/runner.ts 9ms
+scripts/web-eval-executor/types.ts 3ms
+scripts/zod-openapi-diff.ts 21ms (unchanged)
+scripts/zod-openapi-pilot.ts 4ms (unchanged)
+src/assets/brand/colors/colors.css 6ms
+src/assets/brand/colors/colors.json 2ms (unchanged)
+src/assets/README.md 40ms
+src/components/account/DeleteAccountSection.tsx 21ms (unchanged)
+src/components/admin/BulkActions.tsx 3ms (unchanged)
+src/components/admin/dashboard/AdminDashboardApp.tsx 2ms (unchanged)
+src/components/admin/dashboard/hooks/useAdminAuditLogs.ts 7ms (unchanged)
+src/components/admin/dashboard/hooks/useAdminCredits.ts 6ms (unchanged)
+src/components/admin/dashboard/hooks/useAdminMetrics.ts 2ms (unchanged)
+src/components/admin/dashboard/hooks/useAdminStatus.ts 3ms (unchanged)
+src/components/admin/dashboard/hooks/useAdminTelemetry.ts 5ms (unchanged)
+src/components/admin/dashboard/hooks/useAdminUserInsights.ts 5ms (unchanged)
+src/components/admin/dashboard/hooks/useAdminUserList.ts 12ms (unchanged)
+src/components/admin/dashboard/sections/AuditMonitoringSection.tsx 8ms (unchanged)
+src/components/admin/dashboard/sections/FinancialFeatureSection.tsx 13ms (unchanged)
+src/components/admin/dashboard/sections/KpiOverviewSection.tsx 19ms (unchanged)
+src/components/admin/dashboard/sections/UserInsightsSection.tsx 42ms (unchanged)
+src/components/AGENTS.md 3ms
+src/components/AosWrapper.astro 17ms (unchanged)
+src/components/auth/MagicLinkForm.astro 33ms (unchanged)
+src/components/AvatarUploadModal.astro 46ms (unchanged)
+src/components/BillingNotice.tsx 8ms (unchanged)
+src/components/blog/BlogCTA.astro 36ms (unchanged)
+src/components/blog/LeadMagnetCTA.astro 68ms (unchanged)
+src/components/blog/NewsletterCTA.astro 34ms (unchanged)
+src/components/BlogCard.astro 37ms (unchanged)
+src/components/BlogList.astro 13ms (unchanged)
+src/components/BlogPost.astro 84ms (unchanged)
+src/components/brand/EvolutionHubWordmark.astro 9ms (unchanged)
+src/components/brand/EvolutionHubWordmarkChamfered.astro 16ms (unchanged)
+src/components/brand/EvolutionHubWordmarkOutlined.astro 32ms (unchanged)
+src/components/CategoryFilter.astro 47ms (unchanged)
+src/components/comments/CommentErrorBoundary.tsx 6ms (unchanged)
+src/components/comments/CommentForm.tsx 13ms (unchanged)
+src/components/comments/CommentKeyboardNav.tsx 38ms (unchanged)
+src/components/comments/CommentList.astro 1ms (unchanged)
+src/components/comments/CommentList.tsx 21ms (unchanged)
+src/components/comments/CommentMobile.tsx 299ms (unchanged)
+src/components/comments/CommentSection.tsx 50ms (unchanged)
+src/components/comments/CommentStats.tsx 9ms (unchanged)
+src/components/comments/CommentThreading.tsx 64ms (unchanged)
+src/components/dashboard/AccountSettingsSection.astro 74ms (unchanged)
+src/components/dashboard/ActivityFeed.jsx 4ms
+src/components/dashboard/BillingCard.tsx 10ms (unchanged)
+src/components/dashboard/CommunicationBillingCard.astro 16ms (unchanged)
+src/components/dashboard/ConsentPreferencesCard.tsx 11ms (unchanged)
+src/components/dashboard/NewsletterPreferencesCard.tsx 4ms (unchanged)
+src/components/dashboard/Notifications.jsx 2ms
+src/components/dashboard/ProfileAccountCard.astro 10ms (unchanged)
+src/components/dashboard/ProjectsPanel.jsx 4ms
+src/components/dashboard/QuickActions.jsx 2ms
+src/components/dashboard/RecentCommentsCard.tsx 4ms (unchanged)
+src/components/dashboard/RecommendationsCard.astro 13ms (unchanged)
+src/components/dashboard/ReferralCard.tsx 9ms (unchanged)
+src/components/dashboard/StatsCard.astro 9ms (unchanged)
+src/components/dashboard/ToolShortcutsCard.astro 8ms (unchanged)
+src/components/dashboard/UserProfile.astro 11ms (unchanged)
+src/components/DebugPanelIsland.astro 1ms (unchanged)
+src/components/ErrorBoundary.astro 7ms (unchanged)
+src/components/Fallback.astro 25ms (unchanged)
+src/components/Footer.astro 83ms (unchanged)
+src/components/forms/LeadMagnetForm.astro 45ms (unchanged)
+src/components/Header.astro 94ms (unchanged)
+src/components/landing/CardGraph.tsx 27ms (unchanged)
+src/components/landing/ConnectionCTA.astro 4ms (unchanged)
+src/components/landing/EchoAvatars.tsx 2ms (unchanged)
+src/components/landing/EchoBackdrop.tsx 5ms (unchanged)
+src/components/landing/FeatureConnections.tsx 4ms (unchanged)
+src/components/landing/HeroNebula.tsx 6ms (unchanged)
+src/components/landing/HeroStatusLights.tsx 13ms (unchanged)
+src/components/landing/HoloFeaturePanel.astro 13ms (unchanged)
+src/components/landing/LottieIcon.tsx 10ms (unchanged)
+src/components/landing/StarfieldBackdrop.tsx 6ms (unchanged)
+src/components/landing/TestimonialCard.astro 6ms (unchanged)
+src/components/landing/TestimonialsGrid.astro 4ms (unchanged)
+src/components/landing/TestimonialsRotatingGrid.tsx 16ms (unchanged)
+src/components/Newsletter.astro 20ms (unchanged)
+src/components/notifications/NotificationCenter.tsx 16ms
+src/components/notifications/NotificationSettings.tsx 11ms (unchanged)
+src/components/Pagination.astro 28ms (unchanged)
+src/components/pricing/details-config.ts 2ms (unchanged)
+src/components/pricing/FeatureComparison.astro 21ms (unchanged)
+src/components/pricing/PricingDetailsBootstrap.tsx 2ms (unchanged)
+src/components/pricing/PricingDetailsProvider.tsx 19ms (unchanged)
+src/components/pricing/PricingTable.astro 69ms (unchanged)
+src/components/projects/ProjectList.tsx 17ms (unchanged)
+src/components/projects/ProjectManagement.tsx 5ms (unchanged)
+src/components/projects/ProjectModal.tsx 15ms (unchanged)
+src/components/scripts/AnalyticsCoordinator.astro 19ms (unchanged)
+src/components/scripts/AOSCoordinator.astro 18ms (unchanged)
+src/components/scripts/AuthSessionPoller.tsx 15ms (unchanged)
+src/components/scripts/AuthStatusNotifier.tsx 12ms (unchanged)
+src/components/scripts/DebugInterceptors.tsx 2ms (unchanged)
+src/components/scripts/HeaderScroll.astro 25ms (unchanged)
+src/components/scripts/MagicLinkFormEnhancer.tsx 7ms (unchanged)
+src/components/scripts/ProfileFormEnhancer.tsx 4ms (unchanged)
+src/components/scripts/TypewriterComponent.astro 24ms (unchanged)
+src/components/scripts/VerifyEmailCoordinator.astro 18ms (unchanged)
+src/components/SettingsScript.astro 6ms (unchanged)
+src/components/SkipLink.astro 3ms (unchanged)
+src/components/TestimonialCarousel.astro 27ms (unchanged)
+src/components/ThemeProvider.astro 5ms (unchanged)
+src/components/ThemeToggle.astro 3ms (unchanged)
+src/components/Toaster.tsx 1ms (unchanged)
+src/components/tools/faq/ContactTeaser.astro 25ms (unchanged)
+src/components/tools/imag-enhancer/__tests__/ModelControls.test.tsx 7ms (unchanged)
+src/components/tools/imag-enhancer/__tests__/useCompareInteractions.test.tsx 6ms (unchanged)
+src/components/tools/imag-enhancer/ActionsGroup.tsx 3ms (unchanged)
+src/components/tools/imag-enhancer/api.ts 2ms (unchanged)
+src/components/tools/imag-enhancer/CompareSlider.tsx 9ms (unchanged)
+src/components/tools/imag-enhancer/CompareView.tsx 6ms (unchanged)
+src/components/tools/imag-enhancer/CreditsPanel.tsx 3ms (unchanged)
+src/components/tools/imag-enhancer/Dropzone.tsx 4ms (unchanged)
+src/components/tools/imag-enhancer/EnhancerActions.tsx 6ms (unchanged)
+src/components/tools/imag-enhancer/gating.test.ts 2ms (unchanged)
+src/components/tools/imag-enhancer/gating.ts 8ms (unchanged)
+src/components/tools/imag-enhancer/HeaderBar.tsx 8ms (unchanged)
+src/components/tools/imag-enhancer/HelpModal.tsx 15ms (unchanged)
+src/components/tools/imag-enhancer/hooks/useClipboardImagePaste.ts 6ms (unchanged)
+src/components/tools/imag-enhancer/hooks/useCompareInteractions.ts 53ms (unchanged)
+src/components/tools/imag-enhancer/hooks/useCreditsCheckout.ts 6ms (unchanged)
+src/components/tools/imag-enhancer/hooks/useDownload.ts 4ms (unchanged)
+src/components/tools/imag-enhancer/hooks/useEnhance.ts 4ms (unchanged)
+src/components/tools/imag-enhancer/hooks/useGlobalShortcuts.ts 3ms (unchanged)
+src/components/tools/imag-enhancer/hooks/useImageBoxSize.ts 10ms (unchanged)
+src/components/tools/imag-enhancer/hooks/usePlanGating.ts 5ms (unchanged)
+src/components/tools/imag-enhancer/hooks/useRateLimit.ts 4ms (unchanged)
+src/components/tools/imag-enhancer/hooks/useUsage.ts 6ms (unchanged)
+src/components/tools/imag-enhancer/hooks/useValidation.ts 2ms (unchanged)
+src/components/tools/imag-enhancer/hooks/useViewportUiMetrics.ts 4ms (unchanged)
+src/components/tools/imag-enhancer/ModelControls.tsx 4ms (unchanged)
+src/components/tools/imag-enhancer/ModelSelect.tsx 4ms (unchanged)
+src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx 4ms (unchanged)
+src/components/tools/imag-enhancer/mvp/__tests__/SimpleResult.test.tsx 4ms (unchanged)
+src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx 5ms (unchanged)
+src/components/tools/imag-enhancer/mvp/__tests__/useUploadMVP.test.tsx 10ms (unchanged)
+src/components/tools/imag-enhancer/mvp/EnhancerActionsMVP.tsx 3ms (unchanged)
+src/components/tools/imag-enhancer/mvp/hooks/useEnhanceMVP.ts 2ms (unchanged)
+src/components/tools/imag-enhancer/mvp/hooks/useUploadMVP.ts 10ms (unchanged)
+src/components/tools/imag-enhancer/mvp/ImagEnhancerMVP.tsx 18ms (unchanged)
+src/components/tools/imag-enhancer/mvp/ImagEnhancerRouter.tsx 2ms (unchanged)
+src/components/tools/imag-enhancer/mvp/SimpleResult.tsx 4ms (unchanged)
+src/components/tools/imag-enhancer/mvp/types.ts 2ms (unchanged)
+src/components/tools/imag-enhancer/StatusUsagePill.tsx 2ms (unchanged)
+src/components/tools/imag-enhancer/types.ts 1ms (unchanged)
+src/components/tools/imag-enhancer/UploadSection.tsx 2ms (unchanged)
+src/components/tools/imag-enhancer/UsagePill.tsx 3ms (unchanged)
+src/components/tools/imag-enhancer/utils/ui.ts 2ms (unchanged)
+src/components/tools/ImagEnhancerIsland.tsx 56ms (unchanged)
+src/components/tools/prompt-enhancer/api.ts 3ms (unchanged)
+src/components/tools/prompt-enhancer/EnhancerForm.test.tsx 6ms (unchanged)
+src/components/tools/prompt-enhancer/EnhancerForm.tsx 29ms (unchanged)
+src/components/tools/prompt-enhancer/hooks/useEnhance.ts 2ms (unchanged)
+src/components/tools/prompt-enhancer/hooks/useRateLimit.ts 4ms (unchanged)
+src/components/tools/prompt-enhancer/hooks/useUsage.ts 4ms (unchanged)
+src/components/tools/prompt-enhancer/types.ts 1ms (unchanged)
+src/components/tools/shared/islandStyles.ts 2ms (unchanged)
+src/components/tools/shared/ToolPageHeader.astro 11ms (unchanged)
+src/components/tools/ToolCard.astro 27ms (unchanged)
+src/components/tools/ToolDetailsModal.tsx 5ms (unchanged)
+src/components/tools/ToolFilter.astro 17ms (unchanged)
+src/components/tools/ToolsIndexIsland.tsx 3ms (unchanged)
+src/components/tools/video-enhancer/VideoEnhancerIsland.tsx 17ms (unchanged)
+src/components/tools/voice-visualizer/api.ts 3ms (unchanged)
+src/components/tools/voice-visualizer/hooks/useMicrophone.ts 9ms (unchanged)
+src/components/tools/voice-visualizer/hooks/useTranscribeStream.ts 10ms
+src/components/tools/voice-visualizer/VisualizerCanvas.tsx 5ms (unchanged)
+src/components/tools/voice-visualizer/VoiceVisualizerIsland.tsx 20ms (unchanged)
+src/components/tools/webscraper/WebscraperForm.tsx 8ms (unchanged)
+src/components/tools/webscraper/WebscraperIsland.tsx 17ms (unchanged)
+src/components/tools/webscraper/WebscraperResults.tsx 27ms (unchanged)
+src/components/ui/Alert.tsx 2ms (unchanged)
+src/components/ui/Button.astro 17ms (unchanged)
+src/components/ui/Button.tsx 3ms (unchanged)
+src/components/ui/buttonStyles.ts 1ms (unchanged)
+src/components/ui/Card.tsx 2ms (unchanged)
+src/components/ui/CardReact.jsx 2ms
+src/components/ui/ComingSoon.astro 9ms (unchanged)
+src/components/ui/DebugPanel.tsx 48ms (unchanged)
+src/components/ui/DebugPanelOverlay.tsx 45ms (unchanged)
+src/components/ui/FormLabel.astro 4ms (unchanged)
+src/components/ui/Icon.astro 606ms (unchanged)
+src/components/ui/Icon.tsx 17ms (unchanged)
+src/components/ui/icons/Icon.astro 9ms (unchanged)
+src/components/ui/icons/SpriteDefs.astro 11ms (unchanged)
+src/components/ui/icons/Upload.tsx 4ms (unchanged)
+src/components/ui/Input.astro 10ms (unchanged)
+src/components/ui/Skeleton.astro 7ms (unchanged)
+src/config/ai-image.ts 3ms (unchanged)
+src/config/ai-image/entitlements.ts 3ms (unchanged)
+src/config/ai-video.ts 1ms (unchanged)
+src/config/ai-video/entitlements.ts 2ms (unchanged)
+src/config/coming-soon.ts 2ms (unchanged)
+src/config/contact.ts 1ms (unchanged)
+src/config/logging.ts 12ms
+src/config/prompt-enhancer.ts 3ms (unchanged)
+src/config/social.ts 2ms (unchanged)
+src/config/voice/entitlements.ts 2ms (unchanged)
+src/config/voice/index.ts 1ms (unchanged)
+src/config/webscraper.ts 3ms (unchanged)
+src/config/webscraper/entitlements.ts 2ms (unchanged)
+src/content/_archive/blog/ai-ethics-workplace.mdx 10ms (unchanged)
+src/content/_archive/blog/digital-detox-kreativitaet.mdx 10ms (unchanged)
+src/content/_archive/blog/digital-leadership.mdx 12ms (unchanged)
+src/content/_archive/blog/gig-economy-chancen-risiken.mdx 8ms (unchanged)
+src/content/_archive/blog/imposter-syndrom-ueberwinden.mdx 7ms (unchanged)
+src/content/_archive/blog/KI-als-Kollege.mdx 9ms
+src/content/_archive/blog/ki-im-alltag.mdx 7ms (unchanged)
+src/content/_archive/blog/konstruktives-feedback-geben.mdx 10ms (unchanged)
+src/content/_archive/blog/lebenslanges-lernen-karriere.mdx 11ms (unchanged)
+src/content/_archive/blog/mentoring-2-0.mdx 18ms (unchanged)
+src/content/_archive/blog/new-work-ist-eine-haltung.mdx 8ms (unchanged)
+src/content/_archive/blog/pomodoro-technik-home-office.mdx 7ms (unchanged)
+src/content/_archive/blog/sustainable-productivity.mdx 9ms (unchanged)
+src/content/_archive/blog/vom-ziel-zur-gewohnheit.mdx 6ms (unchanged)
+src/content/_archive/blog/wissensmanagement-second-brain.mdx 7ms (unchanged)
+src/content/_archive/blog/zukunft-der-fuehrung.mdx 9ms (unchanged)
+src/content/config.ts 3ms
+src/content/testimonials/imag/de/leila-m.md 1ms (unchanged)
+src/content/testimonials/imag/de/nina-p.md 1ms (unchanged)
+src/content/testimonials/imag/en/amira-k.md 1ms (unchanged)
+src/content/testimonials/imag/en/mika-s.md 1ms (unchanged)
+src/content/testimonials/prompt/de/andreas-b.md 1ms (unchanged)
+src/content/testimonials/prompt/de/karla-s.md 1ms (unchanged)
+src/content/testimonials/prompt/en/alex-r.md 1ms (unchanged)
+src/content/testimonials/prompt/en/sara-t.md 1ms (unchanged)
+src/content/testimonials/video/de/jonas-k.md 1ms (unchanged)
+src/content/testimonials/video/de/lina-r.md 1ms (unchanged)
+src/content/testimonials/video/en/chris-p.md 1ms (unchanged)
+src/content/testimonials/video/en/ivy-l.md 1ms (unchanged)
+src/content/testimonials/voice/de/diego-r.md 1ms (unchanged)
+src/content/testimonials/voice/de/hania-l.md 1ms (unchanged)
+src/content/testimonials/voice/en/jane-d.md 1ms (unchanged)
+src/content/testimonials/voice/en/omar-a.md 1ms (unchanged)
+src/content/testimonials/web/de/felix-h.md 1ms (unchanged)
+src/content/testimonials/web/de/sabine-k.md 2ms (unchanged)
+src/content/testimonials/web/en/lucy-w.md 2ms (unchanged)
+src/content/testimonials/web/en/mark-g.md 1ms (unchanged)
+src/content/types.ts 3ms (unchanged)
+src/env.d.ts 4ms (unchanged)
+src/layouts/AuthLayout.astro 7ms (unchanged)
+src/layouts/BaseLayout.astro 52ms (unchanged)
+src/lib/admin/api-client.ts 14ms (unchanged)
+src/lib/aos.test.ts 3ms (unchanged)
+src/lib/aos.ts 2ms (unchanged)
+src/lib/api-middleware.ts 20ms (unchanged)
+src/lib/auth-helpers.ts 4ms (unchanged)
+src/lib/auth-v2.ts 4ms (unchanged)
+src/lib/auth.ts 1ms (unchanged)
+src/lib/beacon-interceptor.ts 3ms (unchanged)
+src/lib/blog.ts 18ms (unchanged)
+src/lib/client-logger.ts 3ms (unchanged)
+src/lib/client/telemetry.ts 3ms (unchanged)
+src/lib/console-interceptor.ts 3ms (unchanged)
+src/lib/content.ts 6ms (unchanged)
+src/lib/content/testimonials.ts 4ms (unchanged)
+src/lib/contentful/client.ts 15ms (unchanged)
+src/lib/contentful/excerpt.ts 1ms (unchanged)
+src/lib/contentful/index.ts 0ms (unchanged)
+src/lib/datetime/index.ts 1ms (unchanged)
+src/lib/db/helpers.ts 11ms (unchanged)
+src/lib/db/schema.ts 26ms (unchanged)
+src/lib/db/types.ts 4ms (unchanged)
+src/lib/env/environment.ts 3ms (unchanged)
+src/lib/error-handler.ts 5ms (unchanged)
+src/lib/global-error-interceptor.ts 3ms (unchanged)
+src/lib/handlers.ts 2ms (unchanged)
+src/lib/i18n.test.ts 2ms (unchanged)
+src/lib/i18n.ts 2ms (unchanged)
+src/lib/i18n/accept-language.ts 3ms (unchanged)
+src/lib/kv/usage.test.ts 6ms (unchanged)
+src/lib/kv/usage.ts 14ms (unchanged)
+src/lib/locale-path.test.ts 3ms (unchanged)
+src/lib/locale-path.ts 4ms (unchanged)
+src/lib/network-interceptor.ts 13ms (unchanged)
+src/lib/notify.ts 4ms (unchanged)
+src/lib/rate-limiter.d.ts 1ms (unchanged)
+src/lib/rate-limiter.ts 25ms (unchanged)
+src/lib/referrals/utils.ts 1ms (unchanged)
+src/lib/response-helpers.ts 4ms (unchanged)
+src/lib/script-coordinator.ts 10ms (unchanged)
+src/lib/security-headers.ts 5ms (unchanged)
+src/lib/security-logger.ts 5ms (unchanged)
+src/lib/security/cloudflare-access.ts 3ms
+src/lib/security/csrf.d.ts 1ms (unchanged)
+src/lib/security/csrf.ts 4ms (unchanged)
+src/lib/security/sanitize.d.ts 1ms (unchanged)
+src/lib/security/sanitize.ts 2ms (unchanged)
+src/lib/seo.ts 4ms (unchanged)
+src/lib/services/ai-image-service.ts 80ms (unchanged)
+src/lib/services/ai-image/providers/workers-ai.ts 8ms (unchanged)
+src/lib/services/ai-jobs-service.ts 32ms (unchanged)
+src/lib/services/audit-log-service.ts 4ms (unchanged)
+src/lib/services/auth-service-impl.ts 19ms (unchanged)
+src/lib/services/auth-service.ts 3ms (unchanged)
+src/lib/services/backup-service.ts 18ms (unchanged)
+src/lib/services/base-service.ts 5ms (unchanged)
+src/lib/services/comment-service-extended.ts 29ms (unchanged)
+src/lib/services/comment-service.ts 52ms (unchanged)
+src/lib/services/data-export-service.ts 52ms
+src/lib/services/email-service-impl.ts 18ms (unchanged)
+src/lib/services/email-service.ts 3ms (unchanged)
+src/lib/services/logger-utils.ts 14ms (unchanged)
+src/lib/services/notification-service.ts 46ms (unchanged)
+src/lib/services/performance-service.ts 38ms (unchanged)
+src/lib/services/project-service.ts 3ms (unchanged)
+src/lib/services/prompt-attachments.ts 4ms (unchanged)
+src/lib/services/prompt-enhancer-service.ts 37ms
+src/lib/services/provider-error.d.ts 1ms (unchanged)
+src/lib/services/provider-error.ts 3ms (unchanged)
+src/lib/services/referral-admin-service.ts 10ms (unchanged)
+src/lib/services/referral-event-service.ts 3ms (unchanged)
+src/lib/services/referral-profile-service.ts 8ms (unchanged)
+src/lib/services/referral-reward-service.ts 16ms (unchanged)
+src/lib/services/referral-summary-service.ts 15ms (unchanged)
+src/lib/services/tools/scratch/voice-probe.mjs 3ms
+src/lib/services/types.ts 7ms (unchanged)
+src/lib/services/user-service.ts 2ms (unchanged)
+src/lib/services/voice-stream-aggregator.ts 14ms (unchanged)
+src/lib/services/voice-transcribe-service.ts 19ms (unchanged)
+src/lib/services/webscraper-service.ts 30ms (unchanged)
+src/lib/settings-module.ts 10ms (unchanged)
+src/lib/spam-detection.d.ts 1ms (unchanged)
+src/lib/spam-detection.ts 13ms (unchanged)
+src/lib/stores/project-store.ts 12ms (unchanged)
+src/lib/stytch.ts 9ms (unchanged)
+src/lib/testing/web-eval/env.ts 4ms (unchanged)
+src/lib/testing/web-eval/index.ts 1ms (unchanged)
+src/lib/testing/web-eval/storage.ts 4ms (unchanged)
+src/lib/testing/web-eval/types.ts 2ms (unchanged)
+src/lib/tools-data.ts 7ms (unchanged)
+src/lib/types/admin.ts 1ms (unchanged)
+src/lib/types/audit.ts 3ms (unchanged)
+src/lib/types/comments.ts 3ms (unchanged)
+src/lib/types/data-management.ts 3ms (unchanged)
+src/lib/types/notifications.ts 3ms (unchanged)
+src/lib/types/performance.ts 5ms (unchanged)
+src/lib/typewriter.js 2ms
+src/lib/typewriter.ts 3ms (unchanged)
+src/lib/utils/assert.ts 1ms (unchanged)
+src/lib/utils/id-generator.d.ts 1ms (unchanged)
+src/lib/utils/id-generator.ts 1ms (unchanged)
+src/lib/utils/mime.ts 2ms (unchanged)
+src/lib/validation/errors.ts 2ms (unchanged)
+src/lib/validation/index.ts 1ms (unchanged)
+src/lib/validation/schemas/admin-backup.ts 3ms (unchanged)
+src/lib/validation/schemas/admin.ts 3ms (unchanged)
+src/lib/validation/schemas/ai-image.ts 4ms (unchanged)
+src/lib/validation/schemas/ai-video.ts 3ms (unchanged)
+src/lib/validation/schemas/billing.ts 2ms (unchanged)
+src/lib/validation/schemas/comments.ts 25ms
+src/lib/validation/schemas/common.ts 1ms (unchanged)
+src/lib/validation/schemas/contact.ts 2ms (unchanged)
+src/lib/validation/schemas/dashboard.ts 1ms (unchanged)
+src/lib/validation/schemas/newsletter.ts 1ms (unchanged)
+src/lib/validation/schemas/notifications.ts 7ms (unchanged)
+src/lib/validation/schemas/prompt.ts 2ms (unchanged)
+src/lib/validation/schemas/referral.ts 2ms (unchanged)
+src/lib/validation/schemas/templates.ts 1ms (unchanged)
+src/lib/validation/schemas/users.ts 1ms (unchanged)
+src/lib/validation/schemas/voice.ts 3ms (unchanged)
+src/lib/validation/schemas/web-eval.ts 4ms (unchanged)
+src/lib/validation/schemas/webscraper.ts 4ms (unchanged)
+src/lib/validators.ts 12ms (unchanged)
+src/lib/xhr-interceptor.ts 7ms (unchanged)
+src/locales/archived/de-archived-2025-08-17T05-44-11-726Z.json 1ms (unchanged)
+src/locales/archived/de.backup.json 6ms (unchanged)
+src/locales/archived/en-archived-2025-08-17T05-44-11-722Z.json 1ms (unchanged)
+src/locales/archived/en.backup.json 1ms (unchanged)
+src/locales/de.json 20ms (unchanged)
+src/locales/en.json 26ms (unchanged)
+src/middleware-old.ts 25ms (unchanged)
+src/middleware.ts 54ms (unchanged)
+src/pages/account/settings.astro 2ms (unchanged)
+src/pages/admin/comments.astro 474ms (unchanged)
+src/pages/admin/index.astro 14ms (unchanged)
+src/pages/admin/status.astro 97ms (unchanged)
+src/pages/agb.astro 23ms (unchanged)
+src/pages/api/admin/audit/logs/[id].ts 13ms (unchanged)
+src/pages/api/admin/audit/logs/index.ts 5ms (unchanged)
+src/pages/api/admin/backup.legacy.hono.ts 33ms
+src/pages/api/admin/backup/cleanup.ts 4ms (unchanged)
+src/pages/api/admin/backup/create.ts 3ms (unchanged)
+src/pages/api/admin/backup/jobs/[id]/index.ts 3ms (unchanged)
+src/pages/api/admin/backup/jobs/[id]/progress.ts 4ms (unchanged)
+src/pages/api/admin/backup/jobs/index.ts 8ms (unchanged)
+src/pages/api/admin/backup/maintenance/jobs/[id].ts 8ms (unchanged)
+src/pages/api/admin/backup/maintenance/jobs/index.ts 6ms (unchanged)
+src/pages/api/admin/backup/maintenance/perform.ts 6ms (unchanged)
+src/pages/api/admin/backup/schedule.ts 4ms (unchanged)
+src/pages/api/admin/backup/stats.ts 6ms (unchanged)
+src/pages/api/admin/backup/verify/[id].ts 12ms (unchanged)
+src/pages/api/admin/comments/[id]/index.ts 5ms (unchanged)
+src/pages/api/admin/comments/[id]/moderate.ts 4ms (unchanged)
+src/pages/api/admin/comments/bulk-moderate.ts 8ms (unchanged)
+src/pages/api/admin/comments/index.ts 9ms (unchanged)
+src/pages/api/admin/credits/deduct.ts 9ms (unchanged)
+src/pages/api/admin/credits/grant.ts 8ms (unchanged)
+src/pages/api/admin/credits/history.ts 7ms (unchanged)
+src/pages/api/admin/credits/usage.ts 7ms (unchanged)
+src/pages/api/admin/ip-geo.ts 15ms (unchanged)
+src/pages/api/admin/metrics.ts 21ms (unchanged)
+src/pages/api/admin/rate-limits/reset.ts 3ms
+src/pages/api/admin/rate-limits/state.ts 2ms
+src/pages/api/admin/referrals/list.ts 12ms (unchanged)
+src/pages/api/admin/referrals/summary.ts 8ms (unchanged)
+src/pages/api/admin/referrals/update-status.ts 3ms (unchanged)
+src/pages/api/admin/status.ts 5ms (unchanged)
+src/pages/api/admin/telemetry.ts 4ms (unchanged)
+src/pages/api/admin/traffic-24h.ts 21ms (unchanged)
+src/pages/api/admin/users/[id].ts 10ms (unchanged)
+src/pages/api/admin/users/[id]/ban.ts 5ms (unchanged)
+src/pages/api/admin/users/[id]/unban.ts 4ms (unchanged)
+src/pages/api/admin/users/list.ts 7ms (unchanged)
+src/pages/api/admin/users/revoke-sessions.ts 4ms (unchanged)
+src/pages/api/admin/users/sessions.ts 3ms (unchanged)
+src/pages/api/admin/users/set-plan.ts 17ms (unchanged)
+src/pages/api/admin/users/summary.ts 13ms (unchanged)
+src/pages/api/AGENTS.md 6ms
+src/pages/api/ai-image/generate.ts 10ms (unchanged)
+src/pages/api/ai-image/jobs/[id].ts 5ms (unchanged)
+src/pages/api/ai-image/jobs/[id]/cancel.ts 6ms (unchanged)
+src/pages/api/ai-image/jobs/index.ts 5ms (unchanged)
+src/pages/api/ai-image/usage.ts 5ms (unchanged)
+src/pages/api/ai-video/generate.ts 19ms (unchanged)
+src/pages/api/ai-video/jobs/[id].ts 21ms (unchanged)
+src/pages/api/ai-video/upload.ts 23ms (unchanged)
+src/pages/api/ai-video/usage.ts 11ms (unchanged)
+src/pages/api/analytics/views.ts 9ms (unchanged)
+src/pages/api/auth/callback.ts 62ms (unchanged)
+src/pages/api/auth/change-password.ts 2ms (unchanged)
+src/pages/api/auth/forgot-password.ts 3ms (unchanged)
+src/pages/api/auth/login.ts 4ms (unchanged)
+src/pages/api/auth/logout.ts 2ms (unchanged)
+src/pages/api/auth/magic/request.ts 37ms (unchanged)
+src/pages/api/auth/oauth/[provider]/callback.ts 16ms (unchanged)
+src/pages/api/auth/oauth/[provider]/start.ts 12ms (unchanged)
+src/pages/api/auth/register.ts 2ms (unchanged)
+src/pages/api/auth/resend-verification.ts 3ms (unchanged)
+src/pages/api/auth/reset-password.ts 9ms (unchanged)
+src/pages/api/auth/verify-email.ts 2ms (unchanged)
+src/pages/api/billing/cancel.ts 6ms (unchanged)
+src/pages/api/billing/credits.ts 5ms (unchanged)
+src/pages/api/billing/link-pending.ts 3ms (unchanged)
+src/pages/api/billing/portal.ts 29ms (unchanged)
+src/pages/api/billing/session.ts 10ms (unchanged)
+src/pages/api/billing/stripe-webhook.ts 26ms (unchanged)
+src/pages/api/billing/sync-callback.ts 6ms (unchanged)
+src/pages/api/billing/sync.ts 9ms (unchanged)
+src/pages/api/comments/[id].ts 18ms (unchanged)
+src/pages/api/comments/[id]/report.ts 4ms (unchanged)
+src/pages/api/comments/count.ts 6ms (unchanged)
+src/pages/api/comments/create.ts 7ms (unchanged)
+src/pages/api/comments/index.ts 6ms (unchanged)
+src/pages/api/comments/moderate.ts 13ms (unchanged)
+src/pages/api/comments/performance.ts 10ms (unchanged)
+src/pages/api/comments/recent.ts 5ms (unchanged)
+src/pages/api/contact/index.ts 8ms (unchanged)
+src/pages/api/csp-report.ts 8ms (unchanged)
+src/pages/api/dashboard/activity.ts 4ms (unchanged)
+src/pages/api/dashboard/billing-summary.ts 16ms (unchanged)
+src/pages/api/dashboard/notifications.ts 3ms (unchanged)
+src/pages/api/dashboard/perform-action.ts 9ms (unchanged)
+src/pages/api/dashboard/projects.ts 5ms (unchanged)
+src/pages/api/dashboard/quick-actions.ts 5ms (unchanged)
+src/pages/api/dashboard/recommendations.ts 3ms (unchanged)
+src/pages/api/dashboard/referral-summary.ts 4ms (unchanged)
+src/pages/api/dashboard/stats.ts 3ms (unchanged)
+src/pages/api/data-export/index.ts 30ms (unchanged)
+src/pages/api/debug-login.ts 5ms (unchanged)
+src/pages/api/debug/client-log.ts 4ms (unchanged)
+src/pages/api/debug/logs-stream.ts 8ms (unchanged)
+src/pages/api/health.ts 10ms (unchanged)
+src/pages/api/health/auth.ts 2ms (unchanged)
+src/pages/api/internal/users/sync.ts 3ms (unchanged)
+src/pages/api/lead-magnets/download.ts 8ms (unchanged)
+src/pages/api/mcp/ping.ts 4ms
+src/pages/api/newsletter/confirm.ts 6ms (unchanged)
+src/pages/api/newsletter/subscribe.ts 5ms (unchanged)
+src/pages/api/newsletter/unsubscribe.ts 4ms (unchanged)
+src/pages/api/notifications/index.ts 11ms (unchanged)
+src/pages/api/notifications/queue/process.ts 6ms (unchanged)
+src/pages/api/notifications/settings/index.ts 3ms (unchanged)
+src/pages/api/notifications/settings/initialize.ts 1ms
+src/pages/api/notifications/settings/utils.ts 3ms (unchanged)
+src/pages/api/projects/index.ts 8ms (unchanged)
+src/pages/api/prompt-enhance.ts 12ms (unchanged)
+src/pages/api/prompt/usage.ts 12ms (unchanged)
+src/pages/api/telemetry.ts 4ms (unchanged)
+src/pages/api/templates.ts 2ms (unchanged)
+src/pages/api/test/rate-limit.ts 1ms (unchanged)
+src/pages/api/test/seed-email-token.ts 8ms (unchanged)
+src/pages/api/test/seed-referral-events.ts 12ms (unchanged)
+src/pages/api/test/seed-suite-v2.ts 19ms (unchanged)
+src/pages/api/testing/evaluate/[id].ts 4ms (unchanged)
+src/pages/api/testing/evaluate/[id]/complete.ts 4ms (unchanged)
+src/pages/api/testing/evaluate/index.ts 4ms (unchanged)
+src/pages/api/testing/evaluate/next.ts 7ms
+src/pages/api/tools.ts 5ms (unchanged)
+src/pages/api/user/account.ts 7ms (unchanged)
+src/pages/api/user/avatar.ts 6ms (unchanged)
+src/pages/api/user/logout-v2.ts 4ms (unchanged)
+src/pages/api/user/logout.ts 3ms (unchanged)
+src/pages/api/user/me.ts 2ms (unchanged)
+src/pages/api/user/password.ts 3ms (unchanged)
+src/pages/api/user/profile.ts 8ms (unchanged)
+src/pages/api/user/settings.ts 2ms (unchanged)
+src/pages/api/voice/poll.ts 3ms (unchanged)
+src/pages/api/voice/stream.ts 5ms (unchanged)
+src/pages/api/voice/transcribe.ts 9ms (unchanged)
+src/pages/api/voice/usage.ts 11ms (unchanged)
+src/pages/api/webscraper/extract.ts 10ms (unchanged)
+src/pages/api/webscraper/usage.ts 8ms (unchanged)
+src/pages/auth/notify.astro 7ms (unchanged)
+src/pages/auth/password-reset-sent.astro 4ms (unchanged)
+src/pages/auth/password-reset-success.astro 5ms (unchanged)
+src/pages/blog/[...slug].astro 43ms
+src/pages/blog/comments-demo.astro 17ms (unchanged)
+src/pages/blog/index.astro 77ms (unchanged)
+src/pages/blog/kategorie/[...slug].ts 1ms (unchanged)
+src/pages/blog/tag/[...slug].ts 1ms (unchanged)
+src/pages/cookie-einstellungen.astro 32ms (unchanged)
+src/pages/cookie-settings.ts 3ms (unchanged)
+src/pages/dashboard.astro 77ms (unchanged)
+src/pages/datenschutz.astro 1ms (unchanged)
+src/pages/de/agb.astro 18ms (unchanged)
+src/pages/de/cookie-einstellungen.astro 1ms (unchanged)
+src/pages/de/datenschutz.astro 57ms (unchanged)
+src/pages/de/faq.astro 1ms (unchanged)
+src/pages/de/impressum.astro 64ms (unchanged)
+src/pages/de/index.astro 60ms (unchanged)
+src/pages/de/login.astro 12ms (unchanged)
+src/pages/de/register.astro 7ms (unchanged)
+src/pages/de/tools/prompt-enhancer/app.astro 4ms (unchanged)
+src/pages/de/tools/prompt-enhancer/index.astro 2ms (unchanged)
+src/pages/de/tools/voice-visualizer/app.astro 9ms (unchanged)
+src/pages/de/tools/webscraper/app.astro 9ms (unchanged)
+src/pages/de/welcome-profile.astro 14ms (unchanged)
+src/pages/docs/api.ts 5ms (unchanged)
+src/pages/docs/faq.ts 1ms (unchanged)
+src/pages/docs/getting-started.ts 1ms (unchanged)
+src/pages/docs/guides.ts 3ms (unchanged)
+src/pages/docs/index.astro 44ms (unchanged)
+src/pages/email-verified.astro 55ms (unchanged)
+src/pages/en/account/settings.astro 1ms (unchanged)
+src/pages/en/agb.astro 27ms (unchanged)
+src/pages/en/blog/[...slug].astro 2ms (unchanged)
+src/pages/en/blog/index.astro 1ms (unchanged)
+src/pages/en/cookie-einstellungen.ts 1ms (unchanged)
+src/pages/en/cookie-settings.astro 2ms (unchanged)
+src/pages/en/dashboard.astro 63ms (unchanged)
+src/pages/en/datenschutz.astro 43ms (unchanged)
+src/pages/en/docs/api.ts 1ms (unchanged)
+src/pages/en/docs/faq.ts 1ms (unchanged)
+src/pages/en/docs/getting-started.ts 1ms (unchanged)
+src/pages/en/docs/guides.ts 3ms (unchanged)
+src/pages/en/docs/index.astro 1ms (unchanged)
+src/pages/en/email-verified.astro 98ms (unchanged)
+src/pages/en/faq.astro 2ms (unchanged)
+src/pages/en/impressum.astro 92ms (unchanged)
+src/pages/en/index.astro 58ms (unchanged)
+src/pages/en/kontakt.astro 7ms (unchanged)
+src/pages/en/login.astro 22ms (unchanged)
+src/pages/en/pricing.astro 2ms (unchanged)
+src/pages/en/register.astro 8ms (unchanged)
+src/pages/en/signup.ts 3ms (unchanged)
+src/pages/en/tools/code-review.ts 1ms (unchanged)
+src/pages/en/tools/content-generator.ts 2ms (unchanged)
+src/pages/en/tools/design-system.ts 3ms (unchanged)
+src/pages/en/tools/imag-enhancer/app.astro 43ms (unchanged)
+src/pages/en/tools/imag-enhancer/index.astro 90ms (unchanged)
+src/pages/en/tools/index.astro 64ms (unchanged)
+src/pages/en/tools/performance-monitor.ts 4ms (unchanged)
+src/pages/en/tools/prompt-enhancer/app.astro 6ms (unchanged)
+src/pages/en/tools/prompt-enhancer/index.astro 2ms (unchanged)
+src/pages/en/tools/seo-analyzer.ts 2ms (unchanged)
+src/pages/en/tools/video-enhancer/app.astro 7ms (unchanged)
+src/pages/en/tools/voice-visualizer/app.astro 39ms (unchanged)
+src/pages/en/tools/webscraper/app.astro 122ms (unchanged)
+src/pages/en/verify-email.astro 105ms (unchanged)
+src/pages/en/welcome-profile.astro 96ms (unchanged)
+src/pages/faq.astro 186ms (unchanged)
+src/pages/impressum.astro 169ms (unchanged)
+src/pages/index.astro 5ms (unchanged)
+src/pages/kontakt.astro 131ms (unchanged)
+src/pages/login.astro 40ms (unchanged)
+src/pages/newsletter/confirm.astro 145ms (unchanged)
+src/pages/pricing.astro 92ms (unchanged)
+src/pages/r2-ai/[...path].ts 12ms (unchanged)
+src/pages/r2/[...path].ts 3ms (unchanged)
+src/pages/register.astro 14ms (unchanged)
+src/pages/rss.xml.ts 5ms (unchanged)
+src/pages/signup.ts 2ms (unchanged)
+src/pages/sitemap.xml.ts 3ms (unchanged)
+src/pages/tools/api-tester.ts 1ms (unchanged)
+src/pages/tools/code-review.ts 1ms (unchanged)
+src/pages/tools/content-generator.ts 1ms (unchanged)
+src/pages/tools/design-system.ts 1ms (unchanged)
+src/pages/tools/imag-enhancer/app.astro 21ms (unchanged)
+src/pages/tools/imag-enhancer/index.astro 32ms (unchanged)
+src/pages/tools/index.astro 25ms (unchanged)
+src/pages/tools/performance-monitor.ts 1ms (unchanged)
+src/pages/tools/prompt-enhancer/app.astro 12ms (unchanged)
+src/pages/tools/prompt-enhancer/index.astro 2ms (unchanged)
+src/pages/tools/seo-analyzer.ts 1ms (unchanged)
+src/pages/tools/video-enhancer/app.astro 4ms (unchanged)
+src/pages/tools/voice-visualizer/app.astro 5ms (unchanged)
+src/pages/tools/webscraper/app.astro 11ms (unchanged)
+src/pages/verify-email.astro 32ms (unchanged)
+src/pages/welcome-profile.astro 15ms (unchanged)
+src/pages/welcome.astro 17ms (unchanged)
+src/scripts/blog-post-enhancements.ts 2ms (unchanged)
+src/scripts/landing-bg.js 8ms
+src/scripts/landing-bg.ts 24ms (unchanged)
+src/scripts/neural-mesh.ts 15ms (unchanged)
+src/scripts/orchestrate-entrance.ts 11ms (unchanged)
+src/scripts/settings.ts 21ms (unchanged)
+src/server/actions.ts 4ms (unchanged)
+src/server/utils/hashing.ts 2ms (unchanged)
+src/server/utils/jwt.ts 2ms (unchanged)
+src/server/utils/log-transports.ts 10ms
+src/server/utils/logger-factory.ts 38ms
+src/server/utils/logger.ts 9ms (unchanged)
+src/setupTests.ts 10ms (unchanged)
+src/stores/activityStore.ts 4ms (unchanged)
+src/stores/comment-store.ts 33ms (unchanged)
+src/stores/index.ts 3ms (unchanged)
+src/stores/notificationStore.ts 9ms (unchanged)
+src/stores/projectStore.ts 15ms (unchanged)
+src/stores/quickActionStore.ts 9ms (unchanged)
+src/styles/coming-soon.css 13ms
+src/styles/future-tokens.css 18ms
+src/styles/global.css 35ms
+src/types/astro-fonts-internal.d.ts 2ms (unchanged)
+src/types/blog.ts 3ms (unchanged)
+src/types/dashboard.ts 5ms (unchanged)
+src/types/jsdom.d.ts 2ms (unchanged)
+src/types/logger.ts 8ms (unchanged)
+src/types/stubs/rate-limiter.d.ts 1ms (unchanged)
+src/types/ts-src-shims.d.ts 16ms (unchanged)
+src/types/webscraper.ts 6ms (unchanged)
+src/types/ws.d.ts 1ms (unchanged)
+src/utils/feature-flags.ts 11ms (unchanged)
+src/utils/i18n.ts 25ms (unchanged)
+src/utils/sanitizeReturnTo.test.ts 3ms (unchanged)
+src/utils/sanitizeReturnTo.ts 2ms (unchanged)
+staging-rules.json 6ms (unchanged)
+tailwind.config.js 2ms
+[error] test-suite-v2/.github/workflows/ci.yml: SyntaxError: A collection cannot be both a mapping and a sequence (1:1)
+[error] >  1 | name: Test Suite v2 CI/CD
+[error]      | ^^^^^^^^^^^^^^^^^^^^^^^^^
+[error] >  2 |
+[error]      | ^
+[error] >  3 | on:
+[error]      | ^
+[error] >  4 |   push:
+[error]      | ^
+[error] >  5 |     branches: [ main, develop ]
+[error]      | ^
+[error] >  6 |     paths:
+[error]      | ^
+[error] >  7 |       - 'test-suite-v2/**'
+[error]      | ^
+[error] >  8 |       - 'src/**'
+[error]      | ^
+[error] >  9 |       - 'tests/**'
+[error]      | ^
+[error] >  10 |   pull_request:
+[error]       | ^
+[error] >  11 |     branches: [ main, develop ]
+[error]       | ^
+[error] >  12 |     paths:
+[error]       | ^
+[error] >  13 |       - 'test-suite-v2/**'
+[error]       | ^
+[error] >  14 |       - 'src/**'
+[error]       | ^
+[error] >  15 |       - 'tests/**'
+[error]       | ^
+[error] >  16 |
+[error]       | ^
+[error] >  17 | env:
+[error]       | ^
+[error] >  18 |   NODE_VERSION: '18'
+[error]       | ^
+[error] >  19 |   TEST_BASE_URL: 'http://localhost:3000'
+[error]       | ^
+[error] >  20 |   TEST_API_URL: 'http://localhost:3000/api'
+[error]       | ^
+[error] >  21 |   TEST_COVERAGE_ENABLED: 'true'
+[error]       | ^
+[error] >  22 |   TEST_REPORTING_ENABLED: 'true'
+[error]       | ^
+[error] >  23 |   TEST_PARALLEL_ENABLED: 'true'
+[error]       | ^
+[error] >  24 |   TEST_PARALLEL_WORKERS: '4'
+[error]       | ^
+[error] >  25 |
+[error]       | ^
+[error] >  26 | jobs:
+[error]       | ^
+[error] >  27 |   # Unit Tests
+[error]       | ^
+[error] >  28 |   unit-tests:
+[error]       | ^
+[error] >  29 |     name: Unit Tests
+[error]       | ^
+[error] >  30 |     runs-on: ubuntu-latest
+[error]       | ^
+[error] >  31 |     timeout-minutes: 10
+[error]       | ^
+[error] >  32 |
+[error]       | ^
+[error] >  33 |     steps:
+[error]       | ^
+[error] >  34 |     - name: Checkout code
+[error]       | ^
+[error] >  35 |       uses: actions/checkout@v4
+[error]       | ^
+[error] >  36 |
+[error]       | ^
+[error] >  37 |     - name: Setup Node.js
+[error]       | ^
+[error] >  38 |       uses: actions/setup-node@v4
+[error]       | ^
+[error] >  39 |       with:
+[error]       | ^
+[error] >  40 |         node-version: ${{ env.NODE_VERSION }}
+[error]       | ^
+[error] >  41 |         cache: 'npm'
+[error]       | ^
+[error] >  42 |         cache-dependency-path: 'test-suite-v2/package-lock.json'
+[error]       | ^
+[error] >  43 |
+[error]       | ^
+[error] >  44 |     - name: Install dependencies
+[error]       | ^
+[error] >  45 |       run: |
+[error]       | ^
+[error] >  46 |         cd test-suite-v2
+[error]       | ^
+[error] >  47 |         npm ci
+[error]       | ^
+[error] >  48 |
+[error]       | ^
+[error] >  49 |     - name: Type checking
+[error]       | ^
+[error] >  50 |       run: |
+[error]       | ^
+[error] >  51 |         cd test-suite-v2
+[error]       | ^
+[error] >  52 |         npm run type-check
+[error]       | ^
+[error] >  53 |
+[error]       | ^
+[error] >  54 |     - name: Lint code
+[error]       | ^
+[error] >  55 |       run: |
+[error]       | ^
+[error] >  56 |         cd test-suite-v2
+[error]       | ^
+[error] >  57 |         npm run lint
+[error]       | ^
+[error] >  58 |
+[error]       | ^
+[error] >  59 |     - name: Run unit tests
+[error]       | ^
+[error] >  60 |       run: |
+[error]       | ^
+[error] >  61 |         cd test-suite-v2
+[error]       | ^
+[error] >  62 |         npm run test:unit
+[error]       | ^
+[error] >  63 |
+[error]       | ^
+[error] >  64 |     - name: Upload coverage reports
+[error]       | ^
+[error] >  65 |       uses: codecov/codecov-action@v3
+[error]       | ^
+[error] >  66 |       with:
+[error]       | ^
+[error] >  67 |         file: ./test-suite-v2/coverage/lcov.info
+[error]       | ^
+[error] >  68 |         flags: unit-tests
+[error]       | ^
+[error] >  69 |         name: Unit Tests Coverage
+[error]       | ^
+[error] >  70 |         fail_ci_if_error: false
+[error]       | ^
+[error] >  71 |
+[error]       | ^
+[error] >  72 |     - name: Upload test results
+[error]       | ^
+[error] >  73 |       uses: actions/upload-artifact@v3
+[error]       | ^
+[error] >  74 |       if: always()
+[error]       | ^
+[error] >  75 |       with:
+[error]       | ^
+[error] >  76 |         name: unit-test-results
+[error]       | ^
+[error] >  77 |         path: |
+[error]       | ^
+[error] >  78 |           test-suite-v2/reports/
+[error]       | ^
+[error] >  79 |           test-suite-v2/coverage/
+[error]       | ^
+[error] >  80 |
+[error]       | ^
+[error] >  81 |   # Integration Tests
+[error]       | ^
+[error] >  82 |   integration-tests:
+[error]       | ^
+[error] >  83 |     name: Integration Tests
+[error]       | ^
+[error] >  84 |     runs-on: ubuntu-latest
+[error]       | ^
+[error] >  85 |     timeout-minutes: 15
+[error]       | ^
+[error] >  86 |     services:
+[error]       | ^
+[error] >  87 |       postgres:
+[error]       | ^
+[error] >  88 |         image: postgres:15
+[error]       | ^
+[error] >  89 |         env:
+[error]       | ^
+[error] >  90 |           POSTGRES_PASSWORD: test_password
+[error]       | ^
+[error] >  91 |           POSTGRES_DB: test_db
+[error]       | ^
+[error] >  92 |         options: >-
+[error]       | ^
+[error] >  93 |           --health-cmd pg_isready
+[error]       | ^
+[error] >  94 |           --health-interval 10s
+[error]       | ^
+[error] >  95 |           --health-timeout 5s
+[error]       | ^
+[error] >  96 |           --health-retries 5
+[error]       | ^
+[error] >  97 |         ports:
+[error]       | ^
+[error] >  98 |           - 5432:5432
+[error]       | ^
+[error] >  99 |
+[error]       | ^
+[error] > 100 |     steps:
+[error]       | ^
+[error] > 101 |     - name: Checkout code
+[error]       | ^
+[error] > 102 |       uses: actions/checkout@v4
+[error]       | ^
+[error] > 103 |
+[error]       | ^
+[error] > 104 |     - name: Setup Node.js
+[error]       | ^
+[error] > 105 |       uses: actions/setup-node@v4
+[error]       | ^
+[error] > 106 |       with:
+[error]       | ^
+[error] > 107 |         node-version: ${{ env.NODE_VERSION }}
+[error]       | ^
+[error] > 108 |         cache: 'npm'
+[error]       | ^
+[error] > 109 |         cache-dependency-path: 'test-suite-v2/package-lock.json'
+[error]       | ^
+[error] > 110 |
+[error]       | ^
+[error] > 111 |     - name: Install dependencies
+[error]       | ^
+[error] > 112 |       run: |
+[error]       | ^
+[error] > 113 |         cd test-suite-v2
+[error]       | ^
+[error] > 114 |         npm ci
+[error]       | ^
+[error] > 115 |
+[error]       | ^
+[error] > 116 |     - name: Setup test database
+[error]       | ^
+[error] > 117 |       run: |
+[error]       | ^
+[error] > 118 |         cd test-suite-v2
+[error]       | ^
+[error] > 119 |         npm run setup
+[error]       | ^
+[error] > 120 |         # Warte auf Datenbank
+[error]       | ^
+[error] > 121 |         sleep 10
+[error]       | ^
+[error] > 122 |
+[error]       | ^
+[error] > 123 |     - name: Run integration tests
+[error]       | ^
+[error] > 124 |       run: |
+[error]       | ^
+[error] > 125 |         cd test-suite-v2
+[error]       | ^
+[error] > 126 |         npm run test:integration
+[error]       | ^
+[error] > 127 |       env:
+[error]       | ^
+[error] > 128 |         TEST_DATABASE_URL: postgresql://postgres:test_password@localhost:5432/test_db
+[error]       | ^
+[error] > 129 |
+[error]       | ^
+[error] > 130 |     - name: Upload coverage reports
+[error]       | ^
+[error] > 131 |       uses: codecov/codecov-action@v3
+[error]       | ^
+[error] > 132 |       with:
+[error]       | ^
+[error] > 133 |         file: ./test-suite-v2/coverage/lcov.info
+[error]       | ^
+[error] > 134 |         flags: integration-tests
+[error]       | ^
+[error] > 135 |         name: Integration Tests Coverage
+[error]       | ^
+[error] > 136 |         fail_ci_if_error: false
+[error]       | ^
+[error] > 137 |
+[error]       | ^
+[error] > 138 |     - name: Upload test results
+[error]       | ^
+[error] > 139 |       uses: actions/upload-artifact@v3
+[error]       | ^
+[error] > 140 |       if: always()
+[error]       | ^
+[error] > 141 |       with:
+[error]       | ^
+[error] > 142 |         name: integration-test-results
+[error]       | ^
+[error] > 143 |         path: |
+[error]       | ^
+[error] > 144 |           test-suite-v2/reports/
+[error]       | ^
+[error] > 145 |           test-suite-v2/coverage/
+[error]       | ^
+[error] > 146 |
+[error]       | ^
+[error] > 147 |   # E2E Tests
+[error]       | ^
+[error] > 148 |   e2e-tests:
+[error]       | ^
+[error] > 149 |     name: E2E Tests
+[error]       | ^
+[error] > 150 |     runs-on: ubuntu-latest
+[error]       | ^
+[error] > 151 |     timeout-minutes: 20
+[error]       | ^
+[error] > 152 |
+[error]       | ^
+[error] > 153 |     steps:
+[error]       | ^
+[error] > 154 |     - name: Checkout code
+[error]       | ^
+[error] > 155 |       uses: actions/checkout@v4
+[error]       | ^
+[error] > 156 |
+[error]       | ^
+[error] > 157 |     - name: Setup Node.js
+[error]       | ^
+[error] > 158 |       uses: actions/setup-node@v4
+[error]       | ^
+[error] > 159 |       with:
+[error]       | ^
+[error] > 160 |         node-version: ${{ env.NODE_VERSION }}
+[error]       | ^
+[error] > 161 |         cache: 'npm'
+[error]       | ^
+[error] > 162 |         cache-dependency-path: 'test-suite-v2/package-lock.json'
+[error]       | ^
+[error] > 163 |
+[error]       | ^
+[error] > 164 |     - name: Install dependencies
+[error]       | ^
+[error] > 165 |       run: |
+[error]       | ^
+[error] > 166 |         cd test-suite-v2
+[error]       | ^
+[error] > 167 |         npm ci
+[error]       | ^
+[error] > 168 |
+[error]       | ^
+[error] > 169 |     - name: Install Playwright browsers
+[error]       | ^
+[error] > 170 |       run: |
+[error]       | ^
+[error] > 171 |         cd test-suite-v2
+[error]       | ^
+[error] > 172 |         npx playwright install --with-deps
+[error]       | ^
+[error] > 173 |
+[error]       | ^
+[error] > 174 |     - name: Build application
+[error]       | ^
+[error] > 175 |       run: npm run build
+[error]       | ^
+[error] > 176 |
+[error]       | ^
+[error] > 177 |     - name: Start application
+[error]       | ^
+[error] > 178 |       run: |
+[error]       | ^
+[error] > 179 |         npm run dev &
+[error]       | ^
+[error] > 180 |         # Warte auf Anwendung
+[error]       | ^
+[error] > 181 |         timeout 60 bash -c 'until curl -f http://localhost:3000 > /dev/null 2>&1; do sleep 2; done'
+[error]       | ^
+[error] > 182 |
+[error]       | ^
+[error] > 183 |     - name: Run E2E tests
+[error]       | ^
+[error] > 184 |       run: |
+[error]       | ^
+[error] > 185 |         cd test-suite-v2
+[error]       | ^
+[error] > 186 |         npm run test:e2e
+[error]       | ^
+[error] > 187 |       env:
+[error]       | ^
+[error] > 188 |         BASE_URL: http://localhost:3000
+[error]       | ^
+[error] > 189 |
+[error]       | ^
+[error] > 190 |     - name: Upload test results
+[error]       | ^
+[error] > 191 |       uses: actions/upload-artifact@v3
+[error]       | ^
+[error] > 192 |       if: always()
+[error]       | ^
+[error] > 193 |       with:
+[error]       | ^
+[error] > 194 |         name: e2e-test-results
+[error]       | ^
+[error] > 195 |         path: |
+[error]       | ^
+[error] > 196 |           test-suite-v2/reports/playwright-results/
+[error]       | ^
+[error] > 197 |           test-suite-v2/reports/playwright-html-report/
+[error]       | ^
+[error] > 198 |
+[error]       | ^
+[error] > 199 |     - name: Upload screenshots on failure
+[error]       | ^
+[error] > 200 |       uses: actions/upload-artifact@v3
+[error]       | ^
+[error] > 201 |       if: failure()
+[error]       | ^
+[error] > 202 |       with:
+[error]       | ^
+[error] > 203 |         name: e2e-screenshots
+[error]       | ^
+[error] > 204 |         path: test-suite-v2/reports/playwright-snapshots/
+[error]       | ^
+[error] > 205 |
+[error]       | ^
+[error] > 206 |   # Performance Tests
+[error]       | ^
+[error] > 207 |   performance-tests:
+[error]       | ^
+[error] > 208 |     name: Performance Tests
+[error]       | ^
+[error] > 209 |     runs-on: ubuntu-latest
+[error]       | ^
+[error] > 210 |     timeout-minutes: 25
+[error]       | ^
+[error] > 211 |
+[error]       | ^
+[error] > 212 |     steps:
+[error]       | ^
+[error] > 213 |     - name: Checkout code
+[error]       | ^
+[error] > 214 |       uses: actions/checkout@v4
+[error]       | ^
+[error] > 215 |
+[error]       | ^
+[error] > 216 |     - name: Setup Node.js
+[error]       | ^
+[error] > 217 |       uses: actions/setup-node@v4
+[error]       | ^
+[error] > 218 |       with:
+[error]       | ^
+[error] > 219 |         node-version: ${{ env.NODE_VERSION }}
+[error]       | ^
+[error] > 220 |         cache: 'npm'
+[error]       | ^
+[error] > 221 |         cache-dependency-path: 'test-suite-v2/package-lock.json'
+[error]       | ^
+[error] > 222 |
+[error]       | ^
+[error] > 223 |     - name: Install dependencies
+[error]       | ^
+[error] > 224 |       run: |
+[error]       | ^
+[error] > 225 |         cd test-suite-v2
+[error]       | ^
+[error] > 226 |         npm ci
+[error]       | ^
+[error] > 227 |
+[error]       | ^
+[error] > 228 |     - name: Build application
+[error]       | ^
+[error] > 229 |       run: npm run build
+[error]       | ^
+[error] > 230 |
+[error]       | ^
+[error] > 231 |     - name: Start application
+[error]       | ^
+[error] > 232 |       run: |
+[error]       | ^
+[error] > 233 |         npm run dev &
+[error]       | ^
+[error] > 234 |         timeout 60 bash -c 'until curl -f http://localhost:3000 > /dev/null 2>&1; do sleep 2; done'
+[error]       | ^
+[error] > 235 |
+[error]       | ^
+[error] > 236 |     - name: Run performance tests
+[error]       | ^
+[error] > 237 |       run: |
+[error]       | ^
+[error] > 238 |         cd test-suite-v2
+[error]       | ^
+[error] > 239 |         npm run test:performance
+[error]       | ^
+[error] > 240 |       env:
+[error]       | ^
+[error] > 241 |         TEST_PERFORMANCE_ENABLED: 'true'
+[error]       | ^
+[error] > 242 |         TEST_LOAD_TEST_USERS: '1000'
+[error]       | ^
+[error] > 243 |         TEST_CONCURRENT_SESSIONS: '50'
+[error]       | ^
+[error] > 244 |
+[error]       | ^
+[error] > 245 |     - name: Upload performance results
+[error]       | ^
+[error] > 246 |       uses: actions/upload-artifact@v3
+[error]       | ^
+[error] > 247 |       if: always()
+[error]       | ^
+[error] > 248 |       with:
+[error]       | ^
+[error] > 249 |         name: performance-test-results
+[error]       | ^
+[error] > 250 |         path: test-suite-v2/reports/performance/
+[error]       | ^
+[error] > 251 |
+[error]       | ^
+[error] > 252 |   # Security Tests
+[error]       | ^
+[error] > 253 |   security-tests:
+[error]       | ^
+[error] > 254 |     name: Security Tests
+[error]       | ^
+[error] > 255 |     runs-on: ubuntu-latest
+[error]       | ^
+[error] > 256 |     timeout-minutes: 15
+[error]       | ^
+[error] > 257 |
+[error]       | ^
+[error] > 258 |     steps:
+[error]       | ^
+[error] > 259 |     - name: Checkout code
+[error]       | ^
+[error] > 260 |       uses: actions/checkout@v4
+[error]       | ^
+[error] > 261 |
+[error]       | ^
+[error] > 262 |     - name: Setup Node.js
+[error]       | ^
+[error] > 263 |       uses: actions/setup-node@v4
+[error]       | ^
+[error] > 264 |       with:
+[error]       | ^
+[error] > 265 |         node-version: ${{ env.NODE_VERSION }}
+[error]       | ^
+[error] > 266 |         cache: 'npm'
+[error]       | ^
+[error] > 267 |         cache-dependency-path: 'test-suite-v2/package-lock.json'
+[error]       | ^
+[error] > 268 |
+[error]       | ^
+[error] > 269 |     - name: Install dependencies
+[error]       | ^
+[error] > 270 |       run: |
+[error]       | ^
+[error] > 271 |         cd test-suite-v2
+[error]       | ^
+[error] > 272 |         npm ci
+[error]       | ^
+[error] > 273 |
+[error]       | ^
+[error] > 274 |     - name: Run security tests
+[error]       | ^
+[error] > 275 |       run: |
+[error]       | ^
+[error] > 276 |         cd test-suite-v2
+[error]       | ^
+[error] > 277 |         npm run test:security
+[error]       | ^
+[error] > 278 |
+[error]       | ^
+[error] > 279 |     - name: Upload security scan results
+[error]       | ^
+[error] > 280 |       uses: actions/upload-artifact@v3
+[error]       | ^
+[error] > 281 |       if: always()
+[error]       | ^
+[error] > 282 |       with:
+[error]       | ^
+[error] > 283 |         name: security-test-results
+[error]       | ^
+[error] > 284 |         path: test-suite-v2/reports/security/
+[error]       | ^
+[error] > 285 |
+[error]       | ^
+[error] > 286 |   # Generate Reports
+[error]       | ^
+[error] > 287 |   generate-reports:
+[error]       | ^
+[error] > 288 |     name: Generate Test Reports
+[error]       | ^
+[error] > 289 |     runs-on: ubuntu-latest
+[error]       | ^
+[error] > 290 |     needs: [unit-tests, integration-tests, e2e-tests, performance-tests, security-tests]
+[error]       | ^
+[error] > 291 |     if: always()
+[error]       | ^
+[error] > 292 |
+[error]       | ^
+[error] > 293 |     steps:
+[error]       | ^
+[error] > 294 |     - name: Checkout code
+[error]       | ^
+[error] > 295 |       uses: actions/checkout@v4
+[error]       | ^
+[error] > 296 |
+[error]       | ^
+[error] > 297 |     - name: Setup Node.js
+[error]       | ^
+[error] > 298 |       uses: actions/setup-node@v4
+[error]       | ^
+[error] > 299 |       with:
+[error]       | ^
+[error] > 300 |         node-version: ${{ env.NODE_VERSION }}
+[error]       | ^
+[error] > 301 |         cache: 'npm'
+[error]       | ^
+[error] > 302 |         cache-dependency-path: 'test-suite-v2/package-lock.json'
+[error]       | ^
+[error] > 303 |
+[error]       | ^
+[error] > 304 |     - name: Install dependencies
+[error]       | ^
+[error] > 305 |       run: |
+[error]       | ^
+[error] > 306 |         cd test-suite-v2
+[error]       | ^
+[error] > 307 |         npm ci
+[error]       | ^
+[error] > 308 |
+[error]       | ^
+[error] > 309 |     - name: Download test results
+[error]       | ^
+[error] > 310 |       uses: actions/download-artifact@v3
+[error]       | ^
+[error] > 311 |       with:
+[error]       | ^
+[error] > 312 |         path: ./test-suite-v2/reports/
+[error]       | ^
+[error] > 313 |
+[error]       | ^
+[error] > 314 |     - name: Generate consolidated reports
+[error]       | ^
+[error] > 315 |       run: |
+[error]       | ^
+[error] > 316 |         cd test-suite-v2
+[error]       | ^
+[error] > 317 |         npm run report:generate
+[error]       | ^
+[error] > 318 |
+[error]       | ^
+[error] > 319 |     - name: Upload final reports
+[error]       | ^
+[error] > 320 |       uses: actions/upload-artifact@v3
+[error]       | ^
+[error] > 321 |       with:
+[error]       | ^
+[error] > 322 |         name: consolidated-test-reports
+[error]       | ^
+[error] > 323 |         path: |
+[error]       | ^
+[error] > 324 |           test-suite-v2/reports/
+[error]       | ^
+[error] > 325 |         retention-days: 30
+[error]       | ^
+[error] > 326 |
+[error]       | ^
+[error] > 327 |   # Quality Gate
+[error]       | ^
+[error] > 328 |   quality-gate:
+[error]       | ^
+[error] > 329 |     name: Quality Gate
+[error]       | ^
+[error] > 330 |     runs-on: ubuntu-latest
+[error]       | ^
+[error] > 331 |     needs: [unit-tests, integration-tests, e2e-tests, generate-reports]
+[error]       | ^
+[error] > 332 |     if: always()
+[error]       | ^
+[error] > 333 |
+[error]       | ^
+[error] > 334 |     steps:
+[error]       | ^
+[error] > 335 |     - name: Checkout code
+[error]       | ^
+[error] > 336 |       uses: actions/checkout@v4
+[error]       | ^
+[error] > 337 |
+[error]       | ^
+[error] > 338 |     - name: Download consolidated reports
+[error]       | ^
+[error] > 339 |       uses: actions/download-artifact@v3
+[error]       | ^
+[error] > 340 |       with:
+[error]       | ^
+[error] > 341 |         name: consolidated-test-reports
+[error]       | ^
+[error] > 342 |         path: ./reports/
+[error]       | ^
+[error] > 343 |
+[error]       | ^
+[error] > 344 |     - name: Check test results
+[error]       | ^
+[error] > 345 |       run: |
+[error]       | ^
+[error] > 346 |         # Überprüfe, ob alle Tests bestanden sind
+[error]       | ^
+[error] > 347 |         if [ ! -f "./reports/test-summary-*.md" ]; then
+[error]       | ^
+[error] > 348 |           echo "❌ Test-Bericht nicht gefunden"
+[error]       | ^
+[error] > 349 |           exit 1
+[error]       | ^
+[error] > 350 |         fi
+[error]       | ^
+[error] > 351 |
+[error]       | ^
+[error] > 352 |         # Lese Erfolgsrate aus Bericht
+[error]       | ^
+[error] > 353 |         SUCCESS_RATE=$(grep "Erfolgsrate" ./reports/test-summary-*.md | grep -o "[0-9]\+\.[0-9]\+" | head -1)
+[error]       | ^
+[error] > 354 |
+[error]       | ^
+[error] > 355 |         echo "📊 Erfolgsrate: ${SUCCESS_RATE}%"
+[error]       | ^
+[error] > 356 |
+[error]       | ^
+[error] > 357 |         # Quality Gate: Mindestens 80% Erfolgsrate
+[error]       | ^
+[error] > 358 |         if (( $(echo "$SUCCESS_RATE < 80" | bc -l) )); then
+[error]       | ^
+[error] > 359 |           echo "❌ Quality Gate fehlgeschlagen: Erfolgsrate unter 80%"
+[error]       | ^
+[error] > 360 |           exit 1
+[error]       | ^
+[error] > 361 |         fi
+[error]       | ^
+[error] > 362 |
+[error]       | ^
+[error] > 363 |         echo "✅ Quality Gate bestanden"
+[error]       | ^
+[error] > 364 |
+[error]       | ^
+[error] > 365 |     - name: Comment PR with test results
+[error]       | ^
+[error] > 366 |       if: github.event_name == 'pull_request'
+[error]       | ^
+[error] > 367 |       uses: actions/github-script@v7
+[error]       | ^
+[error] > 368 |       with:
+[error]       | ^
+[error] > 369 |         script: |
+[error]       | ^
+[error] > 370 |           const fs = require('fs');
+[error]       | ^
+[error] > 371 |           const path = require('path');
+[error]       | ^
+[error] > 372 |
+[error]       | ^
+[error] > 373 |           // Lese Test-Bericht
+[error]       | ^
+[error] > 374 |           const reportsDir = './reports';
+[error]       | ^
+[error] > 375 |           const summaryFile = fs.readdirSync(reportsDir).find(file => file.startsWith('test-summary-'));
+[error]       | ^
+[error] > 376 |
+[error]       | ^
+[error] > 377 |           if (summaryFile) {
+[error]       | ^
+[error] > 378 |             const summaryContent = fs.readFileSync(path.join(reportsDir, summaryFile), 'utf8');
+[error]       | ^
+[error] > 379 |
+[error]       | ^
+[error] > 380 |             github.rest.issues.createComment({
+[error]       | ^
+[error] > 381 |               issue_number: context.issue.number,
+[error]       | ^
+[error] > 382 |               owner: context.repo.owner,
+[error]       | ^
+[error] > 383 |               repo: context.repo.repo,
+[error]       | ^
+[error] > 384 |               body: `## 🧪 Test-Ergebnisse
+[error]       | ^
+[error] > 385 |
+[error]       | ^
+[error] > 386 | ${summaryContent}
+[error]       | ^
+[error] > 387 |
+[error]       | ^
+[error] > 388 | ### 📊 Zusammenfassung
+[error]       | ^
+[error] > 389 | - ✅ Unit Tests: ${{ needs.unit-tests.result }}
+[error]       | ^
+[error] > 390 | - ✅ Integration Tests: ${{ needs.integration-tests.result }}
+[error]       | ^
+[error] > 391 | - ✅ E2E Tests: ${{ needs.e2e-tests.result }}
+[error]       | ^
+[error] > 392 | - ✅ Performance Tests: ${{ needs.performance-tests.result }}
+[error]       | ^
+[error] > 393 | - ✅ Security Tests: ${{ needs.security-tests.result }}
+[error]       | ^
+[error] > 394 |
+[error]       | ^
+[error] > 395 | [📋 Vollständiger Bericht](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})`
+[error]       | ^
+[error] > 396 |             });
+[error]       | ^
+[error] > 397 |           }
+[error]       | ^
+[error] > 398 |
+[error]       | ^
+[error] > 399 |   # Deploy to staging (nur bei main branch)
+[error]       | ^
+[error] > 400 |   deploy-staging:
+[error]       | ^
+[error] > 401 |     name: Deploy to Staging
+[error]       | ^
+[error] > 402 |     runs-on: ubuntu-latest
+[error]       | ^
+[error] > 403 |     needs: quality-gate
+[error]       | ^
+[error] > 404 |     if: github.ref == 'refs/heads/main' && needs.quality-gate.result == 'success'
+[error]       | ^
+[error] > 405 |
+[error]       | ^
+[error] > 406 |     steps:
+[error]       | ^
+[error] > 407 |     - name: Checkout code
+[error]       | ^
+[error] > 408 |       uses: actions/checkout@v4
+[error]       | ^
+[error] > 409 |
+[error]       | ^
+[error] > 410 |     - name: Deploy to staging
+[error]       | ^
+[error] > 411 |       run: |
+[error]       | ^
+[error] > 412 |         echo "🚀 Deploy zu Staging-Umgebung"
+[error]       | ^
+[error] > 413 |         # Hier würden die eigentlichen Deploy-Schritte stehen
+[error]       | ^
+[error] > 414 |         # z.B. Docker build, push zu Registry, Kubernetes deployment, etc.
+[error]       | ^
+[error] > 415 |
+[error]       | ^
+[error] > 416 |     - name: Run smoke tests on staging
+[error]       | ^
+[error] > 417 |       run: |
+[error]       | ^
+[error] > 418 |         echo "🧪 Führe Smoke-Tests auf Staging aus"
+[error]       | ^
+[error] > 419 |         # Hier würden Smoke-Tests gegen die Staging-Umgebung laufen
+[error]       | ^
+[error] > 420 |
+[error]       | ^
+[error] > 421 |     - name: Notify deployment success
+[error]       | ^
+[error] > 422 |       if: success()
+[error]       | ^
+[error] > 423 |       run: |
+[error]       | ^
+[error] > 424 |         echo "✅ Staging-Deployment erfolgreich"
+[error]       | ^
+[error] > 425 |         # Hier könnte eine Benachrichtigung erfolgen (Slack, Teams, etc.)
+[error]       | ^
+[error] > 426 |
+[error]       | ^
+[error] > 427 |     - name: Notify deployment failure
+[error]       | ^
+[error] > 428 |       if: failure()
+[error]       | ^
+[error] > 429 |       run: |
+[error]       | ^
+[error] > 430 |         echo "❌ Staging-Deployment fehlgeschlagen"
+[error]       | ^
+[error] > 431 |         # Hier könnte eine Benachrichtigung über den Fehler erfolgen
+[error]       | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+test-suite-v2/config/playwright-global-setup.ts 1ms (unchanged)
+test-suite-v2/config/playwright-global-teardown.ts 2ms (unchanged)
+test-suite-v2/config/test-config.ts 12ms
+test-suite-v2/config/test-setup.ts 11ms
+test-suite-v2/data/test-data-manager.ts 37ms
+test-suite-v2/fixtures/auth-helpers.ts 9ms
+test-suite-v2/fixtures/common-helpers.ts 20ms
+test-suite-v2/fixtures/tool-helpers.ts 23ms
+test-suite-v2/package.json 1ms (unchanged)
+test-suite-v2/playwright.config.ts 15ms (unchanged)
+test-suite-v2/playwright.enhancer.config.ts 5ms (unchanged)
+test-suite-v2/README.md 109ms
+test-suite-v2/scripts/generate-report.ts 29ms
+test-suite-v2/src/e2e/auth/auth-middleware.spec.ts 19ms
+test-suite-v2/src/e2e/auth/magic-link-flow-de.spec.ts 8ms
+test-suite-v2/src/e2e/auth/magic-link-flow.spec.ts 11ms
+test-suite-v2/src/e2e/auth/oauth/github-oauth-flow.spec.ts 34ms
+test-suite-v2/src/e2e/auth/oauth/oauth-cookie-security.spec.ts 35ms
+test-suite-v2/src/e2e/auth/oauth/oauth-error-handling.spec.ts 22ms
+test-suite-v2/src/e2e/auth/oauth/oauth-welcome-profile.spec.ts 44ms
+[error] test-suite-v2/src/e2e/auth/README.md: SyntaxError: ';' expected. (2:17)
+[error]   1 | // Environment checks
+[error] > 2 | isRemoteTarget(): boolean
+[error]     |                 ^
+[error]   3 | isHttps(): boolean
+[error]   4 |
+[error]   5 | // Email helpers
+test-suite-v2/src/e2e/auth/session-management.spec.ts 55ms
+test-suite-v2/src/e2e/auth/welcome-redirect.spec.ts 5ms (unchanged)
+test-suite-v2/src/e2e/features/blog/blog-navigation.spec.ts 3ms (unchanged)
+test-suite-v2/src/e2e/features/comment-system.spec.ts 29ms
+test-suite-v2/src/e2e/features/dashboard-flow.spec.ts 11ms
+test-suite-v2/src/e2e/features/README.md 3ms (unchanged)
+test-suite-v2/src/e2e/imag-enhancer-mvp.spec.ts 24ms
+test-suite-v2/src/e2e/README.md 12ms (unchanged)
+test-suite-v2/src/e2e/smoke/pricing-checkout-smoke.spec.ts 12ms
+test-suite-v2/src/e2e/smoke/prod-auth-smoke.spec.ts 27ms
+test-suite-v2/src/e2e/smoke/README.md 3ms (unchanged)
+test-suite-v2/src/e2e/tools/image-enhancer.gating.spec.ts 12ms
+test-suite-v2/src/e2e/tools/image-enhancer.spec.ts 33ms
+test-suite-v2/src/e2e/tools/prompt-enhancer-flow.spec.ts 18ms
+test-suite-v2/src/e2e/tools/r2-ai-proxy.spec.ts 3ms (unchanged)
+test-suite-v2/src/e2e/tools/README.md 11ms (unchanged)
+test-suite-v2/src/e2e/tools/voice-visualizer.smoke.spec.ts 9ms (unchanged)
+test-suite-v2/src/e2e/voice/README.md 9ms (unchanged)
+test-suite-v2/src/e2e/voice/stream-and-poll.spec.ts 7ms (unchanged)
+test-suite-v2/src/e2e/voice/voice-stream-smoke.spec.ts 13ms (unchanged)
+test-suite-v2/src/integration/api/ai-jobs.test.ts 22ms
+test-suite-v2/src/integration/api/dashboard.test.ts 35ms
+test-suite-v2/src/integration/api/prompt-enhance.test.ts 23ms
+test-suite-v2/src/integration/auth/auth-integration.test.ts 87ms
+test-suite-v2/src/integration/auth/deprecated-auth-endpoints.test.ts 8ms
+test-suite-v2/src/integration/middleware/rate-limit.test.ts 25ms
+test-suite-v2/src/unit/_archive/database-helpers.test.ts 1ms (unchanged)
+test-suite-v2/src/unit/_archive/i18n.test.ts 8ms
+test-suite-v2/src/unit/auth-v2.test.ts 22ms
+test-suite-v2/src/unit/config/test-config.test.ts 33ms
+test-suite-v2/src/unit/lib/blog.test.ts 1ms
+test-suite-v2/src/unit/rate-limiter.test.ts 22ms
+test-suite-v2/src/unit/security/deprecated-logging.test.ts 20ms
+test-suite-v2/src/unit/services/ai-image-service.test.ts 14ms
+test-suite-v2/src/unit/services/ai-jobs-service.test.ts 17ms
+[error] test-suite-v2/src/unit/services/prompt-enhancer-service.test.ts: SyntaxError: '}' expected. (133:6)
+[error]   131 |       expect(result.enhanced.steps?.length).toBeLessThanOrEqual(3); // Shorter
+[error]   132 |     });
+[error] > 133 |   });
+[error]       |      ^
+test-suite-v2/src/unit/utils/database-helpers.test.ts 1ms
+test-suite-v2/src/unit/utils/i18n.test.ts 1ms
+test-suite-v2/src/unit/utils/locale-path.test.ts 1ms (unchanged)
+test-suite-v2/src/unit/utils/server-helpers.test.ts 1ms
+test-suite-v2/tests/webscraper.spec.ts 8ms
+test-suite-v2/tsconfig.json 2ms
+test-suite-v2/utils/database-helpers.ts 22ms
+test-suite-v2/utils/logger.ts 331ms
+test-suite-v2/utils/server-helpers.ts 200ms
+test-suite-v2/vitest.config.ts 18ms
+test/__mocks__/Card.tsx 14ms (unchanged)
+test/QuickActions.test.tsx 44ms
+test/setup.ts 28ms (unchanged)
+test/test-utils.tsx 15ms
+tests/AGENTS.md 10ms
+tests/e2e/specs/blog-i18n-seo.spec.ts 10ms (unchanged)
+tests/e2e/specs/rate-limit-persistence.spec.ts 3ms (unchanged)
+tests/e2e/specs/referral/referral-reward.spec.ts 18ms (unchanged)
+tests/fixtures/note.md 2ms
+tests/integration/ai-image-enhancer.test.ts 79ms (unchanged)
+tests/integration/api/__fixtures__/comments-performance.ts 8ms (unchanged)
+tests/integration/api/admin-audit-logs.test.ts 5ms (unchanged)
+tests/integration/api/admin-auth-checks.test.ts 4ms (unchanged)
+tests/integration/api/admin-backup.test.ts 6ms (unchanged)
+tests/integration/api/admin-comments.test.ts 3ms (unchanged)
+tests/integration/api/admin-credits-deduct.test.ts 3ms (unchanged)
+tests/integration/api/admin-credits.test.ts 7ms (unchanged)
+tests/integration/api/admin-rate-limits.test.ts 4ms (unchanged)
+tests/integration/api/admin-referrals-list.test.ts 5ms (unchanged)
+tests/integration/api/admin-sessions.test.ts 4ms (unchanged)
+tests/integration/api/admin-users-credits.test.ts 8ms (unchanged)
+tests/integration/api/admin-users-lifecycle.test.ts 12ms (unchanged)
+tests/integration/api/admin-users-set-plan-happy.test.ts 4ms (unchanged)
+tests/integration/api/admin-users-set-plan.test.ts 9ms (unchanged)
+tests/integration/api/ai-video/generate.test.ts 12ms (unchanged)
+tests/integration/api/ai-video/usage.test.ts 12ms (unchanged)
+tests/integration/api/comments-performance.test.ts 9ms (unchanged)
+tests/integration/api/comments-routes.test.ts 3ms (unchanged)
+tests/integration/api/debug-logs-stream.test.ts 3ms (unchanged)
+tests/integration/api/mcp-ping.test.ts 2ms
+tests/integration/api/prompt/usage.test.ts 2ms (unchanged)
+tests/integration/api/r2-ai-proxy.test.ts 3ms (unchanged)
+tests/integration/api/referrals/referral-rewards-webhook.test.ts 11ms (unchanged)
+tests/integration/api/voice/transcribe-and-poll.test.ts 8ms (unchanged)
+tests/integration/api/voice/transcribe.test.ts 10ms (unchanged)
+tests/integration/api/voice/usage.test.ts 16ms (unchanged)
+tests/integration/api/web-eval-complete.test.ts 9ms
+tests/integration/api/web-eval-next.test.ts 7ms (unchanged)
+tests/integration/api/webscraper.test.ts 4ms (unchanged)
+tests/integration/auth.test.ts 6ms (unchanged)
+tests/integration/billing-api.test.ts 35ms (unchanged)
+tests/integration/blog.test.ts 8ms (unchanged)
+tests/integration/comments-api.test.ts 10ms
+tests/integration/comments.test.ts 38ms (unchanged)
+tests/integration/csp-report.test.ts 4ms (unchanged)
+tests/integration/dashboard-api.test.ts 37ms (unchanged)
+tests/integration/kv-usage.test.ts 2ms (unchanged)
+tests/integration/lead-magnet-api.test.ts 27ms (unchanged)
+tests/integration/magic-link-happy.test.ts 7ms (unchanged)
+tests/integration/magic-link.test.ts 7ms (unchanged)
+tests/integration/newsletter-api.test.ts 17ms (unchanged)
+tests/integration/projects-api.test.ts 26ms (unchanged)
+tests/integration/prompt-enhance-api.test.ts 8ms (unchanged)
+tests/integration/prompt-enhance-multipart.test.ts 5ms (unchanged)
+tests/integration/routing/blog-i18n-seo-integration.test.ts 4ms (unchanged)
+tests/integration/routing/blog-routes.test.ts 6ms (unchanged)
+tests/integration/routing/headers.test.ts 3ms (unchanged)
+tests/integration/routing/lang-alias.test.ts 2ms (unchanged)
+tests/integration/routing/locale-routing.test.ts 7ms (unchanged)
+tests/integration/routing/seo-hreflang.test.ts 4ms (unchanged)
+tests/integration/routing/voice-visualizer-permissions.test.ts 2ms (unchanged)
+tests/integration/setup/global-setup.ts 20ms (unchanged)
+tests/integration/setup/referral-fixtures.ts 3ms (unchanged)
+tests/integration/user-avatar-api.test.ts 17ms (unchanged)
+tests/integration/verify-email.test.ts 7ms (unchanged)
+tests/mocks/astro-content.ts 3ms (unchanged)
+tests/performance/load-test-config.json 3ms
+tests/performance/rate-limiting-perf.test.ts 27ms (unchanged)
+[error] tests/performance/README.md: SyntaxError: Unexpected token (8:28)
+[error]    6 |       "limit": 10,
+[error]    7 |       "window": "1m",
+[error] >  8 |       "testScenarios": [...]
+[error]      |                            ^
+[error]    9 |     }
+[error]   10 |   }
+[error]   11 | }
+tests/performance/run-load-tests.ts 24ms (unchanged)
+tests/shared/auth.ts 6ms (unchanged)
+tests/shared/http.ts 9ms
+tests/src/helpers/rateLimiter.ts 3ms (unchanged)
+tests/src/legacy/config/test-config.ts 12ms (unchanged)
+tests/src/legacy/utils/database-helpers.ts 21ms (unchanged)
+tests/src/legacy/utils/logger.ts 23ms (unchanged)
+tests/src/legacy/utils/server-helpers.ts 40ms (unchanged)
+tests/src/lib/auth-v2.test.ts 22ms (unchanged)
+tests/src/pages/api/ai-video/generate.test.ts 13ms (unchanged)
+tests/src/pages/api/auth/login-405.test.ts 4ms (unchanged)
+tests/src/pages/api/auth/login-logger.test.ts 40ms (unchanged)
+tests/src/pages/api/auth/login-service.test.ts 24ms (unchanged)
+tests/src/pages/api/auth/login.test.ts 29ms (unchanged)
+tests/src/pages/api/dashboard/activity._test.ts 18ms (unchanged)
+tests/src/pages/api/dashboard/perform-action._test.ts 26ms (unchanged)
+tests/src/pages/api/dashboard/projects._test.ts 23ms (unchanged)
+tests/src/pages/api/projects/index._test.ts 21ms (unchanged)
+tests/src/pages/api/tools._test.ts 13ms (unchanged)
+tests/src/pages/api/user/me.test.ts 13ms (unchanged)
+tests/src/scripts/blog-post-enhancements.test.ts 8ms (unchanged)
+tests/src/server/utils/hashing.test.ts 6ms (unchanged)
+tests/src/server/utils/jwt.test.ts 7ms (unchanged)
+tests/types/upstash-kv.d.ts 3ms (unchanged)
+tests/unit/account/delete-account-section.test.tsx 9ms (unchanged)
+tests/unit/ai-image-provider-mapping.test.ts 9ms (unchanged)
+tests/unit/ai-image/aiimage-retry.test.ts 10ms (unchanged)
+tests/unit/ai-jobs-provider-mapping.test.ts 13ms (unchanged)
+tests/unit/api/account-delete.test.ts 22ms (unchanged)
+tests/unit/api/comments-performance.test.ts 32ms (unchanged)
+tests/unit/blog-sorting.spec.ts 14ms (unchanged)
+tests/unit/comment-components.test.tsx 42ms (unchanged)
+tests/unit/comment-service-simple.test.ts 23ms (unchanged)
+tests/unit/comment-service.test.ts 65ms (unchanged)
+tests/unit/components/BlogCTA.test.ts 3ms (unchanged)
+tests/unit/components/BlogPost.test.ts 3ms (unchanged)
+tests/unit/components/imag-enhancer/CreditsPanel.test.tsx 4ms (unchanged)
+tests/unit/components/imag-enhancer/ModelControls.test.tsx 5ms (unchanged)
+tests/unit/components/imag-enhancer/UploadSection.test.tsx 4ms (unchanged)
+tests/unit/dashboard/billing-card.test.tsx 10ms (unchanged)
+tests/unit/dashboard/projectStore.test.ts 9ms (unchanged)
+tests/unit/dashboard/quickActionStore.test.ts 21ms (unchanged)
+tests/unit/hooks/imag-enhancer/useClipboardImagePaste.test.ts 7ms (unchanged)
+tests/unit/hooks/imag-enhancer/useCompareInteractions.test.tsx 42ms (unchanged)
+tests/unit/hooks/imag-enhancer/useGlobalShortcuts.test.ts 4ms (unchanged)
+tests/unit/hooks/imag-enhancer/usePlanGating.test.ts 6ms (unchanged)
+tests/unit/hooks/imag-enhancer/useViewportUiMetrics.test.ts 7ms (unchanged)
+tests/unit/i18n.test.ts 11ms (unchanged)
+tests/unit/imag-enhancer/help-modal-focus.test.tsx 22ms (unchanged)
+tests/unit/imag-enhancer/keyboard-shortcuts.test.tsx 25ms (unchanged)
+tests/unit/lib/ai-image-service.test.ts 25ms
+tests/unit/lib/aos.test.ts 32ms (unchanged)
+tests/unit/lib/blog-service.test.ts 43ms (unchanged)
+tests/unit/lib/rate-limiter-kv.test.ts 12ms (unchanged)
+tests/unit/lib/rate-limiter.test.ts 12ms (unchanged)
+tests/unit/pages/api/user/profile.test.ts 29ms (unchanged)
+tests/unit/referral-reward-service.test.ts 17ms (unchanged)
+tests/unit/security/deprecated-logging.test.ts 9ms (unchanged)
+tests/unit/services/provider-error-mapping.test.ts 2ms (unchanged)
+tests/unit/services/webscraper-service.test.ts 14ms (unchanged)
+tests/unit/spam-detection.test.ts 42ms (unchanged)
+tests/unit/telemetry/telemetry-client.test.ts 12ms (unchanged)
+tests/unit/testimonials-loader.test.ts 9ms (unchanged)
+tests/unit/utils/database-helpers.test.ts 25ms (unchanged)
+tests/unit/utils/locale-path.test.ts 4ms (unchanged)
+tests/unit/utils/logger-transport.smoke.test.ts 6ms (unchanged)
+tests/unit/utils/logger.test.ts 53ms (unchanged)
+tests/unit/utils/mime.test.ts 7ms (unchanged)
+tests/unit/utils/server-helpers.test.ts 53ms (unchanged)
+tests/unit/validation/billing-schema.test.ts 6ms (unchanged)
+tests/unit/validation/dashboard-schema.test.ts 2ms (unchanged)
+tests/unit/validation/errors.test.ts 3ms (unchanged)
+tests/unit/validation/newsletter-schema.test.ts 6ms (unchanged)
+tests/unit/validation/newsletter-unsubscribe-schema.test.ts 2ms (unchanged)
+tests/unit/validation/prompt-schema.test.ts 6ms (unchanged)
+tests/unit/validation/templates-schema.test.ts 2ms (unchanged)
+tests/unit/validation/users-sync-schema.test.ts 2ms (unchanged)
+tests/unit/validation/webscraper-schema.test.ts 15ms (unchanged)
+tests/unit/voice-stream-aggregator.test.ts 15ms (unchanged)
+tests/utils/kv-mock.ts 28ms (unchanged)
+tsconfig.ai.json 1ms (unchanged)
+tsconfig.astro-check.json 4ms (unchanged)
+tsconfig.astro-check.ui.json 1ms (unchanged)
+tsconfig.astro.json 2ms (unchanged)
+tsconfig.build.json 1ms (unchanged)
+tsconfig.json 5ms (unchanged)
+tsconfig.src.json 3ms (unchanged)
+tsconfig.types.json 6ms (unchanged)
+tsdoc.json 8ms (unchanged)
+update-payload.json 1ms (unchanged)
+update-staging.json 2ms (unchanged)
+vitest.config.ts 20ms (unchanged)
+workers/cron-worker/src/index.ts 36ms

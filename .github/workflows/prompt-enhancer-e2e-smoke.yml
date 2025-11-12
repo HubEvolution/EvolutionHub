@@ -2,7 +2,7 @@ name: Prompt Enhancer E2E Smoke (All Browsers)
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 jobs:

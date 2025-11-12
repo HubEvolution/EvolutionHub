@@ -112,7 +112,9 @@ test.describe('OAuth Welcome Profile Flow', () => {
 
       // Should redirect to dashboard (default target)
       const currentUrl = page.url();
-      expect(currentUrl, 'Should redirect to dashboard after profile completion').toMatch(/dashboard/);
+      expect(currentUrl, 'Should redirect to dashboard after profile completion').toMatch(
+        /dashboard/
+      );
 
       // User should be authenticated
       await assertAuthenticated(page);
@@ -120,7 +122,9 @@ test.describe('OAuth Welcome Profile Flow', () => {
       await context.close();
     });
 
-    test('should preserve `next` parameter and redirect to target after profile', async ({ browser }) => {
+    test('should preserve `next` parameter and redirect to target after profile', async ({
+      browser,
+    }) => {
       const context = await browser.newContext();
       const page = await context.newPage();
 
@@ -199,7 +203,9 @@ test.describe('OAuth Welcome Profile Flow', () => {
       await context.close();
     });
 
-    test('should redirect returning user to target (r=...) without welcome-profile', async ({ browser }) => {
+    test('should redirect returning user to target (r=...) without welcome-profile', async ({
+      browser,
+    }) => {
       const context = await browser.newContext();
       const page = await context.newPage();
 
@@ -244,7 +250,9 @@ test.describe('OAuth Welcome Profile Flow', () => {
 
       // Check if still on welcome-profile (form not submitted)
       const currentUrl = page.url();
-      expect(currentUrl, 'Should stay on welcome-profile with invalid form').toMatch(/welcome-profile/);
+      expect(currentUrl, 'Should stay on welcome-profile with invalid form').toMatch(
+        /welcome-profile/
+      );
 
       await context.close();
     });
@@ -267,7 +275,9 @@ test.describe('OAuth Welcome Profile Flow', () => {
 
       // Should show validation error or stay on form
       const currentUrl = page.url();
-      expect(currentUrl, 'Should stay on welcome-profile with invalid username').toMatch(/welcome-profile/);
+      expect(currentUrl, 'Should stay on welcome-profile with invalid username').toMatch(
+        /welcome-profile/
+      );
 
       await context.close();
     });

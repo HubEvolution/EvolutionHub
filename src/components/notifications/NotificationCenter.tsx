@@ -23,7 +23,9 @@ interface NotificationCenterProps {
   className?: string;
 }
 
-const isSuccessResponse = <T,>(payload: SuccessEnvelope<T> | ErrorEnvelope | undefined): payload is SuccessEnvelope<T> =>
+const isSuccessResponse = <T,>(
+  payload: SuccessEnvelope<T> | ErrorEnvelope | undefined
+): payload is SuccessEnvelope<T> =>
   Boolean(payload && 'success' in payload && payload.success === true);
 
 export const NotificationCenter: React.FC<NotificationCenterProps> = ({ className = '' }) => {

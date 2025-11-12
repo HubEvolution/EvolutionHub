@@ -46,7 +46,7 @@ test.describe('Magic Link Flow (Stytch)', () => {
     const formBody = new URLSearchParams({ email, r: '/dashboard' }).toString();
     async function submitOnce() {
       const r = await page.request.post(`${BASE_URL}/api/auth/magic/request`, {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Origin': BASE_URL },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded', Origin: BASE_URL },
         data: formBody,
       });
       return r;
@@ -64,7 +64,9 @@ test.describe('Magic Link Flow (Stytch)', () => {
     const status = response.status();
     const raw = await response.text();
     let parsed: any = null;
-    try { parsed = JSON.parse(raw); } catch {}
+    try {
+      parsed = JSON.parse(raw);
+    } catch {}
     if (!response.ok()) {
       const msg = String(raw || '').toLowerCase();
       if (msg.includes('no_match_for_provided_magic_link_url')) {
@@ -85,9 +87,14 @@ test.describe('Magic Link Flow (Stytch)', () => {
     expect(cookieVal).toBe('/dashboard');
   });
 
-  test('should authenticate via dev-bypass callback and reach dashboard (local only)', async ({ page }) => {
+  test('should authenticate via dev-bypass callback and reach dashboard (local only)', async ({
+    page,
+  }) => {
     const ENABLE_DEV_BYPASS = process.env.ENABLE_DEV_BYPASS === '1';
-    test.skip(IS_REMOTE_TARGET || !ENABLE_DEV_BYPASS, 'Dev-bypass nur lokal und wenn ENABLE_DEV_BYPASS=1 gesetzt ist');
+    test.skip(
+      IS_REMOTE_TARGET || !ENABLE_DEV_BYPASS,
+      'Dev-bypass nur lokal und wenn ENABLE_DEV_BYPASS=1 gesetzt ist'
+    );
 
     const email = makeTestEmail();
 
@@ -95,8 +102,11 @@ test.describe('Magic Link Flow (Stytch)', () => {
     await page.goto('/en/login?r=/dashboard');
     await page.fill('#email-magic', email);
     await Promise.all([
-      page.waitForResponse((resp) => resp.url().endsWith('/api/auth/magic/request') && resp.request().method() === 'POST'),
-      page.click('form[action="/api/auth/magic/request"] button[type="submit"]')
+      page.waitForResponse(
+        (resp) =>
+          resp.url().endsWith('/api/auth/magic/request') && resp.request().method() === 'POST'
+      ),
+      page.click('form[action="/api/auth/magic/request"] button[type="submit"]'),
     ]);
 
     // Simulate clicking the magic link via dev bypass
@@ -106,7 +116,8 @@ test.describe('Magic Link Flow (Stytch)', () => {
     await page.waitForURL('**/dashboard');
 
     // Session cookie should be present
-    const session = await getCookieValue(page, '__Host-session') || await getCookieValue(page, 'session_id');
+    const session =
+      (await getCookieValue(page, '__Host-session')) || (await getCookieValue(page, 'session_id'));
     expect(session).toBeTruthy();
 
     // UI smoke check

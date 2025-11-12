@@ -1,17 +1,17 @@
-"use strict";
+'use strict';
 /**
  * Response-Hilfsfunktionen
  * Stellt einheitliche Funktionen für die Erstellung konsistenter Responses bereit
  */
-Object.defineProperty(exports, "__esModule", { value: true });
+Object.defineProperty(exports, '__esModule', { value: true });
 exports.createSecureRedirect = createSecureRedirect;
 exports.createSecureJsonResponse = createSecureJsonResponse;
 exports.createSecureErrorResponse = createSecureErrorResponse;
 exports.createDeprecatedGoneJson = createDeprecatedGoneJson;
 exports.createDeprecatedGoneHtml = createDeprecatedGoneHtml;
-const security_headers_1 = require("./security-headers");
-const logger_factory_1 = require("@/server/utils/logger-factory");
-const logging_1 = require("@/config/logging");
+const security_headers_1 = require('./security-headers');
+const logger_factory_1 = require('@/server/utils/logger-factory');
+const logging_1 = require('@/config/logging');
 /**
  * Erstellt eine Redirect-Response mit automatisch angewendeten Security-Headers
  * Vereinfacht den Redirect-Flow in Auth-Endpunkten und sorgt für konsistente Security-Headers
@@ -22,14 +22,14 @@ const logging_1 = require("@/config/logging");
  * @returns Response-Objekt mit Security-Headers
  */
 function createSecureRedirect(location, status = 302, headers = {}) {
-    const response = new Response(null, {
-        status,
-        headers: {
-            Location: location,
-            ...headers,
-        },
-    });
-    return (0, security_headers_1.applySecurityHeaders)(response);
+  const response = new Response(null, {
+    status,
+    headers: {
+      Location: location,
+      ...headers,
+    },
+  });
+  return (0, security_headers_1.applySecurityHeaders)(response);
 }
 /**
  * Erstellt eine JSON-Response mit automatisch angewendeten Security-Headers
@@ -41,14 +41,14 @@ function createSecureRedirect(location, status = 302, headers = {}) {
  * @returns Response-Objekt mit Security-Headers
  */
 function createSecureJsonResponse(data, status = 200, headers = {}) {
-    const response = new Response(JSON.stringify(data), {
-        status,
-        headers: {
-            'Content-Type': 'application/json',
-            ...headers,
-        },
-    });
-    return (0, security_headers_1.applySecurityHeaders)(response);
+  const response = new Response(JSON.stringify(data), {
+    status,
+    headers: {
+      'Content-Type': 'application/json',
+      ...headers,
+    },
+  });
+  return (0, security_headers_1.applySecurityHeaders)(response);
 }
 /**
  * Erstellt eine Error-Response mit korrektem Statuscode und automatisch angewendeten Security-Headers
@@ -60,68 +60,85 @@ function createSecureJsonResponse(data, status = 200, headers = {}) {
  * @returns Response-Objekt mit Security-Headers
  */
 function createSecureErrorResponse(message, status = 400, code) {
-    return createSecureJsonResponse({
-        error: true,
-        message,
-        ...(code ? { code } : {}),
-    }, status);
+  return createSecureJsonResponse(
+    {
+      error: true,
+      message,
+      ...(code ? { code } : {}),
+    },
+    status
+  );
 }
 /**
  * Loggt den Zugriff auf einen veralteten Endpunkt und gibt eine 410-Response zurück (JSON-Variante).
  * Einheitliches Schema: { success: false, error: { type: 'gone', message, details? } }
  */
-function createDeprecatedGoneJson(context, message = 'This endpoint has been deprecated. Please migrate to the new authentication flow.', details) {
-    try {
-        const securityLogger = logger_factory_1.loggerFactory.createSecurityLogger();
-        const url = new URL(context.request.url);
-        securityLogger.logSecurityEvent(logging_1.SECURITY_EVENTS.USER_EVENT, {
-            reason: 'deprecated_endpoint_access',
-            endpoint: url.pathname,
-            method: context.request.method,
-            ...(details ? { details } : {}),
-        }, {
-            ipAddress: context.clientAddress || 'unknown',
-            userAgent: context.request.headers.get('user-agent') || undefined,
-        });
+function createDeprecatedGoneJson(
+  context,
+  message = 'This endpoint has been deprecated. Please migrate to the new authentication flow.',
+  details
+) {
+  try {
+    const securityLogger = logger_factory_1.loggerFactory.createSecurityLogger();
+    const url = new URL(context.request.url);
+    securityLogger.logSecurityEvent(
+      logging_1.SECURITY_EVENTS.USER_EVENT,
+      {
+        reason: 'deprecated_endpoint_access',
+        endpoint: url.pathname,
+        method: context.request.method,
+        ...(details ? { details } : {}),
+      },
+      {
+        ipAddress: context.clientAddress || 'unknown',
+        userAgent: context.request.headers.get('user-agent') || undefined,
+      }
+    );
+  } catch {
+    // Logging darf niemals den Response verhindern
+  }
+  return createSecureJsonResponse(
+    {
+      success: false,
+      error: {
+        type: 'gone',
+        message,
+        ...(details ? { details } : {}),
+      },
+    },
+    410,
+    {
+      'Cache-Control': 'no-store',
     }
-    catch {
-        // Logging darf niemals den Response verhindern
-    }
-    return createSecureJsonResponse({
-        success: false,
-        error: {
-            type: 'gone',
-            message,
-            ...(details ? { details } : {}),
-        },
-    }, 410, {
-        'Cache-Control': 'no-store',
-    });
+  );
 }
 /**
  * Loggt den Zugriff auf einen veralteten Endpunkt und gibt eine 410-Response zurück (HTML/Redirect-Style).
  * Liefert eine minimalistische HTML-Seite mit Hinweis und Link zur aktuellen Seite, locale-aware, ohne Redirect.
  */
 function createDeprecatedGoneHtml(context, options) {
-    try {
-        const securityLogger = logger_factory_1.loggerFactory.createSecurityLogger();
-        const url = new URL(context.request.url);
-        securityLogger.logSecurityEvent(logging_1.SECURITY_EVENTS.USER_EVENT, {
-            reason: 'deprecated_endpoint_access',
-            endpoint: url.pathname,
-            method: context.request.method,
-        }, {
-            ipAddress: context.clientAddress || 'unknown',
-            userAgent: context.request.headers.get('user-agent') || undefined,
-        });
-    }
-    catch {
-        // Logging darf niemals den Response verhindern
-    }
-    const referer = context.request.headers.get('referer') || '';
-    const locale = referer.includes('/de/') ? 'de' : referer.includes('/en/') ? 'en' : 'en';
-    const fallback = options?.fallbackPath ?? (locale === 'en' ? '/en/login' : '/login');
-    const html = `<!doctype html>
+  try {
+    const securityLogger = logger_factory_1.loggerFactory.createSecurityLogger();
+    const url = new URL(context.request.url);
+    securityLogger.logSecurityEvent(
+      logging_1.SECURITY_EVENTS.USER_EVENT,
+      {
+        reason: 'deprecated_endpoint_access',
+        endpoint: url.pathname,
+        method: context.request.method,
+      },
+      {
+        ipAddress: context.clientAddress || 'unknown',
+        userAgent: context.request.headers.get('user-agent') || undefined,
+      }
+    );
+  } catch {
+    // Logging darf niemals den Response verhindern
+  }
+  const referer = context.request.headers.get('referer') || '';
+  const locale = referer.includes('/de/') ? 'de' : referer.includes('/en/') ? 'en' : 'en';
+  const fallback = options?.fallbackPath ?? (locale === 'en' ? '/en/login' : '/login');
+  const html = `<!doctype html>
 <html lang="${locale}">
   <head>
     <meta charset="utf-8" />
@@ -145,12 +162,12 @@ function createDeprecatedGoneHtml(context, options) {
     </div>
   </body>
 </html>`;
-    const resp = new Response(html, {
-        status: 410,
-        headers: {
-            'Content-Type': 'text/html; charset=utf-8',
-            'Cache-Control': 'no-store',
-        },
-    });
-    return (0, security_headers_1.applySecurityHeaders)(resp);
+  const resp = new Response(html, {
+    status: 410,
+    headers: {
+      'Content-Type': 'text/html; charset=utf-8',
+      'Cache-Control': 'no-store',
+    },
+  });
+  return (0, security_headers_1.applySecurityHeaders)(resp);
 }

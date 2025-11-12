@@ -1,10 +1,10 @@
 ---
-description: "Cost model for AI-powered features (image, video, prompt, voice, webscraper)"
-owner: "Operations & Finance"
+description: 'Cost model for AI-powered features (image, video, prompt, voice, webscraper)'
+owner: 'Operations & Finance'
 priority: high
-lastSync: "2025-11-10"
-codeRefs: "src/config/ai-image.ts, src/config/ai-image/entitlements.ts, src/config/ai-video.ts, src/config/ai-video/entitlements.ts, src/config/prompt-enhancer.ts, src/config/voice/index.ts, src/config/webscraper/entitlements.ts"
-testRefs: "N/A"
+lastSync: '2025-11-10'
+codeRefs: 'src/config/ai-image.ts, src/config/ai-image/entitlements.ts, src/config/ai-video.ts, src/config/ai-video/entitlements.ts, src/config/prompt-enhancer.ts, src/config/voice/index.ts, src/config/webscraper/entitlements.ts'
+testRefs: 'N/A'
 ---
 
 # AI Operations Cost Report / Kostenbericht
@@ -17,26 +17,26 @@ Dieser Bericht konsolidiert sämtliche produktiven KI-Funktionen der Plattform, 
 
 ### A2. Funktionsinventar und Technologie-Stacks
 
-| Feature | Technologie-Stack | Code-Referenzen |
-| --- | --- | --- |
-| AI Image Enhancer | Cloudflare Workers AI, Replicate, R2, KV | @src/config/ai-image.ts#17-105; @src/config/ai-image/entitlements.ts#1-102 |
-| AI Video Enhancer | Replicate, R2 | @src/config/ai-video.ts#1-32; @src/config/ai-video/entitlements.ts#1-27 |
-| Prompt Enhancer | OpenAI GPT (Standard `gpt-4o-mini`) | @src/config/prompt-enhancer.ts#1-57 |
-| Voice Visualizer & Transcriptor | OpenAI Whisper (`whisper-1` via Workers AI), KV | @src/config/voice/index.ts#3-28 |
-| Webscraper | Cloudflare Workers (Compute only) | @src/config/webscraper/entitlements.ts#3-26 |
-| Gemeinsame Infrastruktur | Cloudflare Workers Standard, R2, KV, Stripe, D1 | Wrangler-Bindings; Architektur-Dokument @docs/architecture/ai-image-enhancer.md#145-175 |
+| Feature                         | Technologie-Stack                               | Code-Referenzen                                                                         |
+| ------------------------------- | ----------------------------------------------- | --------------------------------------------------------------------------------------- |
+| AI Image Enhancer               | Cloudflare Workers AI, Replicate, R2, KV        | @src/config/ai-image.ts#17-105; @src/config/ai-image/entitlements.ts#1-102              |
+| AI Video Enhancer               | Replicate, R2                                   | @src/config/ai-video.ts#1-32; @src/config/ai-video/entitlements.ts#1-27                 |
+| Prompt Enhancer                 | OpenAI GPT (Standard `gpt-4o-mini`)             | @src/config/prompt-enhancer.ts#1-57                                                     |
+| Voice Visualizer & Transcriptor | OpenAI Whisper (`whisper-1` via Workers AI), KV | @src/config/voice/index.ts#3-28                                                         |
+| Webscraper                      | Cloudflare Workers (Compute only)               | @src/config/webscraper/entitlements.ts#3-26                                             |
+| Gemeinsame Infrastruktur        | Cloudflare Workers Standard, R2, KV, Stripe, D1 | Wrangler-Bindings; Architektur-Dokument @docs/architecture/ai-image-enhancer.md#145-175 |
 
 ### A3. Preis-Baselines (Stand 10.11.2025, USD)
 
-| Komponente | Listenpreis | Quelle |
-| --- | --- | --- |
-| Cloudflare Workers Standard | $5/Monat Basis, +$0.30 pro zusätzl. 1 Mio Requests, +$0.02 pro zusätzl. 1 Mio CPU-ms (30 Mio CPU-ms inkl.) | Cloudflare Workers Pricing (2025-09-09) |
-| Workers AI Neuronen | 10.000 Neuronen/Tag frei; $0.011 pro 1.000 Neuronen darüber | Cloudflare Workers AI Pricing (2025-10-27) |
-| Modell `@cf/runwayml/stable-diffusion-v1-5-img2img` | 4.8 Neuronen pro 512×512 Tile + 9.6 Neuronen pro Schritt | Cloudflare Workers AI Pricing |
-| Workers AI Whisper | $0.0005 pro Audiominute (≈46,63 Neuronen/Minute) | Cloudflare Workers AI Pricing |
-| OpenAI GPT-4o mini | $0.00015 pro 1k Input-Token, $0.0006 pro 1k Output-Token | OpenAI Pricing Portal (Login erforderlich) |
-| Replicate Real-ESRGAN / GFPGAN | GPU-Sekunden-Abrechnung (~$0.002/s auf A40) | Replicate Dashboard (Login erforderlich) |
-| Cloudflare R2 Storage | 10 GB frei, danach $0.015/GB-Monat (Speicher) + $0.015/GB (Abruf) | Cloudflare R2 Pricing |
+| Komponente                                          | Listenpreis                                                                                                | Quelle                                     |
+| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| Cloudflare Workers Standard                         | $5/Monat Basis, +$0.30 pro zusätzl. 1 Mio Requests, +$0.02 pro zusätzl. 1 Mio CPU-ms (30 Mio CPU-ms inkl.) | Cloudflare Workers Pricing (2025-09-09)    |
+| Workers AI Neuronen                                 | 10.000 Neuronen/Tag frei; $0.011 pro 1.000 Neuronen darüber                                                | Cloudflare Workers AI Pricing (2025-10-27) |
+| Modell `@cf/runwayml/stable-diffusion-v1-5-img2img` | 4.8 Neuronen pro 512×512 Tile + 9.6 Neuronen pro Schritt                                                   | Cloudflare Workers AI Pricing              |
+| Workers AI Whisper                                  | $0.0005 pro Audiominute (≈46,63 Neuronen/Minute)                                                           | Cloudflare Workers AI Pricing              |
+| OpenAI GPT-4o mini                                  | $0.00015 pro 1k Input-Token, $0.0006 pro 1k Output-Token                                                   | OpenAI Pricing Portal (Login erforderlich) |
+| Replicate Real-ESRGAN / GFPGAN                      | GPU-Sekunden-Abrechnung (~$0.002/s auf A40)                                                                | Replicate Dashboard (Login erforderlich)   |
+| Cloudflare R2 Storage                               | 10 GB frei, danach $0.015/GB-Monat (Speicher) + $0.015/GB (Abruf)                                          | Cloudflare R2 Pricing                      |
 
 > **Hinweis:** Authentifizierte Exporte (Neuronen-CSV, Replicate Usage, OpenAI Billing) sind einzupflegen, um Platzhalterwerte zu verifizieren.
 
@@ -70,19 +70,19 @@ Dieser Bericht konsolidiert sämtliche produktiven KI-Funktionen der Plattform, 
 
 ### A5. Beispielhafte Monatsrechnung (Austausch durch Realwerte empfohlen)
 
-| Komponente | Annahme | Kosten |
-| --- | --- | --- |
-| Workers Grundgebühr | Standard-Plan | $5.00 |
-| Workers Requests + CPU | 30 Mio dynamische Aufrufe/Monat @ 10 ms | ~$18 (Requests) + ~$5.40 (CPU) |
-| Workers AI (img2img) | 3.000 Jobs/Tag, 20 Schritte, 1 Tile | ~$210 |
-| Replicate Add-ons | 1.800 Jobs/Tag mit Upscale + Face, 8 s | ~$29 |
-| Video (Topaz) | 150 Jobs/Monat, Ø45 s | ~$81 |
-| Prompt Enhancer | 1.500 Requests/Tag, 1k Input + 350 Output Tokens | ~$32 |
-| Whisper | 200 Minuten/Tag | ~$3 |
-| R2 Storage | 135 GB Durchschnitt (Bilder) | ~$3 |
-| Stripe Gebühren | Umsatzabhängig | TBD |
+| Komponente             | Annahme                                          | Kosten                         |
+| ---------------------- | ------------------------------------------------ | ------------------------------ |
+| Workers Grundgebühr    | Standard-Plan                                    | $5.00                          |
+| Workers Requests + CPU | 30 Mio dynamische Aufrufe/Monat @ 10 ms          | ~$18 (Requests) + ~$5.40 (CPU) |
+| Workers AI (img2img)   | 3.000 Jobs/Tag, 20 Schritte, 1 Tile              | ~$210                          |
+| Replicate Add-ons      | 1.800 Jobs/Tag mit Upscale + Face, 8 s           | ~$29                           |
+| Video (Topaz)          | 150 Jobs/Monat, Ø45 s                            | ~$81                           |
+| Prompt Enhancer        | 1.500 Requests/Tag, 1k Input + 350 Output Tokens | ~$32                           |
+| Whisper                | 200 Minuten/Tag                                  | ~$3                            |
+| R2 Storage             | 135 GB Durchschnitt (Bilder)                     | ~$3                            |
+| Stripe Gebühren        | Umsatzabhängig                                   | TBD                            |
 
-*Ergebnis: ca. **$386/Monat** Infrastrukturkosten (ohne Personal & Support).*
+_Ergebnis: ca. **$386/Monat** Infrastrukturkosten (ohne Personal & Support)._
 
 ### A6. Benötigte Telemetrie und Exporte
 
@@ -115,26 +115,26 @@ This section mirrors the German narrative and delivers a complete English briefi
 
 ### B2. Feature Inventory and Provider Stack
 
-| Feature | Technology stack | Key references |
-| --- | --- | --- |
-| AI Image Enhancer | Cloudflare Workers AI, Replicate, R2, KV | @src/config/ai-image.ts#17-105; @src/config/ai-image/entitlements.ts#1-102 |
-| AI Video Enhancer | Replicate, R2 | @src/config/ai-video.ts#1-32; @src/config/ai-video/entitlements.ts#1-27 |
-| Prompt Enhancer | OpenAI GPT (default `gpt-4o-mini`) | @src/config/prompt-enhancer.ts#1-57 |
-| Voice Visualizer & Transcriptor | OpenAI Whisper (`whisper-1` via Workers AI), KV | @src/config/voice/index.ts#3-28 |
-| Webscraper | Cloudflare Workers compute only | @src/config/webscraper/entitlements.ts#3-26 |
-| Shared infrastructure | Cloudflare Workers Standard, R2, KV, Stripe, D1 | Wrangler bindings; architecture doc @docs/architecture/ai-image-enhancer.md#145-175 |
+| Feature                         | Technology stack                                | Key references                                                                      |
+| ------------------------------- | ----------------------------------------------- | ----------------------------------------------------------------------------------- |
+| AI Image Enhancer               | Cloudflare Workers AI, Replicate, R2, KV        | @src/config/ai-image.ts#17-105; @src/config/ai-image/entitlements.ts#1-102          |
+| AI Video Enhancer               | Replicate, R2                                   | @src/config/ai-video.ts#1-32; @src/config/ai-video/entitlements.ts#1-27             |
+| Prompt Enhancer                 | OpenAI GPT (default `gpt-4o-mini`)              | @src/config/prompt-enhancer.ts#1-57                                                 |
+| Voice Visualizer & Transcriptor | OpenAI Whisper (`whisper-1` via Workers AI), KV | @src/config/voice/index.ts#3-28                                                     |
+| Webscraper                      | Cloudflare Workers compute only                 | @src/config/webscraper/entitlements.ts#3-26                                         |
+| Shared infrastructure           | Cloudflare Workers Standard, R2, KV, Stripe, D1 | Wrangler bindings; architecture doc @docs/architecture/ai-image-enhancer.md#145-175 |
 
 ### B3. Pricing Baselines (as of 2025-11-10, USD)
 
-| Component | List price | Source |
-| --- | --- | --- |
-| Cloudflare Workers Standard | $5/month base, +$0.30 per extra 1M requests, +$0.02 per extra 1M CPU ms (30M CPU ms included) | Cloudflare Workers pricing (2025-09-09) |
-| Workers AI neurons | 10k neurons/day free; $0.011 per 1k neurons beyond that | Cloudflare Workers AI pricing (2025-10-27) |
-| Model `@cf/runwayml/stable-diffusion-v1-5-img2img` | 4.8 neurons per 512×512 tile + 9.6 neurons per diffusion step | Cloudflare Workers AI pricing |
-| Workers AI Whisper | $0.0005 per audio minute (≈46.63 neurons/minute) | Cloudflare Workers AI pricing |
-| OpenAI GPT-4o mini | $0.00015 per 1k input tokens; $0.0006 per 1k output tokens | OpenAI pricing portal (authentication required) |
-| Replicate Real-ESRGAN / GFPGAN | GPU-second billing (~$0.002/s on A40) | Replicate dashboard (authentication required) |
-| Cloudflare R2 storage | 10 GB free, then $0.015/GB-month storage + $0.015/GB retrieval | Cloudflare R2 pricing |
+| Component                                          | List price                                                                                    | Source                                          |
+| -------------------------------------------------- | --------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| Cloudflare Workers Standard                        | $5/month base, +$0.30 per extra 1M requests, +$0.02 per extra 1M CPU ms (30M CPU ms included) | Cloudflare Workers pricing (2025-09-09)         |
+| Workers AI neurons                                 | 10k neurons/day free; $0.011 per 1k neurons beyond that                                       | Cloudflare Workers AI pricing (2025-10-27)      |
+| Model `@cf/runwayml/stable-diffusion-v1-5-img2img` | 4.8 neurons per 512×512 tile + 9.6 neurons per diffusion step                                 | Cloudflare Workers AI pricing                   |
+| Workers AI Whisper                                 | $0.0005 per audio minute (≈46.63 neurons/minute)                                              | Cloudflare Workers AI pricing                   |
+| OpenAI GPT-4o mini                                 | $0.00015 per 1k input tokens; $0.0006 per 1k output tokens                                    | OpenAI pricing portal (authentication required) |
+| Replicate Real-ESRGAN / GFPGAN                     | GPU-second billing (~$0.002/s on A40)                                                         | Replicate dashboard (authentication required)   |
+| Cloudflare R2 storage                              | 10 GB free, then $0.015/GB-month storage + $0.015/GB retrieval                                | Cloudflare R2 pricing                           |
 
 > **Action:** Pull authenticated exports (Workers AI neuron CSV, Replicate usage, OpenAI billing) to validate and refine these baseline inputs.
 
@@ -168,19 +168,19 @@ This section mirrors the German narrative and delivers a complete English briefi
 
 ### B5. Illustrative Monthly Scenario (replace with telemetry as it becomes available)
 
-| Component | Assumption | Cost |
-| --- | --- | --- |
-| Workers base fee | Standard plan | $5.00 |
-| Workers requests & CPU | 30M dynamic hits/month @ 10 ms | ~$18 (requests) + ~$5.40 (CPU) |
-| Workers AI (img2img) | 3k jobs/day, 20 steps, single tile | ~$210 |
-| Replicate add-ons | 1.8k jobs/day with upscale + face, 8 s average | ~$29 |
-| Video (Topaz) | 150 jobs/month, 45 s average runtime | ~$81 |
-| Prompt Enhancer | 1.5k requests/day, 1k input + 350 output tokens | ~$32 |
-| Whisper | 200 minutes/day | ~$3 |
-| R2 storage | 135 GB average footprint (images) | ~$3 |
-| Stripe fees | Dependent on revenue volume | TBD |
+| Component              | Assumption                                      | Cost                           |
+| ---------------------- | ----------------------------------------------- | ------------------------------ |
+| Workers base fee       | Standard plan                                   | $5.00                          |
+| Workers requests & CPU | 30M dynamic hits/month @ 10 ms                  | ~$18 (requests) + ~$5.40 (CPU) |
+| Workers AI (img2img)   | 3k jobs/day, 20 steps, single tile              | ~$210                          |
+| Replicate add-ons      | 1.8k jobs/day with upscale + face, 8 s average  | ~$29                           |
+| Video (Topaz)          | 150 jobs/month, 45 s average runtime            | ~$81                           |
+| Prompt Enhancer        | 1.5k requests/day, 1k input + 350 output tokens | ~$32                           |
+| Whisper                | 200 minutes/day                                 | ~$3                            |
+| R2 storage             | 135 GB average footprint (images)               | ~$3                            |
+| Stripe fees            | Dependent on revenue volume                     | TBD                            |
 
-*Indicative infrastructure OPEX ≈ **$386/month** (excluding staffing and support overhead).*
+_Indicative infrastructure OPEX ≈ **$386/month** (excluding staffing and support overhead)._
 
 ### B6. Required Telemetry and Exports
 

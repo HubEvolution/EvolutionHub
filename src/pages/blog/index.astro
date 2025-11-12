@@ -80,7 +80,7 @@ if (page > 1) canonicalUrl.searchParams.set('page', page.toString());
 const baseUrlForPagination = new URL(url);
 baseUrlForPagination.searchParams.delete('page');
 // CSP nonce for inline scripts
-const nonce = (Astro.locals as any).cspNonce;
+const nonce = (Astro.locals as { cspNonce?: string } | undefined)?.cspNonce;
 // Robust i18n fallbacks for placeholders: if translator returns the key, fall back to a human string
 const safeT = (key: string, fallback: string) => {
   const v = t(key) as unknown as string;

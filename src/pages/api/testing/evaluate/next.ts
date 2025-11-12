@@ -6,15 +6,8 @@ import {
   createMethodNotAllowed,
 } from '@/lib/api-middleware';
 import { webEvalTaskLimiter } from '@/lib/rate-limiter';
-import {
-  listTasksByStatus,
-  getTask,
-  updateTask,
-} from '@/lib/testing/web-eval/storage';
-import {
-  resolveQueueConfig,
-  type WebEvalEnvBindings,
-} from '@/lib/testing/web-eval/env';
+import { listTasksByStatus, getTask, updateTask } from '@/lib/testing/web-eval/storage';
+import { resolveQueueConfig, type WebEvalEnvBindings } from '@/lib/testing/web-eval/env';
 import type {
   WebEvalKvNamespace,
   WebEvalQueueConfig,

@@ -77,7 +77,9 @@ afterEach(async (context) => {
   testStartTimes.delete(key);
 
   if (duration > testConfig.timeouts.test) {
-    console.warn(`⚠️ Test "${context.task.name}" überschritt Timeout (${duration}ms > ${testConfig.timeouts.test}ms)`);
+    console.warn(
+      `⚠️ Test "${context.task.name}" überschritt Timeout (${duration}ms > ${testConfig.timeouts.test}ms)`
+    );
   }
 
   // Test-spezifische Daten aufräumen

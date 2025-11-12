@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-  as?: 'div' | 'section';
+  as?: 'div' | 'section' | 'article';
   variant?: 'default' | 'holo';
 }
 

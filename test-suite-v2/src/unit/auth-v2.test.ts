@@ -1,11 +1,11 @@
 /**
  * Unit-Tests für das Auth-v2 Modul
- * 
+ *
  * Diese Tests decken die Kernfunktionen von src/lib/auth-v2.ts ab:
  * - createSession: Erstellung einer neuen Session mit DB-Insert
  * - validateSession: Validierung inkl. Ablauf-Check, Löschung abgelaufener Sessions, User-Laden
  * - invalidateSession: Löschung einer Session
- * 
+ *
  * @module auth-v2.test
  */
 
@@ -52,9 +52,13 @@ describe('createSession', () => {
     const session = await createSession(mockD1, userId);
 
     expect(mockPrepare).toHaveBeenCalledWith(
-      "INSERT INTO sessions (id, user_id, expires_at) VALUES (?, ?, ?)"
+      'INSERT INTO sessions (id, user_id, expires_at) VALUES (?, ?, ?)'
     );
-    expect(mockBind).toHaveBeenCalledWith(mockSessionId, userId, Math.floor(expiresAt.getTime() / 1000));
+    expect(mockBind).toHaveBeenCalledWith(
+      mockSessionId,
+      userId,
+      Math.floor(expiresAt.getTime() / 1000)
+    );
     expect(mockRun).toHaveBeenCalled();
     expect(session).toEqual({
       id: mockSessionId,
@@ -96,11 +100,12 @@ describe('validateSession', () => {
 
     const result = await validateSession(mockD1, mockSessionId);
 
-    expect(mockPrepare).toHaveBeenNthCalledWith(1, "SELECT * FROM sessions WHERE id = ?");
+    expect(mockPrepare).toHaveBeenNthCalledWith(1, 'SELECT * FROM sessions WHERE id = ?');
     expect(mockBind).toHaveBeenNthCalledWith(1, mockSessionId);
     expect(mockFirst).toHaveBeenNthCalledWith(1, mockSessionRow);
-    expect(mockPrepare).toHaveBeenNthCalledWith(2,
-      "SELECT id, email, name, username, image, email_verified, email_verified_at FROM users WHERE id = ?"
+    expect(mockPrepare).toHaveBeenNthCalledWith(
+      2,
+      'SELECT id, email, name, username, image, email_verified, email_verified_at FROM users WHERE id = ?'
     );
     expect(mockBind).toHaveBeenNthCalledWith(2, mockUserId);
     expect(result.session).toEqual({
@@ -125,7 +130,7 @@ describe('validateSession', () => {
 
     expect(result.session).toBeNull();
     expect(result.user).toBeNull();
-    expect(mockPrepare).toHaveBeenCalledWith("SELECT * FROM sessions WHERE id = ?");
+    expect(mockPrepare).toHaveBeenCalledWith('SELECT * FROM sessions WHERE id = ?');
     expect(mockBind).toHaveBeenCalledWith(mockSessionId);
   });
 
@@ -141,7 +146,7 @@ describe('validateSession', () => {
 
     const result = await validateSession(mockD1, mockSessionId);
 
-    expect(mockPrepare).toHaveBeenNthCalledWith(2, "DELETE FROM sessions WHERE id = ?");
+    expect(mockPrepare).toHaveBeenNthCalledWith(2, 'DELETE FROM sessions WHERE id = ?');
     expect(mockBind).toHaveBeenNthCalledWith(2, mockSessionId);
     expect(mockRun).toHaveBeenCalled();
     expect(result.session).toBeNull();
@@ -174,7 +179,7 @@ describe('invalidateSession', () => {
 
     await invalidateSession(mockD1, mockSessionId);
 
-    expect(mockPrepare).toHaveBeenCalledWith("DELETE FROM sessions WHERE id = ?");
+    expect(mockPrepare).toHaveBeenCalledWith('DELETE FROM sessions WHERE id = ?');
     expect(mockBind).toHaveBeenCalledWith(mockSessionId);
     expect(mockRun).toHaveBeenCalled();
   });

@@ -64,7 +64,7 @@ const remainingPosts = showFeatured && posts.length > 0 ? posts.slice(1) : posts
   {
     remainingPosts.length > 0 && (
       <div class="grid gap-12 md:grid-cols-2 lg:grid-cols-3">
-        {remainingPosts.map((post, idx) => (
+        {remainingPosts.map((post: ProcessedBlogPost, idx: number) => (
           <BlogCard
             post={post}
             className="h-full"

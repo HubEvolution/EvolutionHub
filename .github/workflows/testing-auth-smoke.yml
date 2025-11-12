@@ -33,7 +33,7 @@ jobs:
       - name: Install dependencies (minimal)
         run: npm ci --ignore-scripts
 
-      - name: "Preflight: POST /api/auth/magic/request (log status + body)"
+      - name: 'Preflight: POST /api/auth/magic/request (log status + body)'
         run: |
           echo "POSTing to ${TEST_BASE_URL}/api/auth/magic/request with STYTCH_TEST_EMAIL=${STYTCH_TEST_EMAIL}"
           set -o pipefail

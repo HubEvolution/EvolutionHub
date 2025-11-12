@@ -1,8 +1,8 @@
 ---
-description: "How environments, domains, and auth secrets fit together"
-owner: "Ops/Platform"
-lastSync: "2025-11-11"
-codeRefs: "wrangler.toml, src/lib/stytch.ts, src/pages/api/auth/**, scripts/validate-env.ts"
+description: 'How environments, domains, and auth secrets fit together'
+owner: 'Ops/Platform'
+lastSync: '2025-11-11'
+codeRefs: 'wrangler.toml, src/lib/stytch.ts, src/pages/api/auth/**, scripts/validate-env.ts'
 ---
 
 # Auth Environments & Secrets

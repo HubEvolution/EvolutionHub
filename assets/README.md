@@ -6,11 +6,11 @@ Diese Struktur bündelt zentrale Brand-Ressourcen (Farben, Logo, Typografie) an 
 
 ```markdown
 assets/
-  brand/
-    logo/           # Logos (Dateinamen-Konvention siehe unten)
-    colors/         # Farbdefinitionen (JSON + CSS Variablen)
-    typography/     # Schrift-Token / Skalen (später)
-  images/           # Allgemeine, nicht-brand-spezifische Bilder
+brand/
+logo/ # Logos (Dateinamen-Konvention siehe unten)
+colors/ # Farbdefinitionen (JSON + CSS Variablen)
+typography/ # Schrift-Token / Skalen (später)
+images/ # Allgemeine, nicht-brand-spezifische Bilder
 ```
 
 Leere Ordner enthalten eine `.gitkeep`, damit die Struktur versioniert bleibt.
@@ -52,6 +52,7 @@ Astro Component:
 ---
 import colors from '@/assets/brand/colors/colors.json';
 ---
+
 <button style={`background:${colors.primary['600']};color:${colors.neutral['0']}`}>Start</button>
 ```
 

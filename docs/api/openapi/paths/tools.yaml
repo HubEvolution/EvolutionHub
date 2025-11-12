@@ -41,8 +41,8 @@ get:
                 name: Code-Editor
                 description: Ein Tool zum Bearbeiten von Code
                 icon: code-editor-icon
-                created_at: "2023-01-01T00:00:00Z"
-                updated_at: "2023-01-01T00:00:00Z"
+                created_at: '2023-01-01T00:00:00Z'
+                updated_at: '2023-01-01T00:00:00Z'
             pagination:
               page: 1
               limit: 10
@@ -53,7 +53,7 @@ get:
       $ref: '../../openapi.yaml#/components/responses/InternalServerError'
   security:
     - cookieAuth: []
-    - {}  # Auch ohne Authentifizierung zugänglich
+    - {} # Auch ohne Authentifizierung zugänglich
 
 post:
   tags:
@@ -84,8 +84,8 @@ post:
               name: Code-Editor
               description: Ein Tool zum Bearbeiten von Code
               icon: code-editor-icon
-              created_at: "2023-01-01T00:00:00Z"
-              updated_at: "2023-01-01T00:00:00Z"
+              created_at: '2023-01-01T00:00:00Z'
+              updated_at: '2023-01-01T00:00:00Z'
     '400':
       $ref: '../../openapi.yaml#/components/responses/BadRequest'
     '401':

@@ -32,13 +32,11 @@ Diese Dokumentation beschreibt die performante Show/Hide-Animation des Headers b
 - Initial wird der Header sichtbar gemacht: Klasse `header-visible` gesetzt, `header-hidden` entfernt.
 
 - Schwellenwerte:
-
   - `scrollThreshold = 80` – Oberhalb bleibt der Header immer sichtbar.
 
   - `scrollDeltaThreshold = 8` – Kleinere Bewegungen werden ignoriert.
 
 - Event-Handling:
-
   - Scroll/Resize-Events sind passiv und werden via `requestAnimationFrame` gedrosselt.
 
   - Beim Scrollen nach unten wird nach 200ms Verzögerung ausgeblendet (bessere UX), nach oben sofort eingeblendet.

@@ -20,16 +20,16 @@ Security-Headers aktivieren Browser-Sicherheitsmechanismen gegen XSS, Clickjacki
 
 ## Header-Übersicht
 
-| Header | Quelle | Wert / Hinweis |
-| --- | --- | --- |
-| **Content-Security-Policy** | Globale Middleware | Dynamisch, nonce-basiert (`default-src 'self'; script-src 'self' 'nonce-...' https://static.cloudflareinsights.com ...`). Werte variieren je Umgebung (Dev vs. Prod) und werden in `src/middleware.ts` erzeugt. |
-| **Strict-Transport-Security** | API & HTML | `max-age=31536000; includeSubDomains` (Preload wird nur global in Prod aktiven Instanzen gesetzt). |
-| **Referrer-Policy** | API & HTML | `strict-origin-when-cross-origin`. |
-| **X-Content-Type-Options** | API & HTML | `nosniff`. |
-| **X-Frame-Options** | API & HTML | `DENY`. |
-| **Permissions-Policy** | API & HTML | `camera=(), microphone=(), geolocation=(), interest-cohort=()`. |
-| **Cache-Control** | API | `no-store, max-age=0` für sicherheitskritische Antworten. |
-| **X-XSS-Protection** | API | `1; mode=block` (Legacy-Header, für alte Browser belassen; moderne Browser ignorieren ihn). |
+| Header                        | Quelle             | Wert / Hinweis                                                                                                                                                                                                  |
+| ----------------------------- | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Content-Security-Policy**   | Globale Middleware | Dynamisch, nonce-basiert (`default-src 'self'; script-src 'self' 'nonce-...' https://static.cloudflareinsights.com ...`). Werte variieren je Umgebung (Dev vs. Prod) und werden in `src/middleware.ts` erzeugt. |
+| **Strict-Transport-Security** | API & HTML         | `max-age=31536000; includeSubDomains` (Preload wird nur global in Prod aktiven Instanzen gesetzt).                                                                                                              |
+| **Referrer-Policy**           | API & HTML         | `strict-origin-when-cross-origin`.                                                                                                                                                                              |
+| **X-Content-Type-Options**    | API & HTML         | `nosniff`.                                                                                                                                                                                                      |
+| **X-Frame-Options**           | API & HTML         | `DENY`.                                                                                                                                                                                                         |
+| **Permissions-Policy**        | API & HTML         | `camera=(), microphone=(), geolocation=(), interest-cohort=()`.                                                                                                                                                 |
+| **Cache-Control**             | API                | `no-store, max-age=0` für sicherheitskritische Antworten.                                                                                                                                                       |
+| **X-XSS-Protection**          | API                | `1; mode=block` (Legacy-Header, für alte Browser belassen; moderne Browser ignorieren ihn).                                                                                                                     |
 
 > Hinweis: Die CSP wird bewusst nur in der globalen Middleware gesetzt, damit HTML- und Island-Antworten nonce-basierte Skripte nutzen können. API-Antworten sollen keine CSP erzwingen, um Clients nicht einzuschränken.
 
@@ -102,34 +102,32 @@ Die korrekte Implementierung der Security-Headers kann mit folgenden Tools über
 
 ## Anwendung auf API-Endpunkte
 
-| API-Kategorie | Besondere Header-Anpassungen | Begründung |
-|---------------|------------------------------|------------|
-| Auth-APIs | Cache-Control: no-store | Verhindert das Caching von Authentifizierungsdaten |
-| User-APIs | Cache-Control: no-store | Schützt persönliche Benutzerdaten |
-| Projekt-APIs | Standard-Headers | Ausreichender Schutz für Projektdaten |
-| Dashboard-APIs | Standard-Headers | Ausreichender Schutz für Dashboard-Daten |
+| API-Kategorie    | Besondere Header-Anpassungen             | Begründung                                           |
+| ---------------- | ---------------------------------------- | ---------------------------------------------------- |
+| Auth-APIs        | Cache-Control: no-store                  | Verhindert das Caching von Authentifizierungsdaten   |
+| User-APIs        | Cache-Control: no-store                  | Schützt persönliche Benutzerdaten                    |
+| Projekt-APIs     | Standard-Headers                         | Ausreichender Schutz für Projektdaten                |
+| Dashboard-APIs   | Standard-Headers                         | Ausreichender Schutz für Dashboard-Daten             |
 | Öffentliche APIs | Angepasste CSP für Drittanbieter-Inhalte | Erlaubt die Integration von Drittanbieter-Ressourcen |
 
 ## Zukünftige Verbesserungen
 
 1. **Report-Only-Modus**
-
    - Implementierung von `Content-Security-Policy-Report-Only` für neue CSP-Regeln
 
    - Sammlung von Verstößen, bevor strikte Regeln durchgesetzt werden
 
 1. **Subresource Integrity (SRI)**
-
    - Hinzufügen von Integritätsprüfungen für externe Skripte und Stylesheets
 
    - Schutz vor kompromittierten CDNs
 
 1. **Erweiterte Permissions-Policy**
-
    - Bewertung zusätzlicher Browser-Features (z. B. `fullscreen`, `payment`).
 
 1. **Expect-CT / Reporting**
-
    - Optionales Certificate-Transparency-Reporting für frühere Zertifikatwarnungen.
 
 ```text
+
+```

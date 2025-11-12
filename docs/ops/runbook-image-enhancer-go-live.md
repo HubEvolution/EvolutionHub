@@ -16,7 +16,6 @@ Scope: Production readiness verification and emergency rollback for the AI Image
 ## Preconditions
 
 - Infra/env
-
   - `[ai]` binding present (Cloudflare Workers AI)
 
   - R2 buckets: R2_AI_IMAGES; KV namespaces: KV_AI_ENHANCER
@@ -26,13 +25,11 @@ Scope: Production readiness verification and emergency rollback for the AI Image
   - CSP/middleware active (global) and API middleware on routes
 
 - Code
-
   - SDXL default steps set to 20 (provider cap). File: `src/config/ai-image.ts`
 
   - OpenAPI validated (CF params + PlanEntitlements documented)
 
 - CI gates (green)
-
   - `npm run openapi:validate`
 
   - `npm run lint` and `npm run format:check`
@@ -45,14 +42,14 @@ Scope: Production readiness verification and emergency rollback for the AI Image
 
 Run from a terminal. These are same‑origin + CSRF safe.
 
-1) Prepare a sample image (~35KB) and helper vars
+1. Prepare a sample image (~35KB) and helper vars
 
 ```sh
 curl -L -o /tmp/eh_test.jpg https://upload.wikimedia.org/wikipedia/commons/3/3f/JPEG_example_flower.jpg
 export APP_ORIGIN="https://hub-evolution.com"
 ```
 
-1) Successful generate (Workers AI SD 1.5)
+1. Successful generate (Workers AI SD 1.5)
 
 ```sh
 CSRF=$(LC_ALL=C tr -dc A-Za-z0-9 </dev/urandom | head -c 16)
@@ -72,7 +69,7 @@ node -e 'const j=require("fs").readFileSync("resp.json","utf8"); const o=JSON.pa
 
 Expected: HTTP 200, `success: true`, non-empty `data.imageUrl`, `usage.used` incremented.
 
-1) R2 owner‑gating
+1. R2 owner‑gating
 
 ```sh
 IMG_URL=$(node -e 'const fs=require("fs"); const j=JSON.parse(fs.readFileSync("resp.json","utf8")); console.log(j?.data?.imageUrl||"")')
@@ -86,7 +83,7 @@ curl -s -o /dev/null -w "%{http_code}\n" -H "Cookie: guest_id=$GUEST_ID" "$IMG_U
 curl -s -o /dev/null -w "%{http_code}\n" "$IMG_URL"
 ```
 
-1) CSRF negative
+1. CSRF negative
 
 ```sh
 curl -s -o /dev/null -w "%{http_code}\n" \
@@ -97,7 +94,7 @@ curl -s -o /dev/null -w "%{http_code}\n" \
 
 Expected: 403 (forbidden) due to Origin/CSRF.
 
-1) Optional SDXL generate (Advanced)
+1. Optional SDXL generate (Advanced)
 
 ```sh
 CSRF=$(LC_ALL=C tr -dc A-Za-z0-9 </dev/urandom | head -c 16)
@@ -146,3 +143,5 @@ Notes on rate‑limits: The current in‑memory `aiGenerateLimiter` is per‑iso
 - Runbook stored in repo with commands reproducible.
 
 ```text
+
+```

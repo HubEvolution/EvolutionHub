@@ -39,7 +39,7 @@ describe('AI Jobs API Integration', () => {
 
     // Act
     const response = await fetch(`${API_BASE}/ai-image/jobs/job1`, {
-      headers: { 'Authorization': 'Bearer valid-token' },
+      headers: { Authorization: 'Bearer valid-token' },
     });
     const data = await response.json();
 
@@ -62,7 +62,7 @@ describe('AI Jobs API Integration', () => {
 
     // Act
     const response = await fetch(`${API_BASE}/ai-image/jobs/job2`, {
-      headers: { 'Cookie': 'guest_id=guest123' },
+      headers: { Cookie: 'guest_id=guest123' },
     });
     const data = await response.json();
 
@@ -74,10 +74,7 @@ describe('AI Jobs API Integration', () => {
     // Arrange
     server.use(
       rest.get(`${API_BASE}/ai-image/jobs/:id`, (req, res, ctx) => {
-        return res(
-          ctx.status(401),
-          ctx.json({ success: false, error: 'Unauthorized' })
-        );
+        return res(ctx.status(401), ctx.json({ success: false, error: 'Unauthorized' }));
       })
     );
 
@@ -94,10 +91,7 @@ describe('AI Jobs API Integration', () => {
     // Arrange
     server.use(
       rest.get(`${API_BASE}/ai-image/jobs/:id`, (req, res, ctx) => {
-        return res(
-          ctx.status(404),
-          ctx.json({ success: false, error: 'Job not found' })
-        );
+        return res(ctx.status(404), ctx.json({ success: false, error: 'Job not found' }));
       })
     );
 
@@ -114,10 +108,7 @@ describe('AI Jobs API Integration', () => {
     // Arrange
     server.use(
       rest.get(`${API_BASE}/ai-image/jobs/:id`, (req, res, ctx) => {
-        return res(
-          ctx.status(429),
-          ctx.json({ success: false, error: 'Rate limited' })
-        );
+        return res(ctx.status(429), ctx.json({ success: false, error: 'Rate limited' }));
       })
     );
 
@@ -134,10 +125,7 @@ describe('AI Jobs API Integration', () => {
     // Arrange
     server.use(
       rest.get(`${API_BASE}/ai-image/jobs/:id`, (req, res, ctx) => {
-        return res(
-          ctx.status(500),
-          ctx.json({ success: false, error: 'Server error' })
-        );
+        return res(ctx.status(500), ctx.json({ success: false, error: 'Server error' }));
       })
     );
 
@@ -153,11 +141,9 @@ describe('AI Jobs API Integration', () => {
   it('sollte validation error bei fehlender ID returnen', async () => {
     // Arrange
     server.use(
-      rest.get(`${API_BASE}/ai-image/jobs/`, (req, res, ctx) => { // Invalid path
-        return res(
-          ctx.status(400),
-          ctx.json({ success: false, error: 'Job ID fehlt' })
-        );
+      rest.get(`${API_BASE}/ai-image/jobs/`, (req, res, ctx) => {
+        // Invalid path
+        return res(ctx.status(400), ctx.json({ success: false, error: 'Job ID fehlt' }));
       })
     );
 
@@ -174,16 +160,13 @@ describe('AI Jobs API Integration', () => {
     // Arrange
     server.use(
       rest.get(`${API_BASE}/ai-image/jobs/:id`, (req, res, ctx) => {
-        return res(
-          ctx.status(403),
-          ctx.json({ success: false, error: 'Zugriff verweigert' })
-        );
+        return res(ctx.status(403), ctx.json({ success: false, error: 'Zugriff verweigert' }));
       })
     );
 
     // Act
     const response = await fetch(`${API_BASE}/ai-image/jobs/job6`, {
-      headers: { 'Authorization': 'Bearer invalid-token' },
+      headers: { Authorization: 'Bearer invalid-token' },
     });
     const data = await response.json();
 
@@ -196,10 +179,7 @@ describe('AI Jobs API Integration', () => {
     // Arrange
     server.use(
       rest.post(`${API_BASE}/ai-image/jobs/:id`, (req, res, ctx) => {
-        return res(
-          ctx.status(405),
-          ctx.json({ success: false, error: 'Method not allowed' })
-        );
+        return res(ctx.status(405), ctx.json({ success: false, error: 'Method not allowed' }));
       })
     );
 

@@ -109,7 +109,6 @@ Evolution Hub nutzt moderne Entwicklungs-Tools und -Workflows:
 ### Lokale Entwicklung
 
 - **[Local Development](./local-development.md)** — **Hauptdokument** für lokale Entwicklungsumgebung
-
   - Zwei-Terminal-Setup (Build-Watch + Dev-Server)
 
   - Interaktives Menü (`npm run menu`)
@@ -127,7 +126,6 @@ Siehe auch: [../SETUP.md](../SETUP.md) für Schnellstart-Anleitung
 ### Continuous Integration & Deployment
 
 - **[CI/CD Pipeline](./ci-cd.md)** — Vollständige CI/CD-Dokumentation
-
   - GitHub Actions Workflows
 
   - CI-Gates (Lint, Tests, Security, TypeScript)
@@ -181,7 +179,6 @@ Siehe auch: [../SETUP.md](../SETUP.md) für Schnellstart-Anleitung
 - Neues Dashboard-Layout mit Karten für **Billing & Plan**, **Werkzeuge im Schnellzugriff**, **Newsletter-Einstellungen** und **Empfehlungen**.
 
 - APIs:
-
   - `GET /api/dashboard/billing-summary` liefert Plan-, Status- und Credit-Daten aus `subscriptions` + KV.
 
   - `POST /api/billing/cancel` markiert aktive Stripe-Subscriptions für eine Kündigung zum Periodenende.
@@ -212,7 +209,7 @@ Dokumentierte PRs und Feature-Implementierungen finden Sie in [prs/](./prs/):
 
 ### Wichtige Kommandos
 
-```bash
+````bash
 
 # Lokale Entwicklung (2)
 
@@ -247,3 +244,4 @@ npm run setup:local       # Lokale DB einrichten + Migrationen
 Siehe [../cheat-sheet.md](../cheat-sheet.md) für weitere Kommandos.
 
 ```text
+````

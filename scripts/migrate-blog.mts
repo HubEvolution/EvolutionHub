@@ -26,7 +26,10 @@ interface ContentfulBlogPostFields {
 const CONTENTFUL_CONTENT_TYPE_ID = 'blogPost';
 
 // Hilfsfunktion, um Frontmatter-Daten sicher zu parsen und für Contentful vorzubereiten.
-function prepareFields(frontmatter: Record<string, any>, markdownContent: string): Partial<ContentfulBlogPostFields> {
+function prepareFields(
+  frontmatter: Record<string, any>,
+  markdownContent: string
+): Partial<ContentfulBlogPostFields> {
   const fields: Partial<ContentfulBlogPostFields> = {};
 
   if (frontmatter.title) fields.title = frontmatter.title;
@@ -58,8 +61,8 @@ function prepareFields(frontmatter: Record<string, any>, markdownContent: string
             nodeType: 'text',
             value: markdownContent.trim(), // Der eigentliche Inhalt nach dem Frontmatter
             marks: [],
-            data: {}
-          }
+            data: {},
+          },
         ],
         data: {},
       },
@@ -77,7 +80,6 @@ function prepareFields(frontmatter: Record<string, any>, markdownContent: string
   // }
   // if (frontmatter.imageAlt) fields.imageAlt = frontmatter.imageAlt;
 
-
   return fields;
 }
 
@@ -91,7 +93,10 @@ async function migrateBlogPosts() {
 
   try {
     const files = await fs.readdir(blogSourceDir);
-    const blogPostsForImport: Array<{ sys: { contentType: { sys: { id: string } } }; fields: Partial<ContentfulBlogPostFields> }> = [];
+    const blogPostsForImport: Array<{
+      sys: { contentType: { sys: { id: string } } };
+      fields: Partial<ContentfulBlogPostFields>;
+    }> = [];
     const assetEntries: Array<{ source: string; resolvedPath: string; referencedIn: string }> = [];
     const seenAssets = new Set<string>();
 
@@ -150,12 +155,15 @@ async function migrateBlogPosts() {
     console.log(`Die Migrationsdatei wurde unter ${outputFilePath} gespeichert.`);
 
     await fs.writeFile(assetManifestPath, JSON.stringify(assetEntries, null, 2), 'utf-8');
-    console.log(`Asset-Manifest mit ${assetEntries.length} Einträgen gespeichert unter ${assetManifestPath}.`);
-
+    console.log(
+      `Asset-Manifest mit ${assetEntries.length} Einträgen gespeichert unter ${assetManifestPath}.`
+    );
   } catch (error: any) {
     console.error('Fehler während des Migrationsskripts:', error.message);
     if (error.code === 'ENOENT') {
-      console.error(`Stellen Sie sicher, dass der Pfad zum Blog-Verzeichnis korrekt ist: ${blogSourceDir}`);
+      console.error(
+        `Stellen Sie sicher, dass der Pfad zum Blog-Verzeichnis korrekt ist: ${blogSourceDir}`
+      );
     }
   }
 }

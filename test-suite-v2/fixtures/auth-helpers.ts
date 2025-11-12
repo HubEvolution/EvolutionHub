@@ -37,7 +37,9 @@ export function isHttps(): boolean {
  * Get test email from env or use default
  */
 export function getTestEmail(): string {
-  return process.env.STYTCH_TEST_EMAIL || process.env.MAGIC_TEST_EMAIL || 'stytchttest@hub-evolution.com';
+  return (
+    process.env.STYTCH_TEST_EMAIL || process.env.MAGIC_TEST_EMAIL || 'stytchttest@hub-evolution.com'
+  );
 }
 
 /**
@@ -287,7 +289,9 @@ export async function logout(page: Page): Promise<void> {
  */
 export async function assertAuthenticated(page: Page): Promise<void> {
   const currentUrl = page.url();
-  expect(currentUrl, 'Should be on dashboard or authenticated page').toMatch(/dashboard|profile|settings/i);
+  expect(currentUrl, 'Should be on dashboard or authenticated page').toMatch(
+    /dashboard|profile|settings/i
+  );
 
   // Session cookies should be present
   const sessionId = await getCookieValue(page, 'session_id');
@@ -323,9 +327,13 @@ export async function waitForOAuthStart(page: Page, provider: 'github' | 'google
 /**
  * Assert OAuth start request succeeds
  */
-export async function assertOAuthStartSuccess(page: Page, provider: 'github' | 'google'): Promise<void> {
+export async function assertOAuthStartSuccess(
+  page: Page,
+  provider: 'github' | 'google'
+): Promise<void> {
   const response = await page.waitForResponse(
-    (resp) => resp.url().includes(`/api/auth/oauth/${provider}/start`) && resp.request().method() === 'GET'
+    (resp) =>
+      resp.url().includes(`/api/auth/oauth/${provider}/start`) && resp.request().method() === 'GET'
   );
 
   expect(response.ok(), `OAuth ${provider} start should succeed`).toBeTruthy();

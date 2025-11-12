@@ -2,7 +2,7 @@
 description: Web-Eval Executor – Header/Secret/How-to-run
 owner: platform
 priority: P2
-lastSync: 2025-11-11
+lastSync: 2025-11-12
 codeRefs:
   - src/pages/api/testing/evaluate/next.ts
   - src/lib/testing/web-eval/**
@@ -27,6 +27,28 @@ testRefs:
 - **Tests lokal ausführen**
   - Mit Secret: `WEB_EVAL_EXECUTOR_TOKEN=<token> npm run test:integration -- tests/integration/api/web-eval-next.test.ts`
   - Ohne Secret: Nur der 401‑Test läuft; 200‑Szenarien werden automatisch geskippt.
+
+- **Executor lokal starten**
+  - Standard (lokaler Worker auf 8787):
+  
+    ```bash
+    WEB_EVAL_EXECUTOR_TOKEN=<token> npm run web-eval:executor
+    ```
+  
+  - Gegen Staging/andere URL:
+  
+    ```bash
+    BASE_URL=https://staging.hub-evolution.com \
+    WEB_EVAL_EXECUTOR_TOKEN=<token> \
+    npm run web-eval:executor
+    ```
+  
+  - Env-Variablen: `WEB_EVAL_EXECUTOR_TOKEN` (Pflicht), `BASE_URL` oder `TEST_BASE_URL` (optional)
+
+- **Optionaler CI‑Smoke**
+  - In `deploy.yml` ist ein optionaler Smoke enthalten, der den Executor ~25s laufen lässt.
+  - Aktivierung: `RUN_EXECUTOR_SMOKE=1` als Job‑Env setzen und `WEB_EVAL_EXECUTOR_TOKEN` als Secret hinterlegen.
+  - Ziel‑URL: `https://staging.hub-evolution.com` (voreingestellt)
 
 - **Troubleshooting**
   - 403 + Log `web_eval_executor_token_invalid` und `hasProvidedToken: false` → Header fehlt/ist falsch geschrieben (verwende exakt `x-executor-token`).

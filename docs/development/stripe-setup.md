@@ -25,7 +25,7 @@ This guide shows how to set up Stripe for plan-based entitlements: create produc
 
 You can do this in the Dashboard (Products → Add product → Add recurring price) or via Stripe CLI:
 
-```bash
+````bash
 
 # Login (browser opens)
 
@@ -60,7 +60,7 @@ Example:
 ```bash
 PRICING_TABLE='{"free":"","pro":"price_abc","premium":"price_def","enterprise":"price_ghi"}'
 PRICING_TABLE_ANNUAL='{"free":"","pro":"price_annual_pro","premium":"price_annual_premium","enterprise":"price_annual_enterprise"}'
-```
+````
 
 The app reads both variables at runtime and supports stringified JSON or pre-parsed objects. Invalid JSON is treated as an empty map, so keep the structure valid.
 
@@ -68,7 +68,7 @@ The app reads both variables at runtime and supports stringified JSON or pre-par
 
 Local development (`.env`):
 
-```bash
+````bash
 
 # Stripe server secret (sk_test_...)
 
@@ -108,7 +108,7 @@ wrangler secret put STRIPE_WEBHOOK_SECRET --env staging
 # Production
 wrangler secret put STRIPE_SECRET --env production
 wrangler secret put STRIPE_WEBHOOK_SECRET --env production
-```
+````
 
 Notes:
 
@@ -122,7 +122,7 @@ Notes:
 
 Webhook endpoint in this project:
 
-```bash
+````bash
 POST /api/billing/stripe-webhook
 
 ```bash
@@ -132,14 +132,13 @@ POST /api/billing/stripe-webhook
 ```bash
 stripe listen --forward-to http://127.0.0.1:8787/api/billing/stripe-webhook
 # Copy the printed whsec_... value into STRIPE_WEBHOOK_SECRET
-```
+````
 
 ### Dashboard (Staging/Prod)
 
 - Go to Developers → Webhooks → Add endpoint
 
 - Events to enable:
-
   - `checkout.session.completed`
 
   - `customer.subscription.created`
@@ -152,7 +151,7 @@ stripe listen --forward-to http://127.0.0.1:8787/api/billing/stripe-webhook
 
 ### Permanent webhook via Stripe CLI (staging/prod)
 
-```bash
+````bash
 
 # Create a permanent webhook endpoint pointing to your staging/prod URL
 
@@ -185,7 +184,7 @@ stripe listen --forward-to http://127.0.0.1:8787/api/billing/stripe-webhook
 # Triggers (examples)
 stripe trigger checkout.session.completed
 stripe trigger customer.subscription.updated
-```
+````
 
 Check D1 tables:
 

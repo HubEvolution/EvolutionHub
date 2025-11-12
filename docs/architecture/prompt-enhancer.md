@@ -22,7 +22,6 @@ Transform raw user text (optionally with attachments) into a clear, agent‑read
 ## High‑level Flow
 
 1. API handler: `POST /api/prompt-enhance` (src/pages/api/prompt-enhance.ts)
-
    - withApiMiddleware: Same‑Origin + Double‑Submit CSRF, rate limiter (15/min), headers/logging
 
    - Parses request: JSON (text‑only) or multipart (with files)
@@ -40,13 +39,11 @@ Transform raw user text (optionally with attachments) into a clear, agent‑read
    - Error mapping: 400 validation_error, 403 forbidden (feature/quota), 429 rate limit, 500 server_error
 
 1. Service: `PromptEnhancerService` (src/lib/services/prompt-enhancer-service.ts)
-
    - Flags/env: PUBLIC_PROMPT_ENHANCER_V1, PROMPT_REWRITE_V1, ENABLE_PROMPT_SAFETY, OPENAI_API_KEY
 
    - Quotas via KV (rolling 24h when USAGE_KV_V2=1): PROMPT_USER_LIMIT, PROMPT_GUEST_LIMIT
 
    - Pipeline
-
      - parseInput: heuristic + optional AI intent classification
 
      - applySafety: mask PII (email, phone, address, id) on input
@@ -62,7 +59,6 @@ Transform raw user text (optionally with attachments) into a clear, agent‑read
    - Metrics: increments path counters (text/vision/file_search)
 
 1. Attachments (src/lib/services/prompt-attachments.ts)
-
    - Validation: ALLOWED_TYPES, MAX_FILES, MAX_FILE_BYTES
 
    - Build context: images → data URLs; text → clamped snippets; PDFs → file refs
@@ -70,7 +66,6 @@ Transform raw user text (optionally with attachments) into a clear, agent‑read
    - Upload PDFs to OpenAI Files for Responses API (file_search)
 
 1. Usage endpoint: `GET /api/prompt/usage` (src/pages/api/prompt/usage.ts)
-
    - Resolves effective limit from env + ownership
 
    - Returns `{ ownerType, usage, limits, plan?, entitlements? }`
@@ -108,7 +103,6 @@ Transform raw user text (optionally with attachments) into a clear, agent‑read
 ## API Contracts (excerpt)
 
 - POST /api/prompt-enhance
-
   - Request JSON: `{ text: string(1..1000), mode?: 'agent'|'concise' }`
 
   - Request multipart: `text(1..1000)`, optional `mode`, `files[]`
@@ -116,7 +110,6 @@ Transform raw user text (optionally with attachments) into a clear, agent‑read
   - 200: `{ success: true, data: { enhancedPrompt, safetyReport?, usage, limits } }`
 
 - GET /api/prompt/usage
-
   - 200: `{ success: true, data: { ownerType, usage, limits } }` + headers
 
 See openapi.yaml for full schema.

@@ -312,10 +312,10 @@ export class TestDataManager {
         description: faker.lorem.sentences(2),
         status: faker.helpers.arrayElement(['active', 'completed', 'archived']),
         userId: faker.number.int({ min: 1, max: 1000 }),
-        tags: faker.helpers.arrayElements(
-          ['web', 'mobile', 'api', 'testing', 'automation'],
-          { min: 1, max: 3 }
-        ),
+        tags: faker.helpers.arrayElements(['web', 'mobile', 'api', 'testing', 'automation'], {
+          min: 1,
+          max: 3,
+        }),
         createdAt: faker.date.past(),
         updatedAt: faker.date.recent(),
         deadline: faker.date.future(),

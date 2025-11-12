@@ -13,9 +13,10 @@ import { localizePath, mapLocaleHref } from '@/lib/locale-path';
 // These variables should be defined in Markdown Frontmatter or accessible in the script.
 // Ensuring they are correctly defined and typed.
 const currentLocale = getLocale(Astro.url.pathname);
-const user = (Astro.props as any)?.user as
-  | { name?: string; email?: string; image?: string }
+const props = Astro.props as
+  | { user?: { name?: string; email?: string; image?: string } }
   | undefined;
+const user = props?.user;
 
 // Helper für aktive Navigation: vergleicht gegen lokalisierte Hrefs
 function isActiveLocalized(href: string): boolean {

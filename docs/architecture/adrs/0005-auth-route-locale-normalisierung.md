@@ -42,17 +42,14 @@ Rahmenbedingungen:
 Betroffene Stellen:
 
 - Middleware: `src/middleware.ts`
-
   - Schutz vor Normalisierung für `/de/*`-Auth-Routen (Option B umgesetzt)
 
   - Symmetrischer Schutz für `/en/*`-Auth-Routen (präventiver Guard)
 
 - Client: `src/components/scripts/AuthStatusNotifier.tsx`
-
   - Locale strikt aus URL-Pfad; keine Änderung erforderlich (Option A bereits erfüllt)
 
 - Tests: `tests/e2e/specs/*-url-status.spec.ts`
-
   - DE-Assertions wieder strikt deutsch
 
 ## Konsequenzen
@@ -82,19 +79,16 @@ Negativ/Trade-offs:
 ## Alternativen
 
 - Weiterhin Normalisierung erzwingen und Tests tolerant gegenüber EN/DE gestalten.
-
   - Pro: Einheitliche Cookie-/Header-Steuerung der Locale.
 
   - Contra: Flakey UX/E2E bei Deep Links auf `/de/*`.
 
 - Reines Client-Side-Handling (nur `AuthStatusNotifier` ändern), Middleware unverändert.
-
   - Pro: Kleinere Serveränderung.
 
   - Contra: Redirects könnten trotzdem Route/Locale ändern; weiterhin Inkonsistenzen möglich.
 
 - Vollständiger i18n-Router, der sämtliche Routen strikt pro Locale mappt.
-
   - Pro: Maximal klare Trennung.
 
   - Contra: Höherer Implementierungs- und Pflegeaufwand; aktuell nicht erforderlich.

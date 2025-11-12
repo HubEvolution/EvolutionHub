@@ -19,7 +19,7 @@ testRefs: 'N/A'
 
 ## Architektur
 
-```mermaid
+````mermaid
 sequenceDiagram
   participant U as User (Browser)
   participant I as Island (Voice UI)
@@ -160,7 +160,7 @@ Schnell‑Verifikation per curl (DEV):
 JOB="job-$(date +%s)"
 curl -i -N --max-time 3 "http://127.0.0.1:8787/api/voice/stream?jobId=$JOB"  # erwartet: 200 + event: connected
 curl -i "http://127.0.0.1:8787/api/voice/poll?jobId=$JOB"                     # erwartet: 200 + { status: "active"|snapshot }
-```
+````
 
 ## Nächste Umsetzungsschritte (konkret)
 
@@ -179,7 +179,6 @@ curl -i "http://127.0.0.1:8787/api/voice/poll?jobId=$JOB"                     # 
 ## Offene Entscheidungsfragen
 
 - **Entitlements Zahlen**: Voice‑Tageslimits pro Plan bestätigt? Derzeit in `src/config/voice/entitlements.ts`:
-
   - `free` = `VOICE_FREE_LIMIT_USER`, `pro` = 600, `premium` = 1200, `enterprise` = 3000.
 
 - **R2 Archiv**: Bucket‑Binding (z. B. `R2_VOICE`), Key‑Schema (keine PII; z. B. `voice/{jobId}/{ts}.webm`), Retention‑Dauer, CORS/Presign‑Fenster.

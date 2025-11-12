@@ -6,7 +6,11 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
-import { setupTestServer, teardownTestServer, makeTestRequest } from '../../../utils/server-helpers';
+import {
+  setupTestServer,
+  teardownTestServer,
+  makeTestRequest,
+} from '../../../utils/server-helpers';
 import { getTestLogger } from '../../../utils/logger';
 
 describe('Deprecated Auth Endpoints - 410 Gone', () => {
@@ -57,7 +61,8 @@ describe('Deprecated Auth Endpoints - 410 Gone', () => {
           success: false,
           error: {
             type: 'gone',
-            message: 'This endpoint has been deprecated. Please migrate to the new authentication flow.',
+            message:
+              'This endpoint has been deprecated. Please migrate to the new authentication flow.',
           },
         });
       });
@@ -92,7 +97,8 @@ describe('Deprecated Auth Endpoints - 410 Gone', () => {
           success: false,
           error: {
             type: 'gone',
-            message: 'This endpoint has been deprecated. Please migrate to the new authentication flow.',
+            message:
+              'This endpoint has been deprecated. Please migrate to the new authentication flow.',
           },
         });
       });

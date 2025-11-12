@@ -66,6 +66,12 @@
 }
 
 /* Example usage classes (optional) */
-.bg-primary { background-color: var(--color-primary-500); }
-.text-primary { color: var(--color-primary-600); }
-.border-neutral { border-color: var(--color-neutral-200); }
+.bg-primary {
+  background-color: var(--color-primary-500);
+}
+.text-primary {
+  color: var(--color-primary-600);
+}
+.border-neutral {
+  border-color: var(--color-neutral-200);
+}

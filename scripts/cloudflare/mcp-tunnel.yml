@@ -16,9 +16,8 @@
 # tunnel: cascade-mcp
 
 ingress:
-  - hostname: mcp.hub-evolution.com        # Cloudflare Access-protected MCP endpoint
-    service: http://127.0.0.1:8787         # local Worker dev server
+  - hostname: mcp.hub-evolution.com # Cloudflare Access-protected MCP endpoint
+    service: http://127.0.0.1:8787 # local Worker dev server
   - service: http_status:404
-
 # Optional: if you prefer referencing the credentials explicitly
 # credentials-file: ~/.cloudflared/cascade-mcp.json

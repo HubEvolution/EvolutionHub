@@ -13,7 +13,7 @@ export const GET = withAuthApiMiddleware(
   async (context: APIContext) => {
     const { locals, url } = context;
     const runtimeEnv = (locals.runtime?.env ?? {}) as AnyEnv;
-    const adminEnv = (runtimeEnv as unknown) as AdminBindings;
+    const adminEnv = runtimeEnv as unknown as AdminBindings;
 
     if (!adminEnv.DB) {
       return createApiError('server_error', 'Infrastructure unavailable');

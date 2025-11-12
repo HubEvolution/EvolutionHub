@@ -1,15 +1,19 @@
 /**
  * Integration-Tests für API-Middleware (Rate-Limiting und Auth)
- * 
- * Diese Tests decken withAuthApiMiddleware ab, inkl. Rate-Limiting (429), Auth-Integration (401), 
- * Security-Headers, Error-Handling. Mocks: validateSession (success/fail), rate-limiter (allow/block), 
+ *
+ * Diese Tests decken withAuthApiMiddleware ab, inkl. Rate-Limiting (429), Auth-Integration (401),
+ * Security-Headers, Error-Handling. Mocks: validateSession (success/fail), rate-limiter (allow/block),
  * MSW für Request-Interception, logger. Fokus: Kombinierte Middleware-Effekte auf API-Handler.
- * 
+ *
  * @module rate-limit.test
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { withAuthApiMiddleware, createApiSuccess, createApiError } from '../../../src/lib/api-middleware';
+import {
+  withAuthApiMiddleware,
+  createApiSuccess,
+  createApiError,
+} from '../../../src/lib/api-middleware';
 import { validateSession } from '../../../src/lib/auth-v2';
 import { createRateLimiter } from '../../../src/lib/rate-limiter';
 import type { APIContext } from 'astro';
@@ -34,17 +38,21 @@ const mockLogApiAccess = vi.mocked(logApiAccess);
 
 const mockHandler = async (context: APIContext) => createApiSuccess({ message: 'Success' });
 
-const createMockContext = (sessionId?: string, rateLimited = false): APIContext => ({
-  request: new Request('http://test/api/test'),
-  cookies: { get: vi.fn(() => ({ value: sessionId })) },
-  locals: { sessionId },
-  clientAddress: '127.0.0.1',
-} as any);
+const createMockContext = (sessionId?: string, rateLimited = false): APIContext =>
+  ({
+    request: new Request('http://test/api/test'),
+    cookies: { get: vi.fn(() => ({ value: sessionId })) },
+    locals: { sessionId },
+    clientAddress: '127.0.0.1',
+  }) as any;
 
 beforeEach(() => {
   vi.clearAllMocks();
   server.resetHandlers();
-  mockValidateSession.mockResolvedValue({ session: { id: 'sess1', userId: 'user1' }, user: { id: 'user1' } });
+  mockValidateSession.mockResolvedValue({
+    session: { id: 'sess1', userId: 'user1' },
+    user: { id: 'user1' },
+  });
 });
 
 describe('withAuthApiMiddleware Integration Tests', () => {
@@ -94,7 +102,11 @@ describe('withAuthApiMiddleware Integration Tests', () => {
     expect(response.headers.get('Retry-After')).toBeDefined();
     const body = await response.json();
     expect(body.error).toBe('Rate limit exceeded');
-    expect(mockLogApiAccess).toHaveBeenCalledWith(expect.any(String), 'limited-ip', expect.objectContaining({ rateLimitExceeded: true }));
+    expect(mockLogApiAccess).toHaveBeenCalledWith(
+      expect.any(String),
+      'limited-ip',
+      expect.objectContaining({ rateLimitExceeded: true })
+    );
   });
 
   it('sollte Security-Headers in Response setzen', async () => {
@@ -111,7 +123,9 @@ describe('withAuthApiMiddleware Integration Tests', () => {
 
   it('sollte onError-Callback bei Handler-Fehler aufrufen und 500 zurückgeben', async () => {
     const errorHandler = vi.fn().mockReturnValue(createApiError('server_error', 'Handler Error'));
-    const failingHandler = async () => { throw new Error('Test Error'); };
+    const failingHandler = async () => {
+      throw new Error('Test Error');
+    };
     const middleware = withAuthApiMiddleware(failingHandler, { onError: errorHandler });
 
     const context = createMockContext('valid-session');
@@ -130,7 +144,11 @@ describe('withAuthApiMiddleware Integration Tests', () => {
 
     await middleware(context);
 
-    expect(mockLogApiAccess).toHaveBeenCalledWith('user1', '127.0.0.1', expect.objectContaining({ test: 'value' }));
+    expect(mockLogApiAccess).toHaveBeenCalledWith(
+      'user1',
+      '127.0.0.1',
+      expect.objectContaining({ test: 'value' })
+    );
   });
 
   it('sollte Rate-Limiting mit custom Limiter anwenden', async () => {

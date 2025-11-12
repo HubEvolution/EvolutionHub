@@ -73,6 +73,7 @@ export default tseslint.config(
         clearTimeout: 'readonly',
         window: 'readonly',
         console: 'readonly',
+        Response: 'readonly',
       },
     },
     plugins: { astro: astroPlugin },
@@ -124,6 +125,13 @@ export default tseslint.config(
     ],
     rules: {
       'no-console': ['error'],
+    },
+  },
+  // Allow require() in health check route (runtime-safe lazy import for Worker bundling)
+  {
+    files: ['src/pages/api/health.ts'],
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off',
     },
   },
   // Tests: allow require() in test files to support tooling patterns

@@ -11,7 +11,10 @@ describe('Comments API (edge)', () => {
   const entityId = 'integration-post-1';
 
   it('GET /api/comments should succeed for entity', async () => {
-    const { res, json }: CommentsResponse<{
+    const {
+      res,
+      json,
+    }: CommentsResponse<{
       success: boolean;
       data: { comments: unknown[]; total: number; hasMore: boolean };
     }> = await getJson(
@@ -25,12 +28,12 @@ describe('Comments API (edge)', () => {
   });
 
   it('POST /api/comments/create should reject without CSRF (403)', async () => {
-    const { res, json }: CommentsResponse<{ success: boolean; error: { type: string } }>
-      = await sendJson('/api/comments/create', {
-      content: 'Hello without CSRF',
-      entityType,
-      entityId,
-    });
+    const { res, json }: CommentsResponse<{ success: boolean; error: { type: string } }> =
+      await sendJson('/api/comments/create', {
+        content: 'Hello without CSRF',
+        entityType,
+        entityId,
+      });
     expect(res.status).toBe(403);
     expect(json.success).toBe(false);
     expect(json.error.type).toBe('csrf_error');
@@ -38,12 +41,15 @@ describe('Comments API (edge)', () => {
 
   it('POST /api/comments/create should create comment with valid CSRF (201)', async () => {
     const token = hex32();
-    const { res, json }: CommentsResponse<{ success: boolean; data: { id: string; entityId: string } }>
-      = await sendJson(
-      '/api/comments/create',
-      { content: 'Hello with CSRF', entityType, entityId, csrfToken: token },
-      { headers: csrfHeaders(token) }
-    );
+    const {
+      res,
+      json,
+    }: CommentsResponse<{ success: boolean; data: { id: string; entityId: string } }> =
+      await sendJson(
+        '/api/comments/create',
+        { content: 'Hello with CSRF', entityType, entityId, csrfToken: token },
+        { headers: csrfHeaders(token) }
+      );
     expect([201, 401, 403]).toContain(res.status);
     if (res.status !== 201) return;
     expect(json.success).toBe(true);
@@ -53,7 +59,9 @@ describe('Comments API (edge)', () => {
 
   it('PUT /api/comments/:id should require auth (401)', async () => {
     const token = hex32();
-    const { json: created }: CommentsResponse<{
+    const {
+      json: created,
+    }: CommentsResponse<{
       success: boolean;
       data?: { id?: string };
     }> = await sendJson(
@@ -62,8 +70,7 @@ describe('Comments API (edge)', () => {
       { headers: csrfHeaders(token) }
     );
     const cid = created && created.data && created.data.id ? created.data.id : hex32();
-    const { res, json }: CommentsResponse<{ success: boolean }>
-      = await sendJson(
+    const { res, json }: CommentsResponse<{ success: boolean }> = await sendJson(
       `/api/comments/${cid}`,
       { content: 'update try', csrfToken: token },
       { method: 'PUT', headers: csrfHeaders(token) }
@@ -76,7 +83,9 @@ describe('Comments API (edge)', () => {
 
   it('DELETE /api/comments/:id should require auth (401)', async () => {
     const token = hex32();
-    const { json: created }: CommentsResponse<{
+    const {
+      json: created,
+    }: CommentsResponse<{
       success: boolean;
       data?: { id?: string };
     }> = await sendJson(
@@ -85,8 +94,7 @@ describe('Comments API (edge)', () => {
       { headers: csrfHeaders(token) }
     );
     const cid = created && created.data && created.data.id ? created.data.id : hex32();
-    const { res, json }: CommentsResponse<{ success: boolean }>
-      = await sendJson(
+    const { res, json }: CommentsResponse<{ success: boolean }> = await sendJson(
       `/api/comments/${cid}`,
       { csrfToken: token },
       { method: 'DELETE', headers: csrfHeaders(token) }
@@ -100,10 +108,13 @@ describe('Comments API (edge)', () => {
   it('POST /api/comments/moderate should require moderator (401)', async () => {
     const token = hex32();
     const payload = { action: 'approve', commentId: 'does-not-matter', csrfToken: token };
-    const { res, json }: CommentsResponse<{ success: boolean }>
-      = await sendJson('/api/comments/moderate', payload, {
-      headers: csrfHeaders(token),
-    });
+    const { res, json }: CommentsResponse<{ success: boolean }> = await sendJson(
+      '/api/comments/moderate',
+      payload,
+      {
+        headers: csrfHeaders(token),
+      }
+    );
     expect(res.status).toBe(401);
     expect(json.success).toBe(false);
   });

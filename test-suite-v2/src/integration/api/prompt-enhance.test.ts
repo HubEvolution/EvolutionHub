@@ -4,7 +4,11 @@ import { GET as templatesGet } from '@/pages/api/templates';
 import { createApiSuccess, createApiError } from '@/lib/api-middleware';
 import { PromptEnhancerService } from '@/lib/services/prompt-enhancer-service';
 import type { APIContext } from 'astro';
-import type { EnhanceInput, EnhanceOptions, EnhanceResult } from '@/lib/services/prompt-enhancer-service';
+import type {
+  EnhanceInput,
+  EnhanceOptions,
+  EnhanceResult,
+} from '@/lib/services/prompt-enhancer-service';
 
 // Mock service
 vi.mock('@/lib/services/prompt-enhancer-service', () => ({
@@ -19,17 +23,19 @@ describe('Prompt Enhance API Integration', () => {
   const mockContext = {
     request: new Request('http://localhost/api/prompt-enhance', { method: 'POST' }),
     cookies: { get: vi.fn(), set: vi.fn() },
-    locals: { 
-      runtime: { 
-        env: { 
-          KV_PROMPT_ENHANCER: { 
-            get: vi.fn().mockResolvedValue(JSON.stringify({ count: 0, resetAt: Date.now() + 86400000 })),
-            put: vi.fn().mockResolvedValue(undefined)
-          } 
-        } 
-      } 
+    locals: {
+      runtime: {
+        env: {
+          KV_PROMPT_ENHANCER: {
+            get: vi
+              .fn()
+              .mockResolvedValue(JSON.stringify({ count: 0, resetAt: Date.now() + 86400000 })),
+            put: vi.fn().mockResolvedValue(undefined),
+          },
+        },
+      },
     },
-    clientAddress: '127.0.0.1'
+    clientAddress: '127.0.0.1',
   } as unknown as APIContext;
 
   beforeEach(() => {
@@ -39,10 +45,16 @@ describe('Prompt Enhance API Integration', () => {
 
   it('should handle successful POST request', async () => {
     const mockEnhanceResult: EnhanceResult = {
-      enhanced: { role: 'Expert', objective: 'Generate content', constraints: 'Cite sources', outputFormat: 'Markdown', rawText: 'Test input' },
+      enhanced: {
+        role: 'Expert',
+        objective: 'Generate content',
+        constraints: 'Cite sources',
+        outputFormat: 'Markdown',
+        rawText: 'Test input',
+      },
       safetyReport: { masked: [], types: [] },
       scores: { clarity: 0.8, specificity: 0.9, testability: 0.7 },
-      usage: { used: 1, limit: 5, resetAt: 1234567890 }
+      usage: { used: 1, limit: 5, resetAt: 1234567890 },
     };
     const mockServiceInstance = { enhance: vi.fn().mockResolvedValue(mockEnhanceResult) };
     MockPromptEnhancerService.mockImplementation(() => mockServiceInstance as any);
@@ -53,8 +65,8 @@ describe('Prompt Enhance API Integration', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         input: { text: 'Test prompt text' },
-        options: { mode: 'agent', safety: true, includeScores: true }
-      })
+        options: { mode: 'agent', safety: true, includeScores: true },
+      }),
     });
     Object.assign(mockContext, { request: mockRequest });
 
@@ -77,7 +89,7 @@ describe('Prompt Enhance API Integration', () => {
     const mockRequest = new Request('http://localhost/api/prompt-enhance', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ input: { text: '' } })
+      body: JSON.stringify({ input: { text: '' } }),
     });
     Object.assign(mockContext, { request: mockRequest });
 
@@ -96,11 +108,13 @@ describe('Prompt Enhance API Integration', () => {
     const mockRequest = new Request('http://localhost/api/prompt-enhance', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ input: { text: 'Valid text' } })
+      body: JSON.stringify({ input: { text: 'Valid text' } }),
     });
     Object.assign(mockContext, { request: mockRequest });
 
-    MockPromptEnhancerService.mockImplementation(() => ({ enhance: vi.fn().mockResolvedValue({}) as any }));
+    MockPromptEnhancerService.mockImplementation(() => ({
+      enhance: vi.fn().mockResolvedValue({}) as any,
+    }));
 
     await promptEnhancePost(mockContext);
 
@@ -110,7 +124,7 @@ describe('Prompt Enhance API Integration', () => {
       expect.objectContaining({
         httpOnly: true,
         sameSite: 'lax',
-        maxAge: 15552000 // 180 days
+        maxAge: 15552000, // 180 days
       })
     );
   });
@@ -121,11 +135,13 @@ describe('Prompt Enhance API Integration', () => {
     const mockRequest = new Request('http://localhost/api/prompt-enhance', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ input: { text: 'Valid text' } })
+      body: JSON.stringify({ input: { text: 'Valid text' } }),
     });
     Object.assign(mockContext, { request: mockRequest });
 
-    MockPromptEnhancerService.mockImplementation(() => ({ enhance: vi.fn().mockResolvedValue({}) as any }));
+    MockPromptEnhancerService.mockImplementation(() => ({
+      enhance: vi.fn().mockResolvedValue({}) as any,
+    }));
 
     await promptEnhancePost(mockContext);
 
@@ -137,16 +153,16 @@ describe('Prompt Enhance API Integration', () => {
 describe('Templates API Integration', () => {
   const mockTemplateContext = {
     request: new Request('http://localhost/api/templates', { method: 'GET' }),
-    locals: { 
-      runtime: { 
-        env: { 
-          KV_PROMPT_ENHANCER: { 
+    locals: {
+      runtime: {
+        env: {
+          KV_PROMPT_ENHANCER: {
             get: vi.fn().mockResolvedValue(null),
-            put: vi.fn().mockResolvedValue(undefined)
-          } 
-        } 
-      } 
-    }
+            put: vi.fn().mockResolvedValue(undefined),
+          },
+        },
+      },
+    },
   } as unknown as APIContext;
 
   it('should return seed templates from KV or hardcoded', async () => {
@@ -168,7 +184,9 @@ describe('Templates API Integration', () => {
 
   it('should return stored templates if exist in KV', async () => {
     const storedTemplates = [{ id: 'custom', name: 'Custom' }];
-    mockTemplateContext.locals.runtime.env.KV_PROMPT_ENHANCER.get.mockResolvedValueOnce(JSON.stringify(storedTemplates));
+    mockTemplateContext.locals.runtime.env.KV_PROMPT_ENHANCER.get.mockResolvedValueOnce(
+      JSON.stringify(storedTemplates)
+    );
 
     const response = await templatesGet(mockTemplateContext);
     const result = await response.json();

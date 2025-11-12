@@ -1,9 +1,9 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
+'use strict';
+Object.defineProperty(exports, '__esModule', { value: true });
 exports.contactMessageSchema = void 0;
-const validation_1 = require("@/lib/validation");
+const validation_1 = require('@/lib/validation');
 exports.contactMessageSchema = validation_1.z
-    .object({
+  .object({
     firstName: validation_1.z.string().trim().min(1, 'first_name_required').max(100),
     lastName: validation_1.z.string().trim().min(1, 'last_name_required').max(100),
     email: validation_1.z.string().email('email_invalid').max(320),
@@ -13,5 +13,5 @@ exports.contactMessageSchema = validation_1.z
     locale: validation_1.z.enum(['de', 'en']).optional(),
     turnstileToken: validation_1.z.string().min(10, 'turnstile_missing'),
     source: validation_1.z.string().trim().max(120).optional(),
-})
-    .strict();
+  })
+  .strict();

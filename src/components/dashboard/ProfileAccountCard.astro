@@ -3,6 +3,41 @@ import Card from '@/components/ui/Card';
 import UserProfile from '@/components/dashboard/UserProfile.astro';
 import AccountSettingsSection from '@/components/dashboard/AccountSettingsSection.astro';
 
+interface DangerStrings {
+  title: string;
+  description: string;
+  button: string;
+  close: string;
+  confirm: { title: string; description: string; confirmCta: string; cancelCta: string };
+  subscription: {
+    title: string;
+    description: string;
+    periodEnd: string;
+    indefinite: string;
+    goToBilling: string;
+    deleteAnyway: string;
+    back: string;
+  };
+  messages: { processing: string; success: string; error: string };
+}
+
+interface ProfileCopy {
+  title: string;
+  description: string;
+  nameLabel: string;
+  usernameLabel: string;
+  emailLabel: string;
+  changeEmailHint: string;
+  changeEmailCta: string;
+  saveCta: string;
+  hybridTitle: string;
+  hybridDescription: string;
+  supportTitle: string;
+  supportDescription: string;
+  supportCta: string;
+  supportHref: string;
+}
+
 interface Props {
   user: {
     id: string;
@@ -15,9 +50,9 @@ interface Props {
   planLabels: Record<'free' | 'pro' | 'premium' | 'enterprise', string>;
   billingUrl: string;
   redirectUrl: string;
-  dangerStrings: any;
-  profileCopy: any;
-  i18nSettings: any;
+  dangerStrings: DangerStrings;
+  profileCopy: ProfileCopy;
+  i18nSettings: Record<string, unknown>;
 }
 
 const { user, planLabels, billingUrl, redirectUrl, dangerStrings, profileCopy, i18nSettings } =

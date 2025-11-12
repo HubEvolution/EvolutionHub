@@ -1,0 +1,7 @@
+Checking formatting...
+[warn] scripts/web-eval-executor/executor.ts
+[warn] scripts/web-eval-executor/menu.ts
+[warn] scripts/web-eval-executor/runner.ts
+[warn] test-suite-v2/src/e2e/auth/README.md
+[warn] test-suite-v2/src/unit/services/prompt-enhancer-service.test.ts
+[warn] Code style issues found in 5 files. Run Prettier with --write to fix.

@@ -18,7 +18,6 @@ Klare Struktur für Laufzeitcode, Assets und Tests; eindeutige Pfade für Server
 ## Muss
 
 - `src/` ist Runtime‑Root.
-
   - UI: `src/components`, `src/pages`, `src/layouts`.
 
   - Shared: `src/lib`, `src/config`, `src/utils`.

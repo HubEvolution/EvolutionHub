@@ -235,7 +235,6 @@ ToolUpdate:
       type: string
       description: Icon-Pfad oder -Name
 
-
 Error:
   type: object
   properties:

@@ -16,7 +16,6 @@ testRefs: 'N/A'
 This document records the cache rules configured via Cloudflare Rulesets for our CI and Staging hosts. We use plan‑compatible expressions (no `matches` operator) and restrict rules by host to avoid impacting Production.
 
 - Host: `ci.hub-evolution.com`
-
   - Session bypass (cookies)
 
   - Login/Dashboard/Welcomes bypass
@@ -26,7 +25,6 @@ This document records the cache rules configured via Cloudflare Rulesets for our
   - Manual bypass via `__no_cache`
 
 - Host: `staging.hub-evolution.com`
-
   - API bypass
 
   - Manual bypass via `__no_cache`
@@ -38,7 +36,7 @@ Ruleset ID (current zone): see verify step below.
 
 1. Session bypass
 
-```text
+````text
 (http.host eq "ci.hub-evolution.com")
 and ((http.cookie contains "session_id=") or (http.cookie contains "__Host-session="))
 
@@ -58,13 +56,13 @@ and (
   or starts_with(http.request.uri.path, "/welcome")
   or starts_with(http.request.uri.path, "/welcome-profile")
 )
-```
+````
 
 Action: `{ cache: false }`
 
 1. API bypass
 
-```text
+````text
 (http.host eq "ci.hub-evolution.com")
 and starts_with(http.request.uri.path, "/api/")
 
@@ -77,7 +75,7 @@ Action: `{ cache: false }`
 ```text
 (http.host eq "ci.hub-evolution.com")
 and (http.request.uri.query contains "__no_cache")
-```
+````
 
 Action: `{ cache: false }`
 
@@ -85,7 +83,7 @@ Action: `{ cache: false }`
 
 1. API bypass
 
-```text
+````text
 (http.host eq "staging.hub-evolution.com")
 and starts_with(http.request.uri.path, "/api/")
 
@@ -98,7 +96,7 @@ Action: `{ cache: false }`
 ```text
 (http.host eq "staging.hub-evolution.com")
 and (http.request.uri.query contains "__no_cache")
-```
+````
 
 Action: `{ cache: false }`
 
@@ -107,7 +105,6 @@ Action: `{ cache: false }`
 Prereqs:
 
 - API Token with permissions:
-
   - Zone → Cache Rules: Edit
 
   - Zone → Zone: Read
@@ -118,7 +115,7 @@ Prereqs:
 
 - Env:
 
-```bash
+````bash
 export TOKEN='...'
 export ZONE_ID='14c984ebb05270de08cb82d316f1ba36'
 BASE='https://api.cloudflare.com/client/v4'
@@ -132,11 +129,11 @@ RID=$(curl -fsS -H "Authorization: Bearer $TOKEN" \
   "$BASE/zones/$ZONE_ID/rulesets" \
   | jq -r '.result[] | select(.phase=="http_request_cache_settings" and .kind=="zone") | .id' \
   | head -n1)
-```
+````
 
 List rules (compact):
 
-```bash
+````bash
 curl -fsS -H "Authorization: Bearer $TOKEN" \
   "$BASE/zones/$ZONE_ID/rulesets/$RID" \
   | jq '.result.rules | map({desc: .description, expr: .expression})'
@@ -151,12 +148,12 @@ Update rules (append):
 curl -fsS -H "Authorization: Bearer $TOKEN" \
   "$BASE/zones/$ZONE_ID/rulesets/$RID" > ruleset-current.json
 jq '.result.rules' ruleset-current.json > existing-rules.json
-```
+````
 
 1. Prepare new rules JSON (see sections above)
 1. Merge and PUT
 
-```bash
+````bash
 jq -s '{rules: (.[0] + .[1])}' existing-rules.json new-rules.json > update-payload.json
 curl -sS -X PUT -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
   --data @update-payload.json "$BASE/zones/$ZONE_ID/rulesets/$RID" \
@@ -171,11 +168,11 @@ curl -sS -X PUT -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/
 ```bash
 curl -sD - 'https://staging.hub-evolution.com/api/health' -o /dev/null \
   | egrep -i 'HTTP/|cf-cache-status|cache-control'
-```
+````
 
 - Static asset (best shows CF-Cache-Status):
 
-```bash
+````bash
 
 # without manual bypass
 
@@ -200,3 +197,4 @@ curl -sI 'https://staging.hub-evolution.com/favicon.ico?__no_cache=1' \
 - Rotate tokens after use.
 
 ```text
+````

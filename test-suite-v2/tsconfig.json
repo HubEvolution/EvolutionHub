@@ -34,14 +34,7 @@
     "data/**/*",
     "scripts/**/*"
   ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "coverage",
-    "reports",
-    "**/*.test.ts",
-    "**/*.spec.ts"
-  ],
+  "exclude": ["node_modules", "dist", "coverage", "reports", "**/*.test.ts", "**/*.spec.ts"],
   "ts-node": {
     "esm": true,
     "experimentalSpecifierResolution": "node"

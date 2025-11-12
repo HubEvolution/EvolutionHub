@@ -36,7 +36,6 @@ Wir benötigten einen Ansatz, der sowohl statische Inhalte effizient ausliefern 
 Wir haben uns für folgende Technologien entschieden:
 
 1. **Astro** als Frontend-Framework:
-
    - Verwendet für die Erstellung von Seiten und die Integration von UI-Komponenten
 
    - Islands-Architektur für selektives Hydration von interaktiven Komponenten
@@ -44,13 +43,11 @@ Wir haben uns für folgende Technologien entschieden:
    - Server-seitiges Rendering für optimale Performance und SEO
 
 1. **React** für interaktive UI-Komponenten:
-
    - Verwendet innerhalb von Astro für komplexe, interaktive Benutzeroberflächen
 
    - Komponenten-basierter Ansatz für Wiederverwendbarkeit und Wartbarkeit
 
 1. **Cloudflare** als Hosting- und Backend-Plattform:
-
    - Cloudflare Pages für das Hosting der Anwendung
 
    - Cloudflare Workers für serverless Funktionen und API-Endpunkte
@@ -58,13 +55,11 @@ Wir haben uns für folgende Technologien entschieden:
    - Cloudflare D1 als serverless SQL-Datenbank
 
 1. **Tailwind CSS** für das Styling:
-
    - Utility-First-Ansatz für schnelle UI-Entwicklung
 
    - Konsistentes Design-System durch Konfiguration
 
 1. **TypeScript** für typsicheren Code:
-
    - Strikte Typisierung für Frontend- und Backend-Code
 
    - Bessere Entwicklererfahrung und Code-Qualität
@@ -74,13 +69,11 @@ Wir haben uns für folgende Technologien entschieden:
 ### Positive Konsequenzen
 
 1. **Performance-Vorteile**:
-
    - Astro's partielles Hydration minimiert das JavaScript, das an den Client gesendet wird
 
    - Cloudflare's Edge-Netzwerk sorgt für schnelle Auslieferung weltweit
 
 1. **Entwicklungseffizienz**:
-
    - Moderne Entwicklungswerkzeuge und Frameworks
 
    - Komponenten-basierter Ansatz fördert Wiederverwendbarkeit
@@ -88,13 +81,11 @@ Wir haben uns für folgende Technologien entschieden:
    - TypeScript verbessert die Code-Qualität und Wartbarkeit
 
 1. **Kosteneffizienz**:
-
    - Serverless-Architektur reduziert Infrastrukturkosten
 
    - Pay-as-you-go-Modell für Cloudflare-Dienste
 
 1. **Skalierbarkeit**:
-
    - Automatische Skalierung durch Cloudflare's globale Infrastruktur
 
    - Keine Notwendigkeit für manuelle Server-Skalierung
@@ -102,25 +93,21 @@ Wir haben uns für folgende Technologien entschieden:
 ### Negative Konsequenzen
 
 1. **Lernkurve**:
-
    - Neue Technologien wie Astro und Cloudflare D1 erfordern Einarbeitung
 
    - Islands-Architektur erfordert ein Umdenken im Vergleich zu traditionellen SPAs
 
 1. **Einschränkungen**:
-
    - Cloudflare Workers haben Laufzeitbeschränkungen (CPU-Zeit, Speicher)
 
    - D1 ist eine relativ neue Datenbank mit eingeschränktem Feature-Set
 
 1. **Vendor Lock-in**:
-
    - Abhängigkeit von Cloudflare's Ökosystem
 
    - Migration zu anderen Plattformen könnte aufwändig sein
 
 1. **Debugging-Komplexität**:
-
    - Serverless-Funktionen können schwieriger zu debuggen sein
 
    - Lokale Entwicklungsumgebung muss Cloudflare-Dienste emulieren

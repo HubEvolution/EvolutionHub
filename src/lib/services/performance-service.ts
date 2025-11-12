@@ -3,7 +3,7 @@
  * Implementiert Pagination, Caching und Performance-Optimierungen
  */
 
-import { eq, and, gte, lte, desc, sql, or, isNull, type SQL } from 'drizzle-orm';
+import { eq, and, gte, lte, desc, sql, or, isNull } from 'drizzle-orm';
 import { comments } from '../db/schema';
 import { drizzle } from 'drizzle-orm/d1';
 import type {
@@ -196,7 +196,7 @@ export class PerformanceService {
     const offset = (options.page - 1) * options.limit;
 
     // Optimierte Query mit JOIN für bessere Performance
-    const baseWhereParts: SQL<unknown>[] = [
+    const baseWhereParts: unknown[] = [
       eq(comments.entityId, entityId),
       eq(comments.status, 'approved'),
     ];
@@ -221,7 +221,7 @@ export class PerformanceService {
         updatedAt: comments.updatedAt,
       })
       .from(comments)
-      .where(and(...baseWhereParts))
+      .where(and(...(baseWhereParts as Parameters<typeof and>[0][])))
       .orderBy(
         options.sortBy === 'createdAt'
           ? options.sortOrder === 'desc'
@@ -242,7 +242,7 @@ export class PerformanceService {
     const countQuery = this.db
       .select({ count: sql<number>`count(*)` })
       .from(comments)
-      .where(and(...baseWhereParts));
+      .where(and(...(baseWhereParts as Parameters<typeof and>[0][])));
 
     const totalResult = await countQuery;
     const total = totalResult[0]?.count || 0;
@@ -321,7 +321,7 @@ export class PerformanceService {
     const offset = (pagination.page - 1) * pagination.limit;
 
     // Baue WHERE-Bedingungen
-    const whereConditions: SQL<unknown>[] = [];
+    const whereConditions: unknown[] = [];
 
     // Text-Suche
     whereConditions.push(sql`${comments.content} LIKE ${'%' + query + '%'}` as unknown);
@@ -378,7 +378,7 @@ export class PerformanceService {
         updatedAt: comments.updatedAt,
       })
       .from(comments)
-      .where(and(...whereConditions))
+      .where(and(...(whereConditions as Parameters<typeof and>[0][])))
       .orderBy(desc(comments.createdAt))
       .limit(pagination.limit)
       .offset(offset);
@@ -389,7 +389,7 @@ export class PerformanceService {
     const countQuery = this.db
       .select({ count: sql<number>`count(*)` })
       .from(comments)
-      .where(and(...whereConditions));
+      .where(and(...(whereConditions as Parameters<typeof and>[0][])));
 
     const totalResult = await countQuery;
     const total = totalResult[0]?.count || 0;

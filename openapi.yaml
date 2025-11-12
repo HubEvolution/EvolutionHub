@@ -725,7 +725,7 @@ paths:
                               updatedAt: { type: string, format: date-time }
                               lastError: { type: string, nullable: true }
                             required: [id, url, task, status, attemptCount, ownerType, ownerId, createdAt, updatedAt]
-                          - type: 'null'
+                        nullable: true
         "401":
           description: Executor authentication failed
           content:
@@ -2526,11 +2526,7 @@ paths:
                 - model
       responses:
         "200":
-          description: Erfolg – Ergebnis-URL und Limits
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AiGenerateSuccessResponse'
+          $ref: '#/components/responses/AiImageGenerateSuccess'
         "400":
           description: Validierungsfehler
           content:
@@ -3423,7 +3419,7 @@ components:
       properties:
         success:
           type: boolean
-          const: true
+          enum: [true]
         data:
           type: object
           required:
@@ -3457,7 +3453,7 @@ components:
       properties:
         success:
           type: boolean
-          const: true
+          enum: [true]
         data:
           type: object
           required:
@@ -3511,7 +3507,7 @@ components:
       properties:
         success:
           type: boolean
-          const: true
+          enum: [true]
         data:
           type: object
           required:
@@ -3535,7 +3531,7 @@ components:
       properties:
         success:
           type: boolean
-          const: true
+          enum: [true]
         data:
           type: object
           additionalProperties: false
@@ -3883,6 +3879,40 @@ components:
           enum: [markdown, json]
         description:
           type: string
+    PromptEnhanceSuccessResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          type: object
+          additionalProperties: false
+          properties:
+            enhancedPrompt:
+              type: string
+            safetyReport:
+              type: object
+              nullable: true
+              additionalProperties: false
+              properties:
+                score:
+                  type: integer
+                warnings:
+                  type: array
+                  items:
+                    type: string
+            usage:
+              $ref: '#/components/schemas/UsageInfo'
+            limits:
+              type: object
+              additionalProperties: false
+              properties:
+                user: { type: integer }
+                guest: { type: integer }
+              required: [user, guest]
+      required: [success, data]
     LeadMagnetMetadata:
       type: object
       properties:
@@ -4125,19 +4155,6 @@ components:
               type: integer
         entitlements:
           $ref: '#/components/schemas/PlanEntitlements'
-        properties:
-          key:
-            type: string
-          url:
-            type: string
-            nullable: true
-          contentType:
-            type: string
-            nullable: true
-          size:
-            type: integer
-            format: int64
-            nullable: true
     AiGenerateSuccessResponse:
       type: object
       additionalProperties: false
@@ -4148,105 +4165,112 @@ components:
         data:
           $ref: '#/components/schemas/AiGenerateData'
       required: [success, data]
-      WebEvalTaskRequest:
-        type: object
-        additionalProperties: false
-        properties:
-          url:
-            type: string
-            format: uri
-            maxLength: 2048
-          task:
-            type: string
-            minLength: 5
-            maxLength: 500
-          headless:
-            type: boolean
-          timeoutMs:
-            type: integer
-            minimum: 1000
-            maximum: 300000
-        required: [url, task]
-      WebEvalReport:
-        type: object
-        additionalProperties: false
-        properties:
-          taskId: { type: string }
-          url: { type: string }
-          taskDescription: { type: string }
-          success: { type: boolean }
-          steps:
-            type: array
-            items:
-              type: object
-              additionalProperties: false
-              properties:
-                action: { type: string }
-                timestamp: { type: string }
-                selectorUsed: { type: string }
-                screenshotKey: { type: string }
-              required: [action, timestamp]
-          consoleLogs:
-            type: array
-            items:
-              type: object
-              additionalProperties: false
-              properties:
-                level:
-                  type: string
-                  enum: [log, error, warn, info, debug]
-                message: { type: string }
-                timestamp: { type: string }
-              required: [level, message, timestamp]
-          networkRequests:
-            type: array
-            items:
-              type: object
-              additionalProperties: false
-              properties:
-                method:
-                  type: string
-                  enum: [GET, POST, PUT, DELETE, PATCH, HEAD]
-                url: { type: string }
-                status: { type: integer, minimum: 0 }
-                durationMs: { type: integer, minimum: 0 }
-              required: [method, url, status]
-          errors:
-            type: array
-            items: { type: string }
-          durationMs: { type: integer, minimum: 0 }
-          startedAt: { type: string }
-          finishedAt: { type: string }
-        required:
-          [taskId, url, taskDescription, success, steps, consoleLogs, networkRequests, errors, durationMs, startedAt, finishedAt]
-      WebEvalCompletion:
-        type: object
-        additionalProperties: false
-        properties:
-          status:
-            type: string
-            enum: [completed, failed]
-          report:
-            $ref: '#/components/schemas/WebEvalReport'
-          error:
-            type: string
-        required: [status, report]
-      WebEvalTaskClaim:
-        type: object
-        additionalProperties: false
-        properties:
-          id: { type: string }
-          url: { type: string }
-          task: { type: string }
-          headless: { type: boolean }
-          timeoutMs: { type: integer }
-          status:
-            type: string
-            enum: [pending, processing, completed, failed]
-          attemptCount: { type: integer, minimum: 0 }
-          ownerType: { type: string, enum: [user, guest] }
-          ownerId: { type: string }
-          createdAt: { type: string, format: date-time }
-          updatedAt: { type: string, format: date-time }
-          lastError: { type: string, nullable: true }
-        required: [id, url, task, status, attemptCount, ownerType, ownerId, createdAt, updatedAt]
+    WebEvalTaskRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        url:
+          type: string
+          format: uri
+          maxLength: 2048
+        task:
+          type: string
+          minLength: 5
+          maxLength: 500
+        headless:
+          type: boolean
+        timeoutMs:
+          type: integer
+          minimum: 1000
+          maximum: 300000
+      required: [url, task]
+    WebEvalReport:
+      type: object
+      additionalProperties: false
+      properties:
+        taskId: { type: string }
+        url: { type: string }
+        taskDescription: { type: string }
+        success: { type: boolean }
+        steps:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              action: { type: string }
+              timestamp: { type: string }
+              selectorUsed: { type: string }
+              screenshotKey: { type: string }
+            required: [action, timestamp]
+        consoleLogs:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              level:
+                type: string
+                enum: [log, error, warn, info, debug]
+              message: { type: string }
+              timestamp: { type: string }
+            required: [level, message, timestamp]
+        networkRequests:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              method:
+                type: string
+                enum: [GET, POST, PUT, DELETE, PATCH, HEAD]
+              url: { type: string }
+              status: { type: integer, minimum: 0 }
+              durationMs: { type: integer, minimum: 0 }
+            required: [method, url, status]
+        errors:
+          type: array
+          items: { type: string }
+        durationMs: { type: integer, minimum: 0 }
+        startedAt: { type: string }
+        finishedAt: { type: string }
+      required:
+        [taskId, url, taskDescription, success, steps, consoleLogs, networkRequests, errors, durationMs, startedAt, finishedAt]
+    WebEvalCompletion:
+      type: object
+      additionalProperties: false
+      properties:
+        status:
+          type: string
+          enum: [completed, failed]
+        report:
+          $ref: '#/components/schemas/WebEvalReport'
+        error:
+          type: string
+      required: [status, report]
+    WebEvalTaskClaim:
+      type: object
+      additionalProperties: false
+      properties:
+        id: { type: string }
+        url: { type: string }
+        task: { type: string }
+        headless: { type: boolean }
+        timeoutMs: { type: integer }
+        status:
+          type: string
+          enum: [pending, processing, completed, failed]
+        attemptCount: { type: integer, minimum: 0 }
+        ownerType: { type: string, enum: [user, guest] }
+        ownerId: { type: string }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        lastError: { type: string, nullable: true }
+      required: [id, url, task, status, attemptCount, ownerType, ownerId, createdAt, updatedAt]
+  responses:
+    AiImageGenerateSuccess:
+      description: Erfolg – Ergebnis-URL und Limits
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AiGenerateSuccessResponse'

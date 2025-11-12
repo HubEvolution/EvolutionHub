@@ -34,7 +34,6 @@ This document describes our free-to-use external monitoring baseline and operati
 - (Optional) SSL Certificate: login-test.hub-evolution.com (expiry warning)
 
 - Critical API: GET <https://hub-evolution.com/api/ai-image/usage>
-
   - Rationale: read-only, stable, reflects core feature availability.
 
   - Alternatives: GET /api/voice/usage or GET /api/prompt/usage
@@ -56,7 +55,6 @@ Notes
 ## UptimeRobot – Setup checklist
 
 - Create monitors
-
   - HTTP(s): Homepage (/), API Health (/api/health), Critical API (/api/ai-image/usage).
 
   - SSL monitor for hub-evolution.com
@@ -66,11 +64,9 @@ Notes
   - (Optional) SSL monitor for login-test.hub-evolution.com
 
 - Notifications
-
   - Enable push (iOS app) and email. Optionally Slack/Discord/Webhook (free integrations).
 
 - Status page (optional)
-
   - Enable public status page and add the four monitors.
 
 ## Healthchecks.io – Heartbeats for Cron Worker
@@ -100,7 +96,6 @@ Optional
 - Create a repo from <https://github.com/upptime/upptime> template.
 
 - Configure `.upptimerc.yml` with sites, for example:
-
   - <https://hub-evolution.com/>
 
   - <https://hub-evolution.com/api/health>
@@ -118,15 +113,12 @@ Trade-offs
 ## Severity & actions
 
 - Sev-1 (Hard DOWN): Multiple monitors fail concurrently (Homepage + /api/health + Critical API)
-
   - Actions: Acknowledge, create incident note, check recent deploys/CF status, roll back if needed.
 
 - Sev-2 (Partial degradation): Only Critical API fails, homepage OK
-
   - Actions: Inspect service logs, providers, rate limits; communicate on status page.
 
 - Sev-3 (Informational): SSL expiry warning in <14 days
-
   - Actions: Renew certificate; verify after issuance.
 
 ## Maintenance windows
@@ -139,12 +131,11 @@ Trade-offs
 
 - Confirm `/api/health` returns 200 and status "ok" or "degraded" with service details.
 
-- Check `GET /api/ai-image/usage` returns `{ success: true, ... }` and X-Usage-* headers.
+- Check `GET /api/ai-image/usage` returns `{ success: true, ... }` and X-Usage-\* headers.
 
 - Validate DNS/CF changes; look for recent deploys and middleware/CSP updates.
 
 - For worker tasks, review Healthchecks.io last pings and the Cron Worker KV keys:
-
   - `pricing:last:<host>`
 
   - `prod-auth:last:<host>`

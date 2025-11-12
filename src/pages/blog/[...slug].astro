@@ -13,8 +13,12 @@ import { getAlternateUrls } from '@/lib/seo';
 import { getLocale } from '@/lib/i18n';
 
 // Get slug from URL parameters (catch-all -> array of segments)
-const slugParamRaw = (Astro.params as any)?.slug as string | string[] | undefined;
-const slugParam = Array.isArray(slugParamRaw) ? slugParamRaw.join('/') : slugParamRaw;
+const slugParamRaw = (Astro.params as Record<string, unknown>)?.slug;
+const slugParam = Array.isArray(slugParamRaw)
+  ? slugParamRaw.join('/')
+  : typeof slugParamRaw === 'string'
+    ? slugParamRaw
+    : undefined;
 
 if (!slugParam) {
   // It's better to return a 404 response directly if slug is missing.
@@ -22,7 +26,14 @@ if (!slugParam) {
 }
 
 // Load user session for comment system
-const user = (Astro.locals as any)?.user || null;
+const user =
+  (
+    Astro.locals as
+      | {
+          user?: { id?: string | number; name?: string; email?: string; image?: string } | null;
+        }
+      | undefined
+  )?.user ?? null;
 const initialUser = user
   ? {
       id: String(user.id),
@@ -95,7 +106,7 @@ if (postData) {
 }
 
 // SEO Metadaten
-const data: any = postData.data;
+const data = postData.data as import('../../content/types').BlogPostData;
 const title = String(data.title);
 const description = String(data.description || '');
 const siteBase: URL = (Astro.site as URL) || new URL('http://127.0.0.1:8787');
@@ -105,14 +116,22 @@ const canonicalPath =
 const canonicalUrl = new URL(canonicalPath, siteBase);
 // Ensure imageUrl is correctly formed
 const imageSrc =
-  data.image && (data.image as any).src ? (data.image as any).src : '/images/blog/default-og.jpg';
+  data.image && typeof (data.image as { src?: unknown }).src === 'string'
+    ? (data.image as { src: string }).src
+    : '/images/blog/default-og.jpg';
 const imageUrl = new URL(imageSrc, siteBase).toString();
 
 // Refactored logic for dateModified
-const datePublishedISO = new Date(data.pubDate as any).toISOString();
-const dateModifiedISO = data.updatedDate
-  ? new Date(data.updatedDate as any).toISOString()
-  : datePublishedISO;
+const datePublishedISO =
+  data.pubDate instanceof Date
+    ? data.pubDate.toISOString()
+    : new Date(String(data.pubDate)).toISOString();
+const dateModifiedISO =
+  data.updatedDate instanceof Date
+    ? data.updatedDate.toISOString()
+    : data.updatedDate
+      ? new Date(String(data.updatedDate)).toISOString()
+      : datePublishedISO;
 
 // Strukturierte Daten für SEO (Schema.org)
 const structuredData = {

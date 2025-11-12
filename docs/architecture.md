@@ -52,7 +52,6 @@ testRefs: 'N/A'
 - **cookie v1.0.2** (siehe [`package.json`](package.json:66))
 
 - Zentrale Security‑Implementierungen:
-
   - Rate‑Limiting: [`src/lib/rate-limiter.ts`](src/lib/rate-limiter.ts:1)
 
   - Security‑Headers: [`src/lib/security-headers.ts`](src/lib/security-headers.ts:1)
@@ -81,7 +80,7 @@ testRefs: 'N/A'
 
 ### Verzeichnisstruktur (Auszug)
 
-```text
+````text
 evolution-hub/
 ├── src/
 │   ├── components/       # UI‑Komponenten (Astro + React Islands)
@@ -219,3 +218,4 @@ Detaillierte Architektur-Dokumentation finden Sie in:
 ---
 
 ```text
+````

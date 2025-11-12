@@ -23,7 +23,6 @@ testRefs: 'N/A'
 Das Kommentarsystem wurde vollständig implementiert mit folgenden Tabellen:
 
 - **`comments`**: Haupttabelle für Comments (Migration `0013_create_comment_system.sql`)
-
   - Felder: id, content, author_id, author_name, author_email, parent_id, entity_type, entity_id, status, is_edited, edited_at, created_at, updated_at
 
   - Unterstützt Threaded Comments (Parent/Child via `parent_id`)
@@ -33,19 +32,16 @@ Das Kommentarsystem wurde vollständig implementiert mit folgenden Tabellen:
   - Status: `pending`, `approved`, `rejected`, `flagged`, `hidden`
 
 - **`comment_moderation`**: Moderations-Historie
-
   - Felder: id, comment_id, moderator_id, action, reason, created_at
 
   - Actions: `approve`, `reject`, `flag`, `hide`, `unhide`
 
 - **`comment_reports`**: User-Reports
-
   - Felder: id, comment_id, reporter_id, reporter_email, reason, description, status, created_at, reviewed_at, reviewed_by
 
   - Reasons: `spam`, `harassment`, `inappropriate`, `off_topic`, `other`
 
 - **`comment_audit_logs`**: Audit-Trail
-
   - Felder: id, comment_id, user_id, action, details, ip_address, user_agent, created_at
 
   - Actions: `create`, `update`, `delete`, `moderate`, `report`
@@ -77,7 +73,6 @@ Die folgende Dokumentation wird nur zu Referenzzwecken beibehalten und sollte ni
 
 1. [Entity-Relationship-Diagramm](#entity-relationship-diagramm)
 1. [Tabellen](#tabellen)
-
    - [Users](#users)
 
    - [Sessions](#sessions)
@@ -104,7 +99,7 @@ Die folgende Dokumentation wird nur zu Referenzzwecken beibehalten und sollte ni
 
 Das folgende Diagramm zeigt die Beziehungen zwischen den Tabellen des Evolution Hub Datenbankschemas:
 
-```mermaid
+````mermaid
 erDiagram
     USERS {
         string id PK
@@ -115,14 +110,14 @@ erDiagram
         datetime created_at
         datetime updated_at
     }
-    
+
     SESSIONS {
         string id PK
         string user_id FK
         datetime expires_at
         datetime created_at
     }
-    
+
     PROJECTS {
         string id PK
         string name
@@ -132,7 +127,7 @@ erDiagram
         datetime created_at
         datetime updated_at
     }
-    
+
     COMMENTS {
         string id PK
         string content
@@ -141,7 +136,7 @@ erDiagram
         datetime created_at
         datetime updated_at
     }
-    
+
     TOOLS {
         string id PK
         string name
@@ -150,21 +145,21 @@ erDiagram
         datetime created_at
         datetime updated_at
     }
-    
+
     PROJECT_TOOLS {
         string project_id PK,FK
         string tool_id PK,FK
         string settings
         datetime created_at
     }
-    
+
     RESET_TOKENS {
         string token PK
         string user_id FK
         datetime expires_at
         datetime created_at
     }
-    
+
     USERS ||--o{ SESSIONS : "hat"
     USERS ||--o{ PROJECTS : "besitzt"
     USERS ||--o{ COMMENTS : "erstellt"
@@ -215,7 +210,7 @@ VALUES (
     '2023-01-01T00:00:00Z',
     '2023-01-01T00:00:00Z'
 );
-```
+````
 
 ---
 
@@ -225,24 +220,24 @@ Die `sessions`-Tabelle speichert aktive Benutzersitzungen.
 
 #### Schema (2)
 
-| Spalte      | Typ      | Beschreibung                                      | Constraints                |
-|-------------|----------|---------------------------------------------------|----------------------------|
-| id          | TEXT     | Eindeutige Sitzungs-ID (UUID)                     | PRIMARY KEY                |
-| user_id     | TEXT     | Referenz auf die Benutzer-ID                      | FOREIGN KEY, NOT NULL      |
-| expires_at  | DATETIME | Ablaufzeitpunkt der Sitzung                       | NOT NULL                   |
-| created_at  | DATETIME | Erstellungszeitpunkt                              | NOT NULL, DEFAULT CURRENT_TIMESTAMP |
+| Spalte     | Typ      | Beschreibung                  | Constraints                         |
+| ---------- | -------- | ----------------------------- | ----------------------------------- |
+| id         | TEXT     | Eindeutige Sitzungs-ID (UUID) | PRIMARY KEY                         |
+| user_id    | TEXT     | Referenz auf die Benutzer-ID  | FOREIGN KEY, NOT NULL               |
+| expires_at | DATETIME | Ablaufzeitpunkt der Sitzung   | NOT NULL                            |
+| created_at | DATETIME | Erstellungszeitpunkt          | NOT NULL, DEFAULT CURRENT_TIMESTAMP |
 
 #### Indizes (2)
 
-| Name                   | Spalten    | Typ    | Beschreibung                                |
-|------------------------|------------|--------|---------------------------------------------|
-| PRIMARY KEY            | id         | UNIQUE | Primärschlüssel für schnellen Zugriff       |
-| idx_sessions_user_id   | user_id    | NORMAL | Index für Benutzer-Sitzungen                |
-| idx_sessions_expires_at| expires_at | NORMAL | Index für Ablaufzeitpunkt (für Bereinigung) |
+| Name                    | Spalten    | Typ    | Beschreibung                                |
+| ----------------------- | ---------- | ------ | ------------------------------------------- |
+| PRIMARY KEY             | id         | UNIQUE | Primärschlüssel für schnellen Zugriff       |
+| idx_sessions_user_id    | user_id    | NORMAL | Index für Benutzer-Sitzungen                |
+| idx_sessions_expires_at | expires_at | NORMAL | Index für Ablaufzeitpunkt (für Bereinigung) |
 
 #### Beispiel (2)
 
-```sql
+````sql
 INSERT INTO sessions (id, user_id, expires_at, created_at)
 VALUES (
     '7c9e6679-7425-40de-944b-e07fc1f90ae7',
@@ -292,7 +287,7 @@ VALUES (
     '2023-01-01T00:00:00Z',
     '2023-01-01T00:00:00Z'
 );
-```
+````
 
 ---
 
@@ -302,26 +297,26 @@ Die `comments`-Tabelle speichert Kommentare zu Projekten.
 
 #### Schema (2) (2)
 
-| Spalte      | Typ      | Beschreibung                                      | Constraints                |
-|-------------|----------|---------------------------------------------------|----------------------------|
-| id          | TEXT     | Eindeutige Kommentar-ID (UUID)                    | PRIMARY KEY                |
-| content     | TEXT     | Kommentarinhalt                                   | NOT NULL                   |
-| project_id  | TEXT     | Referenz auf die Projekt-ID                       | FOREIGN KEY, NOT NULL      |
-| user_id     | TEXT     | Referenz auf die Benutzer-ID des Kommentators     | FOREIGN KEY, NOT NULL      |
-| created_at  | DATETIME | Erstellungszeitpunkt                              | NOT NULL, DEFAULT CURRENT_TIMESTAMP |
-| updated_at  | DATETIME | Letzter Aktualisierungszeitpunkt                  | NOT NULL, DEFAULT CURRENT_TIMESTAMP |
+| Spalte     | Typ      | Beschreibung                                  | Constraints                         |
+| ---------- | -------- | --------------------------------------------- | ----------------------------------- |
+| id         | TEXT     | Eindeutige Kommentar-ID (UUID)                | PRIMARY KEY                         |
+| content    | TEXT     | Kommentarinhalt                               | NOT NULL                            |
+| project_id | TEXT     | Referenz auf die Projekt-ID                   | FOREIGN KEY, NOT NULL               |
+| user_id    | TEXT     | Referenz auf die Benutzer-ID des Kommentators | FOREIGN KEY, NOT NULL               |
+| created_at | DATETIME | Erstellungszeitpunkt                          | NOT NULL, DEFAULT CURRENT_TIMESTAMP |
+| updated_at | DATETIME | Letzter Aktualisierungszeitpunkt              | NOT NULL, DEFAULT CURRENT_TIMESTAMP |
 
 #### Indizes (2) (2)
 
-| Name                    | Spalten     | Typ    | Beschreibung                                |
-|-------------------------|-------------|--------|---------------------------------------------|
-| PRIMARY KEY             | id          | UNIQUE | Primärschlüssel für schnellen Zugriff       |
-| idx_comments_project_id | project_id  | NORMAL | Index für Projekt-Kommentare                |
-| idx_comments_user_id    | user_id     | NORMAL | Index für Benutzer-Kommentare               |
+| Name                    | Spalten    | Typ    | Beschreibung                          |
+| ----------------------- | ---------- | ------ | ------------------------------------- |
+| PRIMARY KEY             | id         | UNIQUE | Primärschlüssel für schnellen Zugriff |
+| idx_comments_project_id | project_id | NORMAL | Index für Projekt-Kommentare          |
+| idx_comments_user_id    | user_id    | NORMAL | Index für Benutzer-Kommentare         |
 
 #### Beispiel (2) (2)
 
-```sql
+````sql
 INSERT INTO comments (id, content, project_id, user_id, created_at, updated_at)
 VALUES (
     '6ba7b810-9dad-11d1-80b4-00c04fd430c8',
@@ -369,7 +364,7 @@ VALUES (
     '2023-01-01T00:00:00Z',
     '2023-01-01T00:00:00Z'
 );
-```
+````
 
 ---
 
@@ -379,24 +374,24 @@ Die `project_tools`-Tabelle verknüpft Projekte mit Werkzeugen (Viele-zu-viele-B
 
 #### Schema (3) (2)
 
-| Spalte      | Typ      | Beschreibung                                      | Constraints                |
-|-------------|----------|---------------------------------------------------|----------------------------|
-| project_id  | TEXT     | Referenz auf die Projekt-ID                       | PRIMARY KEY, FOREIGN KEY   |
-| tool_id     | TEXT     | Referenz auf die Werkzeug-ID                      | PRIMARY KEY, FOREIGN KEY   |
-| settings    | TEXT     | JSON-Einstellungen für das Werkzeug im Projekt    |                            |
-| created_at  | DATETIME | Erstellungszeitpunkt                              | NOT NULL, DEFAULT CURRENT_TIMESTAMP |
+| Spalte     | Typ      | Beschreibung                                   | Constraints                         |
+| ---------- | -------- | ---------------------------------------------- | ----------------------------------- |
+| project_id | TEXT     | Referenz auf die Projekt-ID                    | PRIMARY KEY, FOREIGN KEY            |
+| tool_id    | TEXT     | Referenz auf die Werkzeug-ID                   | PRIMARY KEY, FOREIGN KEY            |
+| settings   | TEXT     | JSON-Einstellungen für das Werkzeug im Projekt |                                     |
+| created_at | DATETIME | Erstellungszeitpunkt                           | NOT NULL, DEFAULT CURRENT_TIMESTAMP |
 
 #### Indizes (3) (2)
 
-| Name                         | Spalten              | Typ    | Beschreibung                                |
-|------------------------------|----------------------|--------|---------------------------------------------|
-| PRIMARY KEY                  | project_id, tool_id  | UNIQUE | Zusammengesetzter Primärschlüssel           |
-| idx_project_tools_project_id | project_id           | NORMAL | Index für Projekt-Werkzeuge                 |
-| idx_project_tools_tool_id    | tool_id              | NORMAL | Index für Werkzeug-Projekte                 |
+| Name                         | Spalten             | Typ    | Beschreibung                      |
+| ---------------------------- | ------------------- | ------ | --------------------------------- |
+| PRIMARY KEY                  | project_id, tool_id | UNIQUE | Zusammengesetzter Primärschlüssel |
+| idx_project_tools_project_id | project_id          | NORMAL | Index für Projekt-Werkzeuge       |
+| idx_project_tools_tool_id    | tool_id             | NORMAL | Index für Werkzeug-Projekte       |
 
 #### Beispiel (3) (2)
 
-```sql
+````sql
 INSERT INTO project_tools (project_id, tool_id, settings, created_at)
 VALUES (
     'f47ac10b-58cc-4372-a567-0e02b2c3d479',
@@ -440,7 +435,7 @@ VALUES (
     '2023-01-02T00:00:00Z',
     '2023-01-01T00:00:00Z'
 );
-```
+````
 
 ---
 
@@ -616,7 +611,7 @@ Das Evolution Hub Projekt verwendet ein strukturiertes Migrations-System für Sc
 
 ### Migrations-Tabelle
 
-```sql
+````sql
 CREATE TABLE migrations (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
@@ -650,7 +645,7 @@ npm run db:rollback
 
 # Erstellen einer neuen Migration
 npm run db:migration:create -- --name add_new_table
-```
+````
 
 ---
 
@@ -660,7 +655,7 @@ npm run db:migration:create -- --name add_new_table
 
 - Verwendung von Prepared Statements für alle Datenbankabfragen
 
-- Vermeidung von SELECT * zugunsten expliziter Spaltenauswahl
+- Vermeidung von SELECT \* zugunsten expliziter Spaltenauswahl
 
 - Begrenzung der Ergebnismenge mit LIMIT und OFFSET
 

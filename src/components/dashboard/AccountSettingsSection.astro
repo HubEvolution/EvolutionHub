@@ -324,7 +324,7 @@ const { user, planLabels, billingUrl, redirectUrl, dangerStrings, profileCopy, i
     </div>
   </div>
 
-  <script is:inline nonce={(Astro.locals as any).cspNonce}>
+  <script is:inline nonce={(Astro.locals as { cspNonce?: string } | undefined)?.cspNonce}>
     const i18nEl = document.getElementById('i18n-settings');
     const I18N = i18nEl ? JSON.parse(i18nEl.getAttribute('data-json') || '{}') : {};
     const modal = document.getElementById('avatar-modal');

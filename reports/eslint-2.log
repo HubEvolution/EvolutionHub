@@ -1,0 +1,61 @@
+
+> evolution-hub@0.0.1 lint
+> eslint 'src/**/*.{ts,astro}' --max-warnings=280
+
+
+/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/components/CategoryFilter.astro
+  28:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/components/ErrorBoundary.astro
+  6:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/components/Header.astro
+  16:30  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/layouts/BaseLayout.astro
+  29:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/pages/admin/comments.astro
+  68:12  warning  'e' is defined but never used. Allowed unused caught errors must match /^_/u  @typescript-eslint/no-unused-vars
+
+/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/pages/admin/status.astro
+   41:12  warning  'e' is defined but never used. Allowed unused caught errors must match /^_/u  @typescript-eslint/no-unused-vars
+  117:63  warning  Unexpected any. Specify a different type                                      @typescript-eslint/no-explicit-any
+
+/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/pages/api/health.ts
+  97:7  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-var-requires')
+
+/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/pages/dashboard.astro
+  16:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  39:64  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/pages/de/register.astro
+  13:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/pages/email-verified.astro
+  17:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/pages/en/dashboard.astro
+  14:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/pages/en/email-verified.astro
+  18:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/pages/en/tools/imag-enhancer/app.astro
+  130:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/pages/faq.astro
+  38:72  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/pages/login.astro
+  32:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/pages/register.astro
+  14:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/pages/tools/imag-enhancer/app.astro
+  143:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 19 problems (0 errors, 19 warnings)
+  0 errors and 1 warning potentially fixable with the `--fix` option.
+

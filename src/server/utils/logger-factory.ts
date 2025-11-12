@@ -19,6 +19,7 @@ import {
   type LoggerFactory as LoggerFactoryInterface,
   type EnvironmentDetector,
   type LoggerManager,
+  type LogTransport,
 } from '../../types/logger';
 import { log as sseDebugLog } from '@/server/utils/logger';
 import {
@@ -62,7 +63,7 @@ class EnvironmentDetectorImpl implements EnvironmentDetector {
  */
 class MultiTransportLogger implements ExtendedLogger {
   private context: Partial<LogContext> = {};
-  private transports: Array<{ name: string; send: (entry: any) => Promise<void> }> = [];
+  private transports: LogTransport[] = [];
   private bridgeSSE: boolean;
 
   constructor(context: Partial<LogContext> = {}) {
@@ -71,14 +72,18 @@ class MultiTransportLogger implements ExtendedLogger {
     // Bridge to debug SSE in dev automatically (or if LOG_SSE_BRIDGE=1)
     const bridgeEnv =
       (typeof process !== 'undefined' && process.env.LOG_SSE_BRIDGE) ||
-      (typeof import.meta !== 'undefined' && (import.meta as any).env?.LOG_SSE_BRIDGE) ||
+      (typeof import.meta !== 'undefined'
+        ? String(
+            (import.meta as unknown as { env?: Record<string, unknown> }).env?.LOG_SSE_BRIDGE ?? ''
+          )
+        : '') ||
       '';
     this.bridgeSSE = LOG_CONFIG.environment.isDevelopment() || String(bridgeEnv) === '1';
   }
 
   private resolveTransports() {
     const enabled = LOG_CONFIG.transports.getEnabled();
-    const out: Array<{ name: string; send: (entry: any) => Promise<void> }> = [];
+    const out: LogTransport[] = [];
 
     for (const t of enabled) {
       if (t === 'console') {
@@ -86,23 +91,43 @@ class MultiTransportLogger implements ExtendedLogger {
       } else if (t === 'http') {
         const endpoint =
           (typeof process !== 'undefined' && process.env.LOG_HTTP_ENDPOINT) ||
-          (typeof import.meta !== 'undefined' && (import.meta as any).env?.LOG_HTTP_ENDPOINT) ||
+          (typeof import.meta !== 'undefined'
+            ? String(
+                (import.meta as unknown as { env?: Record<string, unknown> }).env
+                  ?.LOG_HTTP_ENDPOINT ?? ''
+              )
+            : '') ||
           '';
         const apiKey =
           (typeof process !== 'undefined' && process.env.LOG_HTTP_API_KEY) ||
-          (typeof import.meta !== 'undefined' && (import.meta as any).env?.LOG_HTTP_API_KEY) ||
+          (typeof import.meta !== 'undefined'
+            ? String(
+                (import.meta as unknown as { env?: Record<string, unknown> }).env
+                  ?.LOG_HTTP_API_KEY ?? ''
+              )
+            : '') ||
           undefined;
         if (endpoint) out.push(new HttpTransport({ endpoint, apiKey }));
       } else if (t === 'analytics') {
         const bindingName =
           (typeof process !== 'undefined' && process.env.LOG_ANALYTICS_BINDING) ||
-          (typeof import.meta !== 'undefined' && (import.meta as any).env?.LOG_ANALYTICS_BINDING) ||
+          (typeof import.meta !== 'undefined'
+            ? String(
+                (import.meta as unknown as { env?: Record<string, unknown> }).env
+                  ?.LOG_ANALYTICS_BINDING ?? ''
+              )
+            : '') ||
           undefined;
         out.push(new AnalyticsTransport(bindingName));
       } else if (t === 'r2' || t === 'logpush') {
         const bucketBinding =
           (typeof process !== 'undefined' && process.env.LOG_R2_BINDING) ||
-          (typeof import.meta !== 'undefined' && (import.meta as any).env?.LOG_R2_BINDING) ||
+          (typeof import.meta !== 'undefined'
+            ? String(
+                (import.meta as unknown as { env?: Record<string, unknown> }).env?.LOG_R2_BINDING ??
+                  ''
+              )
+            : '') ||
           undefined;
         out.push(new R2Transport(bucketBinding));
       }
@@ -116,7 +141,7 @@ class MultiTransportLogger implements ExtendedLogger {
     // Prefer worker crypto UUID if available
     const id = (
       globalThis.crypto && 'randomUUID' in globalThis.crypto
-        ? (globalThis.crypto as any).randomUUID()
+        ? (globalThis.crypto as unknown as { randomUUID: () => string }).randomUUID()
         : `${Date.now()}-${Math.random().toString(36).slice(2)}`
     ) as string;
     return {
@@ -143,7 +168,10 @@ class MultiTransportLogger implements ExtendedLogger {
       consoleMethod === 'error'
         ? consoleMethod
         : 'log';
-    const fn = (console as any)[method] as (...args: unknown[]) => void;
+    const methodFn = (console as unknown as Record<string, unknown>)[method];
+    const fn = (typeof methodFn === 'function' ? methodFn : console.log) as (
+      ...args: unknown[]
+    ) => void;
     try {
       fn(`[${timestamp}] [${level.toUpperCase()}] ${message}`, entry.context);
     } catch {
@@ -159,7 +187,8 @@ class MultiTransportLogger implements ExtendedLogger {
     // Bridge to SSE debug stream for dev visibility
     if (this.bridgeSSE) {
       try {
-        sseDebugLog(level as any, message, { ...(entry.context || {}), source: entry.source });
+        const sseLevel = level === LOG_LEVELS.LOG ? 'info' : (level as unknown as string);
+        sseDebugLog(sseLevel, message, { ...(entry.context || {}), source: entry.source });
       } catch {
         /* ignore */
       }
@@ -203,7 +232,6 @@ class MultiTransportLogger implements ExtendedLogger {
  * Logger-Factory Implementierung
  */
 class LoggerFactoryImpl implements LoggerFactoryInterface {
-
   createLogger(name: string, _config?: Partial<LoggerConfig>): ExtendedLogger {
     return new MultiTransportLogger({ resource: name });
   }
@@ -220,35 +248,35 @@ class LoggerFactoryImpl implements LoggerFactoryInterface {
         secLogger.info('SECURITY_EVENT', {
           ...base(context),
           type,
-          details: redacted(details) as any,
+          details: redacted(details) as Record<string, unknown>,
         });
       },
       logAuthSuccess: (details, context) => {
         secLogger.info('AUTH_SUCCESS', {
           ...base(context),
           securityEventType: 'AUTH_SUCCESS',
-          details: redacted(details) as any,
+          details: redacted(details) as Record<string, unknown>,
         });
       },
       logAuthFailure: (details, context) => {
         secLogger.error('AUTH_FAILURE', {
           ...base(context),
           securityEventType: 'AUTH_FAILURE',
-          details: redacted(details) as any,
+          details: redacted(details) as Record<string, unknown>,
         });
       },
       logApiAccess: (details, context) => {
         secLogger.info('API_ACCESS', {
           ...base(context),
           securityEventType: 'API_ACCESS',
-          details: redacted(details) as any,
+          details: redacted(details) as Record<string, unknown>,
         });
       },
       logApiError: (details, context) => {
         secLogger.error('API_ERROR', {
           ...base(context),
           securityEventType: 'API_ERROR',
-          details: redacted(details) as any,
+          details: redacted(details) as Record<string, unknown>,
         });
       },
     };

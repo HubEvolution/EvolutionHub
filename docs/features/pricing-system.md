@@ -33,7 +33,6 @@ Das Pricing-System von Evolution Hub ist eine vollständig implementierte, produ
 - **€7.174+ generierter Umsatz**
 
 - **3 laufende Subscriptions**:
-
   - 2x Pro Monatlich (€14,99)
 
   - 1x Premium Jährlich (€249,90)
@@ -54,7 +53,7 @@ Das Pricing-System von Evolution Hub ist eine vollständig implementierte, produ
 
 ### System-Komponenten
 
-```mermaid
+````mermaid
 graph TB
     A[Pricing Page] --> B[PricingTable Component]
     A --> C[FeatureComparison Component]
@@ -270,11 +269,11 @@ CREATE TABLE stripe_customers (
   PRIMARY KEY (user_id),
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
-```
+````
 
 ### `subscriptions` Tabelle
 
-```sql
+````sql
 CREATE TABLE subscriptions (
   id TEXT PRIMARY KEY, -- stripe subscription id
   user_id TEXT NOT NULL,
@@ -494,3 +493,4 @@ CREATE TABLE subscriptions (
 **Dokumentation**: Single Source of Truth für Pricing-System
 
 ```text
+````

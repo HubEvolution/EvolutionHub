@@ -31,7 +31,6 @@ Scope Phase 1 – Bestandsaufnahme und Analyse ohne Codeänderungen.
 ## 2) Methodik & Quellen
 
 - Dateien gelesen:
-
   - `src/middleware.ts`
 
   - Auth Batch 1: `src/pages/api/auth/{login.ts, register.ts, reset-password.ts, logout.ts}`
@@ -55,7 +54,6 @@ Scope Phase 1 – Bestandsaufnahme und Analyse ohne Codeänderungen.
 ### 3.1 `src/middleware.ts` – `onRequest`
 
 - Zweck
-
   - Locale-Handling: Präfix-Erkennung `/de|/en`, Cookie `pref_locale`, neutrale Pfade → ggf. Redirect zu `/en/*`.
 
   - Welcome-Gate: Einmal pro Session (`session_welcome_seen`) Redirect auf `/welcome?next=...`.
@@ -71,11 +69,9 @@ Scope Phase 1 – Bestandsaufnahme und Analyse ohne Codeänderungen.
   - Domain-Redirect: `www.hub-evolution.com` → `hub-evolution.com`.
 
 - Position in Pipeline
-
   - Globale `astro:middleware` – läuft vor allen Routen/Seiten, setzt `locals` und Response-Header nach `next()`.
 
 - Abhängigkeiten
-
   - `validateSession` aus `@/lib/auth-v2`
 
   - `Locale` Typ aus `@/lib/i18n`
@@ -83,7 +79,6 @@ Scope Phase 1 – Bestandsaufnahme und Analyse ohne Codeänderungen.
   - `context.locals.runtime.env.DB` (Cloudflare D1)
 
 - Inputs/Outputs & Side-Effects
-
   - Liest/setzt Cookies: `pref_locale`, `session_welcome_seen`, liest `__Host-session`.
 
   - Setzt `context.locals.{user,session}`.
@@ -93,7 +88,6 @@ Scope Phase 1 – Bestandsaufnahme und Analyse ohne Codeänderungen.
   - Modifiziert Response-Header (CSP, HSTS, CL, Vary, Referrer-Policy).
 
 - Risiken/Beobachtungen
-
   - Logging: `console.log` mit vollständigen Headers (inkl. `cookie`) → sensibel; Redaction/Whitelist empfohlen.
 
   - Redirect-Komplexität: Mehrere Bedingungen für Bots/Referer/Cookies – sorgfältig testbar halten.
@@ -113,17 +107,14 @@ Hinweis: Auth-Endpunkte setzen auf Redirect-Flows; JSON wird primär für 405-Fe
 Status: Deprecated — 410 Gone
 
 - Verhalten
-
   - `POST` → 410 Gone (HTML)
 
   - Andere Methoden → 410 Gone (JSON) mit `details.Allow: "POST"`
 
 - Hinweise
-
   - Passwortbasierter Login ist entfernt. Aktiver Flow ist Magic Link (siehe konsolidierte Doku unter Development).
 
 - Eingaben (FormData)
-
   - `email: string` (email-format, ≤255)
 
   - `password: string` (6–100)
@@ -131,7 +122,6 @@ Status: Deprecated — 410 Gone
   - `rememberMe?: boolean` (`on`/`true` → true)
 
 - Ablauf
-
   - `standardApiLimiter(context)`
 
   - Validierung via `createValidator`
@@ -145,13 +135,11 @@ Status: Deprecated — 410 Gone
   - Fehler: `handleAuthError(error, '/login')` (Redirect mit Fehlersignal)
 
 - Antworten
-
   - 302 Redirect (Erfolg/Fehlerpfade)
 
   - 405 JSON `{ error: true, message: 'Method Not Allowed' }`, `Allow: POST`
 
 - Abhängigkeiten
-
   - `@/lib/rate-limiter`, `@/lib/response-helpers`, `@/lib/validators`
 
   - `@/lib/services/auth-service-impl`, `@/lib/services/types`, `@/lib/error-handler`
@@ -159,7 +147,6 @@ Status: Deprecated — 410 Gone
 ### 4.2 POST `/api/auth/register` → `src/pages/api/auth/register.ts`
 
 - Eingaben (FormData)
-
   - `email: string` (email, ≤255)
 
   - `password: string` (6–100)
@@ -171,7 +158,6 @@ Status: Deprecated — 410 Gone
   - `locale?: 'de'|'en'` (optional, überschreibt Referer-Heuristik)
 
 - Ablauf
-
   - Locale-Heuristik aus `Referer` (Fallback), optional Feld `locale`
 
   - `standardApiLimiter(context)`
@@ -187,13 +173,11 @@ Status: Deprecated — 410 Gone
   - Fehler: bei `ServiceErrorType.CONFLICT` spezielle Codes (`UsernameExists`), sonst `handleAuthError(error, "/{locale}/register")`
 
 - Antworten
-
   - 302 Redirect (Erfolg/Fehlerpfade)
 
   - 405 JSON, `Allow: POST`
 
 - Abhängigkeiten
-
   - wie bei Login
 
 ### 4.3 POST `/api/auth/reset-password` → `src/pages/api/auth/reset-password.ts`
@@ -201,23 +185,19 @@ Status: Deprecated — 410 Gone
 Status: Deprecated — 410 Gone
 
 - Verhalten
-
   - `POST` → 410 Gone (HTML)
 
   - Andere Methoden → 410 Gone (JSON) mit `details.Allow: "POST"`
 
 - Hinweise
-
   - Passwort-Reset per UI/Server wird nicht mehr unterstützt (Magic Link only). Siehe konsolidierte Doku unter Development.
 
 ### 4.4 POST `/api/auth/logout` → `src/pages/api/auth/logout.ts`
 
 - Eingaben
-
   - keine (liest `locals.user` aus Middleware)
 
 - Ablauf
-
   - `standardApiLimiter(context)`
 
   - Cookie `session_id` → gelöscht (`maxAge: 0`)
@@ -227,25 +207,21 @@ Status: Deprecated — 410 Gone
   - Redirect: `/login?loggedOut=true`
 
 - Antworten
-
   - 302 Redirect (Erfolg/Fehlerpfade)
 
   - Abweichung: Kein expliziter 405-Export – inkonsistent zu anderen Auth-Endpunkten
 
 - Abhängigkeiten
-
   - `@/lib/rate-limiter`, `@/lib/security-logger`, `@/lib/response-helpers`
 
 ### 4.5 POST `/api/auth/change-password` → `src/pages/api/auth/change-password.ts`
 
 - Eingaben (FormData)
-
   - `currentPassword: string` (6–100)
 
   - `newPassword: string` (6–100, darf nicht identisch zu `currentPassword` sein)
 
 - Ablauf
-
   - `standardApiLimiter(context)`
 
   - Validierung via `parseAndValidateFormData` und `createValidator`
@@ -259,13 +235,11 @@ Status: Deprecated — 410 Gone
   - Fehler: `handleAuthError(error, '/account/settings')`
 
 - Antworten
-
   - 302 Redirect (Erfolg/Fehlerpfade)
 
   - 405 JSON, `Allow: POST`
 
 - Abhängigkeiten
-
   - `@/lib/validators`, `@/lib/auth-v2`, `@/lib/services/auth-service-impl`, `@/lib/response-helpers`, `@/lib/rate-limiter`, `@/lib/services/types`
 
 ### 4.6 POST `/api/auth/forgot-password` → `src/pages/api/auth/forgot-password.ts`
@@ -273,23 +247,19 @@ Status: Deprecated — 410 Gone
 Status: Deprecated — 410 Gone
 
 - Verhalten
-
   - `POST` → 410 Gone (HTML)
 
   - Andere Methoden → 410 Gone (JSON) mit `details.Allow: "POST"`
 
 - Hinweise
-
   - Passwort-Reset-Flows sind abgeschaltet (Magic Link only). Siehe konsolidierte Doku unter Development.
 
 ### 4.7 POST `/api/auth/resend-verification` → `src/pages/api/auth/resend-verification.ts`
 
 - Eingaben (JSON)
-
   - `{ email: string }` (Content-Type: `application/json` erforderlich)
 
 - Ablauf
-
   - `authLimiter(context)`
 
   - Content-Type-Prüfung → sonst 415
@@ -305,7 +275,6 @@ Status: Deprecated — 410 Gone
   - Security/Audit-Logs (`logAuthFailure`, `logApiAccess`)
 
 - Antworten
-
   - 200 JSON generisch: `{ success: true, message: 'If an account exists, ...' }`
 
   - 400 bei invalidem Email-Format; 415 bei falschem Content-Type; 500 bei Serverfehlern
@@ -313,19 +282,16 @@ Status: Deprecated — 410 Gone
   - 405 JSON, `Allow: POST`
 
 - Abhängigkeiten
-
   - `@/lib/rate-limiter` (authLimiter), `zod`, `@/lib/services/email-service-impl`, `@/pages/api/auth/verify-email` (Token-Helper), `@/lib/security-logger`
 
 ### 4.8 GET `/api/auth/verify-email` → `src/pages/api/auth/verify-email.ts`
 
 - Eingaben (Query)
-
   - `token: string` (≥32)
 
   - `email?: string`
 
 - Ablauf
-
   - Validierung via `zod`
 
   - DB: `email_verification_tokens` laden/prüfen (Existenz, used, expires)
@@ -343,7 +309,6 @@ Status: Deprecated — 410 Gone
   - Audit-Log `logAuthSuccess`
 
 - Antworten
-
   - Redirect: Erfolg → `/email-verified?welcome=true`
 
   - Fehler → Redirect zu `/register` mit spezifischen Codes (Invalid/Expired/AlreadyUsed/UserNotFound/ServerError)
@@ -351,17 +316,14 @@ Status: Deprecated — 410 Gone
   - Hinweis: kein expliziter 405-Export (nur `GET` implementiert)
 
 - Abhängigkeiten
-
   - `@/lib/auth-v2` (`createSession`), `@/lib/services/email-service-impl`, `@/lib/security-logger`, D1 `DB`
 
 ### 4.9 GET `/api/user/me` → `src/pages/api/user/me.ts`
 
 - Eingaben
-
   - keine (nutzt `locals.user` aus Middleware)
 
 - Ablauf
-
   - `withAuthApiMiddleware` erzwingt Auth, Rate-Limit, Security-Header, Audit-Logs
 
   - Whitelist-Ausgabe: `id, email, name, username, created_at`
@@ -369,25 +331,21 @@ Status: Deprecated — 410 Gone
   - `rateLimiter` wird dynamisch importiert: `standardApiLimiter`
 
 - Antworten
-
   - 200 JSON `{ success: true, data: { ...safeUser } }`
 
   - 401 JSON bei fehlender Auth: `{ error: { type: 'auth_error', message: 'Unauthorized' } }`
 
 - Abhängigkeiten
-
   - `@/lib/api-middleware`, dynamisch `@/lib/rate-limiter`
 
 ### 4.10 POST `/api/user/profile` → `src/pages/api/user/profile.ts`
 
 - Eingaben (FormData)
-
   - `name: string` (2–50)
 
   - `username: string` (3–30, `^[a-zA-Z0-9_]+$`)
 
 - Ablauf
-
   - `withAuthApiMiddleware`
 
   - Prüft Username-Kollision nur bei Änderung (`SELECT id FROM users WHERE username = ? AND id != ?`)
@@ -397,13 +355,11 @@ Status: Deprecated — 410 Gone
   - Audit: `logProfileUpdate` (alt/neu)
 
 - Antworten
-
   - 200 JSON `{ success: true, message, user: { id, name, username } }`
 
   - 400/500 via Middleware-Fehlerpfad (Exceptions werden gefangen)
 
 - Abhängigkeiten
-
   - `@/lib/api-middleware`, `@/lib/security-logger`, D1 `DB`
 
 ### 4.11 POST `/api/user/password` → `src/pages/api/user/password.ts`
@@ -411,13 +367,11 @@ Status: Deprecated — 410 Gone
 Status: Deprecated — 410 Gone
 
 - Verhalten
-
   - `POST` → 410 Gone (HTML)
 
   - Andere Methoden → 410 Gone (JSON) mit `details.Allow: "POST"`
 
 - Hinweise
-
   - Passwort-Änderungen werden im Stytch‑Modus nicht unterstützt. Nutzer-Authentifizierung erfolgt ausschließlich via Magic Link.
 
   - Früher genutzte Artefakte wie `users.password_hash` wurden entfernt (siehe Migration `0010_drop_password_artifacts.sql`).
@@ -425,39 +379,32 @@ Status: Deprecated — 410 Gone
 ### 4.12 PUT `/api/user/settings` → `src/pages/api/user/settings.ts`
 
 - Eingaben
-
   - tbd (Platzhalter)
 
 - Ablauf
-
   - `withAuthApiMiddleware`
 
   - Noch nicht implementiert (TODO-Kommentar im Code)
 
 - Antworten
-
   - 200 JSON `{ success: true, message: 'Settings updated successfully' }`
 
   - Fehler via `onError` → `server_error`
 
 - Abhängigkeiten
-
   - `@/lib/api-middleware`
 
 ### 4.13 DELETE `/api/user/account` → `src/pages/api/user/account.ts`
 
 - Eingaben (JSON)
-
   - `{ confirm: boolean }` (erforderlich)
 
 - Ablauf
-
   - `withAuthApiMiddleware`
 
   - Validiert Bestätigung; bei fehlender Bestätigung → `validation_error`
 
   - Batch-Operationen (D1 ersetzt Transaktionen):
-
     - `DELETE FROM sessions WHERE user_id = ?`
 
     - `DELETE FROM activities WHERE user_id = ?`
@@ -471,17 +418,14 @@ Status: Deprecated — 410 Gone
   - Audit: `account_deletion_successful`; spezielles `onError`
 
 - Antworten
-
   - 204 No Content
 
   - 400 bei fehlender Bestätigung; 500 via Middleware/`onError`
 
 - Abhängigkeiten
-
   - `@/lib/api-middleware`, `@/lib/security-logger`, D1 `DB`
 
 - Hinweise
-
   - D1 hat keine echten Transaktionen → Risiko partieller Updates; Batch mindert, ersetzt aber nicht ACID
 
   - Spalten-Inkonsistenz: Diese Route setzt `avatar=''`, während `avatar.ts` die Spalte `image` aktualisiert
@@ -489,11 +433,9 @@ Status: Deprecated — 410 Gone
 ### 4.14 POST `/api/user/avatar` → `src/pages/api/user/avatar.ts`
 
 - Eingaben (FormData)
-
   - `avatar: File`
 
 - Ablauf
-
   - Keine `withAuthApiMiddleware`; manuelle Prüfung `locals.user`
 
   - CORS/Preflight wird erwähnt; tatsächliche CORS-Header werden jedoch nicht gesetzt (nur Security-Header via `applySecurityHeaders`)
@@ -509,17 +451,14 @@ Status: Deprecated — 410 Gone
   - Audit: `logUserEvent` für Erfolg und Fehler; `logMetadata: avatar_update`
 
 - Antworten
-
   - 200 JSON `{ success: true, message, imageUrl }`
 
   - 400/401/500 JSON bei Fehlern
 
 - Abhängigkeiten
-
   - `@/lib/security-headers`, `@/lib/security-logger`, R2-Bucket `R2_AVATARS`, D1 `DB`
 
 - Risiken/Abweichungen
-
   - Kein Rate-Limiting, keine zentrale Fehler-/Audit-Middleware
 
   - Keine Validierung von MIME-Typ/Dateiendung/Größe; Dateiendung aus User-Filename → Risiko für falsche Typen
@@ -531,11 +470,9 @@ Status: Deprecated — 410 Gone
 ### 4.15 GET/POST `/api/user/logout-v2` → `src/pages/api/user/logout-v2.ts`
 
 - Eingaben
-
   - Cookies: `session_id` (optional)
 
 - Ablauf
-
   - Direkter Einsatz von `standardApiLimiter`
 
   - Bei Rate-Limit: Cookie löschen → Redirect `/login?error=TooManyRequests`
@@ -547,21 +484,17 @@ Status: Deprecated — 410 Gone
   - Unterstützt `GET` und `POST` (kein 405-Handler)
 
 - Antworten
-
   - 302 Redirect (`/` oder `/login?...` bei TooManyRequests)
 
 - Abhängigkeiten
-
   - `@/lib/rate-limiter`, `@/lib/response-helpers`, `@/lib/services/auth-service-impl`, `@/lib/error-handler`, `@/lib/security-logger`
 
 ### 4.16 GET `/api/dashboard/activity` → `src/pages/api/dashboard/activity.ts`
 
 - Eingaben
-
   - keine (nutzt `locals.user` aus Middleware)
 
 - Ablauf
-
   - `withAuthApiMiddleware` erzwingt Auth, Rate-Limit, Security-Header, Audit-Logs
 
   - D1-Query: Join `activities a` mit `users u` für `user`-Name/Bild; Filter auf `a.user_id = ?`; `LIMIT 10`
@@ -571,7 +504,6 @@ Status: Deprecated — 410 Gone
   - Spezial-Logging über `logMetadata` und `onError` mit `logUserEvent`
 
 - Antworten
-
   - 200 JSON Array (Plain) der Aktivitäten
 
   - 401 JSON via Middleware bei fehlender Auth
@@ -579,17 +511,14 @@ Status: Deprecated — 410 Gone
   - 500 JSON via `createApiError('server_error', ...)` im `onError`
 
 - Abhängigkeiten
-
   - `@/lib/api-middleware`, `@/lib/security-logger`, D1 `DB`
 
 ### 4.17 GET `/api/dashboard/notifications` → `src/pages/api/dashboard/notifications.ts`
 
 - Eingaben
-
   - keine (nutzt `locals.user`)
 
 - Ablauf
-
   - `withAuthApiMiddleware`
 
   - D1-Query: `SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC LIMIT 10`
@@ -597,29 +526,24 @@ Status: Deprecated — 410 Gone
   - Audit: `logUserEvent(user.id, 'notifications_viewed', { notificationCount })`
 
 - Antworten
-
   - 200 JSON Wrapper via `createApiSuccess(results)`
 
   - 401 via Middleware; 500 via `createApiError('server_error', ...)` im `onError`
 
 - Abhängigkeiten
-
   - `@/lib/api-middleware`, `@/lib/security-logger`, D1 `DB`
 
 ### 4.18 POST `/api/dashboard/perform-action` → `src/pages/api/dashboard/perform-action.ts`
 
 - Eingaben (JSON)
-
   - `{ action: 'create_project' | 'create_task' | 'invite_member' | 'view_docs' }`
 
 - Ablauf
-
   - `withAuthApiMiddleware`
 
   - `request.json()` parse; bei Fehler → `validation_error` + `logUserEvent('invalid_dashboard_request')`
 
   - Switch je `action`:
-
     - `create_project`: Insert in `projects` mit `crypto.randomUUID()`; `logUserEvent('project_created')`
 
     - `create_task`: Insert in `tasks` (Annahme: Tabelle existiert); `logUserEvent('task_created')`
@@ -631,7 +555,6 @@ Status: Deprecated — 410 Gone
   - Ungültige Aktion → `validation_error` + `logUserEvent('invalid_dashboard_action')`
 
 - Antworten
-
   - 200 JSON Wrapper via `createApiSuccess(result)`
 
   - 400 JSON `validation_error` bei invalidem JSON/Aktion
@@ -639,11 +562,9 @@ Status: Deprecated — 410 Gone
   - 500 via `createApiError('server_error', ...)` im `onError`
 
 - Abhängigkeiten
-
   - `@/lib/api-middleware`, `@/lib/security-logger`, D1 `DB`
 
 - Hinweise/Risiken
-
   - Tabelle `tasks` ggf. nicht vorhanden → Risiko Laufzeitfehler
 
   - `redirect` als Feld im JSON, kein HTTP-Redirect → Frontend muss das interpretieren
@@ -651,11 +572,9 @@ Status: Deprecated — 410 Gone
 ### 4.19 GET `/api/dashboard/projects` → `src/pages/api/dashboard/projects.ts`
 
 - Eingaben
-
   - keine (nutzt `locals.user`)
 
 - Ablauf
-
   - `withAuthApiMiddleware`
 
   - User-ID Auflösung tolerant (`user.id` oder `user.sub`)
@@ -665,41 +584,33 @@ Status: Deprecated — 410 Gone
   - Audit: `logApiAccess(userId, clientAddress, { action: 'projects_accessed', projectCount })`
 
 - Antworten
-
   - 200 JSON Array (Plain) der Projekte (kein Wrapper)
 
   - 401 via Middleware; 500 eigener JSON-Fehler `{ type: 'server_error', ... }`
 
 - Abhängigkeiten
-
   - `@/lib/api-middleware`, `@/lib/security-logger`, D1 `DB`
 
 - Besonderheiten
-
   - Abweichendes Response-Format (Plain Array statt `createApiSuccess`)
 
 ### 4.20 GET `/api/dashboard/quick-actions` → `src/pages/api/dashboard/quick-actions.ts`
 
 - Eingaben
-
   - keine
 
 - Ablauf
-
   - `withApiMiddleware` mit `requireAuth: false` (öffentlich)
 
   - Statisches Array `quickActions`, Audit via `logApiAccess('anonymous', ...)`
 
 - Antworten
-
   - 200 JSON Wrapper via `createApiSuccess(quickActions)`
 
 - Abhängigkeiten
-
   - `@/lib/api-middleware`, `@/lib/security-logger`
 
 - Hinweise/Risiken
-
   - Mögliche Pfad-Inkonsistenz beim Typ-Import: `../../../src/types/dashboard` (sollte `../../../types/dashboard` oder `@/types/dashboard` sein)
 
   - Öffentlich, aber statische Daten → geringes Risiko; dennoch Rate-Limit/Caching-Header prüfen
@@ -707,11 +618,9 @@ Status: Deprecated — 410 Gone
 ### 4.21 GET `/api/dashboard/stats` → `src/pages/api/dashboard/stats.ts`
 
 - Eingaben
-
   - keine (nutzt `locals.user`)
 
 - Ablauf
-
   - `withAuthApiMiddleware`
 
   - Drei Zähl-Queries: Projekte/Tasks pro User; Teammitglieder global (`SELECT count(*) FROM users`)
@@ -719,17 +628,14 @@ Status: Deprecated — 410 Gone
   - Audit: `logUserEvent(userId, 'dashboard_stats_viewed', { statCounts, ipAddress })`
 
 - Antworten
-
   - 200 JSON Wrapper via `createApiSuccess(stats)`
 
   - 401 via Middleware; 500 via `createApiError('server_error', ...)`
 
 - Abhängigkeiten
-
   - `@/lib/api-middleware`, `@/lib/security-logger`, D1 `DB`
 
 - Hinweise/Risiken
-
   - `teamMembers` zählt alle Nutzer (nicht nur Team des Users) → fachliche Klärung
 
   - Tabelle `tasks` wird vorausgesetzt (in `perform-action.ts`, `stats.ts`) → Schema prüfen/migrieren.
@@ -737,7 +643,6 @@ Status: Deprecated — 410 Gone
 ### 4.22 POST `/api/newsletter/subscribe` → `src/pages/api/newsletter/subscribe.ts`
 
 - Eingaben (JSON)
-
   - `email: string`
 
   - `firstName?: string`
@@ -747,7 +652,6 @@ Status: Deprecated — 410 Gone
   - `source?: string`
 
 - Ablauf
-
   - `request.json()` parsen (kein Content-Type-Guard, potenziell 415 sinnvoll)
 
   - Pflichtfelder prüfen: `email` vorhanden und Regex-Validierung; `consent` muss `true` sein
@@ -761,7 +665,6 @@ Status: Deprecated — 410 Gone
   - Analytics-Logging via `console.log` (Stub)
 
 - Antworten
-
   - 200 JSON `{ success, message, email, next_step: 'confirmation_required', info }`
 
   - 400 JSON bei fehlender/ungültiger `email` oder fehlender `consent`
@@ -771,11 +674,9 @@ Status: Deprecated — 410 Gone
   - Hinweis: Kein expliziter 405-Export (nur `POST` implementiert)
 
 - Abhängigkeiten
-
   - `createPendingSubscription` (In-Memory), `zod` (importiert, ungenutzt), `trackNewsletterSignup` (importiert, ungenutzt)
 
 - Hinweise/Risiken
-
   - Sensible Logs: `console.log` enthält `confirmationUrl` mit Token sowie E-Mail → redigieren
 
   - Kein Rate-Limit/Anti-Spam (Captcha/Heuristiken) vorhanden
@@ -785,13 +686,11 @@ Status: Deprecated — 410 Gone
 ### 4.23 GET `/api/newsletter/confirm` → `src/pages/api/newsletter/confirm.ts`
 
 - Eingaben (Query)
-
   - `token: string` (≥ 32)
 
   - `email?: string`
 
 - Ablauf
-
   - Validierung via `zod`
 
   - Lookup in `pendingSubscriptions` (In-Memory-Map)
@@ -803,7 +702,6 @@ Status: Deprecated — 410 Gone
   - Erfolg: Pending-Eintrag löschen, Analytics-Log (Stub)
 
 - Antworten
-
   - 200 JSON `{ success, message, email, subscription_date }`
 
   - 400 JSON bei Validierungsfehlern oder E-Mail-Mismatch (liefert Details im Fehlerobjekt)
@@ -815,11 +713,9 @@ Status: Deprecated — 410 Gone
   - Hinweis: Kein expliziter 405-Export (nur `GET` implementiert)
 
 - Abhängigkeiten
-
   - `zod`; keine DB- oder E-Mail-Integration, Persistenz nur In-Memory
 
 - Hinweise/Risiken
-
   - In-Memory-Persistenz → Token verliert Gültigkeit bei Neustart/Skalierung, nicht multi-instance-fähig
 
   - Validierungsfehler geben strukturierte Details zurück → potenziell übermäßig auskunftsfreudig
@@ -829,7 +725,6 @@ Status: Deprecated — 410 Gone
 ### 4.24 `/api/lead-magnets/download` → `src/pages/api/lead-magnets/download.ts`
 
 - Methoden & Eingaben
-
   - `POST` (JSON): `{ leadMagnetId: string, email: string, firstName?, lastName?, company?, source?, utmSource?, utmMedium?, utmCampaign? }`
 
   - `GET` (Query): `id: string`, optional `download=1`
@@ -837,15 +732,12 @@ Status: Deprecated — 410 Gone
   - `OPTIONS`: CORS Preflight
 
 - Ablauf
-
   - `POST`: CORS-Header (`*`), JSON-Parsing, Validierung `leadMagnetId`/`email`
-
     - Lookup in statischem `LEAD_MAGNETS`
 
     - `saveLead()` (Stub) → Console-Log; optional `triggerEmailSequence()` (Stub)
 
     - `downloadUrl` abhängig von Quelle (`getLeadMagnetSource(locals)`):
-
       - `public` → statischer Asset-Pfad
 
       - `r2` → interner GET-Link `/api/lead-magnets/download?id=...&download=1`
@@ -853,13 +745,11 @@ Status: Deprecated — 410 Gone
   - `GET` ohne `download`: Liefert Metadaten zum Lead-Magneten (ohne Pfad)
 
   - `GET` mit `download=1`:
-
     - Quelle `r2`: liest Objekt aus `R2_LEADMAGNETS`, schreibt Audit-Log in D1 `download_audit`, streamt Datei mit `Content-Disposition: attachment`
 
     - Quelle `public`: 302 Redirect auf statischen Pfad
 
 - Antworten
-
   - `POST`: 200 JSON `{ success, leadId, downloadUrl, fileName, title, message }`; 400/404 bei Validierungsfehlern; 500 Fehler
 
   - `GET`: 200 JSON (Metadaten) oder 302 Redirect (public) oder 200 Datei-Stream (R2); 404 wenn Datei fehlt
@@ -867,11 +757,9 @@ Status: Deprecated — 410 Gone
   - `OPTIONS`: 200 mit CORS-Headern
 
 - Abhängigkeiten
-
   - `locals.runtime.env.R2_LEADMAGNETS` (R2), D1 `DB` (Audit-Tabelle `download_audit`), keine Auth
 
 - Hinweise/Risiken
-
   - CORS `Access-Control-Allow-Origin: *` → prüfen/engen, je nach Frontend-Domain
 
   - Kein Rate-Limit/Abuse-Schutz; IP wird im Audit geloggt
@@ -881,11 +769,9 @@ Status: Deprecated — 410 Gone
 ### 4.25 POST `/api/billing/session` → `src/pages/api/billing/session.ts`
 
 - Eingaben (JSON)
-
   - `{ plan: string, workspaceId: string }`
 
 - Ablauf
-
   - `withAuthApiMiddleware` (Auth, Rate-Limit, Security-Header, Audit)
 
   - `logUserEvent(user.id, 'checkout_session_created', { ipAddress })`
@@ -899,7 +785,6 @@ Status: Deprecated — 410 Gone
   - URLs: `success_url = {baseUrl}/dashboard?ws={workspaceId}`, `cancel_url = {baseUrl}/pricing`
 
 - Antworten
-
   - 200 JSON `{ url }`
 
   - 400 JSON bei fehlenden Feldern/unknown `plan`
@@ -909,11 +794,9 @@ Status: Deprecated — 410 Gone
   - 401 via Middleware
 
 - Abhängigkeiten
-
   - `@/lib/api-middleware`, `stripe`, `@/lib/security-logger`; Env: `STRIPE_SECRET`, `PRICING_TABLE`, `BASE_URL`
 
 - Hinweise/Risiken
-
   - Prüfung, ob `workspaceId` zum Benutzer gehört, ist aktuell nicht enthalten (Missbrauchsrisiko)
 
   - Konfigurationsfehler in `PRICING_TABLE` führen zu 400; Monitoring/Alerts empfohlen
@@ -921,13 +804,11 @@ Status: Deprecated — 410 Gone
 ### 4.26 POST `/api/admin/users/set-plan` → `src/pages/api/admin/users/set-plan.ts`
 
 - Eingaben (JSON via Zod `adminSetPlanRequestSchema`)
-
   - `{ email?: string, userId?: string, plan: 'free'|'pro'|'premium'|'enterprise', reason?: string }`
 
   - XOR: genau eines von `email` oder `userId` ist erforderlich; `reason` max 500 Zeichen
 
 - Ablauf
-
   - `withAuthApiMiddleware` (Auth, Same‑Origin/CSRF, Security‑Header, Logging)
 
   - RBAC: `requireAdmin`
@@ -941,13 +822,11 @@ Status: Deprecated — 410 Gone
   - Audit: `ADMIN_ACTION` (resource `user`, action `set_plan`, details `{ from, to, reason }`)
 
 - Antworten
-
   - 200 JSON `{ success: true, data: { userId, plan } }`
 
   - 401/403 bei fehlender Auth/Rolle/CSRF; 404 bei unbekanntem Benutzer; 422 bei Validierungsfehlern
 
 - Hinweise
-
   - Stripe‑Webhook kann den Plan später überschreiben (Subscription‑Events); Admin‑Override ist für Ausnahmen gedacht
 
 ---
@@ -955,7 +834,6 @@ Status: Deprecated — 410 Gone
 ## 5) Request-Flow (bisher für Auth)
 
 1. Request → `src/middleware.ts`
-
    - Early Redirects (Locale/Welcome, Bot, Domain), Setzen/Lesen Cookies
 
    - Session-Validierung: `locals.session`/`locals.user`
@@ -963,13 +841,11 @@ Status: Deprecated — 410 Gone
    - Security-Header nach `next()`
 
 1. Controller (API-Route)
-
    - Rate-Limit → Validierung → Service-Layer → Cookie-Setzen/Löschen → Redirect
 
    - Fehler zentral via `handleAuthError`
 
 1. Service-Layer
-
    - `createAuthService(...)` führt Geschäftslogik/DB-Operationen aus (Details in späterer Phase)
 
 ---

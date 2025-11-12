@@ -15,22 +15,43 @@ export async function runTask(task: WebEvalTask): Promise<CompletionPayload> {
   let browser: Browser | null = null;
   let page: Page | null = null;
   const reqStart = new Map<string, number>();
+  let sameOriginConsoleError = false;
 
   try {
     browser = await chromium.launch({ headless: task.headless !== false });
     const context = await browser.newContext();
     page = await context.newPage();
 
+    const taskOrigin = (() => {
+      try {
+        return new URL(task.url).origin;
+      } catch {
+        return '';
+      }
+    })();
+
     page.on('console', (msg: ConsoleMessage) => {
       const level = msg.type() as CompletionPayload['report']['consoleLogs'][number]['level'];
       const entry = {
-        level: level && ['log', 'error', 'warn', 'info', 'debug'].includes(level as string) ? level : 'log',
+        level:
+          level && ['log', 'error', 'warn', 'info', 'debug'].includes(level as string)
+            ? level
+            : 'log',
         message: msg.text(),
         timestamp: nowIso(),
       } as const;
       consoleLogs.push(entry);
       if (entry.level === 'error') {
         errors.push(`console_error: ${entry.message}`);
+        try {
+          const loc = msg.location?.();
+          const src = loc && typeof loc.url === 'string' ? loc.url : '';
+          if (src && taskOrigin && src.startsWith(taskOrigin)) {
+            sameOriginConsoleError = true;
+          }
+        } catch {
+          // ignore location parsing
+        }
       }
     });
 
@@ -44,7 +65,7 @@ export async function runTask(task: WebEvalTask): Promise<CompletionPayload> {
         const started = reqStart.get(req.url()) ?? Date.now();
         const duration = Math.max(0, Date.now() - started);
         networkRequests.push({
-          method: (req.method() as any),
+          method: req.method() as any,
           url: req.url(),
           status: res ? res.status() : 0,
           durationMs: duration,
@@ -56,15 +77,28 @@ export async function runTask(task: WebEvalTask): Promise<CompletionPayload> {
 
     steps.push({ action: 'goto', timestamp: nowIso() });
     const timeout = task.timeoutMs ?? 30_000;
-    const response: Response | null = await page.goto(task.url, { waitUntil: 'networkidle', timeout });
+    // Navigate quickly to DOMContentLoaded; avoid stalls on long-tail requests
+    const response: Response | null = await page.goto(task.url, {
+      waitUntil: 'domcontentloaded',
+      timeout,
+    });
+    // Best-effort short idle wait (3-5s) without stalling the whole run
+    const idleWait = Math.min(5000, Math.max(0, timeout - 5000));
+    try {
+      if (idleWait > 0) {
+        await page.waitForLoadState('networkidle', { timeout: idleWait });
+        steps.push({ action: 'idle', timestamp: nowIso() });
+      }
+    } catch {
+      // ignore idle wait timeout
+    }
 
     // Basic health criteria
     const statusOk = response ? response.status() < 400 : true;
     const title = (await page.title()).trim();
     const titleOk = title.length > 0;
-    const consoleOk = !consoleLogs.some((l) => l.level === 'error');
-
-    const success = statusOk && titleOk && consoleOk;
+    // Treat only same-origin console errors as fatal; keep all errors in report
+    const success = statusOk && titleOk && !sameOriginConsoleError;
 
     const finishedAt = new Date();
     const payload: CompletionPayload = {

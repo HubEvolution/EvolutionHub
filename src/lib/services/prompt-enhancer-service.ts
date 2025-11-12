@@ -571,10 +571,12 @@ export class PromptEnhancerService {
           },
           attachment as import('@/lib/services/prompt-attachments').PreparedAttachments,
           {
-            info: (event: string, data?: unknown) => loggerHelpers.info(this.log, event, data as any),
-            warn: (event: string, data?: unknown) => loggerHelpers.warn(this.log, event, data as any),
+            info: (event: string, data?: unknown) =>
+              loggerHelpers.info(this.log, event, data as import('@/config/logging').LogContext),
+            warn: (event: string, data?: unknown) =>
+              loggerHelpers.warn(this.log, event, data as import('@/config/logging').LogContext),
             error: (event: string, data?: unknown) =>
-              loggerHelpers.error(this.log, event, data as any),
+              loggerHelpers.error(this.log, event, data as import('@/config/logging').LogContext),
           }
         );
 
@@ -668,8 +670,9 @@ export class PromptEnhancerService {
       const params = this.composeRewriteMessages(inputText, mode, attachment);
       // Narrow types for OpenAI call without introducing broad any;
       // accept params shape and call via a lightly erased function signature
-      const chatCreate = client.chat.completions
-        .create as unknown as (args: unknown) => Promise<unknown>;
+      const chatCreate = client.chat.completions.create as unknown as (
+        args: unknown
+      ) => Promise<unknown>;
       const completion = await chatCreate(params as unknown);
       // Type guard: ChatCompletion vs Stream
       type ChatCompletionLike = { choices?: Array<{ message?: { content?: string } | null }> };

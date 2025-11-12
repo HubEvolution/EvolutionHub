@@ -46,7 +46,6 @@ testRefs: 'test-suite-v2/, tests/'
 ### Core Documentation
 
 - **[Architecture](./architecture/)** — Systemarchitektur, Auth-Flow, ADRs
-
   - System-Übersicht und Datenflüsse
 
   - Authentifizierungs-Architektur (Stytch Magic Link)
@@ -56,7 +55,6 @@ testRefs: 'test-suite-v2/, tests/'
   - Code-Reviews und Analysen
 
 - **[Development](./development/)** — Entwicklungs-Workflows, Tools, Setup
-
   - Lokale Entwicklungsumgebung
 
   - CI/CD-Pipeline und Deployment
@@ -68,7 +66,6 @@ testRefs: 'test-suite-v2/, tests/'
   - Debug- und Logging-Tools
 
 - **[Frontend](./frontend/)** — UI/UX-Design, Komponenten, Animationen
-
   - Design-System (Farben, Typography, Spacing)
 
   - UI-Komponenten (Buttons, Forms, Cards)
@@ -80,7 +77,6 @@ testRefs: 'test-suite-v2/, tests/'
   - Feature-Upgrades (Image Enhancer UI)
 
 - **[Security](./security/)** — Sicherheits-Features, Best Practices
-
   - Rate-Limiting-System
 
   - Security-Headers-Konfiguration
@@ -92,7 +88,6 @@ testRefs: 'test-suite-v2/, tests/'
   - Known Issues und Improvements
 
 - **[Testing](./testing/)** — Teststrategie, Coverage, Tools
-
   - Testing-Strategy (Unit, Integration, E2E)
 
   - Coverage-Roadmap zu 95%
@@ -102,7 +97,6 @@ testRefs: 'test-suite-v2/, tests/'
   - Mocking-Strategien
 
 - **[API](./api/)** — API-Dokumentation und Spezifikation
-
   - API-Endpunkte und Routen
 
   - OpenAPI-Spezifikation
@@ -114,19 +108,16 @@ testRefs: 'test-suite-v2/, tests/'
   - Comments API: [Public API - Comments](./api/public_api.md#1-kommentare-api)
 
 - **[Features](./features/)** — Feature-spezifische Dokumentation
-
   - [Blog & Comment System Plan](./features/blog+commentsystem-plan.md) — Content Collections, BlogService, Moderation (Roadmap)
 
 ### Operational Documentation
 
 - **[Operations](./ops/)** — Operative Dokumentation
-
   - Stytch-Integration und Custom-Domain-Setup
 
   - Third-Party-Service-Status
 
 - **[Archive](./archive/)** — Archivierte/Obsolete Dokumentation
-
   - Abgeschlossene Migrations-Dokumente
 
   - Veraltete Planungsdokumente
@@ -180,9 +171,9 @@ testRefs: 'test-suite-v2/, tests/'
 
 ## Maintenance Log
 
-| Datum       | Aktivität                                       | Ergebnis                                                                 | Follow-ups                                                |
-|-------------|-------------------------------------------------|--------------------------------------------------------------------------|-----------------------------------------------------------|
-| 2025-11-11  | Dokumentations-Link-Audit (Steps 1-3 abgeschlossen) | `npm run docs:links` → 0 Broken Links; API-, Content-, Development-, Tools- und Archive-Docs aktualisiert | Nächste Aufgabe: Erweiterte Docs-Lint-/Frontmatter-Prüfung priorisieren |
+| Datum      | Aktivität                                           | Ergebnis                                                                                                  | Follow-ups                                                              |
+| ---------- | --------------------------------------------------- | --------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| 2025-11-11 | Dokumentations-Link-Audit (Steps 1-3 abgeschlossen) | `npm run docs:links` → 0 Broken Links; API-, Content-, Development-, Tools- und Archive-Docs aktualisiert | Nächste Aufgabe: Erweiterte Docs-Lint-/Frontmatter-Prüfung priorisieren |
 
 ## Standards & Konventionen
 
@@ -250,7 +241,7 @@ testRefs: 'test-suite-v2/, tests/'
 
 ## 🗂️ Dokumentationsstruktur
 
-```plain
+````plain
 docs/
 ├── README.md                          # Diese Datei - Hauptindex
 ├── SETUP.md                           # Hauptdokument für Setup
@@ -373,3 +364,4 @@ Bei Dokumentations-Verbesserungen:
 **Letzte Aktualisierung:** 2025-10-27 (Refakturierung abgeschlossen)
 
 ```text
+````

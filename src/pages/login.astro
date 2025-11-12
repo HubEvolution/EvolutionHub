@@ -29,8 +29,8 @@ const githubText =
   t('pages.login.form.oauth.github') ??
   (locale === 'de' ? 'Mit GitHub anmelden' : 'Continue with GitHub');
 
-const locals = Astro.locals as any;
-if (locals.user) {
+const locals = Astro.locals as { user?: unknown } | undefined;
+if (locals?.user) {
   return Astro.redirect(localizePath(locale, '/dashboard'));
 }
 ---

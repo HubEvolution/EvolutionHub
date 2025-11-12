@@ -18,7 +18,9 @@ async function tryDismissCookieConsent(page: any) {
   for (const sel of candidates) {
     const btn = page.locator(sel).first();
     if (await btn.count().catch(() => 0)) {
-      try { await btn.click({ timeout: 1000 }); } catch {}
+      try {
+        await btn.click({ timeout: 1000 });
+      } catch {}
     }
   }
 }

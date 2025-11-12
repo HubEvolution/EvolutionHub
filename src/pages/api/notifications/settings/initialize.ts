@@ -1,6 +1,11 @@
 import { withAuthApiMiddleware, createApiError, createApiSuccess } from '@/lib/api-middleware';
 import { rateLimit } from '@/lib/rate-limiter';
-import { handleServiceError, resolveNotificationService, resolveUserId } from './utils';
+import {
+  handleServiceError,
+  resolveNotificationService,
+  resolveUserId,
+  resolveRuntimeEnv,
+} from './utils';
 
 export const POST = withAuthApiMiddleware(
   async (context) => {
@@ -11,7 +16,7 @@ export const POST = withAuthApiMiddleware(
 
     try {
       await rateLimit(`notifications:settings:init:${userId}`, 5, 3600, {
-        env: (context.locals as any)?.runtime?.env as Record<string, unknown>,
+        env: resolveRuntimeEnv(context),
       });
 
       const notificationService = resolveNotificationService(context);

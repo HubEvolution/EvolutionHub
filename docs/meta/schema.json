@@ -29,10 +29,7 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": [
-          "path",
-          "format"
-        ],
+        "required": ["path", "format"],
         "properties": {
           "path": {
             "type": "string",
@@ -48,12 +45,7 @@
           },
           "format": {
             "type": "string",
-            "enum": [
-              "markdown",
-              "mdx",
-              "asciidoc",
-              "text"
-            ],
+            "enum": ["markdown", "mdx", "asciidoc", "text"],
             "description": "Document format inferred from the file extension."
           },
           "hash": {
@@ -71,10 +63,7 @@
             "description": "Ordered list of headings discovered within the document.",
             "items": {
               "type": "object",
-              "required": [
-                "level",
-                "value"
-              ],
+              "required": ["level", "value"],
               "properties": {
                 "level": {
                   "type": "integer",
@@ -101,8 +90,5 @@
       }
     }
   },
-  "required": [
-    "generatedAt",
-    "documents"
-  ]
+  "required": ["generatedAt", "documents"]
 }

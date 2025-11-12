@@ -15,8 +15,8 @@ const locale = getLocale(Astro.url.pathname);
 const t = getI18n(locale);
 
 // Benutzer ist bereits eingeloggt -> Redirect zum Dashboard
-const locals = Astro.locals as any;
-if (locals.user && locals.user.email_verified) {
+const locals = Astro.locals as { user?: { email_verified?: boolean } } | undefined;
+if (locals?.user && locals.user.email_verified) {
   return Astro.redirect(localizePath(locale, '/dashboard'));
 }
 

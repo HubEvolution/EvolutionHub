@@ -221,9 +221,12 @@ export default {
             await hcPing(env.HC_PRICING, '/fail');
             throw e;
           }
-          return new Response(JSON.stringify({ ok: true, ran: 'pricing', host: hostFilter || 'all' }), {
-            headers: { 'Content-Type': 'application/json' },
-          });
+          return new Response(
+            JSON.stringify({ ok: true, ran: 'pricing', host: hostFilter || 'all' }),
+            {
+              headers: { 'Content-Type': 'application/json' },
+            }
+          );
         }
         if (target === 'auth') {
           await hcPing(env.HC_AUTH, '/start');
@@ -238,9 +241,12 @@ export default {
             await hcPing(env.HC_AUTH, '/fail');
             throw e;
           }
-          return new Response(JSON.stringify({ ok: true, ran: 'auth', host: hostFilter || 'all' }), {
-            headers: { 'Content-Type': 'application/json' },
-          });
+          return new Response(
+            JSON.stringify({ ok: true, ran: 'auth', host: hostFilter || 'all' }),
+            {
+              headers: { 'Content-Type': 'application/json' },
+            }
+          );
         }
         if (target === 'docs') {
           await hcPing(env.HC_DOCS, '/start');
@@ -287,49 +293,57 @@ export default {
   async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
     console.log('[cron-worker] scheduled fired', event.cron, nowIso());
     if (event.cron === '0 2 * * *') {
-      ctx.waitUntil((async () => {
-        await hcPing(env.HC_PRICING, '/start');
-        try {
-          await runPricingSmokeAll(env);
-          await hcPing(env.HC_PRICING);
-        } catch (e) {
-          await hcPing(env.HC_PRICING, '/fail');
-          throw e;
-        }
-      })());
+      ctx.waitUntil(
+        (async () => {
+          await hcPing(env.HC_PRICING, '/start');
+          try {
+            await runPricingSmokeAll(env);
+            await hcPing(env.HC_PRICING);
+          } catch (e) {
+            await hcPing(env.HC_PRICING, '/fail');
+            throw e;
+          }
+        })()
+      );
     } else if (event.cron === '0 4 * * *') {
-      ctx.waitUntil((async () => {
-        await hcPing(env.HC_AUTH, '/start');
-        try {
-          await runProdAuthHealthAll(env);
-          await hcPing(env.HC_AUTH);
-        } catch (e) {
-          await hcPing(env.HC_AUTH, '/fail');
-          throw e;
-        }
-      })());
+      ctx.waitUntil(
+        (async () => {
+          await hcPing(env.HC_AUTH, '/start');
+          try {
+            await runProdAuthHealthAll(env);
+            await hcPing(env.HC_AUTH);
+          } catch (e) {
+            await hcPing(env.HC_AUTH, '/fail');
+            throw e;
+          }
+        })()
+      );
     } else if (event.cron === '0 5 * * 1') {
-      ctx.waitUntil((async () => {
-        await hcPing(env.HC_DOCS, '/start');
-        try {
-          await runDocsInventory(env);
-          await hcPing(env.HC_DOCS);
-        } catch (e) {
-          await hcPing(env.HC_DOCS, '/fail');
-          throw e;
-        }
-      })());
+      ctx.waitUntil(
+        (async () => {
+          await hcPing(env.HC_DOCS, '/start');
+          try {
+            await runDocsInventory(env);
+            await hcPing(env.HC_DOCS);
+          } catch (e) {
+            await hcPing(env.HC_DOCS, '/fail');
+            throw e;
+          }
+        })()
+      );
     } else {
-      ctx.waitUntil((async () => {
-        await hcPing(env.HC_PRICING, '/start');
-        try {
-          await runPricingSmokeAll(env);
-          await hcPing(env.HC_PRICING);
-        } catch (e) {
-          await hcPing(env.HC_PRICING, '/fail');
-          throw e;
-        }
-      })());
+      ctx.waitUntil(
+        (async () => {
+          await hcPing(env.HC_PRICING, '/start');
+          try {
+            await runPricingSmokeAll(env);
+            await hcPing(env.HC_PRICING);
+          } catch (e) {
+            await hcPing(env.HC_PRICING, '/fail');
+            throw e;
+          }
+        })()
+      );
     }
   },
 };

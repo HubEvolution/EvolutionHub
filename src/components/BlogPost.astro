@@ -56,7 +56,7 @@ const {
   ctas = [],
 } = post.data;
 
-const hasImage = Boolean(image && typeof (image as any)?.src === 'string');
+const hasImage = Boolean(image && typeof (image as { src?: unknown })?.src === 'string');
 const fallbackImage: SafeImage = {
   src: '/images/blog/default-og.jpg',
   width: 1200,
@@ -74,7 +74,7 @@ const authorName =
   typeof author === 'string'
     ? author
     : author && typeof author === 'object' && 'name' in author
-      ? String((author as any).name)
+      ? String((author as { name?: unknown }).name)
       : 'Anonymous';
 const authorInitial =
   authorName !== 'Anonymous' && authorName.length > 0 ? authorName.charAt(0) : '?';
@@ -199,8 +199,8 @@ const finalBottomCTA =
           author && typeof author === 'object' && 'avatar' in author && author.avatar ? (
             <img
               class="h-10 w-10 rounded-full"
-              src={String((author as any).avatar)}
-              alt={'name' in author ? String((author as any).name) : 'Author'}
+              src={String((author as { avatar?: unknown }).avatar)}
+              alt={'name' in author ? String((author as { name?: unknown }).name) : 'Author'}
             />
           ) : (
             <span class="inline-flex items-center justify-center h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-700">

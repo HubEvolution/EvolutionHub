@@ -6,216 +6,347 @@
 /* Custom base styles */
 @layer base {
   body {
-    
     @apply antialiased text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-900;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family:
+      'Inter',
+      system-ui,
+      -apple-system,
+      sans-serif;
   }
 
-/* Global accent variables (project-wide defaults) */
-:root {
-  --accent-blue: 56 189 248;   /* sky-400 */
-  --accent-gold: 253 224 71;   /* yellow-300 */
-  --accent-orange: 251 146 60; /* orange-400 */
-  /* Backward-compat tokens for utilities expecting --accent-a/b */
-  --accent-a: var(--accent-blue);
-  --accent-b: var(--accent-orange);
-}
+  /* Global accent variables (project-wide defaults) */
+  :root {
+    --accent-blue: 56 189 248; /* sky-400 */
+    --accent-gold: 253 224 71; /* yellow-300 */
+    --accent-orange: 251 146 60; /* orange-400 */
+    /* Backward-compat tokens for utilities expecting --accent-a/b */
+    --accent-a: var(--accent-blue);
+    --accent-b: var(--accent-orange);
+  }
 
-/* Landing tokens and utilities (promoted from landing.css) */
-/* Scope variables under .landing-v2 so pages can opt-in via BaseLayout wrapper */
-.landing-v2 {
-  /* Primary landing accents: blue → gold/orange */
-  --landing-cyan: 14 165 233; /* sky-500 */
-  --landing-magenta: 245 158 11; /* amber-500 */
-  --motion-k: 1;
-  /* Accent triad for reusable gradients */
-  --accent-blue: 56 189 248;   /* sky-400 */
-  --accent-gold: 253 224 71;   /* yellow-300 */
-  --accent-orange: 251 146 60; /* orange-400 */
-  /* Backward-compat tokens */
-  --accent-a: var(--accent-blue);
-  --accent-b: var(--accent-orange);
-  --bg-0: 10 14 28;
-  --bg-tech: 0 0 0;
-  --grid-line: 180 190 210;
-  --grid-primary: 125 211 252;
-  --grid-accent: 56 189 248;
-  --grid-accent-warm: 251 146 60;
-  --scanline-alpha: 0.04;
-  --grain-alpha: 0.015;
-  /* Visibility defaults for techcells */
-  --techcells-alpha-main: 0.08;
-  --techcells-top-mask-alpha: 0.14;
-}
+  /* Landing tokens and utilities (promoted from landing.css) */
+  /* Scope variables under .landing-v2 so pages can opt-in via BaseLayout wrapper */
+  .landing-v2 {
+    /* Primary landing accents: blue → gold/orange */
+    --landing-cyan: 14 165 233; /* sky-500 */
+    --landing-magenta: 245 158 11; /* amber-500 */
+    --motion-k: 1;
+    /* Accent triad for reusable gradients */
+    --accent-blue: 56 189 248; /* sky-400 */
+    --accent-gold: 253 224 71; /* yellow-300 */
+    --accent-orange: 251 146 60; /* orange-400 */
+    /* Backward-compat tokens */
+    --accent-a: var(--accent-blue);
+    --accent-b: var(--accent-orange);
+    --bg-0: 10 14 28;
+    --bg-tech: 0 0 0;
+    --grid-line: 180 190 210;
+    --grid-primary: 125 211 252;
+    --grid-accent: 56 189 248;
+    --grid-accent-warm: 251 146 60;
+    --scanline-alpha: 0.04;
+    --grain-alpha: 0.015;
+    /* Visibility defaults for techcells */
+    --techcells-alpha-main: 0.08;
+    --techcells-top-mask-alpha: 0.14;
+  }
 
-:root:not(.dark) .landing-v2 {
-  --bg-tech: 252 250 245;
-  --grid-primary: 148 163 184;
-  --grid-accent: 14 165 233;
-  --grid-accent-warm: 245 158 11;
-  --techcells-alpha-main: 0.055;
-  --techcells-alpha-accent: 0.120;
-  --techcells-accent-prob: 0.006;
-  --techcells-top-mask-alpha: 0.07;
-}
+  :root:not(.dark) .landing-v2 {
+    --bg-tech: 252 250 245;
+    --grid-primary: 148 163 184;
+    --grid-accent: 14 165 233;
+    --grid-accent-warm: 245 158 11;
+    --techcells-alpha-main: 0.055;
+    --techcells-alpha-accent: 0.12;
+    --techcells-accent-prob: 0.006;
+    --techcells-top-mask-alpha: 0.07;
+  }
 
-@media (prefers-reduced-motion: reduce) {
-  .landing-v2 { --motion-k: 0; }
-}
+  @media (prefers-reduced-motion: reduce) {
+    .landing-v2 {
+      --motion-k: 0;
+    }
+  }
 
-/* Reusable gradient utilities (project-wide) */
-.text-accent-gradient {
-  background-image: linear-gradient(
-    135deg,
-    rgb(var(--accent-blue)) 0%,
-    rgb(var(--accent-gold)) 40%,
-    rgb(var(--accent-orange)) 100%
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-.bg-accent-gradient {
-  background-image: linear-gradient(
-    135deg,
-    rgba(var(--accent-blue)/0.95) 0%,
-    rgba(var(--accent-gold)/0.85) 35%,
-    rgba(var(--accent-orange)/0.95) 100%
-  );
-}
-.bg-accent-soft {
-  background-image: linear-gradient(
-    135deg,
-    rgba(var(--accent-blue)/0.40) 0%,
-    rgba(var(--accent-orange)/0.40) 100%
-  );
-}
+  /* Reusable gradient utilities (project-wide) */
+  .text-accent-gradient {
+    background-image: linear-gradient(
+      135deg,
+      rgb(var(--accent-blue)) 0%,
+      rgb(var(--accent-gold)) 40%,
+      rgb(var(--accent-orange)) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .bg-accent-gradient {
+    background-image: linear-gradient(
+      135deg,
+      rgba(var(--accent-blue) / 0.95) 0%,
+      rgba(var(--accent-gold) / 0.85) 35%,
+      rgba(var(--accent-orange) / 0.95) 100%
+    );
+  }
+  .bg-accent-soft {
+    background-image: linear-gradient(
+      135deg,
+      rgba(var(--accent-blue) / 0.4) 0%,
+      rgba(var(--accent-orange) / 0.4) 100%
+    );
+  }
 
-/* Hexagon utility for status tiles and overlays */
-.hex-shape {
-  /* Regular hexagon, flat top (pronounced) */
-  -webkit-clip-path: polygon(
-    25% 0%, 75% 0%,
-    100% 50%,
-    75% 100%, 25% 100%,
-    0% 50%
-  );
-  clip-path: polygon(
-    25% 0%, 75% 0%,
-    100% 50%,
-    75% 100%, 25% 100%,
-    0% 50%
-  );
-  /* Improve separation on dark background */
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 10px 22px rgba(2, 6, 23, 0.55);
-}
+  /* Hexagon utility for status tiles and overlays */
+  .hex-shape {
+    /* Regular hexagon, flat top (pronounced) */
+    -webkit-clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+    /* Improve separation on dark background */
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+      0 10px 22px rgba(2, 6, 23, 0.55);
+  }
 
-/* Readability helpers for status tiles */
-.status-label {
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.6), 0 0 8px rgba(16, 185, 129, 0.22);
-}
-.icon-bright {
-  filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.35));
-}
+  /* Readability helpers for status tiles */
+  .status-label {
+    text-shadow:
+      0 1px 1px rgba(0, 0, 0, 0.6),
+      0 0 8px rgba(16, 185, 129, 0.22);
+  }
+  .icon-bright {
+    filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.35));
+  }
 
-/* Soft radial spotlight for tile center */
-.status-spotlight {
-  background: radial-gradient(
-    120% 120% at 50% 55%,
-    rgba(15, 23, 42, 0) 0%,
-    rgba(16, 185, 129, 0.10) 30%,
-    rgba(16, 185, 129, 0.06) 60%,
-    rgba(15, 23, 42, 0) 100%
-  );
-  mix-blend-mode: screen;
-}
+  /* Soft radial spotlight for tile center */
+  .status-spotlight {
+    background: radial-gradient(
+      120% 120% at 50% 55%,
+      rgba(15, 23, 42, 0) 0%,
+      rgba(16, 185, 129, 0.1) 30%,
+      rgba(16, 185, 129, 0.06) 60%,
+      rgba(15, 23, 42, 0) 100%
+    );
+    mix-blend-mode: screen;
+  }
 
-/* Gradient border ring (CSP-safe) */
-.gradient-border {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(135deg, rgba(var(--accent-a)/0.55), rgba(var(--accent-b)/0.45));
-  padding: 1px;
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
-}
+  /* Gradient border ring (CSP-safe) */
+  .gradient-border {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(135deg, rgba(var(--accent-a) / 0.55), rgba(var(--accent-b) / 0.45));
+    padding: 1px;
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
 
-/* Hero overlay fade (top -> transparent) */
-.landing-hero-overlay {
-  background: linear-gradient(to bottom, rgba(0,0,0,0.07) 0%, rgba(0,0,0,0.04) 30%, rgba(0,0,0,0) 55%);
-}
-:root:not(.dark) .landing-hero-overlay {
-  background: linear-gradient(to bottom, rgba(0,0,0,0.04) 0%, rgba(0,0,0,0.02) 28%, rgba(0,0,0,0) 55%);
-}
+  /* Hero overlay fade (top -> transparent) */
+  .landing-hero-overlay {
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.07) 0%,
+      rgba(0, 0, 0, 0.04) 30%,
+      rgba(0, 0, 0, 0) 55%
+    );
+  }
+  :root:not(.dark) .landing-hero-overlay {
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.04) 0%,
+      rgba(0, 0, 0, 0.02) 28%,
+      rgba(0, 0, 0, 0) 55%
+    );
+  }
 
-/* Holo panel container/background (used by HoloFeaturePanel) */
-.landing-holo-panel { box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 8px 30px rgba(0,0,0,0.20); }
-.landing-holo-panel:hover { box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 12px 40px rgba(0,0,0,0.25); }
-.landing-holo-bg {
-  background:
-    radial-gradient(120% 120% at 0% 0%, rgba(var(--landing-cyan)/0.09) 0%, rgba(0,0,0,0) 42%),
-    radial-gradient(120% 120% at 100% 100%, rgba(var(--landing-magenta)/0.08) 0%, rgba(0,0,0,0) 48%);
-}
+  /* Holo panel container/background (used by HoloFeaturePanel) */
+  .landing-holo-panel {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.06),
+      0 8px 30px rgba(0, 0, 0, 0.2);
+  }
+  .landing-holo-panel:hover {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 12px 40px rgba(0, 0, 0, 0.25);
+  }
+  .landing-holo-bg {
+    background:
+      radial-gradient(
+        120% 120% at 0% 0%,
+        rgba(var(--landing-cyan) / 0.09) 0%,
+        rgba(0, 0, 0, 0) 42%
+      ),
+      radial-gradient(
+        120% 120% at 100% 100%,
+        rgba(var(--landing-magenta) / 0.08) 0%,
+        rgba(0, 0, 0, 0) 48%
+      );
+  }
 
-/* CTA gradient background & container glass */
-.landing-cta-bg {
-  background:
-    radial-gradient(120% 120% at 10% 0%, rgba(var(--landing-cyan)/0.12) 0%, rgba(0,0,0,0) 40%),
-    radial-gradient(120% 120% at 90% 100%, rgba(var(--landing-magenta)/0.10) 0%, rgba(0,0,0,0) 45%),
-    linear-gradient(180deg, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0) 55%);
-}
-.landing-cta-container {
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 10px 40px rgba(0,0,0,0.25);
-}
+  /* CTA gradient background & container glass */
+  .landing-cta-bg {
+    background:
+      radial-gradient(
+        120% 120% at 10% 0%,
+        rgba(var(--landing-cyan) / 0.12) 0%,
+        rgba(0, 0, 0, 0) 40%
+      ),
+      radial-gradient(
+        120% 120% at 90% 100%,
+        rgba(var(--landing-magenta) / 0.1) 0%,
+        rgba(0, 0, 0, 0) 45%
+      ),
+      linear-gradient(180deg, rgba(0, 0, 0, 0.08) 0%, rgba(0, 0, 0, 0) 55%);
+  }
+  .landing-cta-container {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.06),
+      0 10px 40px rgba(0, 0, 0, 0.25);
+  }
 
-/* Icon pulse */
-@keyframes landing-panel-pulse { 0%,100% { opacity:.9; transform:scale(1) } 50% { opacity:1; transform:scale(1.02) } }
-.landing-panel-pulse { animation: landing-panel-pulse calc(4s * var(--motion-k)) infinite; }
+  /* Icon pulse */
+  @keyframes landing-panel-pulse {
+    0%,
+    100% {
+      opacity: 0.9;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.02);
+    }
+  }
+  .landing-panel-pulse {
+    animation: landing-panel-pulse calc(4s * var(--motion-k)) infinite;
+  }
 
-/* Echo avatars float */
-@keyframes landing-echo-float { 0%,100% { transform: translateY(0) translateX(0); opacity:.7 } 50% { transform: translateY(-10px) translateX(6px); opacity:1 } }
-.echo-float { animation: landing-echo-float calc(16s * var(--motion-k)) ease-in-out infinite; }
-.echo-float-1 { animation-duration: calc(14s * var(--motion-k)); }
-.echo-float-2 { animation-duration: calc(18s * var(--motion-k)); animation-delay: -5s; }
-.echo-float-3 { animation-duration: calc(16s * var(--motion-k)); animation-delay: -9s; }
+  /* Echo avatars float */
+  @keyframes landing-echo-float {
+    0%,
+    100% {
+      transform: translateY(0) translateX(0);
+      opacity: 0.7;
+    }
+    50% {
+      transform: translateY(-10px) translateX(6px);
+      opacity: 1;
+    }
+  }
+  .echo-float {
+    animation: landing-echo-float calc(16s * var(--motion-k)) ease-in-out infinite;
+  }
+  .echo-float-1 {
+    animation-duration: calc(14s * var(--motion-k));
+  }
+  .echo-float-2 {
+    animation-duration: calc(18s * var(--motion-k));
+    animation-delay: -5s;
+  }
+  .echo-float-3 {
+    animation-duration: calc(16s * var(--motion-k));
+    animation-delay: -9s;
+  }
 
-/* Rotating testimonial slots animations */
-@keyframes landing-fade-slide { from { opacity: 0; transform: translateY(8px) scale(0.99) } to { opacity: 1; transform: translateY(0) scale(1) } }
-.animate-fade-slide { animation: landing-fade-slide 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
-@media (min-width: 768px) { .animate-fade-slide { animation-duration: 0.7s; } }
-@keyframes landing-fade-out { from { opacity: 1; transform: translateY(0) scale(1) } to { opacity: 0; transform: translateY(6px) scale(0.995) } }
-.animate-fade-out { animation: landing-fade-out 0.35s ease-out both; will-change: transform, opacity; }
-@media (min-width: 768px) { .animate-fade-out { animation-duration: 0.4s; } }
-@keyframes landing-fade-in { from { opacity: 0; transform: translateY(8px) scale(0.99) } to { opacity: 1; transform: translateY(0) scale(1) } }
-.animate-fade-in { animation: landing-fade-in 0.75s cubic-bezier(0.22, 1, 0.36, 1) both; will-change: transform, opacity; }
-@media (min-width: 768px) { .animate-fade-in { animation-duration: 0.9s; } }
-  
-  h1, h2, h3, h4, h5, h6 {
+  /* Rotating testimonial slots animations */
+  @keyframes landing-fade-slide {
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(0.99);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  .animate-fade-slide {
+    animation: landing-fade-slide 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  @media (min-width: 768px) {
+    .animate-fade-slide {
+      animation-duration: 0.7s;
+    }
+  }
+  @keyframes landing-fade-out {
+    from {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(6px) scale(0.995);
+    }
+  }
+  .animate-fade-out {
+    animation: landing-fade-out 0.35s ease-out both;
+    will-change: transform, opacity;
+  }
+  @media (min-width: 768px) {
+    .animate-fade-out {
+      animation-duration: 0.4s;
+    }
+  }
+  @keyframes landing-fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(0.99);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  .animate-fade-in {
+    animation: landing-fade-in 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+    will-change: transform, opacity;
+  }
+  @media (min-width: 768px) {
+    .animate-fade-in {
+      animation-duration: 0.9s;
+    }
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-bold tracking-tight;
   }
-  
-  h1 { @apply text-4xl md:text-5xl lg:text-6xl; }
-  h2 { @apply text-3xl md:text-4xl; }
-  h3 { @apply text-2xl md:text-3xl; }
-  h4 { @apply text-xl md:text-2xl; }
-  
+
+  h1 {
+    @apply text-4xl md:text-5xl lg:text-6xl;
+  }
+  h2 {
+    @apply text-3xl md:text-4xl;
+  }
+  h3 {
+    @apply text-2xl md:text-3xl;
+  }
+  h4 {
+    @apply text-xl md:text-2xl;
+  }
+
   a {
     @apply text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors;
   }
-  
+
   /* Custom scrollbar */
   ::-webkit-scrollbar {
     @apply w-2 h-2;
   }
-  
+
   ::-webkit-scrollbar-track {
     @apply bg-gray-100 dark:bg-gray-800;
   }
-  
+
   ::-webkit-scrollbar-thumb {
     @apply bg-gray-300 dark:bg-gray-600 rounded-full hover:bg-gray-400 dark:hover:bg-gray-500;
   }
@@ -226,12 +357,12 @@
   .container {
     @apply px-4 mx-auto w-full max-w-7xl;
   }
-  
+
   /* Glassmorphism effect */
   .glass {
     @apply bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg border border-gray-600 dark:border-gray-700 rounded-xl shadow-lg;
   }
-  
+
   /* Card component */
   .card {
     @apply bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-200 dark:border-gray-700;
@@ -240,8 +371,14 @@
 
 /* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .animate-fade-in {
@@ -263,13 +400,21 @@ html.aos-enabled [data-aos].aos-init:not(.aos-animate) {
 
 /* Typewriter animation */
 @keyframes typewriter {
-  from { width: 0; }
-  to { width: 100%; }
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
 }
 
 @keyframes blink {
-  from { border-color: transparent; }
-  to { border-color: currentColor; }
+  from {
+    border-color: transparent;
+  }
+  to {
+    border-color: currentColor;
+  }
 }
 
 .typewriter {
@@ -277,7 +422,7 @@ html.aos-enabled [data-aos].aos-init:not(.aos-animate) {
   overflow: hidden;
   border-right: 2px solid transparent;
   white-space: nowrap;
-  animation: 
+  animation:
     typewriter 2s steps(40, end) 1s infinite alternate,
     blink 0.75s step-end infinite;
 }
@@ -294,17 +439,37 @@ html.aos-enabled [data-aos].aos-init:not(.aos-animate) {
 
 /* Hero blob animations */
 @keyframes blobMove {
-  0%, 100% { transform: translate3d(0,0,0) scale(1); }
-  33% { transform: translate3d(24px,-16px,0) scale(1.05); }
-  66% { transform: translate3d(-20px,12px,0) scale(0.98); }
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  33% {
+    transform: translate3d(24px, -16px, 0) scale(1.05);
+  }
+  66% {
+    transform: translate3d(-20px, 12px, 0) scale(0.98);
+  }
 }
 
-.animate-blob-1 { animation: blobMove 18s ease-in-out infinite; will-change: transform; }
-.animate-blob-2 { animation: blobMove 22s ease-in-out infinite reverse; will-change: transform; }
-.animate-blob-3 { animation: blobMove 26s ease-in-out infinite; will-change: transform; }
+.animate-blob-1 {
+  animation: blobMove 18s ease-in-out infinite;
+  will-change: transform;
+}
+.animate-blob-2 {
+  animation: blobMove 22s ease-in-out infinite reverse;
+  will-change: transform;
+}
+.animate-blob-3 {
+  animation: blobMove 26s ease-in-out infinite;
+  will-change: transform;
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-blob-1, .animate-blob-2, .animate-blob-3 { animation: none; }
+  .animate-blob-1,
+  .animate-blob-2,
+  .animate-blob-3 {
+    animation: none;
+  }
 }
 
 /* Dark mode transition */
@@ -392,13 +557,13 @@ main :is(div, section).min-h-screen {
    Neutralize ONLY top‑level page wrappers (direct children of #main-content)
    that set a page‑wide background, so the BaseLayout background dominates.
    Cards/boxes deeper in the tree keep their own backgrounds and remain readable. */
-#main-content > :is(div, section, article):not(.allow-section-bg)[class*="bg-white"],
-#main-content > :is(div, section, article):not(.allow-section-bg)[class*="bg-gray-50"],
-#main-content > :is(div, section, article):not(.allow-section-bg)[class*="bg-gray-100"],
-#main-content > :is(div, section, article):not(.allow-section-bg)[class*="bg-gray-900"],
-#main-content > :is(div, section, article):not(.allow-section-bg)[class*="bg-gray-800"],
-#main-content > :is(div, section, article):not(.allow-section-bg)[class*="dark:bg-gray-900"],
-#main-content > :is(div, section, article):not(.allow-section-bg)[class*="dark:bg-gray-800"] {
+#main-content > :is(div, section, article):not(.allow-section-bg)[class*='bg-white'],
+#main-content > :is(div, section, article):not(.allow-section-bg)[class*='bg-gray-50'],
+#main-content > :is(div, section, article):not(.allow-section-bg)[class*='bg-gray-100'],
+#main-content > :is(div, section, article):not(.allow-section-bg)[class*='bg-gray-900'],
+#main-content > :is(div, section, article):not(.allow-section-bg)[class*='bg-gray-800'],
+#main-content > :is(div, section, article):not(.allow-section-bg)[class*='dark:bg-gray-900'],
+#main-content > :is(div, section, article):not(.allow-section-bg)[class*='dark:bg-gray-800'] {
   background: transparent !important;
   background-image: none !important;
 }

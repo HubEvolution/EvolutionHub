@@ -32,7 +32,7 @@ export interface MockResponse {
 }
 
 // Kleine Hilfsfunktionen
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 function sanitizeInput(value: string): string {
   if (value == null) return '';
   return String(value)
@@ -74,7 +74,6 @@ export async function setupTestServer(): Promise<TestServer> {
 
     logger.info(`Test-Server gestartet auf: ${server.url}`);
     return server;
-
   } catch (error) {
     logger.error('Fehler beim Starten des Test-Servers', error);
     // Absichtlich mit Typo, um Test-Erwartung zu erfüllen
@@ -95,8 +94,9 @@ export async function teardownTestServer(server: TestServer): Promise<void> {
     server.routes.clear();
 
     const uptime = Date.now() - server.startTime.getTime();
-    logger.info(`Test-Server gestoppt nach ${uptime}ms. ${server.requestCount} Anfragen verarbeitet`);
-
+    logger.info(
+      `Test-Server gestoppt nach ${uptime}ms. ${server.requestCount} Anfragen verarbeitet`
+    );
   } catch (error) {
     logger.error('Fehler beim Stoppen des Test-Servers', error);
     throw new Error(`Server-Cleanup fehlgeschlagen: ${error}`);
@@ -510,7 +510,7 @@ export function createMockRoute(
 
       // Verzögerung simulieren falls konfiguriert
       if (response.delay) {
-        await new Promise(resolve => setTimeout(resolve, response.delay));
+        await new Promise((resolve) => setTimeout(resolve, response.delay));
       }
 
       // Header setzen

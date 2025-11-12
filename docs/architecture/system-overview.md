@@ -80,7 +80,6 @@ Die Benutzeroberfläche ist mit Astro und React implementiert und folgt dem Isla
 Die API-Schicht ist mit Astro API-Routen implementiert und in mehrere Bereiche unterteilt:
 
 - **Auth-APIs**: Authentifizierung und Autorisierung
-
   - Magic Link (Stytch): `POST /api/auth/magic/request`, `GET /api/auth/callback` (Redirect-only)
 
   - OAuth (Stytch, z. B. GitHub): `GET /api/auth/oauth/*` (Redirect/Middleware)
@@ -88,7 +87,6 @@ Die API-Schicht ist mit Astro API-Routen implementiert und in mehrere Bereiche u
   - Session-Cookies: `__Host-session` (HttpOnly, Secure, SameSite=Strict, Path=/); kein Passwortfluss
 
 - **User-APIs**: Benutzerverwaltung
-
   - Profilinformationen
 
   - Einstellungen
@@ -96,7 +94,6 @@ Die API-Schicht ist mit Astro API-Routen implementiert und in mehrere Bereiche u
   - Berechtigungen
 
 - **Project-APIs**: Projektverwaltung
-
   - CRUD-Operationen für Projekte
 
   - Projektmitglieder
@@ -104,7 +101,6 @@ Die API-Schicht ist mit Astro API-Routen implementiert und in mehrere Bereiche u
   - Projekteinstellungen
 
 - **Dashboard-APIs**: Dashboard-Funktionalitäten
-
   - Aktivitätsfeeds
 
   - Statistiken
@@ -112,7 +108,6 @@ Die API-Schicht ist mit Astro API-Routen implementiert und in mehrere Bereiche u
   - Benachrichtigungen
 
 - **Public-APIs**: Öffentliche APIs
-
   - Blog-Content (Astro Content Collections)
 
   - Kommentare (CRUD, Moderation, Reporting)
@@ -150,7 +145,6 @@ Die Datenschicht ist mit Cloudflare D1 implementiert:
 - **Aktivitäten**: Benutzeraktivitäten und Ereignisse
 
 - **Kommentare**:
-
   - `comments` (Haupttabelle)
 
   - `comment_moderation` (Moderations-Historie)
@@ -164,7 +158,6 @@ Die Datenschicht ist mit Cloudflare D1 implementiert:
 - **Tools**: Tool-Definitionen und Metadaten
 
 - **Benachrichtigungen** (Notifications-Subsystem):
-
   - `notifications` (Endnutzer-Benachrichtigungen; TEXT-FKs, Read-Status, Priorität)
 
   - `notification_settings` (pro Nutzer: Typ/Channel/Frequenz)
@@ -174,7 +167,6 @@ Die Datenschicht ist mit Cloudflare D1 implementiert:
   - `email_queue` (geplante/ausgehende E-Mails mit Status/Prio)
 
 - **Ops / Data-Management**:
-
   - `data_export_jobs` (Nutzer-/Daten-Exporte inkl. Ablauf/Links)
 
   - `data_deletion_requests` (DSGVO-Löschanfragen mit Verifikation/Status)
@@ -184,14 +176,13 @@ Die Datenschicht ist mit Cloudflare D1 implementiert:
   - `system_maintenance` (Housekeeping/Migration/Repair-Läufe)
 
 - **WebScraper**:
-
   - `scraping_jobs` (URL, Status, Resultat/Fehler, Indizes für Status/URL/Datum)
 
 ---
 
 ## Architekturdiagramm
 
-```mermaid
+````mermaid
 graph TD
     subgraph "Client"
         Browser["Browser"]
@@ -300,7 +291,7 @@ graph TD
     Build --> CFPages
     CFPages --> CFWorkers
     CFWorkers --> CFD1
-```
+````
 
 ### Deployment-Workflow
 

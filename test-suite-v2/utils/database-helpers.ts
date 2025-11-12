@@ -22,12 +22,10 @@ export interface DatabaseFixture {
 /**
  * Richtet eine Test-Datenbank ein
  */
-export async function setupTestDatabase(
-  connection?: {
-    query: (sql: string, params?: any[]) => Promise<any> | any;
-    end: () => Promise<void> | void;
-  }
-): Promise<TestDatabase> {
+export async function setupTestDatabase(connection?: {
+  query: (sql: string, params?: any[]) => Promise<any> | any;
+  end: () => Promise<void> | void;
+}): Promise<TestDatabase> {
   const logger = getTestLogger();
   logger.info('Datenbank-Setup wird gestartet...');
 
@@ -78,7 +76,6 @@ export async function setupTestDatabase(
 
     logger.database.connect(dbName);
     return testDb;
-
   } catch (error) {
     logger.database.error(error);
     throw new Error(`Fehler beim Datenbank-Setup: ${error}`);
@@ -104,7 +101,6 @@ export async function teardownTestDatabase(database: TestDatabase): Promise<void
 
     database.isConnected = false;
     logger.info(`Datenbank-Cleanup abgeschlossen für: ${database.name}`);
-
   } catch (error) {
     logger.database.error(error);
     throw new Error(`Fehler beim Datenbank-Cleanup: ${error}`);
@@ -211,13 +207,13 @@ async function loadFixtures(database: TestDatabase): Promise<void> {
     for (const user of users) {
       // Param-Array so strukturieren, dass Indizes 3..6 den Tests entsprechen
       const params = [
-        user.email,                // 0
-        user.password_hash,        // 1
-        null,                      // 2 -> Platzhalter, damit first_name bei Index 3 liegt
-        user.first_name,           // 3
-        user.last_name,            // 4
-        user.role,                 // 5
-        user.verified,             // 6
+        user.email, // 0
+        user.password_hash, // 1
+        null, // 2 -> Platzhalter, damit first_name bei Index 3 liegt
+        user.first_name, // 3
+        user.last_name, // 4
+        user.role, // 5
+        user.verified, // 6
       ];
 
       await database.connection.query(
