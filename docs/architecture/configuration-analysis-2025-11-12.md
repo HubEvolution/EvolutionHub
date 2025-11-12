@@ -744,7 +744,7 @@ Alle projektspezifischen Regeln für KI-Assistenten.
 
 ### Für Entwickler
 - Neue Features: Erstelle dedizierte Rule-Datei
-- Änderungen: Aktualisiere Changelog in betroffe nen Rules
+- Änderungen: Aktualisiere Changelog in betroffenen Rules
 - Review: Prüfe Cross-References
 
 ## Dependency-Graph
