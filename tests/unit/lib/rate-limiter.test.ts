@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-const logRateLimitExceeded = vi.fn();
+const { logRateLimitExceeded } = vi.hoisted(() => ({ logRateLimitExceeded: vi.fn() }));
 
 vi.mock('@/lib/security-logger', () => ({
   logRateLimitExceeded,

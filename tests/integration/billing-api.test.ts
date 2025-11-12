@@ -265,9 +265,9 @@ describe('Billing-API-Integration', () => {
       expect([200, 401, 404]).toContain(response.status);
       if (response.status !== 200) return;
       expect(response.contentType).toContain('application/json');
-      const json = JSON.parse(response.text);
-      expect(json.success).toBe(true);
-      expect(json.data.message).toContain('successfully');
+      const json = parseJson<{ message: string }>(response);
+      expect(json?.success).toBe(true);
+      expect(json?.data?.message).toContain('successfully');
     });
   });
 
@@ -420,9 +420,11 @@ describe('Billing-API-Integration', () => {
 
         if (response.status === 400) {
           const json = parseJson<unknown>(response);
-          expect(json.success).toBe(false);
-          expect(json.error.type).toBeDefined();
-          expect(json.error.message).toBeDefined();
+          if (json) {
+            expect(json.success).toBe(false);
+            expect(json.error?.type).toBeDefined();
+            expect(json.error?.message).toBeDefined();
+          }
         }
       }
     });

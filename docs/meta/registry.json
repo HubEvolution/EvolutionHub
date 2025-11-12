@@ -1,6 +1,6 @@
 {
   "$schema": "schema.json",
-  "generatedAt": "2025-11-12T04:33:19.144Z",
+  "generatedAt": "2025-11-12T07:04:03.772Z",
   "generatedBy": "scripts/doc-inventory.mjs",
   "sourceRoot": "/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub",
   "documents": [
@@ -990,8 +990,8 @@
       "path": ".windsurf/rules/agentic-workflow.md",
       "title": "Agentischer Arbeitsablauf & Freigabe – Rules",
       "format": "markdown",
-      "hash": "403721bf4eb68c212cc65f77767797207031f310cb374f5881c8286fe9546e75",
-      "size": 3569,
+      "hash": "f85982ef12ee2d1bba8410d3146a690b2b9862adece6f3eb92ef4036ee025655",
+      "size": 3608,
       "headings": [
         {
           "level": 1,
@@ -1033,7 +1033,7 @@
       "frontMatter": {
         "trigger": "always_on"
       },
-      "lastModified": "2025-11-12T04:11:24.133Z"
+      "lastModified": "2025-11-12T04:49:32.494Z"
     },
     {
       "path": ".windsurf/rules/api-and-security.md",
@@ -1967,8 +1967,8 @@
       "path": "AGENTS.md",
       "title": "AGENTS.md (Root)",
       "format": "markdown",
-      "hash": "972c09e6a463888de2c0689009cf77f574573348d11cd5cbd8cff8de4d3df2a3",
-      "size": 6442,
+      "hash": "f45bc155ecd3221bda3989d1734883a0105bafcff6f8afb7b4a5129edf7f149f",
+      "size": 6623,
       "headings": [
         {
           "level": 1,
@@ -2035,7 +2035,7 @@
           "value": "Nicht erlaubt"
         }
       ],
-      "lastModified": "2025-11-11T22:45:45.419Z"
+      "lastModified": "2025-11-12T04:55:55.399Z"
     },
     {
       "path": "assets/README.md",
@@ -10373,8 +10373,8 @@
       "title": "CI/CD-Pipeline - Evolution Hub",
       "description": "'CI/CD-Pipeline, Workflows und Qualitäts-Gates für Evolution Hub'",
       "format": "markdown",
-      "hash": "e00d102c68ce708f6eb1f584bd175a776813b613cb78d9c1a427c25410aa900d",
-      "size": 27062,
+      "hash": "d2099a97fbf9768706d3d969add2563c518f57a221febaa21b1a730873970948",
+      "size": 27265,
       "headings": [
         {
           "level": 1,
@@ -10398,7 +10398,7 @@
         },
         {
           "level": 3,
-          "value": "1. **Unit and E2E Tests** (`.github/workflows/unit-tests.yml`)"
+          "value": "1. **Quality Gate** (`.github/workflows/quality-gate.yml`)"
         },
         {
           "level": 4,
@@ -10410,7 +10410,7 @@
         },
         {
           "level": 4,
-          "value": "C) `unit` — Unit Tests + Coverage"
+          "value": "C) `unit` — Unit Tests"
         },
         {
           "level": 4,
@@ -11053,7 +11053,7 @@
         "codeRefs": "'.github/workflows/**, scripts/**, docs/development/ci-cd.md'",
         "testRefs": "'N/A'"
       },
-      "lastModified": "2025-11-11T07:42:17.612Z"
+      "lastModified": "2025-11-12T06:08:19.838Z"
     },
     {
       "path": "docs/development/debug-panel-usage.md",
@@ -12181,8 +12181,8 @@
       "title": "Development Documentation",
       "description": "'Entwicklungs-Workflows, Tools, Setup-Anleitungen und Best Practices für Evolution Hub'",
       "format": "markdown",
-      "hash": "b58aa58f0e2c3897691c2765e1fa530d741d0198ee03fa5562ce9b6dc036af1c",
-      "size": 8333,
+      "hash": "dfa8d4801104f7ca48696567f07dea29ac5927dfc2ddc58c4700dc7e72893a4a",
+      "size": 8467,
       "headings": [
         {
           "level": 1,
@@ -12329,7 +12329,7 @@
         "codeRefs": "'package.json, wrangler.toml, vitest.config.ts'",
         "testRefs": "'tests/unit, tests/integration, test-suite-v2'"
       },
-      "lastModified": "2025-11-11T22:45:46.777Z"
+      "lastModified": "2025-11-12T06:08:09.345Z"
     },
     {
       "path": "docs/development/stripe-setup.md",
@@ -14947,10 +14947,10 @@
     {
       "path": "docs/ops/deployment-guide.md",
       "title": "Deployment Guide — Cloudflare Workers",
-      "description": "'Praxisleitfaden für Cloudflare-Deployments (Staging & Production)'",
+      "description": "'Praxisleitfaden für Cloudflare-Deployments (Staging & Production) — Deploy ausschließlich via Wrangler CLI'",
       "format": "markdown",
-      "hash": "59c4c95c284d164040c08b0e45d0f7238e1560b59f3d767cefa97a606b4f5a41",
-      "size": 7388,
+      "hash": "e81c8f0098660090dde3fdf91cb5c9a8b053b3c0da4fd2035b820fbd2bee139b",
+      "size": 6713,
       "headings": [
         {
           "level": 1,
@@ -14970,23 +14970,19 @@
         },
         {
           "level": 2,
-          "value": "2. Automatischer Deployment-Workflow (GitHub Actions)"
-        },
-        {
-          "level": 3,
-          "value": "2.1 Trigger"
-        },
-        {
-          "level": 3,
-          "value": "2.2 Job-Übersicht"
-        },
-        {
-          "level": 3,
-          "value": "2.3 Gate-Logik"
+          "value": "2. Pre‑Release Validierung (GitHub Actions, kein Deploy)"
         },
         {
           "level": 2,
-          "value": "3. Manuelle Deployments (nur mit Approval)"
+          "value": "3. Manuelle Deployments (Wrangler CLI)"
+        },
+        {
+          "level": 1,
+          "value": "Staging"
+        },
+        {
+          "level": 1,
+          "value": "Production"
         },
         {
           "level": 2,
@@ -14998,7 +14994,7 @@
         },
         {
           "level": 2,
-          "value": "6. Rollback & Incident Response"
+          "value": "5. Rollback & Incident Response"
         },
         {
           "level": 2,
@@ -15006,14 +15002,14 @@
         }
       ],
       "frontMatter": {
-        "description": "'Praxisleitfaden für Cloudflare-Deployments (Staging & Production)'",
+        "description": "'Praxisleitfaden für Cloudflare-Deployments (Staging & Production) — Deploy ausschließlich via Wrangler CLI'",
         "owner": "'Operations Team'",
         "priority": "'high'",
         "lastSync": "'2025-11-06'",
         "codeRefs": "'.github/workflows/deploy.yml, package.json, wrangler.toml, scripts/deploy.ts'",
         "testRefs": "'test-suite-v2/playwright.config.ts, tests/integration/'"
       },
-      "lastModified": "2025-11-11T22:45:49.059Z"
+      "lastModified": "2025-11-12T06:07:55.886Z"
     },
     {
       "path": "docs/ops/monitoring.md",
@@ -15095,8 +15091,8 @@
       "title": "Operations Documentation",
       "description": "'Operative Dokumentation, Deployment und Third-Party-Service-Management für Evolution Hub'",
       "format": "markdown",
-      "hash": "eadbfd8568679aae3235196e9684736df8e59752c19bd773d1f5227032ec6329",
-      "size": 3643,
+      "hash": "146e8b77ff13145399b6d9c993333dfd1de3878c556fec1d6c089be47b2ce75b",
+      "size": 3720,
       "headings": [
         {
           "level": 1,
@@ -15147,7 +15143,7 @@
         "codeRefs": "'wrangler.toml, package.json, .github/workflows'",
         "testRefs": "'test-suite-v2/src/e2e/smoke'"
       },
-      "lastModified": "2025-11-11T07:42:17.625Z"
+      "lastModified": "2025-11-12T06:08:05.094Z"
     },
     {
       "path": "docs/ops/runbook-image-enhancer-go-live.md",
@@ -20323,6 +20319,108 @@
       "lastModified": "2025-11-11T07:42:17.581Z"
     },
     {
+      "path": "reports/assistant-task.md",
+      "title": "Hygiene Report for Assistant",
+      "format": "markdown",
+      "hash": "8214d8ae4147707bdd21c825791cf4b17b357cd4e35a7b9c6766234ba9bb1d43",
+      "size": 116547,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Hygiene Report for Assistant"
+        },
+        {
+          "level": 2,
+          "value": "Summary"
+        },
+        {
+          "level": 2,
+          "value": "Failing Steps"
+        },
+        {
+          "level": 2,
+          "value": "Relevant Logs (tail)"
+        },
+        {
+          "level": 3,
+          "value": "docs-inventory"
+        },
+        {
+          "level": 3,
+          "value": "docs-links"
+        },
+        {
+          "level": 3,
+          "value": "docs-lint"
+        },
+        {
+          "level": 3,
+          "value": "docs-toc"
+        },
+        {
+          "level": 3,
+          "value": "eslint-fix"
+        },
+        {
+          "level": 3,
+          "value": "format-check"
+        },
+        {
+          "level": 3,
+          "value": "format"
+        },
+        {
+          "level": 3,
+          "value": "i18n-audit"
+        },
+        {
+          "level": 3,
+          "value": "lint-md"
+        },
+        {
+          "level": 3,
+          "value": "lint-strict"
+        },
+        {
+          "level": 3,
+          "value": "md-fix"
+        },
+        {
+          "level": 3,
+          "value": "openapi-validate"
+        },
+        {
+          "level": 3,
+          "value": "security-scan"
+        },
+        {
+          "level": 3,
+          "value": "test-integration-debug"
+        },
+        {
+          "level": 3,
+          "value": "test-integration-run"
+        },
+        {
+          "level": 3,
+          "value": "test-unit-debug"
+        },
+        {
+          "level": 3,
+          "value": "test-unit-run"
+        },
+        {
+          "level": 3,
+          "value": "typecheck-src"
+        },
+        {
+          "level": 2,
+          "value": "Next Actions (for Assistant)"
+        }
+      ],
+      "lastModified": "2025-11-12T06:18:57.568Z"
+    },
+    {
       "path": "reports/tests-catalog-development.md",
       "title": "Test Catalog – Development Environment",
       "format": "markdown",
@@ -20980,8 +21078,8 @@
       "path": "src/components/AGENTS.md",
       "title": "AGENTS.md (Components)",
       "format": "markdown",
-      "hash": "f979c88da789cf93af4e3719d23bab6c3e51c6b5b3df19c90ba07b75b85febb7",
-      "size": 753,
+      "hash": "d9c312ab80de2c6c9c12b2f01f596c1d036031721eee346b754f6703e0cf5ab9",
+      "size": 1033,
       "headings": [
         {
           "level": 1,
@@ -21004,7 +21102,7 @@
           "value": "Tests"
         }
       ],
-      "lastModified": "2025-11-11T22:46:00.633Z"
+      "lastModified": "2025-11-12T04:55:46.645Z"
     },
     {
       "path": "src/content/_archive/blog/ai-ethics-workplace.mdx",
@@ -22413,8 +22511,8 @@
       "path": "src/pages/api/AGENTS.md",
       "title": "AGENTS.md (API)",
       "format": "markdown",
-      "hash": "850e88de43d790188be7d682444008fce3e2d9614913fbd672939feb02ccf499",
-      "size": 1110,
+      "hash": "93bcc015a03c9fc87fb237f393071393211d4d1589867b0ea5f014130847e487",
+      "size": 1849,
       "headings": [
         {
           "level": 1,
@@ -22441,7 +22539,7 @@
           "value": "Dokumentation"
         }
       ],
-      "lastModified": "2025-11-11T22:46:08.281Z"
+      "lastModified": "2025-11-12T04:55:28.715Z"
     },
     {
       "path": "test-suite-v2/README.md",
@@ -27113,8 +27211,8 @@
       "path": "tests/AGENTS.md",
       "title": "AGENTS.md (Tests)",
       "format": "markdown",
-      "hash": "d93481a34c1940122bc57bcfab87fa6de2e60f31436803b4014380d6484cbfe8",
-      "size": 676,
+      "hash": "7f438acbfba2b55e875181b9637d7725385ba6716f853d5c0603e7b417c910e7",
+      "size": 966,
       "headings": [
         {
           "level": 1,
@@ -27131,9 +27229,13 @@
         {
           "level": 2,
           "value": "Abdeckung"
+        },
+        {
+          "level": 2,
+          "value": "Integration"
         }
       ],
-      "lastModified": "2025-11-11T22:46:15.567Z"
+      "lastModified": "2025-11-12T04:55:34.521Z"
     },
     {
       "path": "tests/fixtures/note.md",

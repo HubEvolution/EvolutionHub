@@ -280,6 +280,19 @@
             ]
           }
         },
+        "web-eval": {
+          "name": "Web‑Eval Agent",
+          "description": "Create evaluation tasks, run autonomous checks, and view reports with quotas and credits.",
+          "modal": {
+            "headline": "Evaluate the web",
+            "summary": "Queue tasks, run evaluations, and inspect console/network reports.",
+            "features": [
+              "Task queue with owner‑scoped access",
+              "Daily/monthly quotas and credit support",
+              "Minimal reports with console and network logs"
+            ]
+          }
+        },
         "video-enhancer": {
           "name": "Video Enhancer",
           "description": "Upscale and enhance your videos with AI. Sharper details, reduced noise, better clarity — fast and consistent.",

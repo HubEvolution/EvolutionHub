@@ -38,7 +38,7 @@ async function fetchStatus() {
     }
     const data = (await res.json()) as AdminStatusPayload;
     return { ok: true, status: res.status, data } as FetchStatus;
-  } catch (e) {
+  } catch (_e) {
     return { ok: false, status: 500, data: null } as FetchStatus;
   }
 }
@@ -114,16 +114,18 @@ const status: FetchStatus = await fetchStatus();
                       </tr>
                     </thead>
                     <tbody class="text-gray-900 dark:text-white">
-                      {status.data.data.subscriptions.map((s: any) => (
-                        <tr>
-                          <td class="py-2 pr-4 font-mono text-xs">{s.id}</td>
-                          <td class="py-2 pr-4 capitalize">{s.plan}</td>
-                          <td class="py-2 pr-4">{s.status}</td>
-                          <td class="py-2 pr-4">{s.current_period_end ?? '-'}</td>
-                          <td class="py-2 pr-4">{s.cancel_at_period_end ? 'Ja' : 'Nein'}</td>
-                          <td class="py-2 pr-4">{s.updated_at}</td>
-                        </tr>
-                      ))}
+                      {status.data.data.subscriptions.map(
+                        (s: AdminStatusPayload['data']['subscriptions'][number]) => (
+                          <tr>
+                            <td class="py-2 pr-4 font-mono text-xs">{s.id}</td>
+                            <td class="py-2 pr-4 capitalize">{s.plan}</td>
+                            <td class="py-2 pr-4">{s.status}</td>
+                            <td class="py-2 pr-4">{s.current_period_end ?? '-'}</td>
+                            <td class="py-2 pr-4">{s.cancel_at_period_end ? 'Ja' : 'Nein'}</td>
+                            <td class="py-2 pr-4">{s.updated_at}</td>
+                          </tr>
+                        )
+                      )}
                     </tbody>
                   </table>
                 </div>

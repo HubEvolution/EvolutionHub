@@ -73,6 +73,54 @@ vi.mock('@/content/config', () => {
   };
 });
 
+// Mock Contentful client used by BlogService to avoid env/config requirements
+vi.mock('@/lib/contentful', () => {
+  const makeEntry = (slug: string, publishDate: string, updatedDate?: string) => ({
+    sys: { id: slug },
+    fields: {
+      title: slug,
+      slug,
+      publishDate,
+      updatedDate,
+      description: '',
+      content: { nodeType: 'document', data: {}, content: [] },
+    },
+  });
+  const items = [
+    makeEntry('old-post', '2024-01-01', '2024-03-01'),
+    makeEntry('new-published', '2025-10-10'),
+    makeEntry('updated-new', '2025-10-01', '2025-10-18'),
+  ];
+  return {
+    getContentfulClient: () => ({
+      getEntries: vi.fn(async () => ({ items })),
+    }),
+    mapEntryToBlogPost: (entry: any) => ({
+      id: entry.sys.id,
+      slug: entry.fields.slug,
+      body: '',
+      bodyHtml: '',
+      excerpt: '',
+      data: {
+        title: entry.fields.title,
+        description: '',
+        pubDate: new Date(entry.fields.publishDate),
+        updatedDate: entry.fields.updatedDate ? new Date(entry.fields.updatedDate) : undefined,
+        author: 'EvolutionHub Team',
+        category: 'New Work',
+        tags: [],
+        featured: false,
+        draft: false,
+        lang: 'de',
+      },
+      readingTime: { text: '1 minute read', minutes: 1, time: 60000, words: 200 },
+      formattedPubDate: '2024-01-01',
+      formattedUpdatedDate: entry.fields.updatedDate ?? undefined,
+      url: `/blog/${entry.fields.slug}/`,
+    }),
+  };
+});
+
 import { ContentService } from '@/lib/content';
 import { BlogService } from '@/lib/blog';
 

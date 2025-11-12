@@ -42,7 +42,7 @@ function createMockDb(options: {
       if (sql.includes('FROM subscriptions') && sql.includes('status IN')) {
         return {
           bind: () => ({
-            all: async () => subscriptions,
+            all: async () => ({ results: subscriptions }),
           }),
         };
       }

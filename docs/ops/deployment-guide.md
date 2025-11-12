@@ -1,5 +1,5 @@
 ---
-description: 'Praxisleitfaden für Cloudflare-Deployments (Staging & Production)'
+description: 'Praxisleitfaden für Cloudflare-Deployments (Staging & Production) — Deploy ausschließlich via Wrangler CLI'
 owner: 'Operations Team'
 priority: 'high'
 lastSync: '2025-11-06'
@@ -11,7 +11,7 @@ testRefs: 'test-suite-v2/playwright.config.ts, tests/integration/'
 
 # Deployment Guide — Cloudflare Workers
 
-Dieser Leitfaden beschreibt den standardisierten Ablauf, um Evolution Hub sicher nach **Staging** und **Production** zu deployen. Er bündelt die relevanten Skripte, Workflows und Nacharbeiten.
+Wichtige Änderung: Deployments werden nicht mehr über GitHub Actions ausgeführt. GitHub Actions dienen ausschließlich als Pre‑Release Validierung. Der produktive Rollout erfolgt manuell per Wrangler CLI.
 
 ## 1. Voraussetzungen & Checks
 
@@ -39,59 +39,39 @@ Stelle sicher, dass alle Secrets und Bindings in `wrangler.toml` und im Cloudfla
 - **Origins**: `APP_ORIGIN`, `PUBLIC_APP_ORIGIN`, optional `ALLOWED_ORIGINS`
 - **Pricing**: `PRICING_TABLE`, `PRICING_TABLE_ANNUAL` mit Live-Price-IDs
 
-## 2. Automatischer Deployment-Workflow (GitHub Actions)
+## 2. Pre‑Release Validierung (GitHub Actions, kein Deploy)
 
-Workflow-Datei: `.github/workflows/deploy.yml`
+Workflow-Datei: `.github/workflows/deploy.yml` (umbenannt zu Pre‑Release Validation) und `.github/workflows/quality-gate.yml`.
 
-### 2.1 Trigger
+- Läuft ausschließlich manuell (`workflow_dispatch`) oder bei PR/Push als Quality‑Gate.
+- Führt read‑only Prüfungen aus: ESLint (no‑warnings), Prettier‑Check, TypeScript‑Checks, Unit/Integration‑Tests, OpenAPI‑Validierung, `npm audit`, CI‑Build.
+- Enthält keinen Deploy‑Schritt mehr; dient als Gate vor manuellem Wrangler‑Deploy.
 
-- **Tag-Push (`v*.*.*`)**: Staging & Production laufen automatisch durch.
-- **Manueller Dispatch (`workflow_dispatch`)**: Auswahl `environment = staging | production`.
+## 3. Manuelle Deployments (Wrangler CLI)
 
-### 2.2 Job-Übersicht
+Verbindlicher Weg für Rollouts ist die Wrangler CLI. Voraussetzung: Pre‑Release Validierung grün.
 
-1. **pre-deploy**
-   - Checks: Lint, Format, OpenAPI, Test Coverage, `npm audit`
-   - Keine Deployments
-
-2. **deploy-staging**
-   - Build (`npm run build:worker:staging`)
-   - Wrangler Deploy `--env staging`
-   - Health Check gegen `https://staging.hub-evolution.com`
-
-3. **staging-smokes** _(nur für Production-Deploys oder wenn `environment=production`)_
-   - CURL-Preflights (Image Enhancer UI/API, Magic Link Request)
-   - Playwright Smoke (`test-suite-v2/src/e2e/tools/image-enhancer.spec.ts`)
-
-4. **deploy-production**
-   - Build (`npm run build:worker`)
-   - Wrangler Deploy `--env production`
-   - Health Check `https://hub-evolution.com`
-   - GitHub Release bei Tag-Push
-
-5. **notify-failure**
-   - Slack/Logs placeholder (derzeit Konsolen-Output)
-
-### 2.3 Gate-Logik
-
-- Production-Job wartet auf erfolgreiche Staging-Smokes.
-- Bei manuellem Dispatch ist Production erst möglich, nachdem Staging erfolgreich durchgelaufen ist (Workflow erneut mit `environment=production` starten).
-
-## 3. Manuelle Deployments (nur mit Approval)
-
-Für Einzeltests oder Hotfixes können die Skripte aus `package.json` verwendet werden:
+Option A — Reine Wrangler CLI:
 
 ```bash
-npm run deploy:staging
-npm run deploy:production
+# Staging
+wrangler deploy --env staging
+
+# Production
+wrangler deploy --env production
 ```
 
-Diese Skripte rufen `scripts/deploy.ts` auf und spiegeln die Wrangler-Befehle aus dem Workflow. Voraussetzungen:
+Option B — Script‑Wrapper (führt Build + Warmup und dann Wrangler aus):
 
-- `CLOUDFLARE_API_TOKEN` und `CLOUDFLARE_ACCOUNT_ID` sind lokal als Umgebungsvariablen vorhanden.
-- Branch ist gemergt bzw. enthält freigegebene Commits.
+```bash
+npm run deploy:staging      # ruft intern npx wrangler deploy --env staging auf
+npm run deploy:production   # ruft intern npx wrangler deploy --env production auf
+```
 
-> **Warnung:** Direkte `wrangler deploy`-Befehle (z. B. `wrangler deploy --env production`) dürfen nur nach Freigabe durch das Ops-Team ausgeführt werden. Dabei müssen alle CI-Checks vorab lokal bestanden sein.
+Voraussetzungen:
+
+- Cloudflare‑Zugriff lokal konfiguriert (API Token/Account ID bzw. `wrangler login`).
+- Secrets/Bindings in `wrangler.toml` gepflegt (siehe Abschnitt 1.2).
 
 ## 4. Post-Deploy Verifikation
 
@@ -137,7 +117,7 @@ Unabhängig vom Pfad (CI oder manuell):
 
   > Erwartung: HTTP 200, `success: true`, Rate-Limit-Header im Normalbereich.
 
-## 6. Rollback & Incident Response
+## 5. Rollback & Incident Response
 
 - **Rollback**: Vorheriges Tag via GitHub Release oder `wrangler deploy --env production --branch <tag>`
 - **Stripe Webhooks**: Bei Störungen vorübergehend pausieren, nach Fix wieder aktivieren

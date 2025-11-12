@@ -13,7 +13,7 @@ import { localizePath } from '@/lib/locale-path';
 import { getI18n } from '@/utils/i18n';
 // V2 removes shortcuts/recommendations and extra cards
 
-const locals = Astro.locals as App.Locals;
+const locals = Astro.locals as { user?: { email?: string; plan?: string } | null };
 if (!locals.user) {
   return Astro.redirect('/login');
 }

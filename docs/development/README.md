@@ -17,7 +17,7 @@ testRefs: 'tests/unit, tests/integration, test-suite-v2'
 
 - **[Local Development](./local-development.md)** — **Hauptdokument** für lokale Entwicklungsumgebung (Setup, Tools, Workflows)
 
-- **[CI/CD Pipeline](./ci-cd.md)** — Vollständige CI/CD-Dokumentation (GitHub Actions, Gates, Deployment)
+- **[CI/CD Pipeline](./ci-cd.md)** — CI‑Validierung mit GitHub Actions (keine Deployments); Deploys via Wrangler CLI
 
 - **[Testing Guidelines](./testing-guidelines.md)** — Verbindliche Praktiken für Unit-, Integration- und E2E-Tests
 
@@ -98,7 +98,8 @@ Evolution Hub nutzt moderne Entwicklungs-Tools und -Workflows:
 
 - **Local Development**: Wrangler Dev + Astro Dev-Server
 
-- **CI/CD**: GitHub Actions mit vollautomatischen Deployments
+- **CI**: GitHub Actions als strenges Quality‑Gate (Lint/Typecheck/Tests/Build)
+- **CD**: Keine automatischen Deployments; Rollout per Wrangler CLI
 
 - **Testing**: Vitest (Unit), Playwright (E2E)
 
@@ -125,7 +126,7 @@ Siehe auch: [../SETUP.md](../SETUP.md) für Schnellstart-Anleitung
 
 ### Continuous Integration & Deployment
 
-- **[CI/CD Pipeline](./ci-cd.md)** — Vollständige CI/CD-Dokumentation
+- **[CI/CD Pipeline](./ci-cd.md)** — CI‑Workflows (Quality‑Gate) und manuelle Deploys (Wrangler CLI)
   - GitHub Actions Workflows
 
   - CI-Gates (Lint, Tests, Security, TypeScript)

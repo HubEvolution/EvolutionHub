@@ -22,6 +22,15 @@ import type {
 import { loggerFactory } from '@/server/utils/logger-factory';
 import { validateTargetUrl } from '@/lib/testing/web-eval/ssrf';
 import { isBrowserAllowedInProd } from '@/lib/testing/web-eval/provider';
+import type { KVNamespace } from '@cloudflare/workers-types';
+import {
+  getUsage as kvGetUsage,
+  rollingDailyKey,
+  monthlyKey,
+  getCreditsBalanceTenths,
+} from '@/lib/kv/usage';
+import type { Plan } from '@/config/ai-image/entitlements';
+import { getWebEvalEntitlementsFor } from '@/config/web-eval/entitlements';
 
 const CANDIDATE_SCAN_LIMIT = 25;
 
@@ -193,6 +202,179 @@ async function handler(context: APIContext): Promise<Response> {
     };
     await updateTask(kv, failed, config);
     return createApiError('forbidden', 'ssrf_blocked', { reason: targetCheck.reason });
+  }
+
+  // Credits/Quota pre-check: only when runner binding exists (no charge on early gates/SSRF failures)
+  const hasRunnerBinding = !!env.BROWSER;
+  if (hasRunnerBinding) {
+    try {
+      const ownerType: 'user' | 'guest' = claimed.ownerType === 'user' ? 'user' : 'guest';
+      const ownerId = claimed.ownerId;
+
+      // Determine plan for users (executor has no session; default to 'free' unless later snapshot added)
+      const plan: Plan | undefined = ownerType === 'user' ? 'free' : undefined;
+      const ent = getWebEvalEntitlementsFor(ownerType, plan);
+
+      // For users, prefer credits (1.0 credit = 10 tenths)
+      if (ownerType === 'user') {
+        const kvEnhancer = ((locals.runtime?.env ?? {}) as { KV_AI_ENHANCER?: KVNamespace })
+          .KV_AI_ENHANCER;
+        if (kvEnhancer) {
+          const tenths = await getCreditsBalanceTenths(kvEnhancer, ownerId);
+          if (tenths >= 10) {
+            // Enough credits available; allow run to proceed. Actual consumption will be idempotent per task on final runner.
+          } else {
+            // No credits – fall back to plan quotas below
+            // Monthly quota check
+            const monthlyUsage = await kvGetUsage(kv, monthlyKey('web-eval', ownerType, ownerId));
+            const monthlyUsed = monthlyUsage?.count || 0;
+            if (monthlyUsed >= ent.monthlyRuns) {
+              // Fail: insufficient_quota
+              const startedAt = new Date();
+              const finishedAt = new Date();
+              const report: WebEvalReport = {
+                taskId: claimed.id,
+                url: claimed.url,
+                taskDescription: claimed.task,
+                success: false,
+                steps: [{ action: 'quotaCheck', timestamp: nowIso() }],
+                consoleLogs: [],
+                networkRequests: [],
+                errors: ['insufficient_quota'],
+                durationMs: Math.max(0, finishedAt.getTime() - startedAt.getTime()),
+                startedAt: startedAt.toISOString(),
+                finishedAt: finishedAt.toISOString(),
+              };
+              await storeReport(kv, claimed.id, report, config);
+              const failed: WebEvalTaskRecord = {
+                ...claimed,
+                status: 'failed',
+                attemptCount: (claimed.attemptCount || 0) + 1,
+                lastError: 'insufficient_quota',
+              };
+              await updateTask(kv, failed, config);
+              return createApiError('validation_error', 'insufficient_quota');
+            }
+            // Daily burst (rolling 24h) check
+            const dailyUsage = await kvGetUsage(
+              kv,
+              rollingDailyKey('web-eval', ownerType, ownerId)
+            );
+            const dailyUsed = dailyUsage?.count || 0;
+            if (dailyUsed >= ent.dailyBurstCap) {
+              const startedAt = new Date();
+              const finishedAt = new Date();
+              const report: WebEvalReport = {
+                taskId: claimed.id,
+                url: claimed.url,
+                taskDescription: claimed.task,
+                success: false,
+                steps: [{ action: 'quotaCheck', timestamp: nowIso() }],
+                consoleLogs: [],
+                networkRequests: [],
+                errors: ['insufficient_quota'],
+                durationMs: Math.max(0, finishedAt.getTime() - startedAt.getTime()),
+                startedAt: startedAt.toISOString(),
+                finishedAt: finishedAt.toISOString(),
+              };
+              await storeReport(kv, claimed.id, report, config);
+              const failed: WebEvalTaskRecord = {
+                ...claimed,
+                status: 'failed',
+                attemptCount: (claimed.attemptCount || 0) + 1,
+                lastError: 'insufficient_quota',
+              };
+              await updateTask(kv, failed, config);
+              return createApiError('validation_error', 'insufficient_quota');
+            }
+          }
+        }
+      } else {
+        // Guest: plan quotas only
+        const monthlyUsage = await kvGetUsage(kv, monthlyKey('web-eval', ownerType, ownerId));
+        const monthlyUsed = monthlyUsage?.count || 0;
+        if (monthlyUsed >= ent.monthlyRuns) {
+          const startedAt = new Date();
+          const finishedAt = new Date();
+          const report: WebEvalReport = {
+            taskId: claimed.id,
+            url: claimed.url,
+            taskDescription: claimed.task,
+            success: false,
+            steps: [{ action: 'quotaCheck', timestamp: nowIso() }],
+            consoleLogs: [],
+            networkRequests: [],
+            errors: ['insufficient_quota'],
+            durationMs: Math.max(0, finishedAt.getTime() - startedAt.getTime()),
+            startedAt: startedAt.toISOString(),
+            finishedAt: finishedAt.toISOString(),
+          };
+          await storeReport(kv, claimed.id, report, config);
+          const failed: WebEvalTaskRecord = {
+            ...claimed,
+            status: 'failed',
+            attemptCount: (claimed.attemptCount || 0) + 1,
+            lastError: 'insufficient_quota',
+          };
+          await updateTask(kv, failed, config);
+          return createApiError('validation_error', 'insufficient_quota');
+        }
+        const dailyUsage = await kvGetUsage(kv, rollingDailyKey('web-eval', ownerType, ownerId));
+        const dailyUsed = dailyUsage?.count || 0;
+        if (dailyUsed >= ent.dailyBurstCap) {
+          const startedAt = new Date();
+          const finishedAt = new Date();
+          const report: WebEvalReport = {
+            taskId: claimed.id,
+            url: claimed.url,
+            taskDescription: claimed.task,
+            success: false,
+            steps: [{ action: 'quotaCheck', timestamp: nowIso() }],
+            consoleLogs: [],
+            networkRequests: [],
+            errors: ['insufficient_quota'],
+            durationMs: Math.max(0, finishedAt.getTime() - startedAt.getTime()),
+            startedAt: startedAt.toISOString(),
+            finishedAt: finishedAt.toISOString(),
+          };
+          await storeReport(kv, claimed.id, report, config);
+          const failed: WebEvalTaskRecord = {
+            ...claimed,
+            status: 'failed',
+            attemptCount: (claimed.attemptCount || 0) + 1,
+            lastError: 'insufficient_quota',
+          };
+          await updateTask(kv, failed, config);
+          return createApiError('validation_error', 'insufficient_quota');
+        }
+      }
+    } catch (e) {
+      // If pre-check logic itself fails, return a generic server_error to avoid accidental charges later
+      const startedAt = new Date();
+      const finishedAt = new Date();
+      const report: WebEvalReport = {
+        taskId: claimed.id,
+        url: claimed.url,
+        taskDescription: claimed.task,
+        success: false,
+        steps: [{ action: 'quotaCheckError', timestamp: nowIso() }],
+        consoleLogs: [],
+        networkRequests: [],
+        errors: ['precheck_failed'],
+        durationMs: Math.max(0, finishedAt.getTime() - startedAt.getTime()),
+        startedAt: startedAt.toISOString(),
+        finishedAt: finishedAt.toISOString(),
+      };
+      await storeReport(kv, claimed.id, report, config);
+      const failed: WebEvalTaskRecord = {
+        ...claimed,
+        status: 'failed',
+        attemptCount: (claimed.attemptCount || 0) + 1,
+        lastError: 'precheck_failed',
+      };
+      await updateTask(kv, failed, config);
+      return createApiError('server_error', 'precheck_failed');
+    }
   }
 
   // For Phase B MVP: if BROWSER binding exists but runner not yet implemented, mark as not_configured

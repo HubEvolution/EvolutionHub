@@ -61,6 +61,7 @@ enable_experimental_windows_sandbox = false
 [mcp_servers.gsc]
 command = "node"
 args = ["scripts/mcp/gsc-extended.mjs"]
+env = { GOOGLE_APPLICATION_CREDENTIALS = "/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/secrets/google/gsc-service-account.json" }
 # Optional timeouts; keep defaults unless you need more headroom
 # startup_timeout_sec = 20
 # tool_timeout_sec = 60

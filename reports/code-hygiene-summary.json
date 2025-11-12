@@ -4,8 +4,8 @@
     "code": 0
   },
   "eslint:fix": {
-    "ok": false,
-    "code": 1
+    "ok": true,
+    "code": 0
   },
   "md:fix": {
     "ok": true,

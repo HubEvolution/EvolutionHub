@@ -85,19 +85,22 @@ async function main() {
   results.push(['lint(strict)', await runStep('lint(strict)', 'npm run lint -- --max-warnings=0')]);
   results.push(['typecheck:src', await runStep('typecheck:src', 'npm run typecheck:src')]);
 
-  // 3) Validation suite (fail-soft)
-  results.push(['test:unit:run', await runStep('test:unit:run', 'npm run test:unit:run')]);
-  results.push([
-    'test:integration:run',
-    await runStep('test:integration:run', 'npm run test:integration:run'),
-  ]);
-  results.push(['openapi:validate', await runStep('openapi:validate', 'npm run openapi:validate')]);
-  results.push(['docs:lint', await runStep('docs:lint', 'npm run docs:lint')]);
-  results.push(['lint:md', await runStep('lint:md', 'npm run lint:md')]);
-  results.push(['docs:links', await runStep('docs:links', 'npm run docs:links')]);
-  results.push(['docs:inventory', await runStep('docs:inventory', 'npm run docs:inventory')]);
-  results.push(['i18n:audit', await runStep('i18n:audit', 'npm run i18n:audit')]);
-  results.push(['security:scan', await runStep('security:scan', 'npm run security:scan')]);
+  // 3) Validation suite (fail-soft, parallel)
+  const validations = [
+    ['test:unit:run', 'npm run test:unit:run'],
+    ['test:integration:run', 'npm run test:integration:run'],
+    ['openapi:validate', 'npm run openapi:validate'],
+    ['docs:lint', 'npm run docs:lint'],
+    ['lint:md', 'npm run lint:md'],
+    ['docs:links', 'npm run docs:links'],
+    ['docs:inventory', 'npm run docs:inventory'],
+    ['i18n:audit', 'npm run i18n:audit'],
+    ['security:scan', 'npm run security:scan'],
+  ];
+  const validationResults = await Promise.all(
+    validations.map(([name, cmd]) => runStep(name, cmd).then((code) => [name, code]))
+  );
+  for (const r of validationResults) results.push(r);
 
   // Extra diagnostics for failed steps
   await diagnostics(results);

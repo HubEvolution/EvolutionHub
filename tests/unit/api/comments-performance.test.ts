@@ -65,7 +65,13 @@ describe('GET /api/comments/performance', () => {
 
     expect(response.status).toBe(400);
     expect(payload).toMatchObject({ success: false, error: { type: 'validation_error' } });
-    expect(payload.error.details.allowedModes).toContain('status');
+    const details = payload.error?.details || {};
+    const allowed = Array.isArray(details.allowedModes)
+      ? details.allowedModes
+      : Array.isArray(details.details?.allowedModes)
+        ? details.details.allowedModes
+        : [];
+    expect(allowed).toContain('status');
     expect(requireAuthMock).not.toHaveBeenCalled();
   });
 

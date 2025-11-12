@@ -1,15 +1,24 @@
 name: Quality Gate
 
 on:
+  workflow_dispatch:
   pull_request:
     branches: [main]
   push:
     branches: [main, develop]
 
+permissions:
+  contents: read
+
+concurrency:
+  group: qg-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   quality:
-    name: Quality Checks
+    name: Quality Checks (strict, no deploy)
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -26,17 +35,29 @@ jobs:
       - name: Security Scan (disallowed secrets)
         run: npm run -s security:scan
 
-      - name: Run ESLint
-        run: npm run lint
+      - name: ESLint (no warnings)
+        run: npm run lint -- --max-warnings=0
 
-      - name: Run Prettier Check
+      - name: Prettier Check
         run: npm run format:check
 
-      - name: Astro Type Check
-        run: npx astro check --tsconfig tsconfig.astro-check.json || npx astro check
+      - name: TypeScript Check (src)
+        run: npm run typecheck:src
+
+      - name: Astro UI Type Check
+        run: npm run astro:check:ui
 
       - name: Validate OpenAPI
         run: npm run openapi:validate
+
+      - name: Unit Tests
+        run: npm run test:unit:run
+
+      - name: Integration Tests
+        run: npm run test:integration:run
+
+      - name: Build (worker, CI mode)
+        run: npm run build:worker:ci
 
       - name: npm audit (moderate severity)
         run: npm audit --audit-level=moderate

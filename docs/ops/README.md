@@ -18,7 +18,7 @@ testRefs: 'test-suite-v2/src/e2e/smoke'
 - **[Runbook: Image Enhancer Go-Live](./runbook-image-enhancer-go-live.md)** — Schritt-für-Schritt-Ablauf für Deployments & Rollbacks
 
 - **[Monitoring & Runbook](./monitoring.md)** — Monitoring-Baseline, Healthchecks und Incident-Prozesse
-- **[Deployment Guide — Cloudflare Workers](./deployment-guide.md)** — Ablauf für Staging-/Production-Deployments inkl. CI-Gates
+- **[Deployment Guide — Cloudflare Workers](./deployment-guide.md)** — Deploy ausschließlich via Wrangler CLI; GitHub Actions = Pre‑Release Validierung
 
 ## Sekundär-/Spezialdokumente
 
@@ -47,7 +47,7 @@ testRefs: 'test-suite-v2/src/e2e/smoke'
 
 ## Standards & Konventionen
 
-- **Deployment:** Automatisiert via GitHub Actions, manuelle Rollouts nur in Ausnahmefällen
+- **Deployment:** Manuell via Wrangler CLI (`wrangler deploy --env <env>`). GitHub Actions dienen nur als Qualitäts‑Gate (keine Deployments).
 
 - **Environment-Config:** Einheitlich via `wrangler.toml`, keine hardcoded Secrets
 

@@ -1,0 +1,24 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ToolPageHeader from '@/components/tools/shared/ToolPageHeader.astro';
+import WebEvalIsland from '@/components/tools/web-eval/WebEvalIsland';
+---
+
+<BaseLayout
+  title="Web‑Eval – Evolution Hub"
+  description="Autonome Web‑Evaluation mit Tasks, Reports und Nutzungsgrenzen"
+>
+  <main class="min-h-screen bg-transparent py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto">
+      <ToolPageHeader
+        icon="rocket"
+        titleKey="pages.tools.items.web-eval.name"
+        descriptionKey="pages.tools.items.web-eval.description"
+        backHref="/tools"
+      />
+      <div class="mt-8">
+        <WebEvalIsland client:load />
+      </div>
+    </div>
+  </main>
+</BaseLayout>

@@ -171,6 +171,22 @@ export function getAllTools(locale: Locale): Tool[] {
         features: tArr('pages.tools.items.webscraper.modal.features'),
       },
     },
+    {
+      id: 'web-eval',
+      name: t('pages.tools.items.web-eval.name'),
+      description: t('pages.tools.items.web-eval.description'),
+      category: ['ai', 'development'],
+      iconKey: 'rocket',
+      color: 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200',
+      url: '/tools/web-eval/app',
+      isNew: true,
+      comingSoon: false,
+      modal: {
+        headline: t('pages.tools.items.web-eval.modal.headline'),
+        summary: t('pages.tools.items.web-eval.modal.summary'),
+        features: tArr('pages.tools.items.web-eval.modal.features'),
+      },
+    },
   ];
 }
 

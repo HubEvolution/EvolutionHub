@@ -42,8 +42,8 @@ describe('locale-path helpers', () => {
 
   describe('switchLocalePath', () => {
     it('switches between locales preserving query/hash', () => {
-      // For neutral paths (no locale prefix), switching to EN falls back to /en/
-      expect(switchLocalePath('en', 'https://site.local/blog?p=1#x')).toBe('/en/?p=1#x');
+      // For neutral paths (no locale prefix), switching to EN preserves the path segment
+      expect(switchLocalePath('en', 'https://site.local/blog?p=1#x')).toBe('/en/blog?p=1#x');
       expect(switchLocalePath('de', 'https://site.local/en/blog?p=1#x')).toBe('/blog?p=1#x');
     });
 

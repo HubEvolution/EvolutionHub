@@ -1,0 +1,136 @@
+name: E2E Smoke
+
+on:
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: 'Suite-Auswahl'
+        required: false
+        default: 'minimal'
+        type: choice
+        options: [minimal, extended]
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'test-suite-v2/**'
+      - 'wrangler.toml'
+      - 'package.json'
+      - '.github/workflows/e2e-smoke.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-smoke-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    name: Local Worker + Chromium Smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright (Chromium)
+        run: npx playwright install --with-deps chromium
+
+      - name: Build worker (dev)
+        run: npm run build:worker:dev
+
+      - name: Start Wrangler Dev (background)
+        run: |
+          nohup sh -c 'npm run dev:worker:nobuild -- --env development --port 8787 > wrangler.out 2>&1 & echo $! > wrangler.pid' &
+          sleep 3
+
+      - name: Wait for server + health probe
+        env:
+          BASE_URL: http://127.0.0.1:8787
+        run: |
+          for i in $(seq 1 90); do
+            if curl -fsS "${BASE_URL}" >/dev/null 2>&1; then
+              break
+            fi
+            sleep 1
+          done
+          npm run health-check
+
+      - name: Determine spec set (minimal vs extended)
+        id: specs
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_SUITE: ${{ inputs.suite }}
+          PR_LABELS: ${{ toJson(github.event.pull_request.labels) }}
+        run: |
+          set -euo pipefail
+          minimal_specs=(
+            test-suite-v2/src/e2e/smoke/prod-auth-smoke.spec.ts
+            test-suite-v2/src/e2e/tools/image-enhancer.gating.spec.ts
+          )
+          extended_specs=(
+            test-suite-v2/src/e2e/smoke/prod-auth-smoke.spec.ts
+            test-suite-v2/src/e2e/tools/image-enhancer.gating.spec.ts
+            test-suite-v2/src/e2e/tools/r2-ai-proxy.spec.ts
+            test-suite-v2/src/e2e/tools/prompt-enhancer-flow.spec.ts
+            test-suite-v2/src/e2e/voice/voice-visualizer.smoke.spec.ts
+            test-suite-v2/src/e2e/auth/welcome-redirect.spec.ts
+            test-suite-v2/src/e2e/smoke/pricing-checkout-smoke.spec.ts
+          )
+
+          mode="minimal"
+          if [ "${EVENT_NAME}" = "workflow_dispatch" ] && [ "${INPUT_SUITE}" = "extended" ]; then
+            mode="extended"
+          elif [ "${EVENT_NAME}" = "pull_request" ]; then
+            # Extend when PR has label e2e:full or e2e:extended
+            echo "PR labels: ${PR_LABELS}"
+            if echo "${PR_LABELS}" | grep -qi 'e2e:full\|e2e:extended'; then
+              mode="extended"
+            fi
+          fi
+
+          if [ "${mode}" = "extended" ]; then
+            SPECS=("${extended_specs[@]}")
+          else
+            SPECS=("${minimal_specs[@]}")
+          fi
+
+          echo "mode=${mode}" >> "$GITHUB_OUTPUT"
+          printf '%s ' "${SPECS[@]}" | sed 's/ $//' | {
+            read -r line; echo "list=${line}" >> "$GITHUB_OUTPUT"; }
+          echo "Using suite: ${mode}"
+          printf 'Specs: %s\n' "${SPECS[@]}"
+
+      - name: Run Playwright Smoke (Chromium)
+        env:
+          TEST_BASE_URL: http://127.0.0.1:8787
+        run: |
+          echo "Specs: ${{ steps.specs.outputs.list }}"
+          npx playwright test -c test-suite-v2/playwright.config.ts \
+            ${{ steps.specs.outputs.list }} \
+            --project=chromium --reporter=line
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-html-report
+          path: test-suite-v2/reports/playwright-html-report
+          retention-days: 7
+
+      - name: Stop Wrangler Dev
+        if: always()
+        run: |
+          if [ -f wrangler.pid ]; then
+            kill $(cat wrangler.pid) || true
+          fi

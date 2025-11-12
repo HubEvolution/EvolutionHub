@@ -11,7 +11,7 @@ testRefs: 'N/A'
 
 # CI/CD-Pipeline - Evolution Hub
 
-Diese Dokumentation beschreibt die vollständig automatisierte Continuous Integration und Continuous Deployment (CI/CD) Pipeline für Evolution Hub.
+Hinweis (Policy): Deployments erfolgen nicht mehr über GitHub Actions. GitHub Actions bilden ausschließlich die CI‑Validierung (Quality‑Gate) ab. Der Rollout passiert manuell per Wrangler CLI (`wrangler deploy --env <env>`). Die nachfolgenden Abschnitte zu automatisierten Deployments sind historisch und werden schrittweise angepasst.
 
 ## Inhaltsverzeichnis
 
@@ -46,11 +46,9 @@ Die CI/CD-Pipeline implementiert alle Anforderungen aus [CLAUDE.md](../../CLAUDE
 
 ✅ **Deployment:**
 
-- Automatisch via Git Tags oder manuell via GitHub Actions UI
-
-- Health-Check nach jedem Deployment
-
-- Production-Deployment erfordert manuelle Approval
+- Kein automatisches Deployment in GitHub Actions
+- Rollout manuell via Wrangler CLI (`wrangler deploy --env staging|production`)
+- Health‑Checks weiterhin obligatorisch nach Rollout
 
 ### Pipeline-Übersicht
 
@@ -88,9 +86,9 @@ graph TD
 
 ## GitHub Actions Workflows {#github-actions-workflows}
 
-### 1. **Unit and E2E Tests** (`.github/workflows/unit-tests.yml`)
+### 1. **Quality Gate** (`.github/workflows/quality-gate.yml`)
 
-**Trigger:** Push auf `main`/`develop`, PRs zu `main`, manuell
+**Trigger:** Push auf `main`/`develop`, PRs zu `main`
 
 **Jobs (parallel):**
 
@@ -110,13 +108,13 @@ npm audit --audit-level=moderate
 
 Schlägt fehl bei moderate/high/critical Vulnerabilities.
 
-#### C) `unit` — Unit Tests + Coverage
+#### C) `unit` — Unit Tests
 
 ```bash
-npx vitest run --coverage
+npm run test:unit:run
 ```
 
-- Coverage-Threshold: **≥70%** (statements, branches, functions, lines)
+Optional: Coverage‑Run lokal oder in separatem Job (`npm run test:coverage`).
 
 - Upload zu Codecov
 

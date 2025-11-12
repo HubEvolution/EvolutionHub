@@ -1511,6 +1511,19 @@
               "Nutzungsbasierte Kontingente gemäß Plan"
             ]
           }
+        },
+        "web-eval": {
+          "name": "Web‑Eval Agent",
+          "description": "Evaluationstasks erstellen, autonome Checks ausführen und Reports mit Quoten und Credits einsehen.",
+          "modal": {
+            "headline": "Das Web evaluieren",
+            "summary": "Tasks einreihen, Evaluierungen ausführen und Console/Netzwerk‑Berichte inspizieren.",
+            "features": [
+              "Task‑Queue mit owner‑basiertem Zugriff",
+              "Tages‑/Monatsquoten und Credit‑Support",
+              "Minimale Reports mit Console‑ und Netzwerk‑Logs"
+            ]
+          }
         }
       },
       "details": {

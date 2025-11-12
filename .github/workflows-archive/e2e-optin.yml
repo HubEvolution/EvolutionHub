@@ -1,0 +1,123 @@
+name: E2E Opt-in
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+    types:
+      - labeled
+      - opened
+      - reopened
+      - synchronize
+  workflow_dispatch:
+    inputs:
+      run:
+        description: 'Set to true to trigger the opt-in pipeline manually'
+        required: false
+        default: 'false'
+
+concurrency:
+  group: e2e-optin-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  integration:
+    if: >-
+      (github.event_name == 'workflow_dispatch' && inputs.run == 'true') ||
+      (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'run-e2e'))
+    name: Integration Suite (Opt-in)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      TEST_BASE_URL: ${{ vars.TEST_BASE_URL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify TEST_BASE_URL
+        run: |
+          if [ -z "${TEST_BASE_URL}" ]; then
+            echo "TEST_BASE_URL ist nicht gesetzt. Bitte unter Settings > Variables > Actions hinterlegen." >&2
+            exit 1
+          fi
+
+      - name: Run Vitest Integration Suite
+        run: npm run test:integration:run
+        env:
+          TEST_BASE_URL: ${{ env.TEST_BASE_URL }}
+
+  e2e:
+    if: >-
+      (github.event_name == 'workflow_dispatch' && inputs.run == 'true') ||
+      (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'run-e2e'))
+    name: Playwright E2E (Opt-in)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: integration
+    env:
+      TEST_BASE_URL: ${{ vars.TEST_BASE_URL }}
+      STYTCH_TEST_EMAIL: ${{ secrets.STYTCH_TEST_EMAIL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: Verify TEST_BASE_URL
+        run: |
+          if [ -z "${TEST_BASE_URL}" ]; then
+            echo "TEST_BASE_URL ist nicht gesetzt. Bitte unter Settings > Variables > Actions hinterlegen." >&2
+            exit 1
+          fi
+
+      - name: 'Preflight: GET /en/tools/imag-enhancer/app'
+        run: |
+          set -o pipefail
+          curl -i "${TEST_BASE_URL}/en/tools/imag-enhancer/app" | sed -n '1,20p'
+
+      - name: 'Preflight: GET /api/ai-image/usage?debug=1'
+        run: |
+          set -o pipefail
+          curl -i "${TEST_BASE_URL}/api/ai-image/usage?debug=1" | sed -n '1,30p'
+
+      - name: Export optional STYTCH_TEST_EMAIL
+        run: |
+          if [ -n "${STYTCH_TEST_EMAIL}" ]; then
+            echo "STYTCH_TEST_EMAIL=${STYTCH_TEST_EMAIL}" >> "$GITHUB_ENV"
+          fi
+
+      - name: Run Playwright Tests
+        run: npm run test:e2e
+        env:
+          TEST_BASE_URL: ${{ env.TEST_BASE_URL }}
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            test-suite-v2/reports/playwright-html-report/
+            test-suite-v2/reports/playwright-results.json
+            test-suite-v2/reports/playwright-junit.xml
+          retention-days: 30
