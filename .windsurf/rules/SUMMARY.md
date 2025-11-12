@@ -29,7 +29,7 @@ Die projektspezifischen Konfigurationen des EvolutionHub-Repositories sind **sol
 - Rules-Matrix und Template-Struktur im Anhang
 
 ### 2. Rules-Index & Entwickler-Guide (16 KB)
-**Datei:** [`.windsurf/rules/README.md`](./.windsurf/rules/README.md)
+**Datei:** [`.windsurf/rules/README.md`](./README.md)
 
 **Inhalte:**
 - Schnellstart für Agenten und Entwickler
