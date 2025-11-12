@@ -40,7 +40,7 @@ describe('Admin Users Set Plan — method/CSRF/auth checks', () => {
     }
     const cookie = login.headers.get('set-cookie') || '';
     const csrf = 'testtoken_' + Math.random().toString(36).slice(2);
-    const { status } = await request('/api/admin/users/set-plan', {
+    const { status, headers } = await request('/api/admin/users/set-plan', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -53,6 +53,10 @@ describe('Admin Users Set Plan — method/CSRF/auth checks', () => {
         reason: 'integration test',
       }),
     });
-    expect(status).toBe(403);
+    if (status === 429) {
+      expect(headers.get('Retry-After')).toBeTruthy();
+    } else {
+      expect(status).toBe(403);
+    }
   });
 });

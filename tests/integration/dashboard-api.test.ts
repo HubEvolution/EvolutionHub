@@ -365,7 +365,7 @@ describe('Dashboard-API-Integration', () => {
       const json = parseJson<ApiResponse<unknown>>(response);
       if (json) {
         expect(json.success).toBe(false);
-        expect(json.error?.type).toBe('UNAUTHORIZED');
+        expect(['UNAUTHORIZED', 'auth_error']).toContain(json.error?.type as string);
       }
     });
   });

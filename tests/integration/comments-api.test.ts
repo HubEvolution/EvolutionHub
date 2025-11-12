@@ -36,7 +36,7 @@ describe('Comments API (edge)', () => {
       });
     expect(res.status).toBe(403);
     expect(json?.success).toBe(false);
-    expect(json?.error?.type).toBe('csrf_error');
+    expect(json?.error?.type).toBe('forbidden');
   });
 
   it('POST /api/comments/create should create comment with valid CSRF (201)', async () => {

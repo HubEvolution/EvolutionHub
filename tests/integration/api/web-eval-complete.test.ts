@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { csrfHeaders, hex32, sendJson, TEST_URL, getJson } from '../../shared/http';
+import { csrfHeaders, hex32, sendJson, getJson } from '../../shared/http';
 
 const EXECUTOR_TOKEN = process.env.WEB_EVAL_EXECUTOR_TOKEN;
 const HAS_TOKEN = Boolean(EXECUTOR_TOKEN);
@@ -100,7 +100,7 @@ describe('/api/testing/evaluate/:id/complete', () => {
   });
 
   (HAS_TOKEN ? it : it.skip)('completes task successfully → 200 and status updated', async () => {
-    const { taskId } = await createTask();
+    const { taskId, cookie } = await createTask();
 
     const payload = {
       status: 'completed',
@@ -116,8 +116,9 @@ describe('/api/testing/evaluate/:id/complete', () => {
 
     // optional verification via GET /api/testing/evaluate/:id (if implemented)
     const { res: getRes } = await getJson(
-      `/api/testing/evaluate/${encodeURIComponent(taskId)}`
+      `/api/testing/evaluate/${encodeURIComponent(taskId)}`,
+      { headers: { Cookie: cookie } }
     );
-    expect([200, 404]).toContain(getRes.status); // tolerate absence or not-found depending on implementation
+    expect(getRes.status).toBe(200);
   });
 });
