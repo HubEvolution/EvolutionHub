@@ -1,6 +1,6 @@
 {
   "$schema": "schema.json",
-  "generatedAt": "2025-11-12T07:04:03.772Z",
+  "generatedAt": "2025-11-12T08:39:24.344Z",
   "generatedBy": "scripts/doc-inventory.mjs",
   "sourceRoot": "/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub",
   "documents": [
@@ -20322,8 +20322,8 @@
       "path": "reports/assistant-task.md",
       "title": "Hygiene Report for Assistant",
       "format": "markdown",
-      "hash": "8214d8ae4147707bdd21c825791cf4b17b357cd4e35a7b9c6766234ba9bb1d43",
-      "size": 116547,
+      "hash": "00e8f9c4e21033c0ff595794b8b813d390c2d1fe997f95fabe7dd1c7b49a4a33",
+      "size": 123788,
       "headings": [
         {
           "level": 1,
@@ -20418,7 +20418,7 @@
           "value": "Next Actions (for Assistant)"
         }
       ],
-      "lastModified": "2025-11-12T06:18:57.568Z"
+      "lastModified": "2025-11-12T08:20:25.423Z"
     },
     {
       "path": "reports/tests-catalog-development.md",

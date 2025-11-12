@@ -2,6 +2,21 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import ToolPageHeader from '@/components/tools/shared/ToolPageHeader.astro';
 import WebEvalIsland from '@/components/tools/web-eval/WebEvalIsland';
+const strings = {
+  urlPlaceholder: 'https://beispiel.de',
+  taskPlaceholder: 'Beschreibe, was auf der Seite geprüft werden soll…',
+  submitButton: 'Task erstellen',
+  usage: 'Nutzung',
+  myTasks: 'Meine Tasks',
+  reportTitle: 'Report',
+  toasts: {
+    invalidUrl: 'Ungültige URL',
+    invalidTask: 'Ungültige Aufgabenbeschreibung',
+    quotaReached: 'Tageslimit erreicht',
+    created: 'Task erstellt',
+    error: 'Es ist ein Fehler aufgetreten',
+  },
+};
 ---
 
 <BaseLayout
@@ -17,7 +32,7 @@ import WebEvalIsland from '@/components/tools/web-eval/WebEvalIsland';
         backHref="/tools"
       />
       <div class="mt-8">
-        <WebEvalIsland client:load />
+        <WebEvalIsland client:load strings={strings} />
       </div>
     </div>
   </main>

@@ -34,11 +34,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Use Node.js 20
+      - name: Use Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'npm'
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Use npm 11 via Corepack
+        run: corepack prepare npm@11.0.0 --activate
 
       - name: Install dependencies
         run: npm ci

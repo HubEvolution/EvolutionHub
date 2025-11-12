@@ -38,7 +38,8 @@ describe('Blog i18n & SEO (integration)', () => {
     const $ = await getHtml('/en/blog/ki-als-kollege');
 
     // Category link path
-    const catLink = $('a[href*="/en/blog/category/"]');
+    // Canonical EN route redirects to /blog/<slug>, category links are under /blog/category/
+    const catLink = $('a[href*="/blog/category/"]');
     expect(catLink.length).toBeGreaterThan(0);
 
     // Share links host (env-agnostic)

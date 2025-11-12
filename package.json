@@ -3,6 +3,8 @@
   "name": "evolution-hub",
   "type": "module",
   "version": "0.0.1",
+  "packageManager": "npm@11.0.0",
+  "engines": { "node": ">=22", "npm": "^11" },
   "scripts": {
     "dev": "npm run dev:worker",
     "dev:e2e": "npm run db:setup && npm run dev:worker:dev",

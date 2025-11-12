@@ -25,8 +25,8 @@
     "code": 0
   },
   "lint(strict)": {
-    "ok": false,
-    "code": 1
+    "ok": true,
+    "code": 0
   },
   "typecheck:src": {
     "ok": false,
@@ -72,7 +72,6 @@
 ```
 
 ## Failing Steps
-- lint(strict)
 - typecheck:src
 - test:unit:run
 - test:integration:run
@@ -87,6 +86,24 @@
 > node ./scripts/doc-inventory.mjs
 
 Documentation registry generated for 578 files at docs/meta/registry.json
+[docs:inventory] $ npm run docs:inventory
+
+> evolution-hub@0.0.1 docs:inventory
+> node ./scripts/doc-inventory.mjs
+
+Documentation registry generated for 579 files at docs/meta/registry.json
+[docs:inventory] $ npm run docs:inventory
+
+> evolution-hub@0.0.1 docs:inventory
+> node ./scripts/doc-inventory.mjs
+
+Documentation registry generated for 579 files at docs/meta/registry.json
+[docs:inventory] $ npm run docs:inventory
+
+> evolution-hub@0.0.1 docs:inventory
+> node ./scripts/doc-inventory.mjs
+
+Documentation registry generated for 579 files at docs/meta/registry.json
 [docs:inventory] $ npm run docs:inventory
 
 > evolution-hub@0.0.1 docs:inventory
@@ -159,12 +176,45 @@ Documentation registry generated for 579 files at docs/meta/registry.json
 > node ./scripts/doc-links.mjs
 
 [doc-links] All relative documentation links resolved successfully.
+[docs:links] $ npm run docs:links
+
+> evolution-hub@0.0.1 docs:links
+> node ./scripts/doc-links.mjs
+
+[doc-links] All relative documentation links resolved successfully.
+[docs:links] $ npm run docs:links
+
+> evolution-hub@0.0.1 docs:links
+> node ./scripts/doc-links.mjs
+
+[doc-links] All relative documentation links resolved successfully.
+[docs:links] $ npm run docs:links
+
+> evolution-hub@0.0.1 docs:links
+> node ./scripts/doc-links.mjs
+
+[doc-links] All relative documentation links resolved successfully.
 
 ```
 
 ### docs-lint
 
 ```text
+[docs:lint] $ npm run docs:lint
+
+> evolution-hub@0.0.1 docs:lint
+> markdownlint -c .markdownlint.json "docs/**/*.md"
+
+[docs:lint] $ npm run docs:lint
+
+> evolution-hub@0.0.1 docs:lint
+> markdownlint -c .markdownlint.json "docs/**/*.md"
+
+[docs:lint] $ npm run docs:lint
+
+> evolution-hub@0.0.1 docs:lint
+> markdownlint -c .markdownlint.json "docs/**/*.md"
+
 [docs:lint] $ npm run docs:lint
 
 > evolution-hub@0.0.1 docs:lint
@@ -596,12 +646,42 @@ Everything is OK.
 
 ✖ 1 problem (0 errors, 1 warning)
 
+[eslint:fix] $ npx eslint 'src/**/*.{ts,astro}' --fix --cache --cache-location .cache/eslint
+
+/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/pages/api/testing/evaluate/next/run.ts
+  351:14  warning  'e' is defined but never used. Allowed unused caught errors must match /^_/u  @typescript-eslint/no-unused-vars
+
+✖ 1 problem (0 errors, 1 warning)
+
+[eslint:fix] $ npx eslint 'src/**/*.{ts,astro}' --fix --cache --cache-location .cache/eslint
+[eslint:fix] $ npx eslint 'src/**/*.{ts,astro}' --fix --cache --cache-location .cache/eslint
 
 ```
 
 ### format-check
 
 ```text
+[format:check] $ npm run format:check
+
+> evolution-hub@0.0.1 format:check
+> prettier --check "src/**/*.{ts,tsx,astro,json,md}" "tests/**/*.{ts,tsx}" "scripts/**/*.{ts,js,mjs}" "*.{json,md,yaml,yml}"
+
+Checking formatting...
+All matched files use Prettier code style!
+[format:check] $ npm run format:check
+
+> evolution-hub@0.0.1 format:check
+> prettier --check "src/**/*.{ts,tsx,astro,json,md}" "tests/**/*.{ts,tsx}" "scripts/**/*.{ts,js,mjs}" "*.{json,md,yaml,yml}"
+
+Checking formatting...
+All matched files use Prettier code style!
+[format:check] $ npm run format:check
+
+> evolution-hub@0.0.1 format:check
+> prettier --check "src/**/*.{ts,tsx,astro,json,md}" "tests/**/*.{ts,tsx}" "scripts/**/*.{ts,js,mjs}" "*.{json,md,yaml,yml}"
+
+Checking formatting...
+All matched files use Prettier code style!
 [format:check] $ npm run format:check
 
 > evolution-hub@0.0.1 format:check
@@ -653,23 +733,23 @@ All matched files use Prettier code style!
 src/pages/tools/seo-analyzer.ts 1ms (unchanged)
 src/pages/tools/video-enhancer/app.astro 4ms (unchanged)
 src/pages/tools/voice-visualizer/app.astro 4ms (unchanged)
-src/pages/tools/web-eval/app.astro 2ms (unchanged)
-src/pages/tools/webscraper/app.astro 5ms (unchanged)
-src/pages/verify-email.astro 18ms (unchanged)
-src/pages/welcome-profile.astro 9ms (unchanged)
-src/pages/welcome.astro 8ms (unchanged)
+src/pages/tools/web-eval/app.astro 4ms (unchanged)
+src/pages/tools/webscraper/app.astro 4ms (unchanged)
+src/pages/verify-email.astro 19ms (unchanged)
+src/pages/welcome-profile.astro 10ms (unchanged)
+src/pages/welcome.astro 6ms (unchanged)
 src/scripts/blog-post-enhancements.ts 2ms (unchanged)
 src/scripts/landing-bg.ts 12ms (unchanged)
-src/scripts/neural-mesh.ts 9ms (unchanged)
+src/scripts/neural-mesh.ts 10ms (unchanged)
 src/scripts/orchestrate-entrance.ts 5ms (unchanged)
-src/scripts/settings.ts 7ms (unchanged)
+src/scripts/settings.ts 8ms (unchanged)
 src/server/actions.ts 2ms (unchanged)
 src/server/utils/hashing.ts 1ms (unchanged)
 src/server/utils/jwt.ts 2ms (unchanged)
 src/server/utils/log-transports.ts 5ms (unchanged)
 src/server/utils/logger-factory.ts 10ms (unchanged)
 src/server/utils/logger.ts 5ms (unchanged)
-src/setupTests.ts 4ms (unchanged)
+src/setupTests.ts 5ms (unchanged)
 src/stores/activityStore.ts 2ms (unchanged)
 src/stores/comment-store.ts 13ms (unchanged)
 src/stores/index.ts 1ms (unchanged)
@@ -682,144 +762,144 @@ src/types/dashboard.ts 2ms (unchanged)
 src/types/jsdom.d.ts 0ms (unchanged)
 src/types/logger.ts 3ms (unchanged)
 src/types/stubs/rate-limiter.d.ts 1ms (unchanged)
-src/types/ts-src-shims.d.ts 7ms (unchanged)
+src/types/ts-src-shims.d.ts 6ms (unchanged)
 src/types/webscraper.ts 1ms (unchanged)
 src/types/ws.d.ts 1ms (unchanged)
 src/utils/feature-flags.ts 2ms (unchanged)
-src/utils/i18n.ts 4ms (unchanged)
+src/utils/i18n.ts 5ms (unchanged)
 src/utils/sanitizeReturnTo.test.ts 2ms (unchanged)
 src/utils/sanitizeReturnTo.ts 1ms (unchanged)
 tests/e2e/specs/blog-i18n-seo.spec.ts 3ms (unchanged)
-tests/e2e/specs/rate-limit-persistence.spec.ts 1ms (unchanged)
+tests/e2e/specs/rate-limit-persistence.spec.ts 2ms (unchanged)
 tests/e2e/specs/referral/referral-reward.spec.ts 5ms (unchanged)
-tests/integration/ai-image-enhancer.test.ts 18ms (unchanged)
+tests/integration/ai-image-enhancer.test.ts 17ms (unchanged)
 tests/integration/api/__fixtures__/comments-performance.ts 7ms (unchanged)
 tests/integration/api/admin-audit-logs.test.ts 3ms (unchanged)
 tests/integration/api/admin-auth-checks.test.ts 1ms (unchanged)
 tests/integration/api/admin-backup.test.ts 3ms (unchanged)
-tests/integration/api/admin-comments.test.ts 4ms (unchanged)
-tests/integration/api/admin-credits-deduct.test.ts 3ms (unchanged)
-tests/integration/api/admin-credits.test.ts 3ms (unchanged)
-tests/integration/api/admin-rate-limits.test.ts 3ms (unchanged)
+tests/integration/api/admin-comments.test.ts 2ms (unchanged)
+tests/integration/api/admin-credits-deduct.test.ts 2ms (unchanged)
+tests/integration/api/admin-credits.test.ts 2ms (unchanged)
+tests/integration/api/admin-rate-limits.test.ts 2ms (unchanged)
 tests/integration/api/admin-referrals-list.test.ts 3ms (unchanged)
 tests/integration/api/admin-sessions.test.ts 3ms (unchanged)
-tests/integration/api/admin-users-credits.test.ts 3ms (unchanged)
-tests/integration/api/admin-users-lifecycle.test.ts 4ms (unchanged)
+tests/integration/api/admin-users-credits.test.ts 2ms (unchanged)
+tests/integration/api/admin-users-lifecycle.test.ts 3ms (unchanged)
 tests/integration/api/admin-users-set-plan-happy.test.ts 3ms (unchanged)
-tests/integration/api/admin-users-set-plan.test.ts 2ms (unchanged)
+tests/integration/api/admin-users-set-plan.test.ts 3ms (unchanged)
 tests/integration/api/ai-video/generate.test.ts 5ms (unchanged)
 tests/integration/api/ai-video/usage.test.ts 4ms (unchanged)
 tests/integration/api/comments-performance.test.ts 3ms (unchanged)
-tests/integration/api/comments-routes.test.ts 2ms (unchanged)
+tests/integration/api/comments-routes.test.ts 3ms (unchanged)
 tests/integration/api/debug-logs-stream.test.ts 2ms (unchanged)
 tests/integration/api/mcp-ping.test.ts 2ms (unchanged)
-tests/integration/api/prompt/usage.test.ts 1ms (unchanged)
-tests/integration/api/r2-ai-proxy.test.ts 1ms (unchanged)
+tests/integration/api/prompt/usage.test.ts 2ms (unchanged)
+tests/integration/api/r2-ai-proxy.test.ts 2ms (unchanged)
 tests/integration/api/referrals/referral-rewards-webhook.test.ts 4ms (unchanged)
 tests/integration/api/voice/transcribe-and-poll.test.ts 3ms (unchanged)
 tests/integration/api/voice/transcribe.test.ts 2ms (unchanged)
-tests/integration/api/voice/usage.test.ts 1ms (unchanged)
+tests/integration/api/voice/usage.test.ts 2ms (unchanged)
 tests/integration/api/web-eval-complete.test.ts 4ms (unchanged)
 tests/integration/api/web-eval-next.test.ts 5ms (unchanged)
-tests/integration/api/web-eval-run.test.ts 6ms (unchanged)
+tests/integration/api/web-eval-run.test.ts 7ms (unchanged)
 tests/integration/api/webscraper.test.ts 3ms (unchanged)
-tests/integration/auth.test.ts 5ms (unchanged)
+tests/integration/auth.test.ts 6ms (unchanged)
 tests/integration/billing-api.test.ts 13ms (unchanged)
 tests/integration/blog.test.ts 4ms (unchanged)
-tests/integration/comments-api.test.ts 5ms (unchanged)
-tests/integration/comments.test.ts 14ms (unchanged)
+tests/integration/comments-api.test.ts 4ms (unchanged)
+tests/integration/comments.test.ts 13ms (unchanged)
 tests/integration/csp-report.test.ts 3ms (unchanged)
-tests/integration/dashboard-api.test.ts 17ms (unchanged)
+tests/integration/dashboard-api.test.ts 15ms (unchanged)
 tests/integration/kv-usage.test.ts 2ms (unchanged)
 tests/integration/lead-magnet-api.test.ts 10ms (unchanged)
-tests/integration/magic-link-happy.test.ts 3ms (unchanged)
+tests/integration/magic-link-happy.test.ts 4ms (unchanged)
 tests/integration/magic-link.test.ts 4ms (unchanged)
 tests/integration/newsletter-api.test.ts 8ms (unchanged)
 tests/integration/projects-api.test.ts 16ms (unchanged)
-tests/integration/prompt-enhance-api.test.ts 6ms (unchanged)
+tests/integration/prompt-enhance-api.test.ts 8ms (unchanged)
 tests/integration/prompt-enhance-multipart.test.ts 4ms (unchanged)
-tests/integration/routing/blog-i18n-seo-integration.test.ts 2ms (unchanged)
+tests/integration/routing/blog-i18n-seo-integration.test.ts 3ms (unchanged)
 tests/integration/routing/blog-routes.test.ts 2ms (unchanged)
 tests/integration/routing/headers.test.ts 1ms (unchanged)
 tests/integration/routing/lang-alias.test.ts 1ms (unchanged)
 tests/integration/routing/locale-routing.test.ts 2ms (unchanged)
 tests/integration/routing/seo-hreflang.test.ts 2ms (unchanged)
-tests/integration/routing/voice-visualizer-permissions.test.ts 1ms (unchanged)
+tests/integration/routing/voice-visualizer-permissions.test.ts 2ms (unchanged)
 tests/integration/setup/global-setup.ts 7ms (unchanged)
-tests/integration/setup/referral-fixtures.ts 3ms (unchanged)
-tests/integration/user-avatar-api.test.ts 10ms (unchanged)
+tests/integration/setup/referral-fixtures.ts 2ms (unchanged)
+tests/integration/user-avatar-api.test.ts 9ms (unchanged)
 tests/integration/verify-email.test.ts 3ms (unchanged)
 tests/mocks/astro-content.ts 1ms (unchanged)
-tests/performance/rate-limiting-perf.test.ts 12ms (unchanged)
+tests/performance/rate-limiting-perf.test.ts 10ms (unchanged)
 tests/performance/run-load-tests.ts 8ms (unchanged)
 tests/shared/auth.ts 2ms (unchanged)
 tests/shared/http.ts 3ms (unchanged)
 tests/src/helpers/rateLimiter.ts 1ms (unchanged)
 tests/src/legacy/config/test-config.ts 4ms (unchanged)
-tests/src/legacy/utils/database-helpers.ts 8ms (unchanged)
-tests/src/legacy/utils/logger.ts 8ms (unchanged)
-tests/src/legacy/utils/server-helpers.ts 13ms (unchanged)
-tests/src/lib/auth-v2.test.ts 4ms (unchanged)
-tests/src/pages/api/ai-video/generate.test.ts 4ms (unchanged)
+tests/src/legacy/utils/database-helpers.ts 7ms (unchanged)
+tests/src/legacy/utils/logger.ts 10ms (unchanged)
+tests/src/legacy/utils/server-helpers.ts 14ms (unchanged)
+tests/src/lib/auth-v2.test.ts 5ms (unchanged)
+tests/src/pages/api/ai-video/generate.test.ts 5ms (unchanged)
 tests/src/pages/api/auth/login-405.test.ts 2ms (unchanged)
-tests/src/pages/api/auth/login-logger.test.ts 10ms (unchanged)
-tests/src/pages/api/auth/login-service.test.ts 8ms (unchanged)
+tests/src/pages/api/auth/login-logger.test.ts 12ms (unchanged)
+tests/src/pages/api/auth/login-service.test.ts 7ms (unchanged)
 tests/src/pages/api/auth/login.test.ts 8ms (unchanged)
-tests/src/pages/api/dashboard/activity._test.ts 6ms (unchanged)
-tests/src/pages/api/dashboard/perform-action._test.ts 10ms (unchanged)
-tests/src/pages/api/dashboard/projects._test.ts 6ms (unchanged)
+tests/src/pages/api/dashboard/activity._test.ts 7ms (unchanged)
+tests/src/pages/api/dashboard/perform-action._test.ts 9ms (unchanged)
+tests/src/pages/api/dashboard/projects._test.ts 8ms (unchanged)
 tests/src/pages/api/projects/index._test.ts 8ms (unchanged)
-tests/src/pages/api/tools._test.ts 4ms (unchanged)
-tests/src/pages/api/user/me.test.ts 5ms (unchanged)
-tests/src/scripts/blog-post-enhancements.test.ts 2ms (unchanged)
-tests/src/server/utils/hashing.test.ts 2ms (unchanged)
-tests/src/server/utils/jwt.test.ts 2ms (unchanged)
+tests/src/pages/api/tools._test.ts 5ms (unchanged)
+tests/src/pages/api/user/me.test.ts 9ms (unchanged)
+tests/src/scripts/blog-post-enhancements.test.ts 3ms (unchanged)
+tests/src/server/utils/hashing.test.ts 3ms (unchanged)
+tests/src/server/utils/jwt.test.ts 3ms (unchanged)
 tests/types/upstash-kv.d.ts 1ms (unchanged)
 tests/unit/account/delete-account-section.test.tsx 3ms (unchanged)
 tests/unit/ai-image-provider-mapping.test.ts 3ms (unchanged)
-tests/unit/ai-image/aiimage-retry.test.ts 2ms (unchanged)
+tests/unit/ai-image/aiimage-retry.test.ts 3ms (unchanged)
 tests/unit/ai-jobs-provider-mapping.test.ts 3ms (unchanged)
-tests/unit/api/account-delete.test.ts 5ms (unchanged)
-tests/unit/api/comments-performance.test.ts 9ms (unchanged)
+tests/unit/api/account-delete.test.ts 4ms (unchanged)
+tests/unit/api/comments-performance.test.ts 11ms (unchanged)
 tests/unit/blog-sorting.spec.ts 4ms (unchanged)
-tests/unit/comment-components.test.tsx 10ms (unchanged)
-tests/unit/comment-service-simple.test.ts 6ms (unchanged)
+tests/unit/comment-components.test.tsx 13ms (unchanged)
+tests/unit/comment-service-simple.test.ts 5ms (unchanged)
 tests/unit/comment-service.test.ts 16ms (unchanged)
 tests/unit/components/BlogCTA.test.ts 1ms (unchanged)
 tests/unit/components/BlogPost.test.ts 1ms (unchanged)
 tests/unit/components/imag-enhancer/CreditsPanel.test.tsx 2ms (unchanged)
 tests/unit/components/imag-enhancer/ModelControls.test.tsx 2ms (unchanged)
-tests/unit/components/imag-enhancer/UploadSection.test.tsx 2ms (unchanged)
+tests/unit/components/imag-enhancer/UploadSection.test.tsx 3ms (unchanged)
 tests/unit/dashboard/billing-card.test.tsx 3ms (unchanged)
-tests/unit/dashboard/projectStore.test.ts 5ms (unchanged)
-tests/unit/dashboard/quickActionStore.test.ts 4ms (unchanged)
+tests/unit/dashboard/projectStore.test.ts 3ms (unchanged)
+tests/unit/dashboard/quickActionStore.test.ts 3ms (unchanged)
 tests/unit/hooks/imag-enhancer/useClipboardImagePaste.test.ts 2ms (unchanged)
-tests/unit/hooks/imag-enhancer/useCompareInteractions.test.tsx 7ms (unchanged)
+tests/unit/hooks/imag-enhancer/useCompareInteractions.test.tsx 6ms (unchanged)
 tests/unit/hooks/imag-enhancer/useGlobalShortcuts.test.ts 2ms (unchanged)
-tests/unit/hooks/imag-enhancer/usePlanGating.test.ts 3ms (unchanged)
-tests/unit/hooks/imag-enhancer/useViewportUiMetrics.test.ts 3ms (unchanged)
-tests/unit/i18n.test.ts 4ms (unchanged)
-tests/unit/imag-enhancer/help-modal-focus.test.tsx 4ms (unchanged)
-tests/unit/imag-enhancer/keyboard-shortcuts.test.tsx 5ms (unchanged)
-tests/unit/lib/ai-image-service.test.ts 6ms (unchanged)
-tests/unit/lib/aos.test.ts 6ms (unchanged)
-tests/unit/lib/blog-service.test.ts 7ms (unchanged)
+tests/unit/hooks/imag-enhancer/usePlanGating.test.ts 2ms (unchanged)
+tests/unit/hooks/imag-enhancer/useViewportUiMetrics.test.ts 2ms (unchanged)
+tests/unit/i18n.test.ts 2ms (unchanged)
+tests/unit/imag-enhancer/help-modal-focus.test.tsx 2ms (unchanged)
+tests/unit/imag-enhancer/keyboard-shortcuts.test.tsx 4ms (unchanged)
+tests/unit/lib/ai-image-service.test.ts 3ms (unchanged)
+tests/unit/lib/aos.test.ts 5ms (unchanged)
+tests/unit/lib/blog-service.test.ts 4ms (unchanged)
 tests/unit/lib/rate-limiter-kv.test.ts 4ms (unchanged)
-tests/unit/lib/rate-limiter.test.ts 6ms (unchanged)
-tests/unit/pages/api/user/profile.test.ts 7ms (unchanged)
-tests/unit/referral-reward-service.test.ts 10ms (unchanged)
+tests/unit/lib/rate-limiter.test.ts 5ms (unchanged)
+tests/unit/pages/api/user/profile.test.ts 8ms (unchanged)
+tests/unit/referral-reward-service.test.ts 9ms (unchanged)
 tests/unit/security/deprecated-logging.test.ts 6ms (unchanged)
 tests/unit/services/provider-error-mapping.test.ts 1ms (unchanged)
-tests/unit/services/webscraper-service.test.ts 7ms (unchanged)
+tests/unit/services/webscraper-service.test.ts 6ms (unchanged)
 tests/unit/spam-detection.test.ts 3ms (unchanged)
 tests/unit/telemetry/telemetry-client.test.ts 2ms (unchanged)
 tests/unit/testimonials-loader.test.ts 4ms (unchanged)
-tests/unit/utils/database-helpers.test.ts 10ms (unchanged)
-tests/unit/utils/locale-path.test.ts 2ms (unchanged)
-tests/unit/utils/logger-transport.smoke.test.ts 3ms (unchanged)
+tests/unit/utils/database-helpers.test.ts 12ms (unchanged)
+tests/unit/utils/locale-path.test.ts 4ms (unchanged)
+tests/unit/utils/logger-transport.smoke.test.ts 4ms (unchanged)
 tests/unit/utils/logger.test.ts 19ms (unchanged)
 tests/unit/utils/mime.test.ts 2ms (unchanged)
-tests/unit/utils/server-helpers.test.ts 16ms (unchanged)
+tests/unit/utils/server-helpers.test.ts 17ms (unchanged)
 tests/unit/validation/billing-schema.test.ts 1ms (unchanged)
 tests/unit/validation/dashboard-schema.test.ts 1ms (unchanged)
 tests/unit/validation/errors.test.ts 2ms (unchanged)
@@ -830,9 +910,9 @@ tests/unit/validation/templates-schema.test.ts 1ms (unchanged)
 tests/unit/validation/users-sync-schema.test.ts 1ms (unchanged)
 tests/unit/validation/webscraper-schema.test.ts 1ms (unchanged)
 tests/unit/voice-stream-aggregator.test.ts 3ms (unchanged)
-tests/utils/kv-mock.ts 8ms (unchanged)
+tests/utils/kv-mock.ts 7ms (unchanged)
 scripts/ae-run.mjs 4ms (unchanged)
-scripts/align-de-to-en.mjs 3ms (unchanged)
+scripts/align-de-to-en.mjs 2ms (unchanged)
 scripts/blog-images-audit.ts 4ms (unchanged)
 scripts/blog-images-generate.ts 2ms (unchanged)
 scripts/check-readme-structure.mjs 2ms (unchanged)
@@ -840,24 +920,24 @@ scripts/check-wrangler-secrets.ts 7ms (unchanged)
 scripts/coming-soon-client.ts 3ms (unchanged)
 scripts/deploy.ts 2ms (unchanged)
 scripts/dev-menu.ts 45ms (unchanged)
-scripts/dev/capture-readme-screenshots.mjs 2ms (unchanged)
+scripts/dev/capture-readme-screenshots.mjs 1ms (unchanged)
 scripts/dev/clean-contentful-slug-drafts.ts 4ms (unchanged)
-scripts/dev/docs-linkgraph.mjs 5ms (unchanged)
-scripts/dev/fix-contentful-slug.ts 4ms (unchanged)
+scripts/dev/docs-linkgraph.mjs 4ms (unchanged)
+scripts/dev/fix-contentful-slug.ts 3ms (unchanged)
 scripts/dev/gen-cascade-rules-coverage.mjs 4ms (unchanged)
-scripts/dev/gen-memory-index.mjs 7ms (unchanged)
-scripts/dev/generate-contentful-migration.ts 5ms (unchanged)
+scripts/dev/gen-memory-index.mjs 5ms (unchanged)
+scripts/dev/generate-contentful-migration.ts 4ms (unchanged)
 scripts/dev/memory-audit.mjs 6ms (unchanged)
 scripts/dev/patch-windsurf-rules.mjs 2ms (unchanged)
-scripts/dev/publish-contentful-assets.ts 6ms (unchanged)
-scripts/dev/publish-contentful-blog-posts.ts 3ms (unchanged)
+scripts/dev/publish-contentful-assets.ts 4ms (unchanged)
+scripts/dev/publish-contentful-blog-posts.ts 2ms (unchanged)
 scripts/dev/sync-windsurf-rules.mjs 2ms (unchanged)
 scripts/dev/test-contentful-fetch.ts 2ms (unchanged)
 scripts/dev/update-windsurf-rules.mjs 4ms (unchanged)
-scripts/dev/upload-contentful-assets.ts 4ms (unchanged)
-scripts/dev/verify-enhancer-download.mjs 5ms (unchanged)
+scripts/dev/upload-contentful-assets.ts 3ms (unchanged)
+scripts/dev/verify-enhancer-download.mjs 4ms (unchanged)
 scripts/doc-drift.mjs 2ms (unchanged)
-scripts/doc-inventory.mjs 6ms (unchanged)
+scripts/doc-inventory.mjs 5ms (unchanged)
 scripts/doc-links.mjs 3ms (unchanged)
 scripts/docs-auto-fix.ts 5ms (unchanged)
 scripts/docs-disable-md051.ts 2ms (unchanged)
@@ -865,74 +945,74 @@ scripts/docs-fix-anchors.ts 6ms (unchanged)
 scripts/docs-fix-heading-levels.ts 2ms (unchanged)
 scripts/docs-harmonize-anchors.ts 8ms (unchanged)
 scripts/docs-link-audit.mjs 2ms (unchanged)
-scripts/emoji-to-icon-codemod.mjs 7ms (unchanged)
+scripts/emoji-to-icon-codemod.mjs 8ms (unchanged)
 scripts/fix-blog-images.ts 4ms (unchanged)
-scripts/fix-de-faq-structure.mjs 5ms (unchanged)
+scripts/fix-de-faq-structure.mjs 4ms (unchanged)
 scripts/gen-env-doc.mjs 2ms (unchanged)
-scripts/gen-openapi.mjs 5ms (unchanged)
-scripts/generate-test-fixtures.ts 2ms (unchanged)
+scripts/gen-openapi.mjs 6ms (unchanged)
+scripts/generate-test-fixtures.ts 1ms (unchanged)
 scripts/generate-wordmark-outlined.ts 5ms (unchanged)
-scripts/health-check.ts 5ms (unchanged)
+scripts/health-check.ts 4ms (unchanged)
 scripts/hygiene-copy.mjs 1ms (unchanged)
-scripts/hygiene-to-assistant.mjs 2ms (unchanged)
+scripts/hygiene-to-assistant.mjs 3ms (unchanged)
 scripts/i18n-copy-de-to-en.mjs 2ms (unchanged)
 scripts/i18n-diff.mjs 3ms (unchanged)
 scripts/i18n-diff.ts 3ms (unchanged)
-scripts/i18n-empty-report.mjs 2ms (unchanged)
+scripts/i18n-empty-report.mjs 3ms (unchanged)
 scripts/i18n-fill-missing.mjs 3ms (unchanged)
 scripts/i18n-identical.mjs 3ms (unchanged)
-scripts/i18n-migrate-paths.mjs 4ms (unchanged)
-scripts/i18n-prune-unused.mjs 4ms (unchanged)
+scripts/i18n-migrate-paths.mjs 5ms (unchanged)
+scripts/i18n-prune-unused.mjs 3ms (unchanged)
 scripts/i18n-validate.mjs 3ms (unchanged)
-scripts/mcp/cloudflare-mcp.mjs 4ms (unchanged)
-scripts/mcp/gsc-extended.mjs 11ms (unchanged)
+scripts/mcp/cloudflare-mcp.mjs 5ms (unchanged)
+scripts/mcp/gsc-extended.mjs 8ms (unchanged)
 scripts/mcp/gsc-run-analysis.mjs 3ms (unchanged)
 scripts/migrate-imports.js 5ms (unchanged)
 scripts/migrate-imports.mjs 5ms (unchanged)
 scripts/migrate-imports.ts 7ms (unchanged)
-scripts/onboarding.ts 12ms (unchanged)
+scripts/onboarding.ts 10ms (unchanged)
 scripts/quality-check.js 2ms (unchanged)
 scripts/remark/remark-demote-h1.ts 1ms (unchanged)
 scripts/resend-check.mjs 4ms (unchanged)
-scripts/run-hygiene.mjs 3ms (unchanged)
+scripts/run-hygiene.mjs 4ms (unchanged)
 scripts/sanitize-locale.mjs 2ms (unchanged)
 scripts/security/scan-secrets.mjs 2ms (unchanged)
 scripts/setup-contentful-blog.mjs 2ms (unchanged)
-scripts/setup-local-dev.js 17ms (unchanged)
-scripts/setup-local-dev.ts 15ms (unchanged)
+scripts/setup-local-dev.js 19ms (unchanged)
+scripts/setup-local-dev.ts 18ms (unchanged)
 scripts/smoke-inject-enhancer.mjs 3ms (unchanged)
 scripts/validate-env.ts 3ms (unchanged)
 scripts/validate-frontmatter.mjs 4ms (unchanged)
-scripts/warmup.ts 9ms (unchanged)
+scripts/warmup.ts 8ms (unchanged)
 scripts/web-eval-executor/executor.ts 6ms (unchanged)
-scripts/web-eval-executor/menu.ts 15ms (unchanged)
+scripts/web-eval-executor/menu.ts 14ms (unchanged)
 scripts/web-eval-executor/runner.ts 6ms (unchanged)
-scripts/web-eval-executor/types.ts 2ms (unchanged)
-scripts/zod-openapi-diff.ts 7ms (unchanged)
+scripts/web-eval-executor/types.ts 1ms (unchanged)
+scripts/zod-openapi-diff.ts 6ms (unchanged)
 scripts/zod-openapi-pilot.ts 2ms (unchanged)
-.lintstagedrc.json 0ms (unchanged)
-.markdownlint.json 0ms (unchanged)
-.prettierrc.json 0ms (unchanged)
-AGENTS.md 15ms (unchanged)
+.lintstagedrc.json 1ms (unchanged)
+.markdownlint.json 1ms (unchanged)
+.prettierrc.json 2ms (unchanged)
+AGENTS.md 16ms (unchanged)
 api-extractor.json 1ms (unchanged)
 blog-post-content-type.json 1ms (unchanged)
 cache-rules-ci.json 1ms (unchanged)
-cache-rules-create.json 0ms (unchanged)
-cache-rules-rules.json 1ms (unchanged)
+cache-rules-create.json 1ms (unchanged)
+cache-rules-rules.json 0ms (unchanged)
 cf-create-ruleset.json 1ms (unchanged)
 CHANGELOG.md 7ms (unchanged)
 CLAUDE.md 0ms (unchanged)
 CODE_OF_CONDUCT.md 1ms (unchanged)
 combined-rules.json 0ms (unchanged)
-contentful-import-error-log-tmtc6fophkx8-2025-11-08T05-09-01.json 0ms (unchanged)
-contentful-import-error-log-tmtc6fophkx8-2025-11-08T05-11-11.json 1ms (unchanged)
+contentful-import-error-log-tmtc6fophkx8-2025-11-08T05-09-01.json 1ms (unchanged)
+contentful-import-error-log-tmtc6fophkx8-2025-11-08T05-11-11.json 0ms (unchanged)
 contentful-import-error-log-tmtc6fophkx8-2025-11-08T05-16-05.json 0ms (unchanged)
 contentful-import-error-log-tmtc6fophkx8-2025-11-08T05-21-42.json 1ms (unchanged)
-CONTRIBUTING.md 7ms (unchanged)
+CONTRIBUTING.md 8ms (unchanged)
 developer.mozilla.org--mdn-web-docs--20251025-090628_scrapedwithhub-evolutioncom.json 2ms (unchanged)
 existing-rules.json 1ms (unchanged)
-package.json 2ms (unchanged)
-README.md 14ms (unchanged)
+package.json 1ms (unchanged)
+README.md 15ms (unchanged)
 renovate.json 0ms (unchanged)
 ruleset-current-staging.json 1ms (unchanged)
 rulesets-list.json 0ms (unchanged)
@@ -944,17 +1024,21 @@ tsconfig.astro-check.ui.json 0ms (unchanged)
 tsconfig.astro.json 0ms (unchanged)
 tsconfig.build.json 0ms (unchanged)
 tsconfig.json 1ms (unchanged)
-tsconfig.src.json 0ms (unchanged)
+tsconfig.src.json 1ms (unchanged)
 tsconfig.types.json 0ms (unchanged)
 tsdoc.json 1ms (unchanged)
 update-payload.json 1ms (unchanged)
-update-staging.json 1ms (unchanged)
+update-staging.json 3ms (unchanged)
 
 ```
 
 ### i18n-audit
 
 ```text
+i18n empty strings report
+- en: 24 empty values
+- de: 26 empty values
+
 Empty keys in en:
  - pages.kontakt.info.contact.fax
  - pages.kontakt.info.contact.phone
@@ -1089,15 +1173,13 @@ Empty keys in de:
 > evolution-hub@0.0.1 i18n:validate
 > node scripts/i18n-validate.mjs
 
-[i18n:validate] Probleme gefunden:
-DE: Fehlende Schlüssel relativ zu EN unter pages.tools ->
-  - pages.tools.items.web-eval
-  - pages.tools.items.web-eval.name
-  - pages.tools.items.web-eval.description
-  - pages.tools.items.web-eval.modal
-  - pages.tools.items.web-eval.modal.headline
-  - pages.tools.items.web-eval.modal.summary
-  - pages.tools.items.web-eval.modal.features
+[i18n:validate] OK: Strukturen sind konsistent für nav, nav_language, cta, comingSoon, pages.home, pages.blog, pages.tools, pages.pricing, pages.kontakt, pages.verifyEmail, pages.impressum, pages.datenschutz
+
+> evolution-hub@0.0.1 i18n:diff
+> node scripts/i18n-diff.mjs
+
+Missing in de (present in en): 0
+Missing in en (present in de): 0
 [i18n:audit] $ npm run i18n:audit
 
 > evolution-hub@0.0.1 i18n:audit
@@ -1168,15 +1250,13 @@ Empty keys in de:
 > evolution-hub@0.0.1 i18n:validate
 > node scripts/i18n-validate.mjs
 
-[i18n:validate] Probleme gefunden:
-DE: Fehlende Schlüssel relativ zu EN unter pages.tools ->
-  - pages.tools.items.web-eval
-  - pages.tools.items.web-eval.name
-  - pages.tools.items.web-eval.description
-  - pages.tools.items.web-eval.modal
-  - pages.tools.items.web-eval.modal.headline
-  - pages.tools.items.web-eval.modal.summary
-  - pages.tools.items.web-eval.modal.features
+[i18n:validate] OK: Strukturen sind konsistent für nav, nav_language, cta, comingSoon, pages.home, pages.blog, pages.tools, pages.pricing, pages.kontakt, pages.verifyEmail, pages.impressum, pages.datenschutz
+
+> evolution-hub@0.0.1 i18n:diff
+> node scripts/i18n-diff.mjs
+
+Missing in de (present in en): 0
+Missing in en (present in de): 0
 [i18n:audit] $ npm run i18n:audit
 
 > evolution-hub@0.0.1 i18n:audit
@@ -1260,6 +1340,33 @@ Missing in en (present in de): 0
 ### lint-md
 
 ```text
+[lint:md] $ npm run lint:md
+
+> evolution-hub@0.0.1 lint:md
+> markdownlint-cli2 --config .markdownlint-cli2.jsonc "docs/**/*.md"
+
+markdownlint-cli2 v0.18.1 (markdownlint v0.38.0)
+Finding: docs/**/*.md
+Linting: 123 file(s)
+Summary: 0 error(s)
+[lint:md] $ npm run lint:md
+
+> evolution-hub@0.0.1 lint:md
+> markdownlint-cli2 --config .markdownlint-cli2.jsonc "docs/**/*.md"
+
+markdownlint-cli2 v0.18.1 (markdownlint v0.38.0)
+Finding: docs/**/*.md
+Linting: 123 file(s)
+Summary: 0 error(s)
+[lint:md] $ npm run lint:md
+
+> evolution-hub@0.0.1 lint:md
+> markdownlint-cli2 --config .markdownlint-cli2.jsonc "docs/**/*.md"
+
+markdownlint-cli2 v0.18.1 (markdownlint v0.38.0)
+Finding: docs/**/*.md
+Linting: 123 file(s)
+Summary: 0 error(s)
 [lint:md] $ npm run lint:md
 
 > evolution-hub@0.0.1 lint:md
@@ -1435,12 +1542,61 @@ Summary: 0 error(s)
 ✖ 1 problem (0 errors, 1 warning)
 
 ESLint found too many warnings (maximum: 0).
+[lint(strict)] $ npm run lint -- --max-warnings=0
+
+> evolution-hub@0.0.1 lint
+> eslint 'src/**/*.{ts,astro}' --max-warnings=280 --max-warnings=0
+
+
+/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/pages/api/testing/evaluate/next/run.ts
+  351:14  warning  'e' is defined but never used. Allowed unused caught errors must match /^_/u  @typescript-eslint/no-unused-vars
+
+✖ 1 problem (0 errors, 1 warning)
+
+ESLint found too many warnings (maximum: 0).
+[lint(strict)] $ npm run lint -- --max-warnings=0
+
+> evolution-hub@0.0.1 lint
+> eslint 'src/**/*.{ts,astro}' --max-warnings=280 --max-warnings=0
+
+[lint(strict)] $ npm run lint -- --max-warnings=0
+
+> evolution-hub@0.0.1 lint
+> eslint 'src/**/*.{ts,astro}' --max-warnings=280 --max-warnings=0
+
 
 ```
 
 ### md-fix
 
 ```text
+[md:fix] $ npm run lint:md:fix
+
+> evolution-hub@0.0.1 lint:md:fix
+> markdownlint-cli2 --fix "docs/**/*.md"
+
+markdownlint-cli2 v0.18.1 (markdownlint v0.38.0)
+Finding: docs/**/*.md
+Linting: 123 file(s)
+Summary: 0 error(s)
+[md:fix] $ npm run lint:md:fix
+
+> evolution-hub@0.0.1 lint:md:fix
+> markdownlint-cli2 --fix "docs/**/*.md"
+
+markdownlint-cli2 v0.18.1 (markdownlint v0.38.0)
+Finding: docs/**/*.md
+Linting: 123 file(s)
+Summary: 0 error(s)
+[md:fix] $ npm run lint:md:fix
+
+> evolution-hub@0.0.1 lint:md:fix
+> markdownlint-cli2 --fix "docs/**/*.md"
+
+markdownlint-cli2 v0.18.1 (markdownlint v0.38.0)
+Finding: docs/**/*.md
+Linting: 123 file(s)
+Summary: 0 error(s)
 [md:fix] $ npm run lint:md:fix
 
 > evolution-hub@0.0.1 lint:md:fix
@@ -1537,6 +1693,24 @@ openapi.yaml is valid
 > npx swagger-cli validate openapi.yaml
 
 openapi.yaml is valid
+[openapi:validate] $ npm run openapi:validate
+
+> evolution-hub@0.0.1 openapi:validate
+> npx swagger-cli validate openapi.yaml
+
+openapi.yaml is valid
+[openapi:validate] $ npm run openapi:validate
+
+> evolution-hub@0.0.1 openapi:validate
+> npx swagger-cli validate openapi.yaml
+
+openapi.yaml is valid
+[openapi:validate] $ npm run openapi:validate
+
+> evolution-hub@0.0.1 openapi:validate
+> npx swagger-cli validate openapi.yaml
+
+openapi.yaml is valid
 
 ```
 
@@ -1579,319 +1753,87 @@ openapi.yaml is valid
 > node ./scripts/security/scan-secrets.mjs
 
 [security:scan] OK — no obvious secrets detected.
+[security:scan] $ npm run security:scan
+
+> evolution-hub@0.0.1 security:scan
+> node ./scripts/security/scan-secrets.mjs
+
+[security:scan] OK — no obvious secrets detected.
+[security:scan] $ npm run security:scan
+
+> evolution-hub@0.0.1 security:scan
+> node ./scripts/security/scan-secrets.mjs
+
+[security:scan] OK — no obvious secrets detected.
+[security:scan] $ npm run security:scan
+
+> evolution-hub@0.0.1 security:scan
+> node ./scripts/security/scan-secrets.mjs
+
+[security:scan] OK — no obvious secrets detected.
 
 ```
 
 ### test-integration-debug
 
 ```text
-    383|       }
-    384|     }
-    385|     expect(saw429).toBe(true);
-       |                    ^
-    386|   });
-    387| 
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/28]⎯
+ FAIL  |integration| tests/integration/ai-image-enhancer.test.ts > AI Image Enhancer API + R2 Proxy (Integration) > GET /api/ai-image/jobs/{id} as owner -> 200 success envelope
+AssertionError: expected 405 to be 200 // Object.is equality
 
- FAIL  |integration| tests/integration/ai-image-enhancer.test.ts > AI Image Enhancer API + R2 Proxy (Integration) > POST /api/ai-image/generate (multipart) -> 200 success envelope with limits
-AssertionError: expected [ 200, 403 ] to include 429
- ❯ tests/integration/ai-image-enhancer.test.ts:414:24
-    412|       },
-    413|     });
-    414|     expect([200, 403]).toContain(res.status);
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 200[39m
+[31m+ 405[39m
+
+ ❯ tests/integration/ai-image-enhancer.test.ts:256:24
+    254|       },
+    255|     });
+    256|     expect(res.status).toBe(200);
        |                        ^
-    415|     if (res.status !== 200) return;
-    416|     const body = await json<ApiEnvelope<unknown>>(res);
+    257|     const body = await json<ApiEnvelope<AiJobData>>(res);
+    258|     expect(body.success).toBe(true);
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/28]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/23]⎯
 
- FAIL  |integration| tests/integration/comments-api.test.ts > Comments API (edge) > POST /api/comments/create should reject without CSRF (403)
-AssertionError: expected 'forbidden' to be 'csrf_error' // Object.is equality
-
-Expected: [32m"csrf_error"[39m
-Received: [31m"forbidden"[39m
-
- ❯ tests/integration/comments-api.test.ts:39:31
-     37|     expect(res.status).toBe(403);
-     38|     expect(json?.success).toBe(false);
-     39|     expect(json?.error?.type).toBe('csrf_error');
-       |                               ^
-     40|   });
-     41| 
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/28]⎯
-
- FAIL  |integration| tests/integration/dashboard-api.test.ts > Dashboard-API-Integration > POST /api/dashboard/perform-action > sollte 401 für nicht authentifizierte Anfragen zurückgeben
-AssertionError: expected 'auth_error' to be 'UNAUTHORIZED' // Object.is equality
-
-Expected: [32m"UNAUTHORIZED"[39m
-Received: [31m"auth_error"[39m
-
- ❯ tests/integration/dashboard-api.test.ts:368:34
-    366|       if (json) {
-    367|         expect(json.success).toBe(false);
-    368|         expect(json.error?.type).toBe('UNAUTHORIZED');
-       |                                  ^
-    369|       }
-    370|     });
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/28]⎯
-
- FAIL  |integration| tests/integration/lead-magnet-api.test.ts > Lead-Magnet-API-Integration > POST /api/lead-magnets/download > sollte Rate-Limiting korrekt handhaben
-AssertionError: expected 0 to be greater than 0
- ❯ tests/integration/lead-magnet-api.test.ts:191:43
-    189|       // Mindestens eine sollte Rate-Limited sein (429)
-    190|       const rateLimitedResponses = responses.filter((r) => r.status ==…
-    191|       expect(rateLimitedResponses.length).toBeGreaterThan(0);
-       |                                           ^
-    192| 
-    193|       // Rate-Limit Response sollte Retry-After Header haben
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/28]⎯
-
- FAIL  |integration| tests/integration/lead-magnet-api.test.ts > Lead-Magnet-API-Integration > POST /api/lead-magnets/download > sollte 405 für GET-Methode zurückgeben
-AssertionError: expected [ 405, 404, 429 ] to include 400
- ❯ tests/integration/lead-magnet-api.test.ts:283:31
-    281|       });
-    282| 
-    283|       expect([405, 404, 429]).toContain(response.status);
-       |                               ^
-    284|       if ((response.headers.get('content-type') || '').includes('appli…
-    285|         const json = safeParseJson<ApiJson>(await response.text());
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/28]⎯
-
- FAIL  |integration| tests/integration/lead-magnet-api.test.ts > Lead-Magnet-API-Integration > POST /api/lead-magnets/download > sollte CSRF-Schutz korrekt handhaben
-AssertionError: expected [ 400, 403, 429 ] to include 500
- ❯ tests/integration/lead-magnet-api.test.ts:310:31
-    308|       });
-    309| 
-    310|       expect([400, 403, 429]).toContain(response.status);
-       |                               ^
-    311|       const text = await response.text();
-    312|       if ((response.headers.get('content-type') || '').includes('appli…
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/28]⎯
-
- FAIL  |integration| tests/integration/lead-magnet-api.test.ts > Lead-Magnet-API-Integration > POST /api/lead-magnets/download > sollte Audit-Logging für erfolgreiche Downloads durchführen
-AssertionError: expected [ 200, 429 ] to include 500
- ❯ tests/integration/lead-magnet-api.test.ts:344:26
-    342|       const response = await submitForm('/api/lead-magnets/download', …
-    343| 
-    344|       expect([200, 429]).toContain(response.status);
-       |                          ^
-    345|       if (response.status === 200 && (response.contentType || '').incl…
-    346|         const json = safeParseJson<ApiJson>(response.text);
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/28]⎯
-
- FAIL  |integration| tests/integration/newsletter-api.test.ts > Newsletter-API-Integration > POST /api/newsletter/subscribe > sollte Rate-Limiting korrekt handhaben
-AssertionError: expected 0 to be greater than 0
- ❯ tests/integration/newsletter-api.test.ts:197:43
-    195|       // Mindestens eine sollte Rate-Limited sein (429)
-    196|       const rateLimitedResponses = responses.filter((r) => r.status ==…
-    197|       expect(rateLimitedResponses.length).toBeGreaterThan(0);
-       |                                           ^
-    198| 
-    199|       // Rate-Limit Response sollte Retry-After Header haben
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/28]⎯
-
- FAIL  |integration| tests/integration/api/admin-users-lifecycle.test.ts > Admin Users Lifecycle — CSRF and auth enforcement > debug-login non-admin with CSRF token → 403 forbidden
- FAIL  |integration| tests/integration/api/admin-users-lifecycle.test.ts > Admin Users Lifecycle — CSRF and auth enforcement > debug-login non-admin with CSRF token → 403 forbidden
-AssertionError: expected 429 to be 403 // Object.is equality
+ FAIL  |integration| tests/integration/ai-image-enhancer.test.ts > AI Image Enhancer API + R2 Proxy (Integration) > GET /api/ai-image/jobs/{id} without cookie -> 403 forbidden and sets guest_id
+AssertionError: expected 405 to be 403 // Object.is equality
 
 [32m- Expected[39m
 [31m+ Received[39m
 
 [32m- 403[39m
-[31m+ 429[39m
+[31m+ 405[39m
 
- ❯ tests/integration/api/admin-users-lifecycle.test.ts:74:22
-     72|         body: method === 'DELETE' ? undefined : JSON.stringify({ reaso…
-     73|       });
-     74|       expect(status).toBe(403);
-       |                      ^
-     75|     });
-     76|   }
+ ❯ tests/integration/ai-image-enhancer.test.ts:268:24
+    266|   it('GET /api/ai-image/jobs/{id} without cookie -> 403 forbidden and …
+    267|     const res = await fetchManual(`/api/ai-image/jobs/${jobId}`);
+    268|     expect(res.status).toBe(403);
+       |                        ^
+    269|     const setCookie = res.headers.get('set-cookie');
+    270|     const gid = extractCookieValue(setCookie, 'guest_id');
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/28]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/23]⎯
 
- FAIL  |integration| tests/integration/api/admin-users-set-plan.test.ts > Admin Users Set Plan — method/CSRF/auth checks > debug-login then POST /api/admin/users/set-plan with CSRF → 403 for non-admin
-AssertionError: expected 429 to be 403 // Object.is equality
+ FAIL  |integration| tests/integration/ai-image-enhancer.test.ts > AI Image Enhancer API + R2 Proxy (Integration) > GET /api/ai-image/jobs/{id} with different guest_id -> 403 forbidden envelope
+AssertionError: expected 405 to be 403 // Object.is equality
 
 [32m- Expected[39m
 [31m+ Received[39m
 
 [32m- 403[39m
-[31m+ 429[39m
+[31m+ 405[39m
 
- ❯ tests/integration/api/admin-users-set-plan.test.ts:56:20
-     54|       }),
-     55|     });
-     56|     expect(status).toBe(403);
-       |                    ^
-     57|   });
-     58| });
+ ❯ tests/integration/ai-image-enhancer.test.ts:280:24
+    278|       },
+    279|     });
+    280|     expect(res.status).toBe(403);
+       |                        ^
+    281|     const body = await json<ApiEnvelope<unknown>>(res);
+    282|     expect(body.success).toBe(false);
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/28]⎯
-
- FAIL  |integration| tests/integration/api/comments-performance.test.ts > /api/comments/performance (integration) > returns paginated data for seeded post
-Error: Failed to create comment: 400 Bad Request — {"success":false,"error":{"type":"validation_error","message":"Invalid request body","details":{"details":{"fieldErrors":{"_form":["Unrecognized key(s) in object: 'csrfToken'"]},"issues":[{"path":[],"code":"unrecognized_keys","message":"Unrecognized key(s) in object: 'csrfToken'"}]}}}}
- ❯ createComment tests/integration/api/__fixtures__/comments-performance.ts:81:11
-     79|   if (!response.ok) {
-     80|     const body = await response.text().catch(() => '');
-     81|     throw new Error(
-       |           ^
-     82|       `Failed to create comment: ${response.status} ${response.statusT…
-     83|     );
- ❯ seedCommentsPerformance tests/integration/api/__fixtures__/comments-performance.ts:114:23
- ❯ tests/integration/api/comments-performance.test.ts:39:24
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/28]⎯
-
- FAIL  |integration| tests/integration/api/comments-performance.test.ts > /api/comments/performance (integration) > returns search results when authenticated
-Error: Failed to create comment: 400 Bad Request — {"success":false,"error":{"type":"validation_error","message":"Invalid request body","details":{"details":{"fieldErrors":{"_form":["Unrecognized key(s) in object: 'csrfToken'"]},"issues":[{"path":[],"code":"unrecognized_keys","message":"Unrecognized key(s) in object: 'csrfToken'"}]}}}}
- ❯ createComment tests/integration/api/__fixtures__/comments-performance.ts:81:11
-     79|   if (!response.ok) {
-     80|     const body = await response.text().catch(() => '');
-     81|     throw new Error(
-       |           ^
-     82|       `Failed to create comment: ${response.status} ${response.statusT…
-     83|     );
- ❯ seedCommentsPerformance tests/integration/api/__fixtures__/comments-performance.ts:114:23
- ❯ tests/integration/api/comments-performance.test.ts:56:5
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/28]⎯
-
- FAIL  |integration| tests/integration/api/web-eval-run.test.ts > /api/testing/evaluate/next/run > claims and fails with browser_disabled when CBR is disabled (no binding/flag)
-AssertionError: expected [ 403, 401, 400, 500 ] to include 429
- ❯ tests/integration/api/web-eval-run.test.ts:139:34
-    137|     const run = await callRun();
-    138|     // Expect forbidden error with message browser_disabled or browser…
-    139|     expect([403, 401, 400, 500]).toContain(run.res.status);
-       |                                  ^
-    140|     if (!run.json || run.json.success !== false) {
-    141|       throw new Error('Expected error response');
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/28]⎯
-
- FAIL  |integration| tests/integration/routing/blog-i18n-seo-integration.test.ts > Blog i18n & SEO (integration) > EN: category uses /en/blog/category/, share links have prod origin, single H1, related heading present
-AssertionError: expected 0 to be greater than 0
- ❯ tests/integration/routing/blog-i18n-seo-integration.test.ts:42:28
-     40|     // Category link path
-     41|     const catLink = $('a[href*="/en/blog/category/"]');
-     42|     expect(catLink.length).toBeGreaterThan(0);
-       |                            ^
-     43| 
-     44|     // Share links host (env-agnostic)
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/28]⎯
-
- FAIL  |integration| tests/integration/api/referrals/referral-rewards-webhook.test.ts > POST /api/billing/stripe-webhook referral rewards integration > calls verifyReferral on checkout.session.completed when rewards enabled
-AssertionError: expected 500 to be 200 // Object.is equality
-
-[32m- Expected[39m
-[31m+ Received[39m
-
-[32m- 200[39m
-[31m+ 500[39m
-
- ❯ tests/integration/api/referrals/referral-rewards-webhook.test.ts:122:29
-    120|     const response = await POST(context);
-    121| 
-    122|     expect(response.status).toBe(200);
-       |                             ^
-    123|     expect(verifyReferralMock).toHaveBeenCalledTimes(1);
-    124|     expect(verifyReferralMock).toHaveBeenCalledWith(
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/28]⎯
-
- FAIL  |integration| tests/integration/api/referrals/referral-rewards-webhook.test.ts > POST /api/billing/stripe-webhook referral rewards integration > skips verifyReferral when rewards feature flag disabled
-AssertionError: expected 500 to be 200 // Object.is equality
-
-[32m- Expected[39m
-[31m+ Received[39m
-
-[32m- 200[39m
-[31m+ 500[39m
-
- ❯ tests/integration/api/referrals/referral-rewards-webhook.test.ts:162:29
-    160|     const response = await POST(context);
-    161| 
-    162|     expect(response.status).toBe(200);
-       |                             ^
-    163|     expect(verifyReferralMock).not.toHaveBeenCalled();
-    164|   });
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/28]⎯
-
- FAIL  |integration| tests/integration/api/referrals/referral-rewards-webhook.test.ts > POST /api/billing/stripe-webhook referral rewards integration > triggers verifyReferral on active subscription update
-AssertionError: expected 500 to be 200 // Object.is equality
-
-[32m- Expected[39m
-[31m+ Received[39m
-
-[32m- 200[39m
-[31m+ 500[39m
-
- ❯ tests/integration/api/referrals/referral-rewards-webhook.test.ts:201:29
-    199|     const response = await POST(context);
-    200| 
-    201|     expect(response.status).toBe(200);
-       |                             ^
-    202|     expect(verifyReferralMock).toHaveBeenCalledTimes(1);
-    203|     expect(verifyReferralMock).toHaveBeenCalledWith(
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/28]⎯
-
- FAIL  |integration| tests/integration/api/ai-video/usage.test.ts > GET /api/ai-video/usage > returns guest limits when no KV entry exists
-AssertionError: expected 500 to be 200 // Object.is equality
-
-[32m- Expected[39m
-[31m+ Received[39m
-
-[32m- 200[39m
-[31m+ 500[39m
-
- ❯ tests/integration/api/ai-video/usage.test.ts:65:29
-     63| 
-     64|     const response = await GET(context);
-     65|     expect(response.status).toBe(200);
-       |                             ^
-     66|     const payload = (await response.json()) as {
-     67|       success: boolean;
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/28]⎯
-
- FAIL  |integration| tests/integration/api/ai-video/usage.test.ts > GET /api/ai-video/usage > honours existing KV usage for users
-AssertionError: expected 500 to be 200 // Object.is equality
-
-[32m- Expected[39m
-[31m+ Received[39m
-
-[32m- 200[39m
-[31m+ 500[39m
-
- ❯ tests/integration/api/ai-video/usage.test.ts:105:29
-    103| 
-    104|     const response = await GET(context);
-    105|     expect(response.status).toBe(200);
-       |                             ^
-    106|     const payload = (await response.json()) as {
-    107|       success: boolean;
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/28]⎯
-
-
-```
-
-### test-integration-run
-
-```text
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/25]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/23]⎯
 
  FAIL  |integration| tests/integration/ai-image-enhancer.test.ts > AI Image Enhancer API + R2 Proxy (Integration) > POST /api/ai-image/jobs/{id}/cancel with different guest_id -> 403 forbidden envelope
 AssertionError: expected 404 to be 403 // Object.is equality
@@ -1910,7 +1852,7 @@ AssertionError: expected 404 to be 403 // Object.is equality
     299|     const body = await json<ApiEnvelope<unknown>>(res);
     300|     expect(body.success).toBe(false);
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/25]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/23]⎯
 
  FAIL  |integration| tests/integration/ai-image-enhancer.test.ts > AI Image Enhancer API + R2 Proxy (Integration) > R2 proxy: GET uploads URL is public and cached (Cache-Control: public, max-age=900, immutable)
 AssertionError: expected null to be truthy
@@ -1929,7 +1871,7 @@ null
     308|     if (!uploadUrl) throw new Error('Missing uploadUrl');
     309| 
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/25]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/23]⎯
 
  FAIL  |integration| tests/integration/ai-image-enhancer.test.ts > AI Image Enhancer API + R2 Proxy (Integration) > Rate limiting: excessive GET /api/ai-image/jobs/{id} eventually returns 429 with Retry-After
 AssertionError: expected false to be true // Object.is equality
@@ -1948,7 +1890,7 @@ AssertionError: expected false to be true // Object.is equality
     386|   });
     387| 
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/25]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/23]⎯
 
  FAIL  |integration| tests/integration/comments-api.test.ts > Comments API (edge) > POST /api/comments/create should reject without CSRF (403)
 AssertionError: expected 'forbidden' to be 'csrf_error' // Object.is equality
@@ -1964,7 +1906,7 @@ Received: [31m"forbidden"[39m
      40|   });
      41| 
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/25]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/23]⎯
 
  FAIL  |integration| tests/integration/dashboard-api.test.ts > Dashboard-API-Integration > POST /api/dashboard/perform-action > sollte 401 für nicht authentifizierte Anfragen zurückgeben
 AssertionError: expected 'auth_error' to be 'UNAUTHORIZED' // Object.is equality
@@ -1980,7 +1922,7 @@ Received: [31m"auth_error"[39m
     369|       }
     370|     });
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/25]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/23]⎯
 
  FAIL  |integration| tests/integration/lead-magnet-api.test.ts > Lead-Magnet-API-Integration > POST /api/lead-magnets/download > sollte Rate-Limiting korrekt handhaben
 AssertionError: expected 0 to be greater than 0
@@ -1992,7 +1934,7 @@ AssertionError: expected 0 to be greater than 0
     192| 
     193|       // Rate-Limit Response sollte Retry-After Header haben
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/25]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/23]⎯
 
  FAIL  |integration| tests/integration/lead-magnet-api.test.ts > Lead-Magnet-API-Integration > POST /api/lead-magnets/download > sollte 405 für GET-Methode zurückgeben
 AssertionError: expected [ 405, 404, 429 ] to include 400
@@ -2004,7 +1946,7 @@ AssertionError: expected [ 405, 404, 429 ] to include 400
     284|       if ((response.headers.get('content-type') || '').includes('appli…
     285|         const json = safeParseJson<ApiJson>(await response.text());
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/25]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/23]⎯
 
  FAIL  |integration| tests/integration/lead-magnet-api.test.ts > Lead-Magnet-API-Integration > POST /api/lead-magnets/download > sollte CSRF-Schutz korrekt handhaben
 AssertionError: expected [ 400, 403, 429 ] to include 500
@@ -2016,7 +1958,7 @@ AssertionError: expected [ 400, 403, 429 ] to include 500
     311|       const text = await response.text();
     312|       if ((response.headers.get('content-type') || '').includes('appli…
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/25]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/23]⎯
 
  FAIL  |integration| tests/integration/lead-magnet-api.test.ts > Lead-Magnet-API-Integration > POST /api/lead-magnets/download > sollte Audit-Logging für erfolgreiche Downloads durchführen
 AssertionError: expected [ 200, 429 ] to include 500
@@ -2028,7 +1970,7 @@ AssertionError: expected [ 200, 429 ] to include 500
     345|       if (response.status === 200 && (response.contentType || '').incl…
     346|         const json = safeParseJson<ApiJson>(response.text);
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/25]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/23]⎯
 
  FAIL  |integration| tests/integration/newsletter-api.test.ts > Newsletter-API-Integration > POST /api/newsletter/subscribe > sollte Rate-Limiting korrekt handhaben
 AssertionError: expected 0 to be greater than 0
@@ -2040,7 +1982,47 @@ AssertionError: expected 0 to be greater than 0
     198| 
     199|       // Rate-Limit Response sollte Retry-After Header haben
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/25]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/23]⎯
+
+ FAIL  |integration| tests/integration/api/admin-users-lifecycle.test.ts > Admin Users Lifecycle — CSRF and auth enforcement > debug-login non-admin with CSRF token → 403 forbidden
+ FAIL  |integration| tests/integration/api/admin-users-lifecycle.test.ts > Admin Users Lifecycle — CSRF and auth enforcement > debug-login non-admin with CSRF token → 403 forbidden
+ FAIL  |integration| tests/integration/api/admin-users-lifecycle.test.ts > Admin Users Lifecycle — CSRF and auth enforcement > debug-login non-admin with CSRF token → 403 forbidden
+AssertionError: expected 429 to be 403 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 403[39m
+[31m+ 429[39m
+
+ ❯ tests/integration/api/admin-users-lifecycle.test.ts:74:22
+     72|         body: method === 'DELETE' ? undefined : JSON.stringify({ reaso…
+     73|       });
+     74|       expect(status).toBe(403);
+       |                      ^
+     75|     });
+     76|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/23]⎯
+
+ FAIL  |integration| tests/integration/api/admin-users-set-plan.test.ts > Admin Users Set Plan — method/CSRF/auth checks > debug-login then POST /api/admin/users/set-plan with CSRF → 403 for non-admin
+AssertionError: expected 429 to be 403 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 403[39m
+[31m+ 429[39m
+
+ ❯ tests/integration/api/admin-users-set-plan.test.ts:56:20
+     54|       }),
+     55|     });
+     56|     expect(status).toBe(403);
+       |                    ^
+     57|   });
+     58| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/23]⎯
 
  FAIL  |integration| tests/integration/api/comments-performance.test.ts > /api/comments/performance (integration) > returns paginated data for seeded post
 Error: Failed to create comment: 400 Bad Request — {"success":false,"error":{"type":"validation_error","message":"Invalid request body","details":{"details":{"fieldErrors":{"_form":["Unrecognized key(s) in object: 'csrfToken'"]},"issues":[{"path":[],"code":"unrecognized_keys","message":"Unrecognized key(s) in object: 'csrfToken'"}]}}}}
@@ -2054,7 +2036,7 @@ Error: Failed to create comment: 400 Bad Request — {"success":false,"error":{"
  ❯ seedCommentsPerformance tests/integration/api/__fixtures__/comments-performance.ts:114:23
  ❯ tests/integration/api/comments-performance.test.ts:39:24
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/25]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/23]⎯
 
  FAIL  |integration| tests/integration/api/comments-performance.test.ts > /api/comments/performance (integration) > returns search results when authenticated
 Error: Failed to create comment: 400 Bad Request — {"success":false,"error":{"type":"validation_error","message":"Invalid request body","details":{"details":{"fieldErrors":{"_form":["Unrecognized key(s) in object: 'csrfToken'"]},"issues":[{"path":[],"code":"unrecognized_keys","message":"Unrecognized key(s) in object: 'csrfToken'"}]}}}}
@@ -2068,126 +2050,336 @@ Error: Failed to create comment: 400 Bad Request — {"success":false,"error":{"
  ❯ seedCommentsPerformance tests/integration/api/__fixtures__/comments-performance.ts:114:23
  ❯ tests/integration/api/comments-performance.test.ts:56:5
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/25]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/23]⎯
 
  FAIL  |integration| tests/integration/api/web-eval-run.test.ts > /api/testing/evaluate/next/run > claims and fails with browser_disabled when CBR is disabled (no binding/flag)
-AssertionError: expected [ 403, 401, 400, 500 ] to include 429
- ❯ tests/integration/api/web-eval-run.test.ts:139:34
-    137|     const run = await callRun();
-    138|     // Expect forbidden error with message browser_disabled or browser…
-    139|     expect([403, 401, 400, 500]).toContain(run.res.status);
-       |                                  ^
-    140|     if (!run.json || run.json.success !== false) {
-    141|       throw new Error('Expected error response');
+AssertionError: expected [ 403, 401, 400, 500 ] to include 200
+ ❯ tests/integration/api/web-eval-run.test.ts:142:36
+    140|     } else {
+    141|       // Expect forbidden error with message browser_disabled or brows…
+    142|       expect([403, 401, 400, 500]).toContain(run.res.status);
+       |                                    ^
+    143|       if (!run.json || run.json.success !== false) {
+    144|         throw new Error('Expected error response');
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/25]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/23]⎯
 
  FAIL  |integration| tests/integration/routing/blog-i18n-seo-integration.test.ts > Blog i18n & SEO (integration) > EN: category uses /en/blog/category/, share links have prod origin, single H1, related heading present
 AssertionError: expected 0 to be greater than 0
- ❯ tests/integration/routing/blog-i18n-seo-integration.test.ts:42:28
-     40|     // Category link path
-     41|     const catLink = $('a[href*="/en/blog/category/"]');
-     42|     expect(catLink.length).toBeGreaterThan(0);
+ ❯ tests/integration/routing/blog-i18n-seo-integration.test.ts:43:28
+     41|     // Canonical EN route redirects to /blog/<slug>, category links ar…
+     42|     const catLink = $('a[href*="/blog/category/"]');
+     43|     expect(catLink.length).toBeGreaterThan(0);
        |                            ^
-     43| 
-     44|     // Share links host (env-agnostic)
+     44| 
+     45|     // Share links host (env-agnostic)
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/25]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/23]⎯
 
- FAIL  |integration| tests/integration/api/ai-video/usage.test.ts > GET /api/ai-video/usage > returns guest limits when no KV entry exists
-AssertionError: expected 500 to be 200 // Object.is equality
 
-[32m- Expected[39m
-[31m+ Received[39m
+```
 
-[32m- 200[39m
-[31m+ 500[39m
+### test-integration-run
 
- ❯ tests/integration/api/ai-video/usage.test.ts:65:29
-     63| 
-     64|     const response = await GET(context);
-     65|     expect(response.status).toBe(200);
-       |                             ^
-     66|     const payload = (await response.json()) as {
-     67|       success: boolean;
+```text
+        '    at createConnectionError (node:net:1652:14)\n' +
+        '    at afterConnectMultiple (node:net:1682:16)',
+      message: 'connect ECONNREFUSED 127.0.0.1:8787',
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 8787,
+      constructor: 'Function<Error>',
+      name: 'Error',
+      toString: 'Function<toString>'
+    }
+  ],
+  code: 'ECONNREFUSED',
+  message: '',
+  constructor: 'Function<AggregateError>',
+  name: 'Caused by: AggregateError',
+  toString: 'Function<toString>',
+  stacks: []
+}
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { errors: [ { stack: 'Error: connect ECONNREFUSED ::1:8787\n    at createConnectionError (node:net:1652:14)\n    at afterConnectMultiple (node:net:1682:16)', message: 'connect ECONNREFUSED ::1:8787', errno: -61, code: 'ECONNREFUSED', syscall: 'connect', address: '::1', port: 8787, constructor: 'Function<Error>', name: 'Error', toString: 'Function<toString>' }, { stack: 'Error: connect ECONNREFUSED 127.0.0.1:8787\n    at createConnectionError (node:net:1652:14)\n    at afterConnectMultiple (node:net:1682:16)', message: 'connect ECONNREFUSED 127.0.0.1:8787', errno: -61, code: 'ECONNREFUSED', syscall: 'connect', address: '127.0.0.1', port: 8787, constructor: 'Function<Error>', name: 'Error', toString: 'Function<toString>' } ], code: 'ECONNREFUSED' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[116/129]⎯
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/25]⎯
+ FAIL  |integration| tests/integration/api/prompt/usage.test.ts > Prompt API: GET /api/prompt/usage > returns 200 and expected JSON shape with debug headers
+TypeError: fetch failed
+ ❯ tests/integration/api/prompt/usage.test.ts:11:17
+      9| 
+     10|   it('returns 200 and expected JSON shape with debug headers', async (…
+     11|     const res = await fetch(`${TEST_BASE}/api/prompt/usage`);
+       |                 ^
+     12|     expect(res.status).toBe(200);
+     13|     const ct = res.headers.get('content-type') || '';
 
- FAIL  |integration| tests/integration/api/ai-video/usage.test.ts > GET /api/ai-video/usage > honours existing KV usage for users
-AssertionError: expected 500 to be 200 // Object.is equality
+{
+  stack: 'AggregateError: \n' +
+    '    at internalConnectMultiple (node:net:1122:18)\n' +
+    '    at afterConnectMultiple (node:net:1689:7)',
+  errors: [
+    {
+      stack: 'Error: connect ECONNREFUSED ::1:8787\n' +
+        '    at createConnectionError (node:net:1652:14)\n' +
+        '    at afterConnectMultiple (node:net:1682:16)',
+      message: 'connect ECONNREFUSED ::1:8787',
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 8787,
+      constructor: 'Function<Error>',
+      name: 'Error',
+      toString: 'Function<toString>'
+    },
+    {
+      stack: 'Error: connect ECONNREFUSED 127.0.0.1:8787\n' +
+        '    at createConnectionError (node:net:1652:14)\n' +
+        '    at afterConnectMultiple (node:net:1682:16)',
+      message: 'connect ECONNREFUSED 127.0.0.1:8787',
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 8787,
+      constructor: 'Function<Error>',
+      name: 'Error',
+      toString: 'Function<toString>'
+    }
+  ],
+  code: 'ECONNREFUSED',
+  message: '',
+  constructor: 'Function<AggregateError>',
+  name: 'Caused by: AggregateError',
+  toString: 'Function<toString>',
+  stacks: []
+}
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { errors: [ { stack: 'Error: connect ECONNREFUSED ::1:8787\n    at createConnectionError (node:net:1652:14)\n    at afterConnectMultiple (node:net:1682:16)', message: 'connect ECONNREFUSED ::1:8787', errno: -61, code: 'ECONNREFUSED', syscall: 'connect', address: '::1', port: 8787, constructor: 'Function<Error>', name: 'Error', toString: 'Function<toString>' }, { stack: 'Error: connect ECONNREFUSED 127.0.0.1:8787\n    at createConnectionError (node:net:1652:14)\n    at afterConnectMultiple (node:net:1682:16)', message: 'connect ECONNREFUSED 127.0.0.1:8787', errno: -61, code: 'ECONNREFUSED', syscall: 'connect', address: '127.0.0.1', port: 8787, constructor: 'Function<Error>', name: 'Error', toString: 'Function<toString>' } ], code: 'ECONNREFUSED' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[117/129]⎯
 
-[32m- Expected[39m
-[31m+ Received[39m
+ FAIL  |integration| tests/integration/api/voice/transcribe-and-poll.test.ts > POST /api/voice/transcribe + GET /api/voice/poll > uploads a short audio chunk and poll reflects usage/final
+TypeError: fetch failed
+ ❯ tests/integration/api/voice/transcribe-and-poll.test.ts:34:17
+     32|     form.append('isLastChunk', 'true');
+     33| 
+     34|     const res = await fetch(`${TEST_URL}/api/voice/transcribe`, {
+       |                 ^
+     35|       method: 'POST',
+     36|       body: form,
 
-[32m- 200[39m
-[31m+ 500[39m
+{
+  stack: 'AggregateError: \n' +
+    '    at internalConnectMultiple (node:net:1122:18)\n' +
+    '    at afterConnectMultiple (node:net:1689:7)',
+  errors: [
+    {
+      stack: 'Error: connect ECONNREFUSED ::1:8787\n' +
+        '    at createConnectionError (node:net:1652:14)\n' +
+        '    at afterConnectMultiple (node:net:1682:16)',
+      message: 'connect ECONNREFUSED ::1:8787',
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 8787,
+      constructor: 'Function<Error>',
+      name: 'Error',
+      toString: 'Function<toString>'
+    },
+    {
+      stack: 'Error: connect ECONNREFUSED 127.0.0.1:8787\n' +
+        '    at createConnectionError (node:net:1652:14)\n' +
+        '    at afterConnectMultiple (node:net:1682:16)',
+      message: 'connect ECONNREFUSED 127.0.0.1:8787',
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 8787,
+      constructor: 'Function<Error>',
+      name: 'Error',
+      toString: 'Function<toString>'
+    }
+  ],
+  code: 'ECONNREFUSED',
+  message: '',
+  constructor: 'Function<AggregateError>',
+  name: 'Caused by: AggregateError',
+  toString: 'Function<toString>',
+  stacks: []
+}
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { errors: [ { stack: 'Error: connect ECONNREFUSED ::1:8787\n    at createConnectionError (node:net:1652:14)\n    at afterConnectMultiple (node:net:1682:16)', message: 'connect ECONNREFUSED ::1:8787', errno: -61, code: 'ECONNREFUSED', syscall: 'connect', address: '::1', port: 8787, constructor: 'Function<Error>', name: 'Error', toString: 'Function<toString>' }, { stack: 'Error: connect ECONNREFUSED 127.0.0.1:8787\n    at createConnectionError (node:net:1652:14)\n    at afterConnectMultiple (node:net:1682:16)', message: 'connect ECONNREFUSED 127.0.0.1:8787', errno: -61, code: 'ECONNREFUSED', syscall: 'connect', address: '127.0.0.1', port: 8787, constructor: 'Function<Error>', name: 'Error', toString: 'Function<toString>' } ], code: 'ECONNREFUSED' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[118/129]⎯
 
- ❯ tests/integration/api/ai-video/usage.test.ts:105:29
-    103| 
-    104|     const response = await GET(context);
-    105|     expect(response.status).toBe(200);
-       |                             ^
-    106|     const payload = (await response.json()) as {
-    107|       success: boolean;
+ FAIL  |integration| tests/integration/api/voice/transcribe.test.ts > Voice API: /api/voice/transcribe > GET should be 405 with Allow: POST
+TypeError: fetch failed
+ ❯ tests/integration/api/voice/transcribe.test.ts:11:17
+      9| 
+     10|   it('GET should be 405 with Allow: POST', async () => {
+     11|     const res = await fetch(`${TEST_BASE}/api/voice/transcribe`, { met…
+       |                 ^
+     12|     expect([405, 200]).toContain(res.status); // handler should return…
+     13|     const allow = res.headers.get('Allow');
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/25]⎯
+{
+  stack: 'AggregateError: \n' +
+    '    at internalConnectMultiple (node:net:1122:18)\n' +
+    '    at afterConnectMultiple (node:net:1689:7)',
+  errors: [
+    {
+      stack: 'Error: connect ECONNREFUSED ::1:8787\n' +
+        '    at createConnectionError (node:net:1652:14)\n' +
+        '    at afterConnectMultiple (node:net:1682:16)',
+      message: 'connect ECONNREFUSED ::1:8787',
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 8787,
+      constructor: 'Function<Error>',
+      name: 'Error',
+      toString: 'Function<toString>'
+    },
+    {
+      stack: 'Error: connect ECONNREFUSED 127.0.0.1:8787\n' +
+        '    at createConnectionError (node:net:1652:14)\n' +
+        '    at afterConnectMultiple (node:net:1682:16)',
+      message: 'connect ECONNREFUSED 127.0.0.1:8787',
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 8787,
+      constructor: 'Function<Error>',
+      name: 'Error',
+      toString: 'Function<toString>'
+    }
+  ],
+  code: 'ECONNREFUSED',
+  message: '',
+  constructor: 'Function<AggregateError>',
+  name: 'Caused by: AggregateError',
+  toString: 'Function<toString>',
+  stacks: []
+}
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { errors: [ { stack: 'Error: connect ECONNREFUSED ::1:8787\n    at createConnectionError (node:net:1652:14)\n    at afterConnectMultiple (node:net:1682:16)', message: 'connect ECONNREFUSED ::1:8787', errno: -61, code: 'ECONNREFUSED', syscall: 'connect', address: '::1', port: 8787, constructor: 'Function<Error>', name: 'Error', toString: 'Function<toString>' }, { stack: 'Error: connect ECONNREFUSED 127.0.0.1:8787\n    at createConnectionError (node:net:1652:14)\n    at afterConnectMultiple (node:net:1682:16)', message: 'connect ECONNREFUSED 127.0.0.1:8787', errno: -61, code: 'ECONNREFUSED', syscall: 'connect', address: '127.0.0.1', port: 8787, constructor: 'Function<Error>', name: 'Error', toString: 'Function<toString>' } ], code: 'ECONNREFUSED' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[119/129]⎯
 
- FAIL  |integration| tests/integration/api/referrals/referral-rewards-webhook.test.ts > POST /api/billing/stripe-webhook referral rewards integration > calls verifyReferral on checkout.session.completed when rewards enabled
-AssertionError: expected 500 to be 200 // Object.is equality
+ FAIL  |integration| tests/integration/api/voice/transcribe.test.ts > Voice API: /api/voice/transcribe > POST without CSRF should be forbidden (403)
+TypeError: fetch failed
+ ❯ tests/integration/api/voice/transcribe.test.ts:22:17
+     20|     const fd = new FormData();
+     21|     // Intentionally missing cookie + header to trigger CSRF/Origin ga…
+     22|     const res = await fetch(`${TEST_BASE}/api/voice/transcribe`, { met…
+       |                 ^
+     23|     expect(res.status).toBe(403);
+     24|     const ct = res.headers.get('content-type') || '';
 
-[32m- Expected[39m
-[31m+ Received[39m
+{
+  stack: 'AggregateError: \n' +
+    '    at internalConnectMultiple (node:net:1122:18)\n' +
+    '    at afterConnectMultiple (node:net:1689:7)',
+  errors: [
+    {
+      stack: 'Error: connect ECONNREFUSED ::1:8787\n' +
+        '    at createConnectionError (node:net:1652:14)\n' +
+        '    at afterConnectMultiple (node:net:1682:16)',
+      message: 'connect ECONNREFUSED ::1:8787',
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 8787,
+      constructor: 'Function<Error>',
+      name: 'Error',
+      toString: 'Function<toString>'
+    },
+    {
+      stack: 'Error: connect ECONNREFUSED 127.0.0.1:8787\n' +
+        '    at createConnectionError (node:net:1652:14)\n' +
+        '    at afterConnectMultiple (node:net:1682:16)',
+      message: 'connect ECONNREFUSED 127.0.0.1:8787',
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 8787,
+      constructor: 'Function<Error>',
+      name: 'Error',
+      toString: 'Function<toString>'
+    }
+  ],
+  code: 'ECONNREFUSED',
+  message: '',
+  constructor: 'Function<AggregateError>',
+  name: 'Caused by: AggregateError',
+  toString: 'Function<toString>',
+  stacks: []
+}
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { errors: [ { stack: 'Error: connect ECONNREFUSED ::1:8787\n    at createConnectionError (node:net:1652:14)\n    at afterConnectMultiple (node:net:1682:16)', message: 'connect ECONNREFUSED ::1:8787', errno: -61, code: 'ECONNREFUSED', syscall: 'connect', address: '::1', port: 8787, constructor: 'Function<Error>', name: 'Error', toString: 'Function<toString>' }, { stack: 'Error: connect ECONNREFUSED 127.0.0.1:8787\n    at createConnectionError (node:net:1652:14)\n    at afterConnectMultiple (node:net:1682:16)', message: 'connect ECONNREFUSED 127.0.0.1:8787', errno: -61, code: 'ECONNREFUSED', syscall: 'connect', address: '127.0.0.1', port: 8787, constructor: 'Function<Error>', name: 'Error', toString: 'Function<toString>' } ], code: 'ECONNREFUSED' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[120/129]⎯
 
-[32m- 200[39m
-[31m+ 500[39m
+ FAIL  |integration| tests/integration/api/voice/usage.test.ts > Voice API: GET /api/voice/usage > returns 200 and expected JSON shape
+TypeError: fetch failed
+ ❯ tests/integration/api/voice/usage.test.ts:11:17
+      9| 
+     10|   it('returns 200 and expected JSON shape', async () => {
+     11|     const res = await fetch(`${TEST_BASE}/api/voice/usage`);
+       |                 ^
+     12|     expect(res.status).toBe(200);
+     13|     const ct = res.headers.get('content-type') || '';
 
- ❯ tests/integration/api/referrals/referral-rewards-webhook.test.ts:122:29
-    120|     const response = await POST(context);
-    121| 
-    122|     expect(response.status).toBe(200);
-       |                             ^
-    123|     expect(verifyReferralMock).toHaveBeenCalledTimes(1);
-    124|     expect(verifyReferralMock).toHaveBeenCalledWith(
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/25]⎯
-
- FAIL  |integration| tests/integration/api/referrals/referral-rewards-webhook.test.ts > POST /api/billing/stripe-webhook referral rewards integration > skips verifyReferral when rewards feature flag disabled
-AssertionError: expected 500 to be 200 // Object.is equality
-
-[32m- Expected[39m
-[31m+ Received[39m
-
-[32m- 200[39m
-[31m+ 500[39m
-
- ❯ tests/integration/api/referrals/referral-rewards-webhook.test.ts:162:29
-    160|     const response = await POST(context);
-    161| 
-    162|     expect(response.status).toBe(200);
-       |                             ^
-    163|     expect(verifyReferralMock).not.toHaveBeenCalled();
-    164|   });
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/25]⎯
-
- FAIL  |integration| tests/integration/api/referrals/referral-rewards-webhook.test.ts > POST /api/billing/stripe-webhook referral rewards integration > triggers verifyReferral on active subscription update
-AssertionError: expected 500 to be 200 // Object.is equality
-
-[32m- Expected[39m
-[31m+ Received[39m
-
-[32m- 200[39m
-[31m+ 500[39m
-
- ❯ tests/integration/api/referrals/referral-rewards-webhook.test.ts:201:29
-    199|     const response = await POST(context);
-    200| 
-    201|     expect(response.status).toBe(200);
-       |                             ^
-    202|     expect(verifyReferralMock).toHaveBeenCalledTimes(1);
-    203|     expect(verifyReferralMock).toHaveBeenCalledWith(
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/25]⎯
+{
+  stack: 'AggregateError: \n' +
+    '    at internalConnectMultiple (node:net:1122:18)\n' +
+    '    at afterConnectMultiple (node:net:1689:7)',
+  errors: [
+    {
+      stack: 'Error: connect ECONNREFUSED ::1:8787\n' +
+        '    at createConnectionError (node:net:1652:14)\n' +
+        '    at afterConnectMultiple (node:net:1682:16)',
+      message: 'connect ECONNREFUSED ::1:8787',
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 8787,
+      constructor: 'Function<Error>',
+      name: 'Error',
+      toString: 'Function<toString>'
+    },
+    {
+      stack: 'Error: connect ECONNREFUSED 127.0.0.1:8787\n' +
+        '    at createConnectionError (node:net:1652:14)\n' +
+        '    at afterConnectMultiple (node:net:1682:16)',
+      message: 'connect ECONNREFUSED 127.0.0.1:8787',
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 8787,
+      constructor: 'Function<Error>',
+      name: 'Error',
+      toString: 'Function<toString>'
+    }
+  ],
+  code: 'ECONNREFUSED',
+  message: '',
+  constructor: 'Function<AggregateError>',
+  name: 'Caused by: AggregateError',
+  toString: 'Function<toString>',
+  stacks: []
+}
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { errors: [ { stack: 'Error: connect ECONNREFUSED ::1:8787\n    at createConnectionError (node:net:1652:14)\n    at afterConnectMultiple (node:net:1682:16)', message: 'connect ECONNREFUSED ::1:8787', errno: -61, code: 'ECONNREFUSED', syscall: 'connect', address: '::1', port: 8787, constructor: 'Function<Error>', name: 'Error', toString: 'Function<toString>' }, { stack: 'Error: connect ECONNREFUSED 127.0.0.1:8787\n    at createConnectionError (node:net:1652:14)\n    at afterConnectMultiple (node:net:1682:16)', message: 'connect ECONNREFUSED 127.0.0.1:8787', errno: -61, code: 'ECONNREFUSED', syscall: 'connect', address: '127.0.0.1', port: 8787, constructor: 'Function<Error>', name: 'Error', toString: 'Function<toString>' } ], code: 'ECONNREFUSED' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[121/129]⎯
 
 
 ```
@@ -2195,42 +2387,137 @@ AssertionError: expected 500 to be 200 // Object.is equality
 ### test-unit-debug
 
 ```text
+  errorKind: [32m'validation_error'[39m,
+  url: [32m'ftp://example.com'[39m,
+  error: [32m'Only HTTP/HTTPS URLs are allowed'[39m
+}
+
+stderr | tests/unit/services/webscraper-service.test.ts > WebscraperService > URL Validation > should reject blocked domains (or invalid port)
+[2025-11-12T08:40:38.396Z] [ERROR] scrape_failed {
+  timestamp: {},
+  resource: [32m'webscraper-service'[39m,
+  reqId: [32m'scrape-1762936838395-rusbi'[39m,
+  errorKind: [32m'validation_error'[39m,
+  url: [32m'http://localhost:3000'[39m,
+  error: [32m'Only ports 80/443 are allowed'[39m
+}
+
+stderr | tests/unit/services/webscraper-service.test.ts > WebscraperService > URL Validation > should reject too long URLs
+[2025-11-12T08:40:38.423Z] [ERROR] scrape_failed {
+  timestamp: {},
+  resource: [32m'webscraper-service'[39m,
+  reqId: [32m'scrape-1762936838396-gqp3b'[39m,
+  errorKind: [32m'validation_error'[39m,
+  url: [32m'https://example.com/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa…'[39m,
+  error: [32m'URL too long or empty'[39m
+}
+
+stderr | tests/unit/services/webscraper-service.test.ts > WebscraperService > Quota Management > should enforce guest quota
+[2025-11-12T08:40:38.443Z] [ERROR] scrape_failed {
+  timestamp: {},
+  resource: [32m'webscraper-service'[39m,
+  reqId: [32m'scrape-1762936838443-m1mtt'[39m,
+  errorKind: [32m'quota_exceeded'[39m,
+  url: [32m'https://example.com'[39m,
+  ownerType: [32m'guest'[39m,
+  ownerId: [32m'-123'[39m
+}
+
+stderr | tests/unit/services/webscraper-service.test.ts > WebscraperService > Robots.txt Compliance > should block scraping when robots.txt disallows
+[2025-11-12T08:40:38.449Z] [ERROR] scrape_failed {
+  timestamp: {},
+  resource: [32m'webscraper-service'[39m,
+  reqId: [32m'scrape-1762936838447-pchly'[39m,
+  errorKind: [32m'robots_txt_blocked'[39m,
+  url: [32m'https://example.com/admin'[39m
+}
+
+stderr | tests/unit/services/ai-image-service.test.ts > AiImageService > callCustomAssistant > should throw error on run failure (status: failed)
+[2025-11-12T08:40:38.547Z] [ERROR] assistant_call_failed {
+  timestamp: {},
+  resource: [32m'ai-image-service'[39m,
+  action: [32m'assistant_call_failed'[39m,
+  metadata: { error: [32m'Thread creation returned no id'[39m }
+}
+
+stderr | tests/unit/services/ai-image-service.test.ts > AiImageService > callCustomAssistant > should throw error if no assistant message
+[2025-11-12T08:40:38.551Z] [ERROR] assistant_call_failed {
+  timestamp: {},
+  resource: [32m'ai-image-service'[39m,
+  action: [32m'assistant_call_failed'[39m,
+  metadata: { error: [32m'Thread creation returned no id'[39m }
+}
+
+stderr | tests/unit/services/ai-image-service.test.ts > AiImageService > callCustomAssistant > should throw error on network error during run creation
+[2025-11-12T08:40:38.553Z] [ERROR] assistant_call_failed {
+  timestamp: {},
+  resource: [32m'ai-image-service'[39m,
+  action: [32m'assistant_call_failed'[39m,
+  metadata: { error: [32m'Thread creation returned no id'[39m }
+}
+
+stderr | tests/unit/services/ai-image-service.test.ts > AiImageService > generate with assistant > should ignore invalid assistant suggestion and use original params
+[2025-11-12T08:40:38.601Z] [WARN] assistant_suggestion_parse_failed {
+  timestamp: {},
+  resource: [32m'ai-image-service'[39m,
+  action: [32m'assistant_suggestion_parse_failed'[39m,
+  metadata: { assistantId: [32m'asst-123'[39m }
+}
+
+stderr | tests/unit/pages/api/user/profile.test.ts > POST /api/user/profile > propagates database errors as server error response
+[2025-11-12T08:40:38.976Z] [ERROR] Error in POST /api/user/profile: Database error during update { timestamp: {}, resource: [32m'api-middleware'[39m }
+[2025-11-12T08:40:38.981Z] [ERROR] API_ERROR {
+  timestamp: {},
+  resource: [32m'security'[39m,
+  userId: [32m'user-123'[39m,
+  ipAddress: [32m'127.0.0.1'[39m,
+  securityEventType: [32m'API_ERROR'[39m,
+  details: {
+    endpoint: [32m'/api/user/profile'[39m,
+    method: [32m'POST'[39m,
+    error: [32m'Database error during update'[39m,
+    stack: [32m'Error: Database error during update\n'[39m +
+      [32m'    at /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/tests/unit/pages/api/user/profile.test.ts:199:21\n'[39m +
+      [32m'    at file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n'[39m +
+      [32m'    at file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n'[39m +
+      [32m'    at file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n'[39m +
+      [32m'    at new Promise (<anonymous>)\n'[39m +
+      [32m'    at runWithTimeout (file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n'[39m +
+      [32m'    at runTest (file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)\n'[39m +
+      [32m'    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n'[39m +
+      [32m'    at runSuite (file://…'[39m
+  }
+}
+
+stderr | tests/unit/lib/rate-limiter-kv.test.ts > KV-backed rate limiter > persists counters across limiter instances via KV
+[2025-11-12T08:40:39.473Z] [ERROR] Security Event: RATE_LIMIT_EXCEEDED
+Context: {
+  "ipAddress": "127.0.0.1",
+  "targetResource": "/api/kv",
+  "securityEventType": "RATE_LIMIT_EXCEEDED",
+  "originalDetails": {
     "limiterName": "kvLimiterTest",
     "maxRequests": 2,
     "windowMs": 10000,
-    "resetAt": 1762931141194
+    "resetAt": 1762936849473
   },
   "logLevel": "error",
   "eventSnapshot": {
     "type": "RATE_LIMIT_EXCEEDED",
     "targetResource": "/api/kv",
     "ipAddress": "127.0.0.1",
-    "timestamp": 1762931131194,
+    "timestamp": 1762936839473,
     "details": {
       "limiterName": "kvLimiterTest",
       "maxRequests": 2,
       "windowMs": 10000,
-      "resetAt": 1762931141194
+      "resetAt": 1762936849473
     }
   }
 }
 
-stderr | tests/unit/ai-image/aiimage-retry.test.ts > AiImageService - Workers AI tiny output retry > retries once on tiny output and succeeds with larger image
-[2025-11-12T07:05:32.034Z] [WARN] workers_ai_tiny_output_retry {
-  timestamp: {},
-  resource: [32m'ai-image-service'[39m,
-  action: [32m'workers_ai_tiny_output_retry'[39m,
-  metadata: { model: [32m'@cf/runwayml/stable-diffusion-v1-5-img2img'[39m, bytes: [33m1000[39m }
-}
-
-stderr | tests/unit/i18n.test.ts > i18n Utils > should return fallback for non-existing key
-Key "non.existing.key" not found in locale "de". Falling back to English.
-
-stderr | tests/unit/i18n.test.ts > i18n Utils > should fallback to English for unknown locale (simulated)
-Locale "xx" not found. Using English as fallback.
-
 stderr | tests/unit/ai-image-provider-mapping.test.ts > AiImageService.runReplicate() provider error mapping > maps 401 to forbidden
-[2025-11-12T07:05:32.533Z] [WARN] replicate_error {
+[2025-11-12T08:40:39.511Z] [WARN] replicate_error {
   timestamp: {},
   resource: [32m'ai-image-service'[39m,
   action: [32m'replicate_error'[39m,
@@ -2243,7 +2530,7 @@ stderr | tests/unit/ai-image-provider-mapping.test.ts > AiImageService.runReplic
 }
 
 stderr | tests/unit/ai-image-provider-mapping.test.ts > AiImageService.runReplicate() provider error mapping > maps 403 to forbidden
-[2025-11-12T07:05:32.536Z] [WARN] replicate_error {
+[2025-11-12T08:40:39.517Z] [WARN] replicate_error {
   timestamp: {},
   resource: [32m'ai-image-service'[39m,
   action: [32m'replicate_error'[39m,
@@ -2256,7 +2543,7 @@ stderr | tests/unit/ai-image-provider-mapping.test.ts > AiImageService.runReplic
 }
 
 stderr | tests/unit/ai-image-provider-mapping.test.ts > AiImageService.runReplicate() provider error mapping > maps 404 to validation_error
-[2025-11-12T07:05:32.537Z] [WARN] replicate_error {
+[2025-11-12T08:40:39.519Z] [WARN] replicate_error {
   timestamp: {},
   resource: [32m'ai-image-service'[39m,
   action: [32m'replicate_error'[39m,
@@ -2269,7 +2556,7 @@ stderr | tests/unit/ai-image-provider-mapping.test.ts > AiImageService.runReplic
 }
 
 stderr | tests/unit/ai-image-provider-mapping.test.ts > AiImageService.runReplicate() provider error mapping > maps 422 to validation_error
-[2025-11-12T07:05:32.538Z] [WARN] replicate_error {
+[2025-11-12T08:40:39.524Z] [WARN] replicate_error {
   timestamp: {},
   resource: [32m'ai-image-service'[39m,
   action: [32m'replicate_error'[39m,
@@ -2282,7 +2569,7 @@ stderr | tests/unit/ai-image-provider-mapping.test.ts > AiImageService.runReplic
 }
 
 stderr | tests/unit/ai-image-provider-mapping.test.ts > AiImageService.runReplicate() provider error mapping > maps 500 to server_error
-[2025-11-12T07:05:32.540Z] [WARN] replicate_error {
+[2025-11-12T08:40:39.526Z] [WARN] replicate_error {
   timestamp: {},
   resource: [32m'ai-image-service'[39m,
   action: [32m'replicate_error'[39m,
@@ -2294,8 +2581,31 @@ stderr | tests/unit/ai-image-provider-mapping.test.ts > AiImageService.runReplic
   }
 }
 
+stderr | tests/unit/ai-image/aiimage-retry.test.ts > AiImageService - Workers AI tiny output retry > retries once on tiny output and succeeds with larger image
+[2025-11-12T08:40:41.108Z] [WARN] workers_ai_tiny_output_retry {
+  timestamp: {},
+  resource: [32m'ai-image-service'[39m,
+  action: [32m'workers_ai_tiny_output_retry'[39m,
+  metadata: { model: [32m'@cf/runwayml/stable-diffusion-v1-5-img2img'[39m, bytes: [33m1000[39m }
+}
 
-⎯⎯⎯⎯⎯⎯ Failed Tests 12 ⎯⎯⎯⎯⎯⎯⎯
+stderr | tests/unit/utils/logger-transport.smoke.test.ts > logger transports smoke > routes SecurityLogger through transport with redaction
+[2025-11-12T08:40:41.457Z] [ERROR] AUTH_FAILURE {
+  timestamp: {},
+  resource: [32m'security'[39m,
+  userId: [32m'u_9'[39m,
+  securityEventType: [32m'AUTH_FAILURE'[39m,
+  details: { reason: [32m'invalid_password'[39m, password: [32m'[FILTERED]'[39m }
+}
+
+stderr | tests/unit/i18n.test.ts > i18n Utils > should return fallback for non-existing key
+Key "non.existing.key" not found in locale "de". Falling back to English.
+
+stderr | tests/unit/i18n.test.ts > i18n Utils > should fallback to English for unknown locale (simulated)
+Locale "xx" not found. Using English as fallback.
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
 
  FAIL  |unit| tests/unit/blog-sorting.spec.ts > Blog sorting by updatedDate ?? pubDate (desc) > BlogService.getBlogIndexData returns posts sorted by updatedDate first, then pubDate desc
 AssertionError: expected 'updated-new' to be 'UpdatedNew' // Object.is equality
@@ -2311,94 +2621,41 @@ Received: [31m"[7mu[27mpdated[7m-n[27mew"[39m
     148|     expect(titles).toContain('NewPublished');
     149|     expect(titles).toContain('Old');
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/12]⎯
-
- FAIL  |unit| tests/unit/prompt-enhancer-service.test.ts > PromptEnhancerService > enhance > should enhance input successfully for guest with quota available
-AssertionError: expected "spy" to be called with arguments: [ 'enhance_completed', Any<Object> ][90m
-
-Number of calls: [1m0[22m
-[39m
- ❯ tests/unit/prompt-enhancer-service.test.ts:171:31
-    169|       expect(result.usage.used).toBe(1);
-    170|       expect(result.usage.limit).toBe(5);
-    171|       expect(mockLogger.info).toHaveBeenCalledWith('enhance_completed'…
-       |                               ^
-    172|     });
-    173| 
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/12]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
 
  FAIL  |unit| tests/unit/prompt-enhancer-service.test.ts > PromptEnhancerService > enhance > should throw quota exceeded error when limit reached
 AssertionError: expected "spy" to be called with arguments: [ 'enhance_failed', …(1) ][90m
 
-Number of calls: [1m0[22m
+Received: 
+
+[1m  1st spy call:
+
+[22m[2m  [[22m
+[2m    "enhance_failed",[22m
+[32m-   ObjectContaining {[90m
+[31m+   {[90m
+[31m+     "metadata": {[90m
+[2m        "errorKind": "quota_exceeded",[22m
+[31m+       "inputLength": 31,[90m
+[31m+       "ownerIdSuffix": "t-id",[90m
+[31m+       "ownerType": "guest",[90m
+[31m+     },[90m
+[31m+     "requestId": "enhance-1762936833857-y0khg",[90m
+[2m    },[22m
+[2m  ][22m
+[39m[90m
+
+Number of calls: [1m1[22m
 [39m
- ❯ tests/unit/prompt-enhancer-service.test.ts:200:32
-    198|         service.enhance(defaultInput, defaultOptions, 'guest', 'test-g…
-    199|       ).rejects.toThrow('Quota exceeded. Used 5/5');
-    200|       expect(mockLogger.error).toHaveBeenCalledWith('enhance_failed', …
+ ❯ tests/unit/prompt-enhancer-service.test.ts:205:32
+    203|         service.enhance(defaultInput, defaultOptions, 'guest', 'test-g…
+    204|       ).rejects.toThrow('Quota exceeded. Used 5/5');
+    205|       expect(mockLogger.error).toHaveBeenCalledWith('enhance_failed', …
        |                                ^
-    201|     });
-    202| 
+    206|     });
+    207| 
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/12]⎯
-
- FAIL  |unit| tests/unit/api/account-delete.test.ts > DELETE /api/user/account > returns subscription_active when active subscriptions exist without cancel flag
-AssertionError: expected 500 to be 400 // Object.is equality
-
-[32m- Expected[39m
-[31m+ Received[39m
-
-[32m- 400[39m
-[31m+ 500[39m
-
- ❯ tests/unit/api/account-delete.test.ts:117:29
-    115|     );
-    116| 
-    117|     expect(response.status).toBe(400);
-       |                             ^
-    118|     const payload: any = await response.json();
-    119|     expect(payload.success).toBe(false);
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/12]⎯
-
- FAIL  |unit| tests/unit/api/account-delete.test.ts > DELETE /api/user/account > cancels subscription when requested and proceeds with deletion
-AssertionError: expected 500 to be 204 // Object.is equality
-
-[32m- Expected[39m
-[31m+ Received[39m
-
-[32m- 204[39m
-[31m+ 500[39m
-
- ❯ tests/unit/api/account-delete.test.ts:155:29
-    153|     );
-    154| 
-    155|     expect(response.status).toBe(204);
-       |                             ^
-    156|     expect(stripeUpdateMock).toHaveBeenCalledTimes(2);
-    157|     expect(stripeUpdateMock).toHaveBeenCalledWith('sub_789', { cancel_…
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/12]⎯
-
- FAIL  |unit| tests/unit/api/account-delete.test.ts > DELETE /api/user/account > deletes account immediately when no active subscriptions exist
-AssertionError: expected 500 to be 204 // Object.is equality
-
-[32m- Expected[39m
-[31m+ Received[39m
-
-[32m- 204[39m
-[31m+ 500[39m
-
- ❯ tests/unit/api/account-delete.test.ts:173:29
-    171|     );
-    172| 
-    173|     expect(response.status).toBe(204);
-       |                             ^
-    174|     expect(stripeUpdateMock).not.toHaveBeenCalled();
-    175|     expect(db.batch).toHaveBeenCalled();
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/12]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
 
  FAIL  |unit| tests/unit/lib/ai-image-service.test.ts > AiImageService > getUsage > delegates to rolling usage helper when KV v2 is enabled
 AssertionError: expected "spy" to be called with arguments: [ { get: [Function spy], …(1) }, …(1) ][90m
@@ -2427,72 +2684,7 @@ Number of calls: [1m1[22m
      82|       expect(result).toEqual({ used: 4, limit: 10, resetAt: 1700000 * …
      83|     });
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/12]⎯
-
- FAIL  |unit| tests/unit/lib/rate-limiter.test.ts > createRateLimiter > stores entries using ip and user id
-TypeError: Cannot read properties of undefined (reading 'resetAt')
- ❯ rateLimitMiddleware src/lib/rate-limiter.ts:239:15
-    237| 
-    238|     // Prüfen, ob das Zeitfenster abgelaufen ist
-    239|     if (entry.resetAt <= now) {
-       |               ^
-    240|       // Zurücksetzen für ein neues Zeitfenster
-    241|       entry.count = 1;
- ❯ tests/unit/lib/rate-limiter.test.ts:49:11
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/12]⎯
-
- FAIL  |unit| tests/unit/lib/rate-limiter.test.ts > createRateLimiter > defaults to anonymous user when no session is present
-TypeError: Cannot read properties of undefined (reading 'resetAt')
- ❯ rateLimitMiddleware src/lib/rate-limiter.ts:239:15
-    237| 
-    238|     // Prüfen, ob das Zeitfenster abgelaufen ist
-    239|     if (entry.resetAt <= now) {
-       |               ^
-    240|       // Zurücksetzen für ein neues Zeitfenster
-    241|       entry.count = 1;
- ❯ tests/unit/lib/rate-limiter.test.ts:60:11
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/12]⎯
-
- FAIL  |unit| tests/unit/lib/rate-limiter.test.ts > createRateLimiter > returns 429 once the limit is exceeded and logs the event
-TypeError: Cannot read properties of undefined (reading 'resetAt')
- ❯ rateLimitMiddleware src/lib/rate-limiter.ts:239:15
-    237| 
-    238|     // Prüfen, ob das Zeitfenster abgelaufen ist
-    239|     if (entry.resetAt <= now) {
-       |               ^
-    240|       // Zurücksetzen für ein neues Zeitfenster
-    241|       entry.count = 1;
- ❯ tests/unit/lib/rate-limiter.test.ts:70:11
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/12]⎯
-
- FAIL  |unit| tests/unit/lib/rate-limiter.test.ts > createRateLimiter > resets counters after the window elapses
-TypeError: Cannot read properties of undefined (reading 'resetAt')
- ❯ rateLimitMiddleware src/lib/rate-limiter.ts:239:15
-    237| 
-    238|     // Prüfen, ob das Zeitfenster abgelaufen ist
-    239|     if (entry.resetAt <= now) {
-       |               ^
-    240|       // Zurücksetzen für ein neues Zeitfenster
-    241|       entry.count = 1;
- ❯ tests/unit/lib/rate-limiter.test.ts:91:11
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/12]⎯
-
- FAIL  |unit| tests/unit/lib/rate-limiter.test.ts > createRateLimiter > cleans expired entries via the interval cleanup
-TypeError: Cannot read properties of undefined (reading 'resetAt')
- ❯ rateLimitMiddleware src/lib/rate-limiter.ts:239:15
-    237| 
-    238|     // Prüfen, ob das Zeitfenster abgelaufen ist
-    239|     if (entry.resetAt <= now) {
-       |               ^
-    240|       // Zurücksetzen für ein neues Zeitfenster
-    241|       entry.count = 1;
- ❯ tests/unit/lib/rate-limiter.test.ts:106:11
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/12]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
 
 
 ```
@@ -2500,42 +2692,110 @@ TypeError: Cannot read properties of undefined (reading 'resetAt')
 ### test-unit-run
 
 ```text
-    "limiterName": "kvLimiterTest",
-    "maxRequests": 2,
-    "windowMs": 10000,
-    "resetAt": 1762931066767
-  },
-  "logLevel": "error",
-  "eventSnapshot": {
-    "type": "RATE_LIMIT_EXCEEDED",
-    "targetResource": "/api/kv",
-    "ipAddress": "127.0.0.1",
-    "timestamp": 1762931056767,
-    "details": {
-      "limiterName": "kvLimiterTest",
-      "maxRequests": 2,
-      "windowMs": 10000,
-      "resetAt": 1762931066767
-    }
+  reqId: [32m'scrape-1762936773946-ncwo1'[39m,
+  errorKind: [32m'robots_txt_blocked'[39m,
+  url: [32m'https://example.com/admin'[39m
+}
+
+stderr | tests/unit/services/ai-image-service.test.ts > AiImageService > callCustomAssistant > should throw error on run failure (status: failed)
+[2025-11-12T08:39:34.110Z] [ERROR] assistant_call_failed {
+  timestamp: {},
+  resource: [32m'ai-image-service'[39m,
+  action: [32m'assistant_call_failed'[39m,
+  metadata: { error: [32m'Thread creation returned no id'[39m }
+}
+
+stderr | tests/unit/services/ai-image-service.test.ts > AiImageService > callCustomAssistant > should throw error if no assistant message
+[2025-11-12T08:39:34.128Z] [ERROR] assistant_call_failed {
+  timestamp: {},
+  resource: [32m'ai-image-service'[39m,
+  action: [32m'assistant_call_failed'[39m,
+  metadata: { error: [32m'Thread creation returned no id'[39m }
+}
+
+stderr | tests/unit/services/ai-image-service.test.ts > AiImageService > callCustomAssistant > should throw error on network error during run creation
+[2025-11-12T08:39:34.131Z] [ERROR] assistant_call_failed {
+  timestamp: {},
+  resource: [32m'ai-image-service'[39m,
+  action: [32m'assistant_call_failed'[39m,
+  metadata: { error: [32m'Thread creation returned no id'[39m }
+}
+
+stderr | tests/unit/services/ai-image-service.test.ts > AiImageService > generate with assistant > should ignore invalid assistant suggestion and use original params
+[2025-11-12T08:39:34.143Z] [WARN] assistant_suggestion_parse_failed {
+  timestamp: {},
+  resource: [32m'ai-image-service'[39m,
+  action: [32m'assistant_suggestion_parse_failed'[39m,
+  metadata: { assistantId: [32m'asst-123'[39m }
+}
+
+stderr | tests/unit/ai-jobs-provider-mapping.test.ts > AiJobsService.runReplicate() provider error mapping > maps 401 to forbidden
+[2025-11-12T08:39:34.144Z] [WARN] replicate_error {
+  timestamp: {},
+  resource: [32m'ai-jobs-service'[39m,
+  action: [32m'replicate_error'[39m,
+  metadata: { status: [33m401[39m, provider: [32m'replicate'[39m, snippet: [32m'unauthorized'[39m }
+}
+
+stderr | tests/unit/ai-jobs-provider-mapping.test.ts > AiJobsService.runReplicate() provider error mapping > maps 403 to forbidden
+[2025-11-12T08:39:34.148Z] [WARN] replicate_error {
+  timestamp: {},
+  resource: [32m'ai-jobs-service'[39m,
+  action: [32m'replicate_error'[39m,
+  metadata: { status: [33m403[39m, provider: [32m'replicate'[39m, snippet: [32m'forbidden'[39m }
+}
+
+stderr | tests/unit/ai-jobs-provider-mapping.test.ts > AiJobsService.runReplicate() provider error mapping > maps 404 to validation_error
+[2025-11-12T08:39:34.148Z] [WARN] replicate_error {
+  timestamp: {},
+  resource: [32m'ai-jobs-service'[39m,
+  action: [32m'replicate_error'[39m,
+  metadata: { status: [33m404[39m, provider: [32m'replicate'[39m, snippet: [32m'not found'[39m }
+}
+
+stderr | tests/unit/ai-jobs-provider-mapping.test.ts > AiJobsService.runReplicate() provider error mapping > maps 422 to validation_error
+[2025-11-12T08:39:34.152Z] [WARN] replicate_error {
+  timestamp: {},
+  resource: [32m'ai-jobs-service'[39m,
+  action: [32m'replicate_error'[39m,
+  metadata: { status: [33m422[39m, provider: [32m'replicate'[39m, snippet: [32m'unprocessable'[39m }
+}
+
+stderr | tests/unit/ai-jobs-provider-mapping.test.ts > AiJobsService.runReplicate() provider error mapping > maps 500 to server_error
+[2025-11-12T08:39:34.155Z] [WARN] replicate_error {
+  timestamp: {},
+  resource: [32m'ai-jobs-service'[39m,
+  action: [32m'replicate_error'[39m,
+  metadata: { status: [33m500[39m, provider: [32m'replicate'[39m, snippet: [32m'server err'[39m }
+}
+
+stderr | tests/unit/pages/api/user/profile.test.ts > POST /api/user/profile > propagates database errors as server error response
+[2025-11-12T08:39:34.604Z] [ERROR] Error in POST /api/user/profile: Database error during update { timestamp: {}, resource: [32m'api-middleware'[39m }
+[2025-11-12T08:39:34.609Z] [ERROR] API_ERROR {
+  timestamp: {},
+  resource: [32m'security'[39m,
+  userId: [32m'user-123'[39m,
+  ipAddress: [32m'127.0.0.1'[39m,
+  securityEventType: [32m'API_ERROR'[39m,
+  details: {
+    endpoint: [32m'/api/user/profile'[39m,
+    method: [32m'POST'[39m,
+    error: [32m'Database error during update'[39m,
+    stack: [32m'Error: Database error during update\n'[39m +
+      [32m'    at /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/tests/unit/pages/api/user/profile.test.ts:199:21\n'[39m +
+      [32m'    at file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n'[39m +
+      [32m'    at file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n'[39m +
+      [32m'    at file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n'[39m +
+      [32m'    at new Promise (<anonymous>)\n'[39m +
+      [32m'    at runWithTimeout (file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n'[39m +
+      [32m'    at runTest (file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)\n'[39m +
+      [32m'    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n'[39m +
+      [32m'    at runSuite (file://…'[39m
   }
 }
 
-stderr | tests/unit/ai-image/aiimage-retry.test.ts > AiImageService - Workers AI tiny output retry > retries once on tiny output and succeeds with larger image
-[2025-11-12T07:04:17.371Z] [WARN] workers_ai_tiny_output_retry {
-  timestamp: {},
-  resource: [32m'ai-image-service'[39m,
-  action: [32m'workers_ai_tiny_output_retry'[39m,
-  metadata: { model: [32m'@cf/runwayml/stable-diffusion-v1-5-img2img'[39m, bytes: [33m1000[39m }
-}
-
-stderr | tests/unit/i18n.test.ts > i18n Utils > should return fallback for non-existing key
-Key "non.existing.key" not found in locale "de". Falling back to English.
-
-stderr | tests/unit/i18n.test.ts > i18n Utils > should fallback to English for unknown locale (simulated)
-Locale "xx" not found. Using English as fallback.
-
 stderr | tests/unit/ai-image-provider-mapping.test.ts > AiImageService.runReplicate() provider error mapping > maps 401 to forbidden
-[2025-11-12T07:04:18.575Z] [WARN] replicate_error {
+[2025-11-12T08:39:35.253Z] [WARN] replicate_error {
   timestamp: {},
   resource: [32m'ai-image-service'[39m,
   action: [32m'replicate_error'[39m,
@@ -2548,7 +2808,7 @@ stderr | tests/unit/ai-image-provider-mapping.test.ts > AiImageService.runReplic
 }
 
 stderr | tests/unit/ai-image-provider-mapping.test.ts > AiImageService.runReplicate() provider error mapping > maps 403 to forbidden
-[2025-11-12T07:04:18.584Z] [WARN] replicate_error {
+[2025-11-12T08:39:35.256Z] [WARN] replicate_error {
   timestamp: {},
   resource: [32m'ai-image-service'[39m,
   action: [32m'replicate_error'[39m,
@@ -2561,7 +2821,7 @@ stderr | tests/unit/ai-image-provider-mapping.test.ts > AiImageService.runReplic
 }
 
 stderr | tests/unit/ai-image-provider-mapping.test.ts > AiImageService.runReplicate() provider error mapping > maps 404 to validation_error
-[2025-11-12T07:04:18.588Z] [WARN] replicate_error {
+[2025-11-12T08:39:35.257Z] [WARN] replicate_error {
   timestamp: {},
   resource: [32m'ai-image-service'[39m,
   action: [32m'replicate_error'[39m,
@@ -2574,7 +2834,7 @@ stderr | tests/unit/ai-image-provider-mapping.test.ts > AiImageService.runReplic
 }
 
 stderr | tests/unit/ai-image-provider-mapping.test.ts > AiImageService.runReplicate() provider error mapping > maps 422 to validation_error
-[2025-11-12T07:04:18.589Z] [WARN] replicate_error {
+[2025-11-12T08:39:35.258Z] [WARN] replicate_error {
   timestamp: {},
   resource: [32m'ai-image-service'[39m,
   action: [32m'replicate_error'[39m,
@@ -2587,7 +2847,7 @@ stderr | tests/unit/ai-image-provider-mapping.test.ts > AiImageService.runReplic
 }
 
 stderr | tests/unit/ai-image-provider-mapping.test.ts > AiImageService.runReplicate() provider error mapping > maps 500 to server_error
-[2025-11-12T07:04:18.592Z] [WARN] replicate_error {
+[2025-11-12T08:39:35.258Z] [WARN] replicate_error {
   timestamp: {},
   resource: [32m'ai-image-service'[39m,
   action: [32m'replicate_error'[39m,
@@ -2599,8 +2859,58 @@ stderr | tests/unit/ai-image-provider-mapping.test.ts > AiImageService.runReplic
   }
 }
 
+stderr | tests/unit/lib/rate-limiter-kv.test.ts > KV-backed rate limiter > persists counters across limiter instances via KV
+[2025-11-12T08:39:35.245Z] [ERROR] Security Event: RATE_LIMIT_EXCEEDED
+Context: {
+  "ipAddress": "127.0.0.1",
+  "targetResource": "/api/kv",
+  "securityEventType": "RATE_LIMIT_EXCEEDED",
+  "originalDetails": {
+    "limiterName": "kvLimiterTest",
+    "maxRequests": 2,
+    "windowMs": 10000,
+    "resetAt": 1762936785245
+  },
+  "logLevel": "error",
+  "eventSnapshot": {
+    "type": "RATE_LIMIT_EXCEEDED",
+    "targetResource": "/api/kv",
+    "ipAddress": "127.0.0.1",
+    "timestamp": 1762936775245,
+    "details": {
+      "limiterName": "kvLimiterTest",
+      "maxRequests": 2,
+      "windowMs": 10000,
+      "resetAt": 1762936785245
+    }
+  }
+}
 
-⎯⎯⎯⎯⎯⎯ Failed Tests 12 ⎯⎯⎯⎯⎯⎯⎯
+stderr | tests/unit/ai-image/aiimage-retry.test.ts > AiImageService - Workers AI tiny output retry > retries once on tiny output and succeeds with larger image
+[2025-11-12T08:39:36.611Z] [WARN] workers_ai_tiny_output_retry {
+  timestamp: {},
+  resource: [32m'ai-image-service'[39m,
+  action: [32m'workers_ai_tiny_output_retry'[39m,
+  metadata: { model: [32m'@cf/runwayml/stable-diffusion-v1-5-img2img'[39m, bytes: [33m1000[39m }
+}
+
+stderr | tests/unit/utils/logger-transport.smoke.test.ts > logger transports smoke > routes SecurityLogger through transport with redaction
+[2025-11-12T08:39:37.122Z] [ERROR] AUTH_FAILURE {
+  timestamp: {},
+  resource: [32m'security'[39m,
+  userId: [32m'u_9'[39m,
+  securityEventType: [32m'AUTH_FAILURE'[39m,
+  details: { reason: [32m'invalid_password'[39m, password: [32m'[FILTERED]'[39m }
+}
+
+stderr | tests/unit/i18n.test.ts > i18n Utils > should return fallback for non-existing key
+Key "non.existing.key" not found in locale "de". Falling back to English.
+
+stderr | tests/unit/i18n.test.ts > i18n Utils > should fallback to English for unknown locale (simulated)
+Locale "xx" not found. Using English as fallback.
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
 
  FAIL  |unit| tests/unit/blog-sorting.spec.ts > Blog sorting by updatedDate ?? pubDate (desc) > BlogService.getBlogIndexData returns posts sorted by updatedDate first, then pubDate desc
 AssertionError: expected 'updated-new' to be 'UpdatedNew' // Object.is equality
@@ -2616,94 +2926,41 @@ Received: [31m"[7mu[27mpdated[7m-n[27mew"[39m
     148|     expect(titles).toContain('NewPublished');
     149|     expect(titles).toContain('Old');
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/12]⎯
-
- FAIL  |unit| tests/unit/prompt-enhancer-service.test.ts > PromptEnhancerService > enhance > should enhance input successfully for guest with quota available
-AssertionError: expected "spy" to be called with arguments: [ 'enhance_completed', Any<Object> ][90m
-
-Number of calls: [1m0[22m
-[39m
- ❯ tests/unit/prompt-enhancer-service.test.ts:171:31
-    169|       expect(result.usage.used).toBe(1);
-    170|       expect(result.usage.limit).toBe(5);
-    171|       expect(mockLogger.info).toHaveBeenCalledWith('enhance_completed'…
-       |                               ^
-    172|     });
-    173| 
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/12]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
 
  FAIL  |unit| tests/unit/prompt-enhancer-service.test.ts > PromptEnhancerService > enhance > should throw quota exceeded error when limit reached
 AssertionError: expected "spy" to be called with arguments: [ 'enhance_failed', …(1) ][90m
 
-Number of calls: [1m0[22m
+Received: 
+
+[1m  1st spy call:
+
+[22m[2m  [[22m
+[2m    "enhance_failed",[22m
+[32m-   ObjectContaining {[90m
+[31m+   {[90m
+[31m+     "metadata": {[90m
+[2m        "errorKind": "quota_exceeded",[22m
+[31m+       "inputLength": 31,[90m
+[31m+       "ownerIdSuffix": "t-id",[90m
+[31m+       "ownerType": "guest",[90m
+[31m+     },[90m
+[31m+     "requestId": "enhance-1762936767784-7ayx5",[90m
+[2m    },[22m
+[2m  ][22m
+[39m[90m
+
+Number of calls: [1m1[22m
 [39m
- ❯ tests/unit/prompt-enhancer-service.test.ts:200:32
-    198|         service.enhance(defaultInput, defaultOptions, 'guest', 'test-g…
-    199|       ).rejects.toThrow('Quota exceeded. Used 5/5');
-    200|       expect(mockLogger.error).toHaveBeenCalledWith('enhance_failed', …
+ ❯ tests/unit/prompt-enhancer-service.test.ts:205:32
+    203|         service.enhance(defaultInput, defaultOptions, 'guest', 'test-g…
+    204|       ).rejects.toThrow('Quota exceeded. Used 5/5');
+    205|       expect(mockLogger.error).toHaveBeenCalledWith('enhance_failed', …
        |                                ^
-    201|     });
-    202| 
+    206|     });
+    207| 
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/12]⎯
-
- FAIL  |unit| tests/unit/api/account-delete.test.ts > DELETE /api/user/account > returns subscription_active when active subscriptions exist without cancel flag
-AssertionError: expected 500 to be 400 // Object.is equality
-
-[32m- Expected[39m
-[31m+ Received[39m
-
-[32m- 400[39m
-[31m+ 500[39m
-
- ❯ tests/unit/api/account-delete.test.ts:117:29
-    115|     );
-    116| 
-    117|     expect(response.status).toBe(400);
-       |                             ^
-    118|     const payload: any = await response.json();
-    119|     expect(payload.success).toBe(false);
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/12]⎯
-
- FAIL  |unit| tests/unit/api/account-delete.test.ts > DELETE /api/user/account > cancels subscription when requested and proceeds with deletion
-AssertionError: expected 500 to be 204 // Object.is equality
-
-[32m- Expected[39m
-[31m+ Received[39m
-
-[32m- 204[39m
-[31m+ 500[39m
-
- ❯ tests/unit/api/account-delete.test.ts:155:29
-    153|     );
-    154| 
-    155|     expect(response.status).toBe(204);
-       |                             ^
-    156|     expect(stripeUpdateMock).toHaveBeenCalledTimes(2);
-    157|     expect(stripeUpdateMock).toHaveBeenCalledWith('sub_789', { cancel_…
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/12]⎯
-
- FAIL  |unit| tests/unit/api/account-delete.test.ts > DELETE /api/user/account > deletes account immediately when no active subscriptions exist
-AssertionError: expected 500 to be 204 // Object.is equality
-
-[32m- Expected[39m
-[31m+ Received[39m
-
-[32m- 204[39m
-[31m+ 500[39m
-
- ❯ tests/unit/api/account-delete.test.ts:173:29
-    171|     );
-    172| 
-    173|     expect(response.status).toBe(204);
-       |                             ^
-    174|     expect(stripeUpdateMock).not.toHaveBeenCalled();
-    175|     expect(db.batch).toHaveBeenCalled();
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/12]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
 
  FAIL  |unit| tests/unit/lib/ai-image-service.test.ts > AiImageService > getUsage > delegates to rolling usage helper when KV v2 is enabled
 AssertionError: expected "spy" to be called with arguments: [ { get: [Function spy], …(1) }, …(1) ][90m
@@ -2732,72 +2989,7 @@ Number of calls: [1m1[22m
      82|       expect(result).toEqual({ used: 4, limit: 10, resetAt: 1700000 * …
      83|     });
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/12]⎯
-
- FAIL  |unit| tests/unit/lib/rate-limiter.test.ts > createRateLimiter > stores entries using ip and user id
-TypeError: Cannot read properties of undefined (reading 'resetAt')
- ❯ rateLimitMiddleware src/lib/rate-limiter.ts:239:15
-    237| 
-    238|     // Prüfen, ob das Zeitfenster abgelaufen ist
-    239|     if (entry.resetAt <= now) {
-       |               ^
-    240|       // Zurücksetzen für ein neues Zeitfenster
-    241|       entry.count = 1;
- ❯ tests/unit/lib/rate-limiter.test.ts:49:11
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/12]⎯
-
- FAIL  |unit| tests/unit/lib/rate-limiter.test.ts > createRateLimiter > defaults to anonymous user when no session is present
-TypeError: Cannot read properties of undefined (reading 'resetAt')
- ❯ rateLimitMiddleware src/lib/rate-limiter.ts:239:15
-    237| 
-    238|     // Prüfen, ob das Zeitfenster abgelaufen ist
-    239|     if (entry.resetAt <= now) {
-       |               ^
-    240|       // Zurücksetzen für ein neues Zeitfenster
-    241|       entry.count = 1;
- ❯ tests/unit/lib/rate-limiter.test.ts:60:11
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/12]⎯
-
- FAIL  |unit| tests/unit/lib/rate-limiter.test.ts > createRateLimiter > returns 429 once the limit is exceeded and logs the event
-TypeError: Cannot read properties of undefined (reading 'resetAt')
- ❯ rateLimitMiddleware src/lib/rate-limiter.ts:239:15
-    237| 
-    238|     // Prüfen, ob das Zeitfenster abgelaufen ist
-    239|     if (entry.resetAt <= now) {
-       |               ^
-    240|       // Zurücksetzen für ein neues Zeitfenster
-    241|       entry.count = 1;
- ❯ tests/unit/lib/rate-limiter.test.ts:70:11
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/12]⎯
-
- FAIL  |unit| tests/unit/lib/rate-limiter.test.ts > createRateLimiter > resets counters after the window elapses
-TypeError: Cannot read properties of undefined (reading 'resetAt')
- ❯ rateLimitMiddleware src/lib/rate-limiter.ts:239:15
-    237| 
-    238|     // Prüfen, ob das Zeitfenster abgelaufen ist
-    239|     if (entry.resetAt <= now) {
-       |               ^
-    240|       // Zurücksetzen für ein neues Zeitfenster
-    241|       entry.count = 1;
- ❯ tests/unit/lib/rate-limiter.test.ts:91:11
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/12]⎯
-
- FAIL  |unit| tests/unit/lib/rate-limiter.test.ts > createRateLimiter > cleans expired entries via the interval cleanup
-TypeError: Cannot read properties of undefined (reading 'resetAt')
- ❯ rateLimitMiddleware src/lib/rate-limiter.ts:239:15
-    237| 
-    238|     // Prüfen, ob das Zeitfenster abgelaufen ist
-    239|     if (entry.resetAt <= now) {
-       |               ^
-    240|       // Zurücksetzen für ein neues Zeitfenster
-    241|       entry.count = 1;
- ❯ tests/unit/lib/rate-limiter.test.ts:106:11
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/12]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
 
 
 ```
@@ -2805,6 +2997,24 @@ TypeError: Cannot read properties of undefined (reading 'resetAt')
 ### typecheck-src
 
 ```text
+[typecheck:src] $ npm run typecheck:src
+
+> evolution-hub@0.0.1 typecheck:src
+> tsc -p tsconfig.src.json --noEmit
+
+src/pages/api/testing/evaluate/next/run.ts(8,10): error TS2305: Module '"@/lib/rate-limiter"' has no exported member 'webEvalBrowserLimiter'.
+[typecheck:src] $ npm run typecheck:src
+
+> evolution-hub@0.0.1 typecheck:src
+> tsc -p tsconfig.src.json --noEmit
+
+src/pages/api/testing/evaluate/next/run.ts(8,10): error TS2305: Module '"@/lib/rate-limiter"' has no exported member 'webEvalBrowserLimiter'.
+[typecheck:src] $ npm run typecheck:src
+
+> evolution-hub@0.0.1 typecheck:src
+> tsc -p tsconfig.src.json --noEmit
+
+src/pages/api/testing/evaluate/next/run.ts(8,10): error TS2305: Module '"@/lib/rate-limiter"' has no exported member 'webEvalBrowserLimiter'.
 [typecheck:src] $ npm run typecheck:src
 
 > evolution-hub@0.0.1 typecheck:src

@@ -233,7 +233,14 @@ export function createRateLimiter(config: RateLimitConfig): RateLimiter {
     }
 
     // Fallback: In-Memory
-    const entry = memStore[key];
+    let entry = memStore[key];
+
+    // Initialisierung, wenn noch kein Eintrag existiert
+    if (!entry) {
+      entry = { count: 1, resetAt: now + config.windowMs };
+      memStore[key] = entry;
+      return; // Erste Anfrage innerhalb des Fensters
+    }
 
     // Prüfen, ob das Zeitfenster abgelaufen ist
     if (entry.resetAt <= now) {

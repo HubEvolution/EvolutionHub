@@ -20,8 +20,8 @@
     "code": 0
   },
   "lint(strict)": {
-    "ok": false,
-    "code": 1
+    "ok": true,
+    "code": 0
   },
   "typecheck:src": {
     "ok": false,

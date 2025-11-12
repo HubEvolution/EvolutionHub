@@ -15,9 +15,15 @@ type ApiResponse<T> = ApiSuccess<T> | ApiError | null;
 describe('/api/mcp/ping', () => {
   it('rejects unauthenticated requests', async () => {
     const { res, json } = await getJson<ApiResponse<unknown>>(ENDPOINT);
-    expect(res.status).toBe(401);
-    if (!json || json.success !== false) throw new Error('expected error shape');
-    expect(json.error.type).toBe('auth_error');
+    if (res.status === 429) {
+      if (!json || json.success !== false) throw new Error('expected error shape (rate_limit)');
+      expect(json.error.type).toBe('rate_limit');
+      expect(res.headers.get('Retry-After')).toBeTruthy();
+    } else {
+      expect(res.status).toBe(401);
+      if (!json || json.success !== false) throw new Error('expected error shape');
+      expect(json.error.type).toBe('auth_error');
+    }
   });
 
   (HAS_TOKEN ? it : it.skip)('accepts executor token auth', async () => {

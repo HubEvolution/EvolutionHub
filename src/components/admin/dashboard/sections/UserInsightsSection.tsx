@@ -201,7 +201,7 @@ const UserInsightsSection: React.FC = () => {
             </button>
           </div>
         </div>
-        <div className="mt-3 overflow-x-auto rounded-md border border-white/10">
+        <div className="mt-3 overflow-x-auto max-h-[480px] overflow-y-auto rounded-md border border-white/10">
           <table className="min-w-full divide-y divide-white/10 text-sm text-white/80">
             <thead className="bg-white/5 text-xs uppercase tracking-wide text-white/60">
               <tr>

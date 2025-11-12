@@ -28,3 +28,18 @@
 > evolution-hub@0.0.1 docs:lint
 > markdownlint -c .markdownlint.json "docs/**/*.md"
 
+[docs:lint] $ npm run docs:lint
+
+> evolution-hub@0.0.1 docs:lint
+> markdownlint -c .markdownlint.json "docs/**/*.md"
+
+[docs:lint] $ npm run docs:lint
+
+> evolution-hub@0.0.1 docs:lint
+> markdownlint -c .markdownlint.json "docs/**/*.md"
+
+[docs:lint] $ npm run docs:lint
+
+> evolution-hub@0.0.1 docs:lint
+> markdownlint -c .markdownlint.json "docs/**/*.md"
+

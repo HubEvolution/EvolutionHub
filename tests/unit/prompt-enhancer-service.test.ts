@@ -1,17 +1,22 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { PromptEnhancerService, type EnhanceInput, type EnhanceOptions } from '@/lib/services/prompt-enhancer-service';
 
-const mockLogger = {
-  debug: vi.fn(),
-  info: vi.fn(),
-  error: vi.fn()
-};
+// Hoisted logger mock so the factory is mocked before the service module evaluates
+const { mockLogger } = vi.hoisted(() => ({
+  mockLogger: {
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+  },
+}));
 
 vi.mock('@/server/utils/logger-factory', () => ({
   loggerFactory: {
-    createLogger: vi.fn(() => mockLogger)
-  }
+    createLogger: vi.fn(() => mockLogger),
+  },
 }));
+
+import { PromptEnhancerService, type EnhanceInput, type EnhanceOptions } from '@/lib/services/prompt-enhancer-service';
 
 describe('PromptEnhancerService', () => {
   let service: PromptEnhancerService;

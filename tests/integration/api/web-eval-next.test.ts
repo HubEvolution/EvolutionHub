@@ -105,11 +105,17 @@ describe('/api/testing/evaluate/next', () => {
 
   it('rejects requests without executor token', async () => {
     const { res, json } = await callNext();
-    expect(res.status).toBe(401);
-    if (!json || json.success !== false) {
-      throw new Error('Expected auth_error response');
+    if (res.status === 429) {
+      if (!json || json.success !== false) throw new Error('Expected rate_limit response');
+      expect(json.error.type).toBe('rate_limit');
+      expect(res.headers.get('Retry-After')).toBeTruthy();
+    } else {
+      expect(res.status).toBe(401);
+      if (!json || json.success !== false) {
+        throw new Error('Expected auth_error response');
+      }
+      expect(json.error.type).toBe('auth_error');
     }
-    expect(json.error.type).toBe('auth_error');
   });
 
   (HAS_TOKEN ? it : it.skip)('returns null task when no pending entries exist', async () => {

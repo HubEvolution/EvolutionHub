@@ -57,6 +57,7 @@ declare module '@/lib/rate-limiter' {
   export const voiceTranscribeLimiter: RateLimiter;
   export const contactFormLimiter: RateLimiter;
   export const webEvalTaskLimiter: RateLimiter;
+  export const webEvalBrowserLimiter: RateLimiter;
 }
 
 declare module '@/lib/security/csrf' {

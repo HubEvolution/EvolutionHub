@@ -5,12 +5,19 @@ import {
   createApiError,
   createMethodNotAllowed,
 } from '@/lib/api-middleware';
+import { createRateLimiter } from '@/lib/rate-limiter';
 
 /**
  * Health check endpoint for deployment verification
  * Tests connectivity to critical infrastructure: D1, KV, R2
  * Now includes basic security headers and structured logging
  */
+const healthLimiter = createRateLimiter({
+  maxRequests: 60,
+  windowMs: 60 * 1000,
+  name: 'healthCheck',
+});
+
 export const GET = withApiMiddleware(
   async (context: APIContext) => {
     const { locals } = context;
@@ -92,16 +99,7 @@ export const GET = withApiMiddleware(
   },
   {
     // Health check should have minimal rate limiting
-    rateLimiter: (() => {
-      // Import at runtime-safe path; type is provided via src/types shims for src-only check
-
-      const { createRateLimiter } = require('@/lib/rate-limiter');
-      return createRateLimiter({
-        maxRequests: 60,
-        windowMs: 60 * 1000,
-        name: 'healthCheck',
-      });
-    })(),
+    rateLimiter: healthLimiter,
     // Disable CSRF for health checks (monitoring systems may call this)
     enforceCsrfToken: false,
     // Disable auto-logging for health checks to reduce noise

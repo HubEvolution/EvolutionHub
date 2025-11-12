@@ -348,7 +348,7 @@ async function handler(context: APIContext): Promise<Response> {
           return createApiError('validation_error', 'insufficient_quota');
         }
       }
-    } catch (e) {
+    } catch (_e) {
       // If pre-check logic itself fails, return a generic server_error to avoid accidental charges later
       const startedAt = new Date();
       const finishedAt = new Date();

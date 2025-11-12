@@ -21,8 +21,14 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Use npm 11 via Corepack
+        run: corepack prepare npm@11.0.0 --activate
 
       - name: Install
         run: npm ci

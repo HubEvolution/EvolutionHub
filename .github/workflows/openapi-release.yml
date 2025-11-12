@@ -1,6 +1,7 @@
 name: OpenAPI Redoc Release
 
 on:
+  workflow_dispatch:
   release:
     types: [published]
 
@@ -13,8 +14,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'npm'
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Use npm 11 via Corepack
+        run: corepack prepare npm@11.0.0 --activate
 
       - name: Validate OpenAPI (swagger-cli)
         run: npx swagger-cli validate openapi.yaml
@@ -23,6 +30,7 @@ jobs:
         run: npx redoc-cli build openapi.yaml -o api-docs.html
 
       - name: Attach Redoc to Release
+        if: ${{ github.event_name == 'release' }}
         uses: softprops/action-gh-release@v2
         with:
           files: api-docs.html

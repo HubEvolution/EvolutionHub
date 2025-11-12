@@ -34,3 +34,21 @@
 > node ./scripts/security/scan-secrets.mjs
 
 [security:scan] OK — no obvious secrets detected.
+[security:scan] $ npm run security:scan
+
+> evolution-hub@0.0.1 security:scan
+> node ./scripts/security/scan-secrets.mjs
+
+[security:scan] OK — no obvious secrets detected.
+[security:scan] $ npm run security:scan
+
+> evolution-hub@0.0.1 security:scan
+> node ./scripts/security/scan-secrets.mjs
+
+[security:scan] OK — no obvious secrets detected.
+[security:scan] $ npm run security:scan
+
+> evolution-hub@0.0.1 security:scan
+> node ./scripts/security/scan-secrets.mjs
+
+[security:scan] OK — no obvious secrets detected.
