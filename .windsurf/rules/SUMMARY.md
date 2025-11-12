@@ -232,7 +232,7 @@ Die projektspezifischen Konfigurationen des EvolutionHub-Repositories sind **sol
 
 ### Links zu Haupt-Dokumenten
 - **Vollständiger Analyse-Report:** [`docs/architecture/configuration-analysis-2025-11-12.md`](../docs/architecture/configuration-analysis-2025-11-12.md)
-- **Rules-Index:** [`.windsurf/rules/README.md`](./.windsurf/rules/README.md)
+- **Rules-Index:** [`.windsurf/rules/README.md`](./README.md)
 - **Root AGENTS.md:** [`/AGENTS.md`](../../AGENTS.md)
 
 ### Template-Vorschau (verkürzt)
