@@ -52,3 +52,9 @@ Documentation registry generated for 579 files at docs/meta/registry.json
 > node ./scripts/doc-inventory.mjs
 
 Documentation registry generated for 579 files at docs/meta/registry.json
+[docs:inventory] $ npm run docs:inventory
+
+> evolution-hub@0.0.1 docs:inventory
+> node ./scripts/doc-inventory.mjs
+
+Documentation registry generated for 586 files at docs/meta/registry.json

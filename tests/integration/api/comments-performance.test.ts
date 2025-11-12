@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { seedCommentsPerformance } from './__fixtures__/comments-performance';
+import { safeParseJson } from '../../shared/http';
 
 const BASE = (process.env.TEST_BASE_URL || 'http://127.0.0.1:8787').replace(/\/$/, '');
 const ADMIN_COOKIE = process.env.TEST_ADMIN_COOKIE || 'session_id=e2e-admin-session-0001';
@@ -11,12 +12,7 @@ async function get(path: string, init: RequestInit = {}) {
   });
   const res = await fetch(`${BASE}${path}`, { ...init, headers, redirect: 'manual' });
   const text = res.status !== 302 ? await res.text() : '';
-  let json: any = null;
-  try {
-    json = text ? JSON.parse(text) : null;
-  } catch {
-    /* ignore non-JSON */
-  }
+  let json: any = text ? safeParseJson<any>(text) : null;
   return { res, json } as const;
 }
 

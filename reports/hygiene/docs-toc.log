@@ -1744,3 +1744,197 @@ Found IMPLEMENTATION_COMPLETE.md, README.md, guidelines.md, roadmap.md, spec.md,
 "docs/tools/webscraper/testing.md" is up to date
 
 Everything is OK.
+[docs:toc] $ npm run docs:toc
+
+> evolution-hub@0.0.1 docs:toc
+> doctoc docs --update-only --notitle
+
+
+DocToccing "docs" and its sub directories for github.com.
+
+Found AUDIT.md, README.md, SECURITY.md, SETUP.md, animation.md, architecture.md, cheat-sheet.md, content.md, db_schema_update.md, i18n.md, seo.md in "docs"
+
+Found README.md, admin_api.md, ai-image_api.md, api-guidelines.md, api-overview.md, auth_api.md, billing_api.md, comments_api.md, dashboard_api.md, error-handling.md, known-issues.md, projects_api.md, prompt-enhance.md, public_api.md, rate-limiting-api.md, user_api.md, voice_api.md, webscraper_api.md in "docs/api"
+
+Found nothing in "docs/api/openapi"
+
+Found nothing in "docs/api/openapi/paths"
+
+Found README.md, ai-image-enhancer.md, ai-orchestrator-open-questions.md, api-middleware-inventory.md, auth-architecture.md, auth-flow.md, data-flow.md, database-schema.md, locale-middleware.md, prompt-enhancer.md, system-overview.md, voice-visualizer-transcriptor.md in "docs/architecture"
+
+Found 0000-adr-template.md, 0001-astro-cloudflare-stack.md, 0002-cloudflare-architecture.md, 0003-astro-frontend-architecture.md, 0004-database-schema.md, 0005-auth-route-locale-normalisierung.md, 0006-dev-echo-non-prod.md in "docs/architecture/adrs"
+
+Found 0001-jwt-authentication.md, 0002-jwt-authentication.md, 0003-database-schema.md in "docs/architecture/adrs/deprecated"
+
+Found BEWERTUNG_LOGIKREVIEW_IMAGE-ENHANCER_USAGE-PILL_PLANANZEIGE.md in "docs/architecture/reviews"
+
+Found README.md, documentation-gap-analysis.md, status-assessment.md in "docs/archive"
+
+Found nothing in "docs/business"
+
+Found ai-operations-cost-report.md in "docs/business/infra-costs"
+
+Found ai-enhancer-licensing.md in "docs/compliance"
+
+Found image-enhancer-mvp.md in "docs/deployment"
+
+Found README.md, api-validation.md, bugfix-session-cookie-fallback.md, ci-cd.md, debug-panel-usage.md, docs-style-guide.md, hybrid-logging-system.md, icon-guidelines.md, inline-ts-refactor.md, local-development.md, stripe-setup.md, stytch-oauth-dev-guide.md, testing-guidelines.md, typescript-integration.md in "docs/development"
+
+Found imag-enhancer-help-ui.md in "docs/development/prs"
+
+Found admin-notifications.md, blog+commentsystem-plan.md, pricing-system.md, production-logging.md in "docs/features"
+
+Found README.md, aos-coordinator.md, card-components.md, coming-soon.md, components.md, design-system.md, entitlements-ui-gating.md, header-scroll-animation.md, imag-enhancer-ui-upgrade.md, toast-notifications.md, ui-components.md, ui-ux.md in "docs/frontend"
+
+Found README.md, content-prompts.md, prompts.md, r2-optimization-plan.md in "docs/lead-magnets"
+
+Found nothing in "docs/media"
+
+Found nothing in "docs/meta"
+
+Found README.md, ai-generate-kv-limiter-plan.md, cloudflare-cache-rules.md, deployment-guide.md, monitoring.md, runbook-image-enhancer-go-live.md in "docs/ops"
+
+Found nothing in "docs/ops/runbooks"
+
+Found auth-envs-and-secrets.md, environment.md in "docs/reference"
+
+Found project-rules-deltas.md, project-structure.md in "docs/rules"
+
+Found logging-pipeline.md in "docs/runbooks"
+
+Found README.md, improvements.md, rate_limiting.md, security_headers.md in "docs/security"
+
+Found README.md, coverage-roadmap-to-95.md, integration-hardening.md, testing-strategy.md, web-eval-executor.md in "docs/testing"
+
+Found debug-panel.md, image-enhancer.md, prompt-enhancer.en.md, prompt-enhancer.md in "docs/tools"
+
+Found IMPLEMENTATION_COMPLETE.md, README.md, guidelines.md, roadmap.md, spec.md, testing.md in "docs/tools/webscraper"
+--update-only flag is enabled. Only updating files that already have a TOC.
+
+==================
+
+"docs/AUDIT.md" is up to date
+"docs/README.md" is up to date
+"docs/SECURITY.md" is up to date
+"docs/SETUP.md" is up to date
+"docs/animation.md" is up to date
+"docs/architecture.md" is up to date
+"docs/cheat-sheet.md" is up to date
+"docs/content.md" is up to date
+"docs/db_schema_update.md" is up to date
+"docs/i18n.md" is up to date
+"docs/seo.md" is up to date
+"docs/api/README.md" is up to date
+"docs/api/admin_api.md" is up to date
+"docs/api/ai-image_api.md" is up to date
+"docs/api/api-guidelines.md" is up to date
+"docs/api/api-overview.md" is up to date
+"docs/api/auth_api.md" is up to date
+"docs/api/billing_api.md" is up to date
+"docs/api/comments_api.md" is up to date
+"docs/api/dashboard_api.md" is up to date
+"docs/api/error-handling.md" is up to date
+"docs/api/known-issues.md" is up to date
+"docs/api/projects_api.md" is up to date
+"docs/api/prompt-enhance.md" is up to date
+"docs/api/public_api.md" is up to date
+"docs/api/rate-limiting-api.md" is up to date
+"docs/api/user_api.md" is up to date
+"docs/api/voice_api.md" is up to date
+"docs/api/webscraper_api.md" is up to date
+"docs/architecture/README.md" is up to date
+"docs/architecture/ai-image-enhancer.md" is up to date
+"docs/architecture/ai-orchestrator-open-questions.md" is up to date
+"docs/architecture/api-middleware-inventory.md" is up to date
+"docs/architecture/auth-architecture.md" is up to date
+"docs/architecture/auth-flow.md" is up to date
+"docs/architecture/data-flow.md" is up to date
+"docs/architecture/database-schema.md" is up to date
+"docs/architecture/locale-middleware.md" is up to date
+"docs/architecture/prompt-enhancer.md" is up to date
+"docs/architecture/system-overview.md" is up to date
+"docs/architecture/voice-visualizer-transcriptor.md" is up to date
+"docs/architecture/adrs/0000-adr-template.md" is up to date
+"docs/architecture/adrs/0001-astro-cloudflare-stack.md" is up to date
+"docs/architecture/adrs/0002-cloudflare-architecture.md" is up to date
+"docs/architecture/adrs/0003-astro-frontend-architecture.md" is up to date
+"docs/architecture/adrs/0004-database-schema.md" is up to date
+"docs/architecture/adrs/0005-auth-route-locale-normalisierung.md" is up to date
+"docs/architecture/adrs/0006-dev-echo-non-prod.md" is up to date
+"docs/architecture/adrs/deprecated/0001-jwt-authentication.md" is up to date
+"docs/architecture/adrs/deprecated/0002-jwt-authentication.md" is up to date
+"docs/architecture/adrs/deprecated/0003-database-schema.md" is up to date
+"docs/architecture/reviews/BEWERTUNG_LOGIKREVIEW_IMAGE-ENHANCER_USAGE-PILL_PLANANZEIGE.md" is up to date
+"docs/archive/README.md" is up to date
+"docs/archive/documentation-gap-analysis.md" is up to date
+"docs/archive/status-assessment.md" is up to date
+"docs/business/infra-costs/ai-operations-cost-report.md" is up to date
+"docs/compliance/ai-enhancer-licensing.md" is up to date
+"docs/deployment/image-enhancer-mvp.md" is up to date
+"docs/development/README.md" is up to date
+"docs/development/api-validation.md" is up to date
+"docs/development/bugfix-session-cookie-fallback.md" is up to date
+"docs/development/ci-cd.md" is up to date
+"docs/development/debug-panel-usage.md" is up to date
+"docs/development/docs-style-guide.md" is up to date
+"docs/development/hybrid-logging-system.md" is up to date
+"docs/development/icon-guidelines.md" is up to date
+"docs/development/inline-ts-refactor.md" is up to date
+"docs/development/local-development.md" is up to date
+"docs/development/stripe-setup.md" is up to date
+"docs/development/stytch-oauth-dev-guide.md" is up to date
+"docs/development/testing-guidelines.md" is up to date
+"docs/development/typescript-integration.md" is up to date
+"docs/development/prs/imag-enhancer-help-ui.md" is up to date
+"docs/features/admin-notifications.md" is up to date
+"docs/features/blog+commentsystem-plan.md" is up to date
+"docs/features/pricing-system.md" is up to date
+"docs/features/production-logging.md" is up to date
+"docs/frontend/README.md" is up to date
+"docs/frontend/aos-coordinator.md" is up to date
+"docs/frontend/card-components.md" is up to date
+"docs/frontend/coming-soon.md" is up to date
+"docs/frontend/components.md" is up to date
+"docs/frontend/design-system.md" is up to date
+"docs/frontend/entitlements-ui-gating.md" is up to date
+"docs/frontend/header-scroll-animation.md" is up to date
+"docs/frontend/imag-enhancer-ui-upgrade.md" is up to date
+"docs/frontend/toast-notifications.md" is up to date
+"docs/frontend/ui-components.md" is up to date
+"docs/frontend/ui-ux.md" is up to date
+"docs/lead-magnets/README.md" is up to date
+"docs/lead-magnets/content-prompts.md" is up to date
+"docs/lead-magnets/prompts.md" is up to date
+"docs/lead-magnets/r2-optimization-plan.md" is up to date
+"docs/ops/README.md" is up to date
+"docs/ops/ai-generate-kv-limiter-plan.md" is up to date
+"docs/ops/cloudflare-cache-rules.md" is up to date
+"docs/ops/deployment-guide.md" is up to date
+"docs/ops/monitoring.md" is up to date
+"docs/ops/runbook-image-enhancer-go-live.md" is up to date
+"docs/reference/auth-envs-and-secrets.md" is up to date
+"docs/reference/environment.md" is up to date
+"docs/rules/project-rules-deltas.md" is up to date
+"docs/rules/project-structure.md" is up to date
+"docs/runbooks/logging-pipeline.md" is up to date
+"docs/security/README.md" is up to date
+"docs/security/improvements.md" is up to date
+"docs/security/rate_limiting.md" is up to date
+"docs/security/security_headers.md" is up to date
+"docs/testing/README.md" is up to date
+"docs/testing/coverage-roadmap-to-95.md" is up to date
+"docs/testing/integration-hardening.md" is up to date
+"docs/testing/testing-strategy.md" is up to date
+"docs/testing/web-eval-executor.md" is up to date
+"docs/tools/debug-panel.md" is up to date
+"docs/tools/image-enhancer.md" is up to date
+"docs/tools/prompt-enhancer.en.md" is up to date
+"docs/tools/prompt-enhancer.md" is up to date
+"docs/tools/webscraper/IMPLEMENTATION_COMPLETE.md" is up to date
+"docs/tools/webscraper/README.md" is up to date
+"docs/tools/webscraper/guidelines.md" is up to date
+"docs/tools/webscraper/roadmap.md" is up to date
+"docs/tools/webscraper/spec.md" is up to date
+"docs/tools/webscraper/testing.md" is up to date
+
+Everything is OK.

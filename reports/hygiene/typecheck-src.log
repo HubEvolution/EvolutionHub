@@ -52,3 +52,8 @@ src/pages/api/testing/evaluate/next/run.ts(8,10): error TS2305: Module '"@/lib/r
 > tsc -p tsconfig.src.json --noEmit
 
 src/pages/api/testing/evaluate/next/run.ts(8,10): error TS2305: Module '"@/lib/rate-limiter"' has no exported member 'webEvalBrowserLimiter'.
+[typecheck:src] $ npm run typecheck:src
+
+> evolution-hub@0.0.1 typecheck:src
+> tsc -p tsconfig.src.json --noEmit
+

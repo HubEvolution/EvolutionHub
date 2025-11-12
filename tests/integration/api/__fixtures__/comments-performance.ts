@@ -71,7 +71,6 @@ async function createComment(
     headers,
     body: JSON.stringify({
       ...payload,
-      csrfToken,
     }),
     redirect: 'manual',
   });

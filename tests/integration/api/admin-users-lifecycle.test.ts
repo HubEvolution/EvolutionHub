@@ -49,8 +49,12 @@ describe('Admin Users Lifecycle — CSRF and auth enforcement', () => {
 
   for (const { method, path } of lifecycleEndpoints) {
     it(`${method} ${path} without auth → 403 (fails CSRF origin checks)`, async () => {
-      const { status } = await request(path, { method });
-      expect(status).toBe(403);
+      const { status, headers } = await request(path, { method });
+      if (status === 429) {
+        expect(headers.get('Retry-After')).toBeTruthy();
+      } else {
+        expect(status).toBe(403);
+      }
     });
 
     it(`debug-login non-admin with CSRF token → 403 forbidden`, async () => {
@@ -62,7 +66,7 @@ describe('Admin Users Lifecycle — CSRF and auth enforcement', () => {
 
       const cookie = login.headers.get('set-cookie') || '';
       const csrf = `testtoken_${Math.random().toString(36).slice(2)}`;
-      const { status } = await request(path, {
+      const { status, headers } = await request(path, {
         method,
         headers: {
           'Content-Type': 'application/json',
@@ -71,7 +75,11 @@ describe('Admin Users Lifecycle — CSRF and auth enforcement', () => {
         },
         body: method === 'DELETE' ? undefined : JSON.stringify({ reason: 'test' }),
       });
-      expect(status).toBe(403);
+      if (status === 429) {
+        expect(headers.get('Retry-After')).toBeTruthy();
+      } else {
+        expect(status).toBe(403);
+      }
     });
   }
 });

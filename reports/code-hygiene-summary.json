@@ -24,8 +24,8 @@
     "code": 0
   },
   "typecheck:src": {
-    "ok": false,
-    "code": 2
+    "ok": true,
+    "code": 0
   },
   "test:unit:run": {
     "ok": false,

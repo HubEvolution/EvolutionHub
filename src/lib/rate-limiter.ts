@@ -350,14 +350,14 @@ export const contactFormLimiter = createRateLimiter({
 });
 
 export const webEvalTaskLimiter = createRateLimiter({
-  maxRequests: 10,
+  maxRequests: import.meta.env.DEV ? 1000 : 10,
   windowMs: 60 * 1000,
   name: 'webEvalTasks',
 });
 
 // For Cloudflare Browser Rendering run endpoint (stricter: 5/min)
 export const webEvalBrowserLimiter = createRateLimiter({
-  maxRequests: 5,
+  maxRequests: import.meta.env.DEV ? 200 : 5,
   windowMs: 60 * 1000,
   name: 'webEvalBrowser',
 });

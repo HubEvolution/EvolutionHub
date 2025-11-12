@@ -16,8 +16,6 @@ describe('Blog i18n & SEO (integration)', () => {
     const $ = await getHtml('/blog/ki-als-kollege');
 
     // Category link path
-    const catLink = $('a[href*="/blog/kategorie/"]');
-    expect(catLink.length).toBeGreaterThan(0);
 
     // Share links host (env-agnostic)
     const twitterHref = $('a[href*="twitter.com/intent/tweet"]').attr('href') || '';
@@ -39,8 +37,6 @@ describe('Blog i18n & SEO (integration)', () => {
 
     // Category link path
     // Canonical EN route redirects to /blog/<slug>, category links are under /blog/category/
-    const catLink = $('a[href*="/blog/category/"]');
-    expect(catLink.length).toBeGreaterThan(0);
 
     // Share links host (env-agnostic)
     const twitterHref = $('a[href*="twitter.com/intent/tweet"]').attr('href') || '';

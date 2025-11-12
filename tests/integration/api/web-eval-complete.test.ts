@@ -116,7 +116,7 @@ describe('/api/testing/evaluate/:id/complete', () => {
 
     // optional verification via GET /api/testing/evaluate/:id (if implemented)
     const { res: getRes } = await getJson(
-      `${TEST_URL}/api/testing/evaluate/${encodeURIComponent(taskId)}`
+      `/api/testing/evaluate/${encodeURIComponent(taskId)}`
     );
     expect([200, 404]).toContain(getRes.status); // tolerate absence or not-found depending on implementation
   });

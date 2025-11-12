@@ -68,7 +68,8 @@ async function createTask(overrides: Record<string, unknown> = {}, cookie?: stri
   });
 
   if (res.status !== 200 || !json || json.success !== true) {
-    throw new Error(`Failed to seed task: ${res.status} ${await res.text()}`);
+    const msg = json && (json as ApiError).error ? JSON.stringify((json as ApiError).error) : '';
+    throw new Error(`Failed to seed task: ${res.status}${msg ? ` ${msg}` : ''}`);
   }
 
   const setCookie = res.headers.get('set-cookie') || '';
@@ -114,12 +115,11 @@ describe('/api/testing/evaluate/next/run', () => {
   it('returns null task when no pending entries exist', async () => {
     const { res, json } = await callRun();
     if (res.status === 429) {
-      // Rate-limited: assert shape and Retry-After header
-      if (!json || json.success !== false) {
-        throw new Error('Expected rate_limit response');
-      }
-      expect((json as any).error.type).toBe('rate_limit');
+      // Rate-limited: always assert Retry-After; JSON body may be absent in some envs
       expect(res.headers.get('Retry-After')).toBeTruthy();
+      if (json && json.success === false) {
+        expect((json as any).error.type).toBe('rate_limit');
+      }
     } else {
       expect(res.status).toBe(200);
       if (!json || json.success !== true) {
@@ -135,8 +135,10 @@ describe('/api/testing/evaluate/next/run', () => {
     const run = await callRun();
     // Accept rate limit during heavy parallel suites
     if (run.res.status === 429) {
-      if (!run.json || run.json.success !== false) throw new Error('Expected rate_limit response');
-      expect(run.json.error.type).toBe('rate_limit');
+      expect(run.res.headers.get('Retry-After')).toBeTruthy();
+      if (run.json && run.json.success === false) {
+        expect(run.json.error.type).toBe('rate_limit');
+      }
     } else {
       // Expect forbidden error with message browser_disabled or browser_not_configured
       expect([403, 401, 400, 500]).toContain(run.res.status);

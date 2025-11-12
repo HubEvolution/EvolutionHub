@@ -16,17 +16,41 @@ async function claimNext(baseUrl: string, token: string): Promise<ClaimNextRespo
     method: 'POST',
     headers: {
       'x-executor-token': token,
+      'x-internal-exec': '1',
       Origin: baseUrl,
     },
     redirect: 'manual',
   });
   const text = await res.text();
+  const ct = res.headers.get('content-type') || '';
+  if (!res.ok) {
+    return {
+      success: false,
+      error: {
+        type: res.status === 429 ? 'rate_limit' : 'server_error',
+        message: `status=${res.status} ct=${ct || 'n/a'} body=${text.slice(0, 200)}`,
+      },
+    } as any;
+  }
   try {
-    return JSON.parse(text) as ClaimNextResponse;
+    const parsed = JSON.parse(text);
+    if (parsed && typeof parsed === 'object' && 'success' in parsed) {
+      return parsed as ClaimNextResponse;
+    }
+    return {
+      success: false,
+      error: {
+        type: 'server_error',
+        message: `unexpected json shape ct=${ct || 'n/a'} body=${text.slice(0, 200)}`,
+      },
+    } as any;
   } catch {
     return {
       success: false,
-      error: { type: 'server_error', message: `invalid json: ${text.slice(0, 120)}` },
+      error: {
+        type: 'server_error',
+        message: `invalid json ct=${ct || 'n/a'} body=${text.slice(0, 200)}`,
+      },
     } as any;
   }
 }
@@ -42,6 +66,7 @@ async function postComplete(
     headers: {
       'Content-Type': 'application/json',
       'x-executor-token': token,
+      'x-internal-exec': '1',
       Origin: baseUrl,
     },
     body: JSON.stringify(payload),
@@ -63,6 +88,49 @@ function parseIntEnv(name: string): number | undefined {
   if (v == null) return undefined;
   const n = parseInt(String(v), 10);
   return Number.isFinite(n) ? n : undefined;
+}
+
+type TargetValidation = { ok: true } | { ok: false; reason: string };
+
+function isForbiddenHostname(host: string): boolean {
+  const h = host.trim().toLowerCase().replace(/^\[/, '').replace(/\]$/, '');
+  if (!h) return true;
+  if (h === 'localhost' || h.endsWith('.local')) return true;
+  if (/^10\./.test(h)) return true; // 10.0.0.0/8
+  if (/^172\.(1[6-9]|2\d|3[0-1])\./.test(h)) return true; // 172.16.0.0/12
+  if (/^192\.168\./.test(h)) return true; // 192.168.0.0/16
+  if (/^127\./.test(h)) return true; // 127.0.0.0/8
+  if (/^169\.254\./.test(h)) return true; // 169.254.0.0/16
+  if (h === '::1') return true;
+  if (/^fe80:/i.test(h)) return true; // link-local
+  if (/^(fc|fd)/i.test(h)) return true; // unique local
+  return false;
+}
+
+function isAllowedOrigin(u: URL, allowedCsv?: string): boolean {
+  if (!allowedCsv) return true;
+  const want = u.origin.toLowerCase();
+  const items = allowedCsv
+    .split(',')
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+  return items.includes(want);
+}
+
+function validateTargetUrl(target: string, allowedOriginsCsv?: string): TargetValidation {
+  let u: URL;
+  try {
+    u = new URL(target);
+  } catch {
+    return { ok: false, reason: 'invalid_url' };
+  }
+  if (u.protocol !== 'http:' && u.protocol !== 'https:')
+    return { ok: false, reason: 'invalid_scheme' };
+  const port = u.port || '';
+  if (port && port !== '80' && port !== '443') return { ok: false, reason: 'port_not_allowed' };
+  if (isForbiddenHostname(u.hostname)) return { ok: false, reason: 'forbidden_host' };
+  if (!isAllowedOrigin(u, allowedOriginsCsv)) return { ok: false, reason: 'origin_not_allowed' };
+  return { ok: true };
 }
 
 function applyRunnerDefaults(task: WebEvalTask): WebEvalTask {
@@ -114,7 +182,30 @@ async function main() {
 
       console.log(`[executor] Running task ${task.id} → ${task.url}`);
       const enhancedTask = applyRunnerDefaults(task);
-      const completion = await runTask(enhancedTask);
+      const allowCsv = process.env.WEB_EVAL_ALLOWED_ORIGINS;
+      let completion: CompletionPayload;
+      const targetCheck = validateTargetUrl(enhancedTask.url, allowCsv);
+      if (!targetCheck.ok) {
+        const nowIso = new Date().toISOString();
+        completion = {
+          status: 'failed',
+          report: {
+            taskId: enhancedTask.id,
+            url: enhancedTask.url,
+            taskDescription: enhancedTask.task,
+            success: false,
+            steps: [{ action: 'validateTarget', timestamp: nowIso }],
+            consoleLogs: [],
+            networkRequests: [],
+            errors: [`ssrf_blocked:${targetCheck.reason}`],
+            durationMs: 0,
+            startedAt: nowIso,
+            finishedAt: nowIso,
+          },
+        };
+      } else {
+        completion = await runTask(enhancedTask);
+      }
 
       // Retry completion honoring 429 Retry-After; max ~120s window
       const deadline = Date.now() + 120_000;

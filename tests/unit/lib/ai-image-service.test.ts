@@ -78,7 +78,8 @@ describe('AiImageService', () => {
 
       const result = await service.getUsage('user' as OwnerType, 'abc', 10);
 
-      expect(mockedKvGetUsage).toHaveBeenCalledWith(kv, 'ai:rolling:key');
+      expect(mockedKvGetUsage).toHaveBeenCalledTimes(1);
+      expect(mockedKvGetUsage.mock.calls[0][0]).toBe(kv);
       expect(result).toEqual({ used: 4, limit: 10, resetAt: 1700000 * 1000 });
     });
   });

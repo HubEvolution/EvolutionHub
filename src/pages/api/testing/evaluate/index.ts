@@ -10,6 +10,7 @@ import { webEvalTaskLimiter } from '@/lib/rate-limiter';
 import { createTaskRecord } from '@/lib/testing/web-eval/storage';
 import { resolveQueueConfig, type WebEvalEnvBindings } from '@/lib/testing/web-eval/env';
 import type { WebEvalTaskCreatePayload, WebEvalTaskRecord } from '@/lib/testing/web-eval';
+import { validateTargetUrl } from '@/lib/testing/web-eval/ssrf';
 
 function ensureGuestIdCookie(context: APIContext): string {
   const cookies = context.cookies;
@@ -52,6 +53,17 @@ async function handler(context: APIContext): Promise<Response> {
     return createApiError('validation_error', 'Invalid request parameters', {
       details: formatZodError(parsed.error),
     });
+  }
+
+  // SSRF/target validation (optional allowlist)
+  // Enforce strictly in production; relax in non-production to keep local/integration flows working
+  if (isProd) {
+    const allowCsv =
+      typeof env.WEB_EVAL_ALLOWED_ORIGINS === 'string' ? env.WEB_EVAL_ALLOWED_ORIGINS : undefined;
+    const targetCheck = validateTargetUrl(parsed.data.url, allowCsv);
+    if (!targetCheck.ok) {
+      return createApiError('forbidden', 'ssrf_blocked', { reason: targetCheck.reason });
+    }
   }
 
   const ownerType = locals.user?.id ? 'user' : 'guest';

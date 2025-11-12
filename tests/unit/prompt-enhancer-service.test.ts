@@ -202,7 +202,12 @@ describe('PromptEnhancerService', () => {
       await expect(
         service.enhance(defaultInput, defaultOptions, 'guest', 'test-guest-id')
       ).rejects.toThrow('Quota exceeded. Used 5/5');
-      expect(mockLogger.error).toHaveBeenCalledWith('enhance_failed', expect.objectContaining({ errorKind: 'quota_exceeded' }));
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        'enhance_failed',
+        expect.objectContaining({
+          metadata: expect.objectContaining({ errorKind: 'quota_exceeded' }),
+        })
+      );
     });
 
     it('should handle user quota (higher limit)', async () => {

@@ -203,9 +203,6 @@ CF_ACCESS_TEAM_DOMAIN = ""
 CF_ACCESS_AUD = ""
 CF_ACCESS_JWKS_URL = ""
 
-# Executor token (fallback for MCP/executor auth in development/testing). Replace in staging/prod secrets.
-WEB_EVAL_EXECUTOR_TOKEN = "dev-exec-token-change-me"
-
 # Prompt Enhancer (non-secret defaults for local dev)
 PROMPT_REWRITE_V1 = "true"
 PROMPT_TEXT_MODEL = "gpt-4o-mini"
@@ -312,6 +309,7 @@ WEB_EVAL_EXEC_ALLOW_PROD = "1"
 # Browser runner remains off by default unless explicitly configured with BROWSER binding
 WEB_EVAL_BROWSER_ENABLE = "0"
 WEB_EVAL_BROWSER_ALLOW_PROD = "1"
+WEB_EVAL_ALLOWED_ORIGINS = "https://hub-evolution.com,https://www.hub-evolution.com"
 
 # Prompt Enhancer (non-secret defaults; override per env if needed)
 PROMPT_REWRITE_V1 = "true"
@@ -330,9 +328,9 @@ VOICE_R2_ARCHIVE = "0"
 
 # Explicitly duplicate Access variables for production (no inheritance from top-level [vars])
 # Fill with actual values or manage via secrets/CI env
-CF_ACCESS_TEAM_DOMAIN = "03a178889a1cb6436b6d439fe7ebde32.access"
+CF_ACCESS_TEAM_DOMAIN = "hub-evolution.cloudflareaccess.com"
 CF_ACCESS_AUD = "243827157fc659736281fd3e8de84874692fe293986dd703525ad5cae19603bc"
-CF_ACCESS_JWKS_URL = ""
+CF_ACCESS_JWKS_URL = ""          # leer lassen; wird aus Team-Domain abgeleitet
 
 [env.production]
 

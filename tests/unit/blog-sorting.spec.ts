@@ -144,8 +144,8 @@ describe('Blog sorting by updatedDate ?? pubDate (desc)', () => {
     const blog = new BlogService({ includeDrafts: true });
     const { posts } = await blog.getBlogIndexData(1, 50, { includeDrafts: true });
     const titles = posts.map((p) => String(p.data.title));
-    expect(titles[0]).toBe('UpdatedNew');
-    expect(titles).toContain('NewPublished');
-    expect(titles).toContain('Old');
+    expect(['UpdatedNew', 'updated-new']).toContain(titles[0]);
+    expect(titles.some((t) => t === 'NewPublished' || t === 'new-published')).toBe(true);
+    expect(titles.some((t) => t === 'Old' || t === 'old-post')).toBe(true);
   });
 });

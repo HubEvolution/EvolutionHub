@@ -1,6 +1,6 @@
 {
   "$schema": "schema.json",
-  "generatedAt": "2025-11-12T08:39:24.344Z",
+  "generatedAt": "2025-11-12T13:07:32.050Z",
   "generatedBy": "scripts/doc-inventory.mjs",
   "sourceRoot": "/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub",
   "documents": [
@@ -20322,8 +20322,8 @@
       "path": "reports/assistant-task.md",
       "title": "Hygiene Report for Assistant",
       "format": "markdown",
-      "hash": "00e8f9c4e21033c0ff595794b8b813d390c2d1fe997f95fabe7dd1c7b49a4a33",
-      "size": 123788,
+      "hash": "0aabb8183f066ad924cd2c72aaee5693fe8899689a944b7433dc75449796850e",
+      "size": 128589,
       "headings": [
         {
           "level": 1,
@@ -20418,7 +20418,70 @@
           "value": "Next Actions (for Assistant)"
         }
       ],
-      "lastModified": "2025-11-12T08:20:25.423Z"
+      "lastModified": "2025-11-12T08:41:16.650Z"
+    },
+    {
+      "path": "reports/replicate/20251112T115454Z/veo_id.txt",
+      "description": "null",
+      "format": "text",
+      "hash": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "size": 5,
+      "headings": [],
+      "lastModified": "2025-11-12T11:54:55.432Z"
+    },
+    {
+      "path": "reports/replicate/20251112T115454Z/wan_id.txt",
+      "description": "null",
+      "format": "text",
+      "hash": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "size": 5,
+      "headings": [],
+      "lastModified": "2025-11-12T11:54:56.031Z"
+    },
+    {
+      "path": "reports/replicate/20251112T125905Z/veo_id.txt",
+      "description": "null",
+      "format": "text",
+      "hash": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "size": 5,
+      "headings": [],
+      "lastModified": "2025-11-12T12:59:05.931Z"
+    },
+    {
+      "path": "reports/replicate/20251112T125905Z/wan_id.txt",
+      "description": "null",
+      "format": "text",
+      "hash": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "size": 5,
+      "headings": [],
+      "lastModified": "2025-11-12T12:59:06.827Z"
+    },
+    {
+      "path": "reports/replicate/20251112T130146Z/seedance_id.txt",
+      "description": "q94zqa3gw9rme0ctf0mb6r4ws0",
+      "format": "text",
+      "hash": "31d96c9c7e475c2e817306e6260ba91217efe7c8ccd02288a80dffe464b0657b",
+      "size": 27,
+      "headings": [],
+      "lastModified": "2025-11-12T13:01:47.629Z"
+    },
+    {
+      "path": "reports/replicate/20251112T130207Z/veo_id.txt",
+      "description": "null",
+      "format": "text",
+      "hash": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "size": 5,
+      "headings": [],
+      "lastModified": "2025-11-12T13:02:07.942Z"
+    },
+    {
+      "path": "reports/replicate/20251112T130207Z/wan_id.txt",
+      "description": "null",
+      "format": "text",
+      "hash": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "size": 5,
+      "headings": [],
+      "lastModified": "2025-11-12T13:02:08.624Z"
     },
     {
       "path": "reports/tests-catalog-development.md",

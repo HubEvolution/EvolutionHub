@@ -695,3 +695,80 @@ Empty keys in de:
 
 Missing in de (present in en): 0
 Missing in en (present in de): 0
+[i18n:audit] $ npm run i18n:audit
+
+> evolution-hub@0.0.1 i18n:audit
+> npm run i18n:report && npm run i18n:validate && npm run i18n:diff
+
+
+> evolution-hub@0.0.1 i18n:report
+> node scripts/i18n-empty-report.mjs
+
+i18n empty strings report
+- en: 24 empty values
+- de: 26 empty values
+
+Empty keys in en:
+ - pages.kontakt.info.contact.fax
+ - pages.kontakt.info.contact.phone
+ - pages.kontakt.info.content_responsible.city_postal_code
+ - pages.kontakt.info.content_responsible.name
+ - pages.kontakt.info.content_responsible.street
+ - pages.kontakt.info.disclaimer.content_liability.paragraph1
+ - pages.kontakt.info.disclaimer.content_liability.paragraph2
+ - pages.kontakt.info.disclaimer.copyright.paragraph1
+ - pages.kontakt.info.disclaimer.copyright.paragraph2
+ - pages.kontakt.info.disclaimer.link_liability.paragraph1
+ - pages.kontakt.info.disclaimer.link_liability.paragraph2
+ - pages.kontakt.info.dispute_resolution.email_note
+ - pages.kontakt.info.dispute_resolution.os_platform_intro
+ - pages.kontakt.info.dispute_resolution.participation_statement
+ - pages.kontakt.info.phone_number
+ - pages.kontakt.info.provider.city_postal_code
+ - pages.kontakt.info.provider.company_name
+ - pages.kontakt.info.provider.country
+ - pages.kontakt.info.provider.street_address
+ - pages.kontakt.info.registration.register_court
+ - pages.kontakt.info.registration.register_entry
+ - pages.kontakt.info.registration.register_number
+ - pages.kontakt.info.represented_by.managing_directors
+ - pages.kontakt.info.vat.vat_id
+
+Empty keys in de:
+ - pages.dashboard.referrals.retry
+ - pages.home.hero.status_labels.cta
+ - pages.kontakt.info.contact.fax
+ - pages.kontakt.info.contact.phone
+ - pages.kontakt.info.content_responsible.city_postal_code
+ - pages.kontakt.info.content_responsible.name
+ - pages.kontakt.info.content_responsible.street
+ - pages.kontakt.info.disclaimer.content_liability.paragraph1
+ - pages.kontakt.info.disclaimer.content_liability.paragraph2
+ - pages.kontakt.info.disclaimer.copyright.paragraph1
+ - pages.kontakt.info.disclaimer.copyright.paragraph2
+ - pages.kontakt.info.disclaimer.link_liability.paragraph1
+ - pages.kontakt.info.disclaimer.link_liability.paragraph2
+ - pages.kontakt.info.dispute_resolution.email_note
+ - pages.kontakt.info.dispute_resolution.os_platform_intro
+ - pages.kontakt.info.dispute_resolution.participation_statement
+ - pages.kontakt.info.phone_number
+ - pages.kontakt.info.provider.city_postal_code
+ - pages.kontakt.info.provider.company_name
+ - pages.kontakt.info.provider.country
+ - pages.kontakt.info.provider.street_address
+ - pages.kontakt.info.registration.register_court
+ - pages.kontakt.info.registration.register_entry
+ - pages.kontakt.info.registration.register_number
+ - pages.kontakt.info.represented_by.managing_directors
+ - pages.kontakt.info.vat.vat_id
+
+> evolution-hub@0.0.1 i18n:validate
+> node scripts/i18n-validate.mjs
+
+[i18n:validate] OK: Strukturen sind konsistent für nav, nav_language, cta, comingSoon, pages.home, pages.blog, pages.tools, pages.pricing, pages.kontakt, pages.verifyEmail, pages.impressum, pages.datenschutz
+
+> evolution-hub@0.0.1 i18n:diff
+> node scripts/i18n-diff.mjs
+
+Missing in de (present in en): 0
+Missing in en (present in de): 0
