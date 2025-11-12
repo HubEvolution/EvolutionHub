@@ -3,6 +3,12 @@
 > eslint 'src/**/*.{ts,astro}' --max-warnings=280
 
 
+/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/components/dashboard/RecommendationsCard.astro
+  27:20  warning  Replace `⏎··················class="group·rounded-lg·border·border-white/10·bg-white/5·p-3·backdrop-blur-sm·transition-all·hover:border-violet-400/30·hover:bg-white/10"⏎················` with `·class="group·rounded-lg·border·border-white/10·bg-white/5·p-3·backdrop-blur-sm·transition-all·hover:border-violet-400/30·hover:bg-white/10"`  prettier/prettier
+
+/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/lib/testing/web-eval/ssrf.ts
+  38:57  warning  Insert `⏎···`  prettier/prettier
+
 /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/pages/admin/comments.astro
   68:12  warning  'e' is defined but never used. Allowed unused caught errors must match /^_/u  @typescript-eslint/no-unused-vars
 
@@ -12,6 +18,13 @@
 
 /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/pages/api/health.ts
   97:7  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-var-requires')
+
+/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/pages/api/testing/evaluate/next/run.ts
+   48:53  warning  Replace `·taskId:·refreshed.id,·createdAt:·refreshed.createdAt` with `⏎··········taskId:·refreshed.id,⏎··········createdAt:·refreshed.createdAt,⏎·······`  prettier/prettier
+  136:19  warning  Insert `⏎···`                                                                                                                                              prettier/prettier
+
+/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/pages/blog/[...slug].astro
+  114:39  warning  Replace `·data.author·&&` with `⏎······data.author·&&⏎·····`  prettier/prettier
 
 /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/pages/dashboard.astro
   16:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
@@ -29,6 +42,6 @@
 /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/pages/tools/imag-enhancer/app.astro
   143:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-✖ 10 problems (0 errors, 10 warnings)
-  0 errors and 1 warning potentially fixable with the `--fix` option.
+✖ 15 problems (0 errors, 15 warnings)
+  0 errors and 6 warnings potentially fixable with the `--fix` option.
 

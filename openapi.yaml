@@ -738,6 +738,77 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiErrorResponse'
+  /api/testing/evaluate/next/run:
+    post:
+      summary: Run next pending web evaluation task (internal, CBR)
+      description: |
+        Claims the next pending web-eval task and attempts to run it via Cloudflare Browser Rendering.
+        In Phase B, if browser execution is disabled or not configured, the claimed task is marked failed with a minimal report and an error is returned.
+        Returns `task: null` when no pending entries exist. Rate-limited and gated for production usage.
+      x-source: src/pages/api/testing/evaluate/next/run.ts
+      operationId: postTestingEvaluateNextRun
+      parameters:
+        - name: x-internal-exec
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Required in production; must be "1".
+      responses:
+        "200":
+          description: Next task or null
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  success:
+                    type: boolean
+                    enum: [true]
+                  data:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      task:
+                        oneOf:
+                          - type: object
+                            additionalProperties: false
+                            properties:
+                              id: { type: string }
+                              url: { type: string }
+                              task: { type: string }
+                              headless: { type: boolean }
+                              timeoutMs: { type: integer }
+                              status:
+                                type: string
+                                enum: [pending, processing, completed, failed]
+                              attemptCount: { type: integer, minimum: 0 }
+                              ownerType: { type: string, enum: [user, guest] }
+                              ownerId: { type: string }
+                              createdAt: { type: string, format: date-time }
+                              updatedAt: { type: string, format: date-time }
+                              lastError: { type: string, nullable: true }
+                            required: [id, url, task, status, attemptCount, ownerType, ownerId, createdAt, updatedAt]
+                        nullable: true
+        "403":
+          description: Forbidden (gating or SSRF validation)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "429":
+          description: Rate limited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "500":
+          description: Server error (e.g., browser runner not implemented)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /api/testing/evaluate/{id}:
     get:
       summary: Get web evaluation task status and report
@@ -4165,108 +4236,6 @@ components:
         data:
           $ref: '#/components/schemas/AiGenerateData'
       required: [success, data]
-    WebEvalTaskRequest:
-      type: object
-      additionalProperties: false
-      properties:
-        url:
-          type: string
-          format: uri
-          maxLength: 2048
-        task:
-          type: string
-          minLength: 5
-          maxLength: 500
-        headless:
-          type: boolean
-        timeoutMs:
-          type: integer
-          minimum: 1000
-          maximum: 300000
-      required: [url, task]
-    WebEvalReport:
-      type: object
-      additionalProperties: false
-      properties:
-        taskId: { type: string }
-        url: { type: string }
-        taskDescription: { type: string }
-        success: { type: boolean }
-        steps:
-          type: array
-          items:
-            type: object
-            additionalProperties: false
-            properties:
-              action: { type: string }
-              timestamp: { type: string }
-              selectorUsed: { type: string }
-              screenshotKey: { type: string }
-            required: [action, timestamp]
-        consoleLogs:
-          type: array
-          items:
-            type: object
-            additionalProperties: false
-            properties:
-              level:
-                type: string
-                enum: [log, error, warn, info, debug]
-              message: { type: string }
-              timestamp: { type: string }
-            required: [level, message, timestamp]
-        networkRequests:
-          type: array
-          items:
-            type: object
-            additionalProperties: false
-            properties:
-              method:
-                type: string
-                enum: [GET, POST, PUT, DELETE, PATCH, HEAD]
-              url: { type: string }
-              status: { type: integer, minimum: 0 }
-              durationMs: { type: integer, minimum: 0 }
-            required: [method, url, status]
-        errors:
-          type: array
-          items: { type: string }
-        durationMs: { type: integer, minimum: 0 }
-        startedAt: { type: string }
-        finishedAt: { type: string }
-      required:
-        [taskId, url, taskDescription, success, steps, consoleLogs, networkRequests, errors, durationMs, startedAt, finishedAt]
-    WebEvalCompletion:
-      type: object
-      additionalProperties: false
-      properties:
-        status:
-          type: string
-          enum: [completed, failed]
-        report:
-          $ref: '#/components/schemas/WebEvalReport'
-        error:
-          type: string
-      required: [status, report]
-    WebEvalTaskClaim:
-      type: object
-      additionalProperties: false
-      properties:
-        id: { type: string }
-        url: { type: string }
-        task: { type: string }
-        headless: { type: boolean }
-        timeoutMs: { type: integer }
-        status:
-          type: string
-          enum: [pending, processing, completed, failed]
-        attemptCount: { type: integer, minimum: 0 }
-        ownerType: { type: string, enum: [user, guest] }
-        ownerId: { type: string }
-        createdAt: { type: string, format: date-time }
-        updatedAt: { type: string, format: date-time }
-        lastError: { type: string, nullable: true }
-      required: [id, url, task, status, attemptCount, ownerType, ownerId, createdAt, updatedAt]
   responses:
     AiImageGenerateSuccess:
       description: Erfolg – Ergebnis-URL und Limits

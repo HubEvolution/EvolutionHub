@@ -1,0 +1,6 @@
+[docs:links] $ npm run docs:links
+
+> evolution-hub@0.0.1 docs:links
+> node ./scripts/doc-links.mjs
+
+[doc-links] All relative documentation links resolved successfully.

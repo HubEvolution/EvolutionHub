@@ -1,7 +1,10 @@
 import { createInterface } from 'node:readline';
 import { stdin as input, stdout as output } from 'node:process';
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync, mkdirSync, unlinkSync } from 'node:fs';
+import { join } from 'node:path';
 import { execa } from 'execa';
+import { runTask } from './runner';
+import type { WebEvalTask } from './types';
 
 function rlPrompt(query: string): Promise<string> {
   const rl = createInterface({ input, output });
@@ -28,6 +31,14 @@ type CookieJar = Record<string, string>;
 const jar: CookieJar = {};
 const JAR_FILE = '/tmp/webeval.menu.jar.json';
 let sessionToken: string | null = null;
+const SETTINGS_FILE = '/tmp/webeval.menu.settings.json';
+const POOL_FILE = '/tmp/webeval.pool.json';
+let runnerDefaults: {
+  idleWaitMs?: number;
+  fatalSameOrigin?: boolean;
+  screenshotOnFailure?: boolean;
+  traceOnFailure?: boolean;
+} = {};
 
 function setCookieFromHeader(header: string) {
   // naive parser: first segment is name=value
@@ -37,6 +48,161 @@ function setCookieFromHeader(header: string) {
     const name = first.slice(0, eq).trim();
     const value = first.slice(eq + 1).trim();
     if (name) jar[name] = value;
+  }
+}
+
+function readPool(): number[] {
+  try {
+    if (existsSync(POOL_FILE)) {
+      const data = JSON.parse(readFileSync(POOL_FILE, 'utf8')) as { pids: number[] };
+      return Array.isArray(data.pids) ? data.pids : [];
+    }
+  } catch {
+    // ignore
+  }
+  return [];
+}
+
+function writePool(pids: number[]) {
+  try {
+    writeFileSync(POOL_FILE, JSON.stringify({ pids }), 'utf8');
+  } catch {
+    // ignore
+  }
+}
+
+async function startWorkers(count: number) {
+  const env = { ...process.env } as NodeJS.ProcessEnv;
+  const t = getEffectiveToken();
+  if (!t) {
+    console.log('WEB_EVAL_EXECUTOR_TOKEN missing (session or env).');
+    return;
+  }
+  env.WEB_EVAL_EXECUTOR_TOKEN = t;
+  if (runnerDefaults.idleWaitMs != null)
+    env.WEB_EVAL_IDLE_WAIT_MS = String(runnerDefaults.idleWaitMs);
+  if (runnerDefaults.fatalSameOrigin != null)
+    env.WEB_EVAL_FATAL_SAME_ORIGIN = runnerDefaults.fatalSameOrigin ? '1' : '0';
+  if (runnerDefaults.screenshotOnFailure != null)
+    env.WEB_EVAL_SCREENSHOT_ON_FAILURE = runnerDefaults.screenshotOnFailure ? '1' : '0';
+  if (runnerDefaults.traceOnFailure != null)
+    env.WEB_EVAL_TRACE_ON_FAILURE = runnerDefaults.traceOnFailure ? '1' : '0';
+  const pids = readPool();
+  for (let i = 0; i < count; i++) {
+    const child = await execa('npm', ['run', '-s', 'web-eval:executor'], {
+      stdio: 'ignore',
+      env,
+      detached: true,
+    });
+    // execa returns once child exits unless detached; with detached it still waits for spawn
+    if (child?.pid) {
+      try {
+        // @ts-expect-error execa types
+        child.unref?.();
+      } catch {}
+      pids.push(child.pid);
+    }
+  }
+  writePool(pids);
+  console.log(`Started ${count} worker(s). Pool size: ${pids.length}`);
+}
+
+function listWorkers() {
+  const pids = readPool();
+  if (pids.length === 0) {
+    console.log('No pooled workers.');
+    return;
+  }
+  const rows = pids.map((pid) => {
+    try {
+      process.kill(pid, 0);
+      return { pid, alive: true };
+    } catch {
+      return { pid, alive: false };
+    }
+  });
+  console.table(rows);
+}
+
+function stopWorkers() {
+  const pids = readPool();
+  if (pids.length === 0) {
+    console.log('No pooled workers to stop.');
+    return;
+  }
+  let stopped = 0;
+  for (const pid of pids) {
+    try {
+      process.kill(pid);
+      stopped++;
+    } catch {
+      // ignore
+    }
+  }
+  try {
+    unlinkSync(POOL_FILE);
+  } catch {}
+  console.log(`Stopped ${stopped} worker(s).`);
+}
+
+async function localRunFlow() {
+  const url = await rlPrompt('Enter absolute URL (e.g., https://example.com): ');
+  if (!url) return;
+  const headlessAns = await rlPrompt('Headless? (y/n, default y): ');
+  const headless = headlessAns.trim().toLowerCase() === 'n' ? false : true;
+  const timeoutAns = await rlPrompt('Timeout ms (default 20000): ');
+  const timeoutMs = Math.max(1000, Number(timeoutAns) || 20000);
+  const idleAns = await rlPrompt(
+    `Idle wait ms (enter to default ${runnerDefaults.idleWaitMs ?? 'auto'}): `
+  );
+  const idleWaitMs = idleAns ? Math.max(0, Number(idleAns) || 0) : runnerDefaults.idleWaitMs;
+  const fatalAns = await rlPrompt(
+    `Treat same-origin console errors as fatal? (y/n, default ${(runnerDefaults.fatalSameOrigin ?? true) ? 'y' : 'n'}): `
+  );
+  const fatalSameOrigin = fatalAns
+    ? fatalAns.trim().toLowerCase() !== 'n'
+    : (runnerDefaults.fatalSameOrigin ?? true);
+  const shotAns = await rlPrompt(
+    `Screenshot on failure? (y/n, default ${(runnerDefaults.screenshotOnFailure ?? true) ? 'y' : 'n'}): `
+  );
+  const screenshotOnFailure = shotAns
+    ? shotAns.trim().toLowerCase() !== 'n'
+    : (runnerDefaults.screenshotOnFailure ?? true);
+  const traceAns = await rlPrompt(
+    `Trace on failure? (y/n, default ${(runnerDefaults.traceOnFailure ?? false) ? 'y' : 'n'}): `
+  );
+  const traceOnFailure = traceAns
+    ? traceAns.trim().toLowerCase() === 'y'
+    : (runnerDefaults.traceOnFailure ?? false);
+  const task: WebEvalTask = {
+    id: `local-${Date.now()}`,
+    url,
+    task: 'Local evaluation (no server)',
+    headless,
+    timeoutMs,
+    idleWaitMs,
+    sameOriginConsoleFatal: fatalSameOrigin,
+    screenshotOnFailure,
+    traceOnFailure,
+  };
+  console.log('Running locally...');
+  const completion = await runTask(task);
+  const ts = new Date().toISOString().replace(/[:.]/g, '-');
+  const dir = join('.logs', 'web-eval-local', ts);
+  try {
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(join(dir, 'report.json'), JSON.stringify(completion, null, 2), 'utf8');
+  } catch {}
+  console.log(`Done. Status=${completion.status}. Report saved to ${join(dir, 'report.json')}`);
+}
+
+async function healthCheck(baseUrl: string) {
+  try {
+    const res = await fetch(`${baseUrl}/api/health`, { headers: { Origin: baseUrl } });
+    const json = await res.json();
+    console.log('Health:', json);
+  } catch (e) {
+    console.log('Health check failed:', e instanceof Error ? e.message : String(e));
   }
 }
 
@@ -82,10 +248,37 @@ function getEffectiveToken(): string | undefined {
   return sessionToken || process.env.WEB_EVAL_EXECUTOR_TOKEN || undefined;
 }
 
+function loadSettings(): { baseUrl?: string } {
+  try {
+    if (existsSync(SETTINGS_FILE)) {
+      return JSON.parse(readFileSync(SETTINGS_FILE, 'utf8')) as { baseUrl?: string };
+    }
+  } catch {
+    // ignore
+  }
+  return {};
+}
+
+function saveSettings(settings: { baseUrl?: string }) {
+  try {
+    writeFileSync(SETTINGS_FILE, JSON.stringify(settings), 'utf8');
+  } catch {
+    // ignore
+  }
+}
+
 async function startBg() {
   const env = { ...process.env } as NodeJS.ProcessEnv;
   const t = getEffectiveToken();
   if (t) env.WEB_EVAL_EXECUTOR_TOKEN = t;
+  if (runnerDefaults.idleWaitMs != null)
+    env.WEB_EVAL_IDLE_WAIT_MS = String(runnerDefaults.idleWaitMs);
+  if (runnerDefaults.fatalSameOrigin != null)
+    env.WEB_EVAL_FATAL_SAME_ORIGIN = runnerDefaults.fatalSameOrigin ? '1' : '0';
+  if (runnerDefaults.screenshotOnFailure != null)
+    env.WEB_EVAL_SCREENSHOT_ON_FAILURE = runnerDefaults.screenshotOnFailure ? '1' : '0';
+  if (runnerDefaults.traceOnFailure != null)
+    env.WEB_EVAL_TRACE_ON_FAILURE = runnerDefaults.traceOnFailure ? '1' : '0';
   await execa('npm', ['run', '-s', 'web-eval:start'], { stdio: 'inherit', env });
 }
 
@@ -215,6 +408,8 @@ async function watchTask(baseUrl: string, id: string) {
 
 async function main() {
   let baseUrl = getBaseUrl();
+  const settings = loadSettings();
+  if (settings.baseUrl) baseUrl = settings.baseUrl;
   loadJar();
   // Simple loop
   // eslint-disable-next-line no-constant-condition
@@ -233,8 +428,16 @@ async function main() {
     console.log('11) Run executor (foreground, auto .env)');
     console.log('12) Set executor token (session only; not saved)');
     console.log('13) Clear session token');
-    console.log('14) Exit');
-    const choice = await rlPrompt('Choose an option [1-14]: ');
+    console.log('14) Start N workers (pool)');
+    console.log('15) Stop all pooled workers');
+    console.log('16) List pooled workers');
+    console.log('17) Local run (no server)');
+    console.log('18) Health check');
+    console.log('19) Save current Base URL as default');
+    console.log('20) Set runner defaults (session)');
+    console.log('21) Clear runner defaults');
+    console.log('22) Exit');
+    const choice = await rlPrompt('Choose an option [1-22]: ');
 
     switch (choice) {
       case '1':
@@ -287,7 +490,47 @@ async function main() {
         sessionToken = null;
         console.log('Session token cleared.');
         break;
-      case '14':
+      case '14': {
+        const nStr = await rlPrompt('Workers to start: ');
+        const n = Math.max(1, Number(nStr) || 1);
+        await startWorkers(n);
+        break;
+      }
+      case '15':
+        stopWorkers();
+        break;
+      case '16':
+        listWorkers();
+        break;
+      case '17':
+        await localRunFlow();
+        break;
+      case '18':
+        await healthCheck(baseUrl);
+        break;
+      case '19':
+        saveSettings({ baseUrl });
+        console.log('Saved.');
+        break;
+      case '20': {
+        const idle = await rlPrompt('Default idleWaitMs (empty to unset): ');
+        runnerDefaults.idleWaitMs = idle ? Math.max(0, Number(idle) || 0) : undefined;
+        const fatal = await rlPrompt(
+          'Default fatal same-origin console errors? (y/n/empty=unset): '
+        );
+        runnerDefaults.fatalSameOrigin = fatal ? fatal.trim().toLowerCase() === 'y' : undefined;
+        const shot = await rlPrompt('Default screenshot on failure? (y/n/empty=unset): ');
+        runnerDefaults.screenshotOnFailure = shot ? shot.trim().toLowerCase() === 'y' : undefined;
+        const trace = await rlPrompt('Default trace on failure? (y/n/empty=unset): ');
+        runnerDefaults.traceOnFailure = trace ? trace.trim().toLowerCase() === 'y' : undefined;
+        console.log('Runner defaults updated for this session.');
+        break;
+      }
+      case '21':
+        runnerDefaults = {};
+        console.log('Runner defaults cleared.');
+        break;
+      case '22':
         console.log('Bye.');
         return;
       default:

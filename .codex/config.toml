@@ -1,0 +1,102 @@
+# Project-local Codex CLI configuration for evolution-hub
+## Based on upstream docs: https://github.com/openai/codex (docs/config.md, example-config.md)
+## Goal: sensible defaults for Windsurf + this repo's AGENTS.md/.windsurf rules.
+
+# Core model selection
+profile = "dev"
+model = "gpt-5-codex"
+model_provider = "openai"
+
+# Reasoning/verbosity (Responses API-capable models)
+model_reasoning_effort = "medium"    # minimal | low | medium | high
+model_reasoning_summary = "auto"     # auto | concise | detailed | none
+model_verbosity = "medium"           # low | medium | high
+
+# Approval & sandbox
+approval_policy = "on-request"       # untrusted | on-failure | on-request | never
+sandbox_mode = "workspace-write"      # read-only | workspace-write | danger-full-access
+
+[sandbox_workspace_write]
+# Allow outbound network in workspace-write sandbox
+network_access = true
+# Additional writable roots beyond cwd (none by default)
+writable_roots = []
+exclude_tmpdir_env_var = false
+exclude_slash_tmp = false
+
+# History & editor integrations
+[history]
+persistence = "save-all"
+
+# Open files in Windsurf from inline citations
+file_opener = "windsurf"  # vscode | vscode-insiders | windsurf | cursor | none
+
+# Shell environment policy for spawned processes
+[shell_environment_policy]
+inherit = "all"                  # all | core | none
+ignore_default_excludes = false  # keep KEY/TOKEN/SECRET scrubbing
+exclude = []
+set = {}
+include_only = []
+experimental_use_profile = false
+
+# Centralized feature flags
+[features]
+# Keep experimental flags off by default; enable selectively if desired
+apply_patch_freeform = true   # beta: enable freeform apply_patch tool
+view_image_tool = true        # enabled by default
+web_search_request = true     # enable web search tool capability
+unified_exec = false
+streamable_shell = false
+rmcp_client = false
+experimental_sandbox_command_assessment = false
+ghost_commit = false
+enable_experimental_windows_sandbox = false
+
+# MCP servers available to Codex in this project
+# See: https://github.com/openai/codex/blob/main/docs/config.md#mcp-integration
+[mcp_servers]
+
+# Google Search Console MCP (stdio)
+[mcp_servers.gsc]
+command = "node"
+args = ["scripts/mcp/gsc-extended.mjs"]
+# Optional timeouts; keep defaults unless you need more headroom
+# startup_timeout_sec = 20
+# tool_timeout_sec = 60
+# env = { }
+
+# Cloudflare MCP (stdio) — custom server exposing read-only tools
+[mcp_servers.cloudflare]
+command = "node"
+args = ["scripts/mcp/cloudflare-mcp.mjs"]
+# Pass-through environment for auth; set CF_API_TOKEN in your shell or in Codex env
+# env = { CF_API_TOKEN = "${CF_API_TOKEN}" }
+
+# Optional: mark this worktree as trusted
+[projects]
+[projects."/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub"]
+trust_level = "trusted"
+
+# Named profiles for quick switching
+[profiles]
+
+[profiles.dev]
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+model_reasoning_effort = "medium"
+model_reasoning_summary = "auto"
+model_verbosity = "medium"
+
+[profiles.ci]
+approval_policy = "on-failure"
+sandbox_mode = "read-only"
+model_reasoning_effort = "minimal"
+model_reasoning_summary = "none"
+model_verbosity = "low"
+
+# OpenTelemetry (disabled by default)
+[otel]
+environment = "dev"
+exporter = "none"        # set to otlp-http or otlp-grpc if you configure a collector
+log_user_prompt = false   # keep prompts redacted unless explicitly enabled

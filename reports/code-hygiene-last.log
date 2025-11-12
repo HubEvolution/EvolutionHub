@@ -1,764 +1,918 @@
 
+[format $ npm run format]
+
 > evolution-hub@0.0.1 format
 > prettier --write "src/**/*.{ts,tsx,astro,json,md}" "tests/**/*.{ts,tsx}" "scripts/**/*.{ts,js,mjs}" "*.{json,md,yaml,yml}"
 
-src/components/account/DeleteAccountSection.tsx 113ms (unchanged)
-src/components/admin/AdminClient.tsx 7ms (unchanged)
-src/components/admin/BulkActions.tsx 24ms (unchanged)
-src/components/AosWrapper.astro 148ms (unchanged)
-src/components/auth/MagicLinkForm.astro 149ms (unchanged)
-src/components/AvatarUploadModal.astro 92ms (unchanged)
-src/components/BillingNotice.tsx 29ms (unchanged)
-src/components/blog/BlogCTA.astro 71ms (unchanged)
-src/components/blog/LeadMagnetCTA.astro 144ms (unchanged)
-src/components/blog/NewsletterCTA.astro 64ms (unchanged)
-src/components/BlogCard.astro 32ms (unchanged)
-src/components/BlogList.astro 16ms (unchanged)
-src/components/BlogPost.astro 67ms (unchanged)
-src/components/brand/EvolutionHubWordmark.astro 10ms (unchanged)
-src/components/brand/EvolutionHubWordmarkChamfered.astro 9ms (unchanged)
-src/components/brand/EvolutionHubWordmarkOutlined.astro 21ms (unchanged)
-src/components/CategoryFilter.astro 21ms (unchanged)
-src/components/comments/CommentErrorBoundary.tsx 11ms (unchanged)
-src/components/comments/CommentForm.tsx 15ms (unchanged)
-src/components/comments/CommentKeyboardNav.tsx 77ms (unchanged)
-src/components/comments/CommentList.astro 5ms (unchanged)
-src/components/comments/CommentList.tsx 54ms (unchanged)
-src/components/comments/CommentMobile.tsx 46ms (unchanged)
-src/components/comments/CommentSection.tsx 12ms (unchanged)
-src/components/comments/CommentStats.tsx 8ms (unchanged)
-src/components/comments/CommentThreading.tsx 20ms (unchanged)
-src/components/dashboard/AccountSettingsSection.astro 45ms (unchanged)
-src/components/dashboard/BillingCard.tsx 16ms (unchanged)
-src/components/dashboard/CommunicationBillingCard.astro 8ms (unchanged)
-src/components/dashboard/ConsentPreferencesCard.tsx 11ms (unchanged)
+src/assets/brand/colors/colors.json 21ms (unchanged)
+src/assets/README.md 301ms (unchanged)
+src/components/account/DeleteAccountSection.tsx 63ms (unchanged)
+src/components/admin/BulkActions.tsx 9ms (unchanged)
+src/components/admin/dashboard/AdminDashboardApp.tsx 5ms (unchanged)
+src/components/admin/dashboard/hooks/useAdminAuditLogs.ts 9ms (unchanged)
+src/components/admin/dashboard/hooks/useAdminCredits.ts 6ms (unchanged)
+src/components/admin/dashboard/hooks/useAdminMetrics.ts 6ms (unchanged)
+src/components/admin/dashboard/hooks/useAdminStatus.ts 5ms (unchanged)
+src/components/admin/dashboard/hooks/useAdminTelemetry.ts 4ms (unchanged)
+src/components/admin/dashboard/hooks/useAdminUserInsights.ts 16ms (unchanged)
+src/components/admin/dashboard/hooks/useAdminUserList.ts 15ms (unchanged)
+src/components/admin/dashboard/sections/AuditMonitoringSection.tsx 14ms (unchanged)
+src/components/admin/dashboard/sections/FinancialFeatureSection.tsx 12ms (unchanged)
+src/components/admin/dashboard/sections/KpiOverviewSection.tsx 31ms (unchanged)
+src/components/admin/dashboard/sections/UserInsightsSection.tsx 72ms (unchanged)
+src/components/AGENTS.md 8ms (unchanged)
+src/components/AosWrapper.astro 33ms (unchanged)
+src/components/auth/MagicLinkForm.astro 112ms (unchanged)
+src/components/AvatarUploadModal.astro 51ms (unchanged)
+src/components/BillingNotice.tsx 7ms (unchanged)
+src/components/blog/BlogCTA.astro 60ms (unchanged)
+src/components/blog/LeadMagnetCTA.astro 61ms (unchanged)
+src/components/blog/NewsletterCTA.astro 53ms (unchanged)
+src/components/BlogCard.astro 53ms (unchanged)
+src/components/BlogList.astro 26ms (unchanged)
+src/components/BlogPost.astro 65ms (unchanged)
+src/components/brand/EvolutionHubWordmark.astro 22ms (unchanged)
+src/components/brand/EvolutionHubWordmarkChamfered.astro 11ms (unchanged)
+src/components/brand/EvolutionHubWordmarkOutlined.astro 34ms (unchanged)
+src/components/CategoryFilter.astro 22ms (unchanged)
+src/components/comments/CommentErrorBoundary.tsx 8ms (unchanged)
+src/components/comments/CommentForm.tsx 10ms (unchanged)
+src/components/comments/CommentKeyboardNav.tsx 38ms (unchanged)
+src/components/comments/CommentList.astro 2ms (unchanged)
+src/components/comments/CommentList.tsx 25ms (unchanged)
+src/components/comments/CommentMobile.tsx 31ms (unchanged)
+src/components/comments/CommentSection.tsx 11ms (unchanged)
+src/components/comments/CommentStats.tsx 7ms (unchanged)
+src/components/comments/CommentThreading.tsx 29ms (unchanged)
+src/components/dashboard/AccountSettingsSection.astro 53ms (unchanged)
+src/components/dashboard/BillingCard.tsx 11ms (unchanged)
+src/components/dashboard/CommunicationBillingCard.astro 11ms (unchanged)
+src/components/dashboard/ConsentPreferencesCard.tsx 12ms (unchanged)
 src/components/dashboard/NewsletterPreferencesCard.tsx 4ms (unchanged)
-src/components/dashboard/ProfileAccountCard.astro 7ms (unchanged)
-src/components/dashboard/RecentCommentsCard.tsx 6ms (unchanged)
+src/components/dashboard/ProfileAccountCard.astro 8ms (unchanged)
+src/components/dashboard/RecentCommentsCard.tsx 5ms (unchanged)
 src/components/dashboard/RecommendationsCard.astro 17ms (unchanged)
-src/components/dashboard/ReferralCard.tsx 11ms
+src/components/dashboard/ReferralCard.tsx 18ms (unchanged)
 src/components/dashboard/StatsCard.astro 8ms (unchanged)
-src/components/dashboard/ToolShortcutsCard.astro 6ms (unchanged)
-src/components/dashboard/UserProfile.astro 13ms (unchanged)
+src/components/dashboard/ToolShortcutsCard.astro 7ms (unchanged)
+src/components/dashboard/UserProfile.astro 15ms (unchanged)
 src/components/DebugPanelIsland.astro 2ms (unchanged)
-src/components/ErrorBoundary.astro 9ms (unchanged)
-src/components/Fallback.astro 23ms (unchanged)
-src/components/Footer.astro 57ms (unchanged)
-src/components/forms/LeadMagnetForm.astro 47ms (unchanged)
+src/components/ErrorBoundary.astro 12ms (unchanged)
+src/components/Fallback.astro 29ms (unchanged)
+src/components/Footer.astro 74ms (unchanged)
+src/components/forms/LeadMagnetForm.astro 48ms (unchanged)
 src/components/Header.astro 94ms (unchanged)
-src/components/landing/CardGraph.tsx 39ms (unchanged)
-src/components/landing/ConnectionCTA.astro 8ms (unchanged)
-src/components/landing/EchoAvatars.tsx 5ms (unchanged)
-src/components/landing/EchoBackdrop.tsx 17ms (unchanged)
-src/components/landing/FeatureConnections.tsx 26ms (unchanged)
-src/components/landing/HeroNebula.tsx 12ms (unchanged)
-src/components/landing/HeroStatusLights.tsx 31ms (unchanged)
-src/components/landing/HoloFeaturePanel.astro 15ms (unchanged)
+src/components/landing/CardGraph.tsx 24ms (unchanged)
+src/components/landing/ConnectionCTA.astro 7ms (unchanged)
+src/components/landing/EchoAvatars.tsx 3ms (unchanged)
+src/components/landing/EchoBackdrop.tsx 6ms (unchanged)
+src/components/landing/FeatureConnections.tsx 20ms (unchanged)
+src/components/landing/HeroNebula.tsx 7ms (unchanged)
+src/components/landing/HeroStatusLights.tsx 18ms (unchanged)
+src/components/landing/HoloFeaturePanel.astro 7ms (unchanged)
 src/components/landing/LottieIcon.tsx 4ms (unchanged)
-src/components/landing/StarfieldBackdrop.tsx 11ms (unchanged)
-src/components/landing/TestimonialCard.astro 14ms (unchanged)
+src/components/landing/StarfieldBackdrop.tsx 7ms (unchanged)
+src/components/landing/TestimonialCard.astro 7ms (unchanged)
 src/components/landing/TestimonialsGrid.astro 4ms (unchanged)
-src/components/landing/TestimonialsRotatingGrid.tsx 20ms (unchanged)
-src/components/Newsletter.astro 30ms (unchanged)
-src/components/notifications/NotificationCenter.tsx 10ms (unchanged)
-src/components/notifications/NotificationSettings.tsx 14ms (unchanged)
-src/components/Pagination.astro 25ms (unchanged)
-src/components/pricing/FeatureComparison.astro 19ms (unchanged)
-src/components/pricing/PricingTable.astro 75ms (unchanged)
-src/components/projects/ProjectList.tsx 12ms (unchanged)
-src/components/projects/ProjectManagement.tsx 3ms (unchanged)
+src/components/landing/TestimonialsRotatingGrid.tsx 12ms (unchanged)
+src/components/Newsletter.astro 25ms (unchanged)
+src/components/notifications/NotificationCenter.tsx 15ms (unchanged)
+src/components/notifications/NotificationSettings.tsx 15ms (unchanged)
+src/components/Pagination.astro 20ms (unchanged)
+src/components/pricing/details-config.ts 2ms (unchanged)
+src/components/pricing/FeatureComparison.astro 31ms (unchanged)
+src/components/pricing/PricingDetailsBootstrap.tsx 3ms (unchanged)
+src/components/pricing/PricingDetailsProvider.tsx 38ms (unchanged)
+src/components/pricing/PricingTable.astro 78ms (unchanged)
+src/components/projects/ProjectList.tsx 10ms (unchanged)
+src/components/projects/ProjectManagement.tsx 4ms (unchanged)
 src/components/projects/ProjectModal.tsx 10ms (unchanged)
-src/components/scripts/AnalyticsCoordinator.astro 15ms (unchanged)
-src/components/scripts/AOSCoordinator.astro 12ms (unchanged)
-src/components/scripts/AuthSessionPoller.tsx 3ms (unchanged)
+src/components/scripts/AnalyticsCoordinator.astro 19ms (unchanged)
+src/components/scripts/AOSCoordinator.astro 19ms (unchanged)
+src/components/scripts/AuthSessionPoller.tsx 4ms (unchanged)
 src/components/scripts/AuthStatusNotifier.tsx 10ms (unchanged)
 src/components/scripts/DebugInterceptors.tsx 2ms (unchanged)
-src/components/scripts/HeaderScroll.astro 13ms (unchanged)
-src/components/scripts/MagicLinkFormEnhancer.tsx 10ms (unchanged)
-src/components/scripts/ProfileFormEnhancer.tsx 126ms (unchanged)
-src/components/scripts/TypewriterComponent.astro 14ms (unchanged)
-src/components/scripts/VerifyEmailCoordinator.astro 52ms (unchanged)
-src/components/SettingsScript.astro 2ms (unchanged)
+src/components/scripts/HeaderScroll.astro 23ms (unchanged)
+src/components/scripts/MagicLinkFormEnhancer.tsx 9ms (unchanged)
+src/components/scripts/ProfileFormEnhancer.tsx 4ms (unchanged)
+src/components/scripts/TypewriterComponent.astro 9ms (unchanged)
+src/components/scripts/VerifyEmailCoordinator.astro 14ms (unchanged)
+src/components/SettingsScript.astro 3ms (unchanged)
 src/components/SkipLink.astro 2ms (unchanged)
-src/components/TestimonialCarousel.astro 24ms (unchanged)
-src/components/ThemeProvider.astro 5ms (unchanged)
-src/components/ThemeToggle.astro 3ms (unchanged)
+src/components/TestimonialCarousel.astro 22ms (unchanged)
+src/components/ThemeProvider.astro 4ms (unchanged)
+src/components/ThemeToggle.astro 4ms (unchanged)
 src/components/Toaster.tsx 1ms (unchanged)
-src/components/tools/faq/ContactTeaser.astro 34ms (unchanged)
+src/components/tools/faq/ContactTeaser.astro 33ms (unchanged)
 src/components/tools/imag-enhancer/__tests__/ModelControls.test.tsx 4ms (unchanged)
-src/components/tools/imag-enhancer/__tests__/useCompareInteractions.test.tsx 10ms (unchanged)
-src/components/tools/imag-enhancer/ActionsGroup.tsx 3ms (unchanged)
-src/components/tools/imag-enhancer/api.ts 3ms (unchanged)
-src/components/tools/imag-enhancer/CompareSlider.tsx 25ms (unchanged)
-src/components/tools/imag-enhancer/CompareView.tsx 5ms (unchanged)
+src/components/tools/imag-enhancer/__tests__/useCompareInteractions.test.tsx 9ms (unchanged)
+src/components/tools/imag-enhancer/ActionsGroup.tsx 4ms (unchanged)
+src/components/tools/imag-enhancer/api.ts 2ms (unchanged)
+src/components/tools/imag-enhancer/CompareSlider.tsx 8ms (unchanged)
+src/components/tools/imag-enhancer/CompareView.tsx 4ms (unchanged)
 src/components/tools/imag-enhancer/CreditsPanel.tsx 2ms (unchanged)
-src/components/tools/imag-enhancer/Dropzone.tsx 3ms (unchanged)
-src/components/tools/imag-enhancer/EnhancerActions.tsx 3ms (unchanged)
-src/components/tools/imag-enhancer/gating.test.ts 9ms (unchanged)
-src/components/tools/imag-enhancer/gating.ts 3ms (unchanged)
-src/components/tools/imag-enhancer/HeaderBar.tsx 3ms (unchanged)
+src/components/tools/imag-enhancer/Dropzone.tsx 5ms (unchanged)
+src/components/tools/imag-enhancer/EnhancerActions.tsx 5ms (unchanged)
+src/components/tools/imag-enhancer/gating.test.ts 2ms (unchanged)
+src/components/tools/imag-enhancer/gating.ts 1ms (unchanged)
+src/components/tools/imag-enhancer/HeaderBar.tsx 2ms (unchanged)
 src/components/tools/imag-enhancer/HelpModal.tsx 6ms (unchanged)
-src/components/tools/imag-enhancer/hooks/useClipboardImagePaste.ts 3ms (unchanged)
-src/components/tools/imag-enhancer/hooks/useCompareInteractions.ts 24ms (unchanged)
-src/components/tools/imag-enhancer/hooks/useCreditsCheckout.ts 3ms (unchanged)
-src/components/tools/imag-enhancer/hooks/useDownload.ts 3ms (unchanged)
-src/components/tools/imag-enhancer/hooks/useEnhance.ts 2ms (unchanged)
-src/components/tools/imag-enhancer/hooks/useGlobalShortcuts.ts 2ms (unchanged)
-src/components/tools/imag-enhancer/hooks/useImageBoxSize.ts 9ms (unchanged)
-src/components/tools/imag-enhancer/hooks/usePlanGating.ts 2ms (unchanged)
-src/components/tools/imag-enhancer/hooks/useRateLimit.ts 4ms (unchanged)
-src/components/tools/imag-enhancer/hooks/useUsage.ts 5ms (unchanged)
-src/components/tools/imag-enhancer/hooks/useValidation.ts 2ms (unchanged)
-src/components/tools/imag-enhancer/hooks/useViewportUiMetrics.ts 3ms (unchanged)
-src/components/tools/imag-enhancer/ModelControls.tsx 5ms (unchanged)
+src/components/tools/imag-enhancer/hooks/useClipboardImagePaste.ts 2ms (unchanged)
+src/components/tools/imag-enhancer/hooks/useCompareInteractions.ts 23ms (unchanged)
+src/components/tools/imag-enhancer/hooks/useCreditsCheckout.ts 4ms (unchanged)
+src/components/tools/imag-enhancer/hooks/useDownload.ts 4ms (unchanged)
+src/components/tools/imag-enhancer/hooks/useEnhance.ts 3ms (unchanged)
+src/components/tools/imag-enhancer/hooks/useGlobalShortcuts.ts 5ms (unchanged)
+src/components/tools/imag-enhancer/hooks/useImageBoxSize.ts 8ms (unchanged)
+src/components/tools/imag-enhancer/hooks/usePlanGating.ts 3ms (unchanged)
+src/components/tools/imag-enhancer/hooks/useRateLimit.ts 5ms (unchanged)
+src/components/tools/imag-enhancer/hooks/useUsage.ts 9ms (unchanged)
+src/components/tools/imag-enhancer/hooks/useValidation.ts 3ms (unchanged)
+src/components/tools/imag-enhancer/hooks/useViewportUiMetrics.ts 6ms (unchanged)
+src/components/tools/imag-enhancer/ModelControls.tsx 7ms (unchanged)
 src/components/tools/imag-enhancer/ModelSelect.tsx 2ms (unchanged)
-src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx 4ms (unchanged)
-src/components/tools/imag-enhancer/mvp/__tests__/SimpleResult.test.tsx 10ms (unchanged)
-src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx 4ms (unchanged)
-src/components/tools/imag-enhancer/mvp/__tests__/useUploadMVP.test.tsx 13ms (unchanged)
+src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx 5ms (unchanged)
+src/components/tools/imag-enhancer/mvp/__tests__/SimpleResult.test.tsx 9ms (unchanged)
+src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx 6ms (unchanged)
+src/components/tools/imag-enhancer/mvp/__tests__/useUploadMVP.test.tsx 10ms (unchanged)
 src/components/tools/imag-enhancer/mvp/EnhancerActionsMVP.tsx 4ms (unchanged)
-src/components/tools/imag-enhancer/mvp/hooks/useEnhanceMVP.ts 1ms (unchanged)
+src/components/tools/imag-enhancer/mvp/hooks/useEnhanceMVP.ts 2ms (unchanged)
 src/components/tools/imag-enhancer/mvp/hooks/useUploadMVP.ts 3ms (unchanged)
-src/components/tools/imag-enhancer/mvp/ImagEnhancerMVP.tsx 9ms (unchanged)
+src/components/tools/imag-enhancer/mvp/ImagEnhancerMVP.tsx 15ms (unchanged)
 src/components/tools/imag-enhancer/mvp/ImagEnhancerRouter.tsx 2ms (unchanged)
-src/components/tools/imag-enhancer/mvp/SimpleResult.tsx 4ms (unchanged)
-src/components/tools/imag-enhancer/mvp/types.ts 2ms (unchanged)
+src/components/tools/imag-enhancer/mvp/SimpleResult.tsx 5ms (unchanged)
+src/components/tools/imag-enhancer/mvp/types.ts 6ms (unchanged)
 src/components/tools/imag-enhancer/StatusUsagePill.tsx 2ms (unchanged)
 src/components/tools/imag-enhancer/types.ts 1ms (unchanged)
 src/components/tools/imag-enhancer/UploadSection.tsx 2ms (unchanged)
-src/components/tools/imag-enhancer/UsagePill.tsx 3ms (unchanged)
+src/components/tools/imag-enhancer/UsagePill.tsx 4ms (unchanged)
 src/components/tools/imag-enhancer/utils/ui.ts 1ms (unchanged)
-src/components/tools/ImagEnhancerIsland.tsx 40ms (unchanged)
+src/components/tools/ImagEnhancerIsland.tsx 48ms (unchanged)
 src/components/tools/prompt-enhancer/api.ts 3ms (unchanged)
-src/components/tools/prompt-enhancer/EnhancerForm.test.tsx 7ms (unchanged)
-src/components/tools/prompt-enhancer/EnhancerForm.tsx 50ms (unchanged)
+src/components/tools/prompt-enhancer/EnhancerForm.test.tsx 6ms (unchanged)
+src/components/tools/prompt-enhancer/EnhancerForm.tsx 23ms (unchanged)
 src/components/tools/prompt-enhancer/hooks/useEnhance.ts 2ms (unchanged)
-src/components/tools/prompt-enhancer/hooks/useRateLimit.ts 4ms (unchanged)
+src/components/tools/prompt-enhancer/hooks/useRateLimit.ts 3ms (unchanged)
 src/components/tools/prompt-enhancer/hooks/useUsage.ts 3ms (unchanged)
-src/components/tools/prompt-enhancer/types.ts 1ms (unchanged)
+src/components/tools/prompt-enhancer/types.ts 2ms (unchanged)
 src/components/tools/shared/islandStyles.ts 1ms (unchanged)
-src/components/tools/shared/ToolPageHeader.astro 11ms (unchanged)
-src/components/tools/ToolCard.astro 30ms (unchanged)
-src/components/tools/ToolFilter.astro 16ms (unchanged)
-src/components/tools/video-enhancer/VideoEnhancerIsland.tsx 16ms (unchanged)
-src/components/tools/voice-visualizer/api.ts 5ms (unchanged)
-src/components/tools/voice-visualizer/hooks/useMicrophone.ts 7ms (unchanged)
-src/components/tools/voice-visualizer/hooks/useTranscribeStream.ts 16ms (unchanged)
+src/components/tools/shared/ToolPageHeader.astro 7ms (unchanged)
+src/components/tools/ToolCard.astro 20ms (unchanged)
+src/components/tools/ToolDetailsModal.tsx 5ms (unchanged)
+src/components/tools/ToolFilter.astro 12ms (unchanged)
+src/components/tools/ToolsIndexIsland.tsx 3ms (unchanged)
+src/components/tools/video-enhancer/VideoEnhancerIsland.tsx 19ms (unchanged)
+src/components/tools/voice-visualizer/api.ts 3ms (unchanged)
+src/components/tools/voice-visualizer/hooks/useMicrophone.ts 5ms (unchanged)
+src/components/tools/voice-visualizer/hooks/useTranscribeStream.ts 7ms (unchanged)
 src/components/tools/voice-visualizer/VisualizerCanvas.tsx 3ms (unchanged)
-src/components/tools/voice-visualizer/VoiceVisualizerIsland.tsx 13ms (unchanged)
-src/components/tools/webscraper/WebscraperForm.tsx 4ms (unchanged)
+src/components/tools/voice-visualizer/VoiceVisualizerIsland.tsx 10ms (unchanged)
+src/components/tools/webscraper/WebscraperForm.tsx 3ms (unchanged)
 src/components/tools/webscraper/WebscraperIsland.tsx 7ms (unchanged)
-src/components/tools/webscraper/WebscraperResults.tsx 25ms (unchanged)
-src/components/ui/Alert.tsx 1ms (unchanged)
+src/components/tools/webscraper/WebscraperResults.tsx 15ms (unchanged)
+src/components/ui/Alert.tsx 2ms (unchanged)
 src/components/ui/Button.astro 5ms (unchanged)
-src/components/ui/Button.tsx 3ms (unchanged)
+src/components/ui/Button.tsx 2ms (unchanged)
 src/components/ui/buttonStyles.ts 1ms (unchanged)
 src/components/ui/Card.tsx 1ms (unchanged)
-src/components/ui/ComingSoon.astro 9ms (unchanged)
-src/components/ui/DebugPanel.tsx 36ms (unchanged)
-src/components/ui/DebugPanelOverlay.tsx 45ms (unchanged)
+src/components/ui/ComingSoon.astro 10ms (unchanged)
+src/components/ui/DebugPanel.tsx 35ms (unchanged)
+src/components/ui/DebugPanelOverlay.tsx 29ms (unchanged)
 src/components/ui/FormLabel.astro 2ms (unchanged)
-src/components/ui/Icon.astro 147ms (unchanged)
-src/components/ui/Icon.tsx 6ms (unchanged)
+src/components/ui/Icon.astro 140ms (unchanged)
+src/components/ui/Icon.tsx 5ms (unchanged)
 src/components/ui/icons/Icon.astro 3ms (unchanged)
-src/components/ui/icons/SpriteDefs.astro 5ms (unchanged)
+src/components/ui/icons/SpriteDefs.astro 4ms (unchanged)
 src/components/ui/icons/Upload.tsx 1ms (unchanged)
-src/components/ui/Input.astro 4ms (unchanged)
+src/components/ui/Input.astro 5ms (unchanged)
 src/components/ui/Skeleton.astro 4ms (unchanged)
 src/config/ai-image.ts 3ms (unchanged)
-src/config/ai-image/entitlements.ts 3ms (unchanged)
+src/config/ai-image/entitlements.ts 4ms (unchanged)
 src/config/ai-video.ts 2ms (unchanged)
 src/config/ai-video/entitlements.ts 1ms (unchanged)
 src/config/coming-soon.ts 2ms (unchanged)
 src/config/contact.ts 1ms (unchanged)
-src/config/logging.ts 4ms (unchanged)
+src/config/logging.ts 15ms (unchanged)
 src/config/prompt-enhancer.ts 3ms (unchanged)
-src/config/social.ts 2ms (unchanged)
-src/config/voice/entitlements.ts 2ms (unchanged)
+src/config/social.ts 1ms (unchanged)
+src/config/voice/entitlements.ts 1ms (unchanged)
 src/config/voice/index.ts 1ms (unchanged)
 src/config/webscraper.ts 2ms (unchanged)
 src/config/webscraper/entitlements.ts 1ms (unchanged)
-src/content/config.ts 10ms (unchanged)
-src/content/testimonials/imag/de/leila-m.md 24ms (unchanged)
-src/content/testimonials/imag/de/nina-p.md 7ms (unchanged)
+src/content/config.ts 2ms (unchanged)
+src/content/testimonials/imag/de/leila-m.md 15ms (unchanged)
+src/content/testimonials/imag/de/nina-p.md 2ms (unchanged)
 src/content/testimonials/imag/en/amira-k.md 2ms (unchanged)
 src/content/testimonials/imag/en/mika-s.md 2ms (unchanged)
 src/content/testimonials/prompt/de/andreas-b.md 2ms (unchanged)
 src/content/testimonials/prompt/de/karla-s.md 1ms (unchanged)
-src/content/testimonials/prompt/en/alex-r.md 1ms (unchanged)
-src/content/testimonials/prompt/en/sara-t.md 1ms (unchanged)
+src/content/testimonials/prompt/en/alex-r.md 2ms (unchanged)
+src/content/testimonials/prompt/en/sara-t.md 2ms (unchanged)
 src/content/testimonials/video/de/jonas-k.md 2ms (unchanged)
-src/content/testimonials/video/de/lina-r.md 3ms (unchanged)
+src/content/testimonials/video/de/lina-r.md 2ms (unchanged)
 src/content/testimonials/video/en/chris-p.md 2ms (unchanged)
 src/content/testimonials/video/en/ivy-l.md 2ms (unchanged)
 src/content/testimonials/voice/de/diego-r.md 2ms (unchanged)
 src/content/testimonials/voice/de/hania-l.md 1ms (unchanged)
-src/content/testimonials/voice/en/jane-d.md 1ms (unchanged)
-src/content/testimonials/voice/en/omar-a.md 1ms (unchanged)
-src/content/testimonials/web/de/felix-h.md 1ms (unchanged)
+src/content/testimonials/voice/en/jane-d.md 2ms (unchanged)
+src/content/testimonials/voice/en/omar-a.md 2ms (unchanged)
+src/content/testimonials/web/de/felix-h.md 3ms (unchanged)
 src/content/testimonials/web/de/sabine-k.md 1ms (unchanged)
-src/content/testimonials/web/en/lucy-w.md 3ms (unchanged)
-src/content/testimonials/web/en/mark-g.md 1ms (unchanged)
-src/content/types.ts 2ms (unchanged)
-src/env.d.ts 6ms (unchanged)
-src/layouts/AuthLayout.astro 6ms (unchanged)
-src/layouts/BaseLayout.astro 53ms (unchanged)
+src/content/testimonials/web/en/lucy-w.md 1ms (unchanged)
+src/content/testimonials/web/en/mark-g.md 2ms (unchanged)
+src/content/types.ts 3ms (unchanged)
+src/env.d.ts 5ms (unchanged)
+src/layouts/AuthLayout.astro 4ms (unchanged)
+src/layouts/BaseLayout.astro 61ms (unchanged)
+src/lib/admin/api-client.ts 16ms (unchanged)
 src/lib/aos.test.ts 2ms (unchanged)
 src/lib/aos.ts 2ms (unchanged)
-src/lib/api-middleware.ts 17ms (unchanged)
+src/lib/api-middleware.ts 20ms (unchanged)
 src/lib/auth-helpers.ts 6ms (unchanged)
-src/lib/auth-v2.ts 12ms (unchanged)
+src/lib/auth-v2.ts 5ms (unchanged)
 src/lib/auth.ts 1ms (unchanged)
 src/lib/beacon-interceptor.ts 3ms (unchanged)
-src/lib/blog.ts 14ms (unchanged)
+src/lib/blog.ts 15ms (unchanged)
 src/lib/client-logger.ts 4ms (unchanged)
 src/lib/client/telemetry.ts 3ms (unchanged)
-src/lib/console-interceptor.ts 4ms (unchanged)
-src/lib/content.ts 7ms (unchanged)
+src/lib/console-interceptor.ts 3ms (unchanged)
+src/lib/content.ts 8ms (unchanged)
 src/lib/content/testimonials.ts 4ms (unchanged)
-src/lib/db/helpers.ts 11ms (unchanged)
+src/lib/contentful/client.ts 9ms (unchanged)
+src/lib/contentful/excerpt.ts 1ms (unchanged)
+src/lib/contentful/index.ts 0ms (unchanged)
+src/lib/datetime/index.ts 1ms (unchanged)
+src/lib/db/helpers.ts 13ms (unchanged)
 src/lib/db/schema.ts 18ms (unchanged)
-src/lib/db/types.ts 4ms (unchanged)
+src/lib/db/types.ts 6ms (unchanged)
 src/lib/env/environment.ts 3ms (unchanged)
-src/lib/error-handler.ts 4ms (unchanged)
-src/lib/global-error-interceptor.ts 3ms (unchanged)
+src/lib/error-handler.ts 3ms (unchanged)
+src/lib/global-error-interceptor.ts 2ms (unchanged)
 src/lib/handlers.ts 2ms (unchanged)
 src/lib/i18n.test.ts 2ms (unchanged)
 src/lib/i18n.ts 2ms (unchanged)
 src/lib/i18n/accept-language.ts 3ms (unchanged)
-src/lib/kv/usage.test.ts 7ms (unchanged)
-src/lib/kv/usage.ts 16ms (unchanged)
-src/lib/locale-path.test.ts 3ms (unchanged)
+src/lib/kv/usage.test.ts 5ms (unchanged)
+src/lib/kv/usage.ts 14ms (unchanged)
+src/lib/locale-path.test.ts 2ms (unchanged)
 src/lib/locale-path.ts 3ms (unchanged)
-src/lib/network-interceptor.ts 10ms (unchanged)
-src/lib/notify.ts 2ms (unchanged)
-src/lib/rate-limiter.d.ts 3ms (unchanged)
-src/lib/rate-limiter.ts 13ms (unchanged)
+src/lib/network-interceptor.ts 9ms (unchanged)
+src/lib/notify.ts 3ms (unchanged)
+src/lib/rate-limiter.d.ts 1ms (unchanged)
+src/lib/rate-limiter.ts 15ms (unchanged)
 src/lib/referrals/utils.ts 2ms (unchanged)
-src/lib/response-helpers.ts 4ms (unchanged)
-src/lib/script-coordinator.ts 14ms (unchanged)
-src/lib/security-headers.ts 6ms (unchanged)
-src/lib/security-logger.ts 6ms (unchanged)
+src/lib/response-helpers.ts 5ms (unchanged)
+src/lib/script-coordinator.ts 7ms (unchanged)
+src/lib/security-headers.ts 5ms (unchanged)
+src/lib/security-logger.ts 5ms (unchanged)
+src/lib/security/cloudflare-access.ts 4ms (unchanged)
 src/lib/security/csrf.d.ts 1ms (unchanged)
-src/lib/security/csrf.ts 5ms (unchanged)
+src/lib/security/csrf.ts 4ms (unchanged)
 src/lib/security/sanitize.d.ts 1ms (unchanged)
 src/lib/security/sanitize.ts 2ms (unchanged)
 src/lib/seo.ts 2ms (unchanged)
-src/lib/services/ai-image-service.ts 71ms (unchanged)
+src/lib/services/ai-image-service.ts 48ms (unchanged)
 src/lib/services/ai-image/providers/workers-ai.ts 3ms (unchanged)
-src/lib/services/ai-jobs-service.ts 23ms (unchanged)
-src/lib/services/audit-log-service.ts 5ms (unchanged)
-src/lib/services/auth-service-impl.ts 13ms (unchanged)
-src/lib/services/auth-service.ts 4ms (unchanged)
-src/lib/services/backup-service.ts 25ms (unchanged)
-src/lib/services/base-service.ts 4ms (unchanged)
-src/lib/services/comment-service-extended.ts 45ms (unchanged)
-src/lib/services/comment-service.ts 70ms (unchanged)
-src/lib/services/data-export-service.ts 36ms (unchanged)
-src/lib/services/email-service-impl.ts 8ms (unchanged)
+src/lib/services/ai-jobs-service.ts 21ms (unchanged)
+src/lib/services/audit-log-service.ts 4ms (unchanged)
+src/lib/services/auth-service-impl.ts 9ms (unchanged)
+src/lib/services/auth-service.ts 2ms (unchanged)
+src/lib/services/backup-service.ts 22ms (unchanged)
+src/lib/services/base-service.ts 3ms (unchanged)
+src/lib/services/comment-service-extended.ts 26ms (unchanged)
+src/lib/services/comment-service.ts 38ms (unchanged)
+src/lib/services/data-export-service.ts 23ms (unchanged)
+src/lib/services/email-service-impl.ts 7ms (unchanged)
 src/lib/services/email-service.ts 2ms (unchanged)
-src/lib/services/logger-utils.ts 3ms (unchanged)
-src/lib/services/notification-service.ts 24ms (unchanged)
-src/lib/services/performance-service.ts 28ms (unchanged)
-src/lib/services/project-service.ts 2ms (unchanged)
-src/lib/services/prompt-attachments.ts 7ms (unchanged)
-src/lib/services/prompt-enhancer-service.ts 48ms (unchanged)
+src/lib/services/logger-utils.ts 2ms (unchanged)
+src/lib/services/notification-service.ts 21ms (unchanged)
+src/lib/services/performance-service.ts 21ms (unchanged)
+src/lib/services/project-service.ts 4ms (unchanged)
+src/lib/services/prompt-attachments.ts 4ms (unchanged)
+src/lib/services/prompt-enhancer-service.ts 26ms (unchanged)
 src/lib/services/provider-error.d.ts 1ms (unchanged)
 src/lib/services/provider-error.ts 2ms (unchanged)
-src/lib/services/referral-event-service.ts 5ms
-src/lib/services/referral-profile-service.ts 10ms (unchanged)
-src/lib/services/referral-summary-service.ts 6ms
+src/lib/services/referral-admin-service.ts 9ms (unchanged)
+src/lib/services/referral-event-service.ts 3ms (unchanged)
+src/lib/services/referral-profile-service.ts 5ms (unchanged)
+src/lib/services/referral-reward-service.ts 6ms (unchanged)
+src/lib/services/referral-summary-service.ts 8ms (unchanged)
 src/lib/services/types.ts 2ms (unchanged)
-src/lib/services/user-service.ts 1ms (unchanged)
-src/lib/services/voice-stream-aggregator.ts 6ms (unchanged)
-src/lib/services/voice-transcribe-service.ts 11ms (unchanged)
-src/lib/services/webscraper-service.ts 20ms (unchanged)
-src/lib/settings-module.ts 12ms (unchanged)
+src/lib/services/user-service.ts 2ms (unchanged)
+src/lib/services/voice-stream-aggregator.ts 5ms (unchanged)
+src/lib/services/voice-transcribe-service.ts 13ms (unchanged)
+src/lib/services/webscraper-service.ts 17ms (unchanged)
+src/lib/settings-module.ts 10ms (unchanged)
 src/lib/spam-detection.d.ts 1ms (unchanged)
-src/lib/spam-detection.ts 10ms (unchanged)
-src/lib/stores/project-store.ts 10ms (unchanged)
-src/lib/stytch.ts 11ms (unchanged)
-src/lib/tools-data.ts 3ms (unchanged)
+src/lib/spam-detection.ts 9ms (unchanged)
+src/lib/stores/project-store.ts 9ms (unchanged)
+src/lib/stytch.ts 10ms (unchanged)
+src/lib/testing/web-eval/env.ts 2ms (unchanged)
+src/lib/testing/web-eval/index.ts 1ms (unchanged)
+src/lib/testing/web-eval/provider.ts 1ms (unchanged)
+src/lib/testing/web-eval/ssrf.ts 2ms (unchanged)
+src/lib/testing/web-eval/storage.ts 4ms (unchanged)
+src/lib/testing/web-eval/types.ts 2ms (unchanged)
+src/lib/tools-data.ts 5ms (unchanged)
 src/lib/types/admin.ts 1ms (unchanged)
 src/lib/types/audit.ts 2ms (unchanged)
-src/lib/types/comments.ts 3ms (unchanged)
-src/lib/types/data-management.ts 4ms (unchanged)
+src/lib/types/comments.ts 4ms (unchanged)
+src/lib/types/data-management.ts 3ms (unchanged)
 src/lib/types/notifications.ts 3ms (unchanged)
 src/lib/types/performance.ts 3ms (unchanged)
-src/lib/typewriter.ts 3ms (unchanged)
+src/lib/typewriter.ts 2ms (unchanged)
 src/lib/utils/assert.ts 1ms (unchanged)
-src/lib/utils/id-generator.d.ts 1ms (unchanged)
+src/lib/utils/id-generator.d.ts 0ms (unchanged)
 src/lib/utils/id-generator.ts 1ms (unchanged)
 src/lib/utils/mime.ts 2ms (unchanged)
-src/lib/validation/errors.ts 2ms (unchanged)
+src/lib/validation/errors.ts 1ms (unchanged)
 src/lib/validation/index.ts 1ms (unchanged)
-src/lib/validation/schemas/admin.ts 2ms (unchanged)
-src/lib/validation/schemas/ai-image.ts 9ms (unchanged)
-src/lib/validation/schemas/ai-video.ts 4ms (unchanged)
-src/lib/validation/schemas/billing.ts 1ms (unchanged)
+src/lib/validation/schemas/admin-backup.ts 3ms (unchanged)
+src/lib/validation/schemas/admin.ts 3ms (unchanged)
+src/lib/validation/schemas/ai-image.ts 4ms (unchanged)
+src/lib/validation/schemas/ai-video.ts 2ms (unchanged)
+src/lib/validation/schemas/billing.ts 2ms (unchanged)
+src/lib/validation/schemas/comments.ts 22ms (unchanged)
 src/lib/validation/schemas/common.ts 1ms (unchanged)
 src/lib/validation/schemas/contact.ts 2ms (unchanged)
 src/lib/validation/schemas/dashboard.ts 1ms (unchanged)
 src/lib/validation/schemas/newsletter.ts 1ms (unchanged)
-src/lib/validation/schemas/prompt.ts 1ms (unchanged)
+src/lib/validation/schemas/notifications.ts 5ms (unchanged)
+src/lib/validation/schemas/prompt.ts 5ms (unchanged)
+src/lib/validation/schemas/referral.ts 2ms (unchanged)
 src/lib/validation/schemas/templates.ts 1ms (unchanged)
 src/lib/validation/schemas/users.ts 1ms (unchanged)
 src/lib/validation/schemas/voice.ts 2ms (unchanged)
+src/lib/validation/schemas/web-eval.ts 4ms (unchanged)
 src/lib/validation/schemas/webscraper.ts 2ms (unchanged)
-src/lib/validators.ts 11ms (unchanged)
-src/lib/xhr-interceptor.ts 10ms (unchanged)
+src/lib/validators.ts 15ms (unchanged)
+src/lib/xhr-interceptor.ts 8ms (unchanged)
 src/locales/archived/de-archived-2025-08-17T05-44-11-726Z.json 1ms (unchanged)
-src/locales/archived/de.backup.json 8ms (unchanged)
+src/locales/archived/de.backup.json 7ms (unchanged)
 src/locales/archived/en-archived-2025-08-17T05-44-11-722Z.json 1ms (unchanged)
-src/locales/archived/en.backup.json 2ms (unchanged)
-src/locales/de.json 28ms (unchanged)
-src/locales/en.json 16ms (unchanged)
-src/middleware-old.ts 24ms (unchanged)
-src/middleware.ts 34ms (unchanged)
-src/pages/account/settings.astro 3ms (unchanged)
-src/pages/admin/comments.astro 90ms (unchanged)
-src/pages/admin/index.astro 88ms (unchanged)
-src/pages/admin/index.client.ts 51ms (unchanged)
-src/pages/admin/status.astro 29ms (unchanged)
-src/pages/agb.astro 19ms (unchanged)
+src/locales/archived/en.backup.json 1ms (unchanged)
+src/locales/de.json 21ms (unchanged)
+src/locales/en.json 27ms (unchanged)
+src/middleware-old.ts 20ms (unchanged)
+src/middleware.ts 30ms (unchanged)
+src/pages/account/settings.astro 1ms (unchanged)
+src/pages/admin/comments.astro 93ms (unchanged)
+src/pages/admin/index.astro 2ms (unchanged)
+src/pages/admin/status.astro 28ms (unchanged)
+src/pages/agb.astro 27ms (unchanged)
 src/pages/api/admin/audit/logs/[id].ts 2ms (unchanged)
 src/pages/api/admin/audit/logs/index.ts 3ms (unchanged)
-src/pages/api/admin/backup.legacy.hono.ts 42ms (unchanged)
-src/pages/api/admin/backup/cleanup.ts 3ms (unchanged)
-src/pages/api/admin/backup/create.ts 3ms
+src/pages/api/admin/backup.legacy.hono.ts 22ms (unchanged)
+src/pages/api/admin/backup/cleanup.ts 4ms (unchanged)
+src/pages/api/admin/backup/create.ts 4ms (unchanged)
 src/pages/api/admin/backup/jobs/[id]/index.ts 3ms (unchanged)
-src/pages/api/admin/backup/jobs/[id]/progress.ts 3ms (unchanged)
+src/pages/api/admin/backup/jobs/[id]/progress.ts 4ms (unchanged)
 src/pages/api/admin/backup/jobs/index.ts 3ms (unchanged)
 src/pages/api/admin/backup/maintenance/jobs/[id].ts 3ms (unchanged)
-src/pages/api/admin/backup/maintenance/jobs/index.ts 2ms (unchanged)
-src/pages/api/admin/backup/maintenance/perform.ts 3ms
+src/pages/api/admin/backup/maintenance/jobs/index.ts 3ms (unchanged)
+src/pages/api/admin/backup/maintenance/perform.ts 3ms (unchanged)
 src/pages/api/admin/backup/schedule.ts 3ms (unchanged)
-src/pages/api/admin/backup/stats.ts 3ms (unchanged)
+src/pages/api/admin/backup/stats.ts 5ms (unchanged)
 src/pages/api/admin/backup/verify/[id].ts 3ms (unchanged)
 src/pages/api/admin/comments/[id]/index.ts 5ms (unchanged)
-src/pages/api/admin/comments/[id]/moderate.ts 3ms (unchanged)
-src/pages/api/admin/comments/bulk-moderate.ts 4ms (unchanged)
-src/pages/api/admin/comments/index.ts 7ms (unchanged)
-src/pages/api/admin/credits/deduct.ts 5ms (unchanged)
-src/pages/api/admin/credits/grant.ts 4ms (unchanged)
-src/pages/api/admin/credits/history.ts 9ms (unchanged)
-src/pages/api/admin/credits/usage.ts 2ms (unchanged)
+src/pages/api/admin/comments/[id]/moderate.ts 4ms (unchanged)
+src/pages/api/admin/comments/bulk-moderate.ts 3ms (unchanged)
+src/pages/api/admin/comments/index.ts 10ms (unchanged)
+src/pages/api/admin/credits/deduct.ts 6ms (unchanged)
+src/pages/api/admin/credits/grant.ts 6ms (unchanged)
+src/pages/api/admin/credits/history.ts 3ms (unchanged)
+src/pages/api/admin/credits/usage.ts 3ms (unchanged)
 src/pages/api/admin/ip-geo.ts 4ms (unchanged)
-src/pages/api/admin/metrics.ts 3ms (unchanged)
+src/pages/api/admin/metrics.ts 10ms (unchanged)
 src/pages/api/admin/rate-limits/reset.ts 2ms (unchanged)
-src/pages/api/admin/rate-limits/state.ts 1ms (unchanged)
+src/pages/api/admin/rate-limits/state.ts 2ms (unchanged)
+src/pages/api/admin/referrals/list.ts 4ms (unchanged)
+src/pages/api/admin/referrals/summary.ts 7ms (unchanged)
+src/pages/api/admin/referrals/update-status.ts 3ms (unchanged)
 src/pages/api/admin/status.ts 3ms (unchanged)
-src/pages/api/admin/traffic-24h.ts 10ms
+src/pages/api/admin/telemetry.ts 4ms (unchanged)
+src/pages/api/admin/traffic-24h.ts 9ms (unchanged)
+src/pages/api/admin/users/[id].ts 5ms (unchanged)
+src/pages/api/admin/users/[id]/ban.ts 5ms (unchanged)
+src/pages/api/admin/users/[id]/unban.ts 6ms (unchanged)
+src/pages/api/admin/users/list.ts 11ms (unchanged)
 src/pages/api/admin/users/revoke-sessions.ts 3ms (unchanged)
 src/pages/api/admin/users/sessions.ts 3ms (unchanged)
-src/pages/api/admin/users/set-plan.ts 11ms (unchanged)
-src/pages/api/admin/users/summary.ts 15ms (unchanged)
-src/pages/api/ai-image/generate.ts 97ms (unchanged)
-src/pages/api/ai-image/jobs/[id].ts 4ms
-src/pages/api/ai-image/jobs/[id]/cancel.ts 4ms
-src/pages/api/ai-image/jobs/index.ts 23ms (unchanged)
-src/pages/api/ai-image/usage.ts 11ms (unchanged)
-src/pages/api/ai-video/generate.ts 10ms (unchanged)
-src/pages/api/ai-video/jobs/[id].ts 5ms (unchanged)
+src/pages/api/admin/users/set-plan.ts 13ms (unchanged)
+src/pages/api/admin/users/summary.ts 22ms (unchanged)
+src/pages/api/AGENTS.md 15ms (unchanged)
+src/pages/api/ai-image/generate.ts 11ms (unchanged)
+src/pages/api/ai-image/jobs/[id].ts 5ms (unchanged)
+src/pages/api/ai-image/jobs/[id]/cancel.ts 4ms (unchanged)
+src/pages/api/ai-image/jobs/index.ts 6ms (unchanged)
+src/pages/api/ai-image/usage.ts 6ms (unchanged)
+src/pages/api/ai-video/generate.ts 6ms (unchanged)
+src/pages/api/ai-video/jobs/[id].ts 9ms (unchanged)
 src/pages/api/ai-video/upload.ts 5ms (unchanged)
-src/pages/api/analytics/views.ts 4ms (unchanged)
-src/pages/api/auth/callback.ts 13ms (unchanged)
-src/pages/api/auth/change-password.ts 1ms (unchanged)
+src/pages/api/ai-video/usage.ts 6ms (unchanged)
+src/pages/api/analytics/views.ts 5ms (unchanged)
+src/pages/api/auth/callback.ts 17ms (unchanged)
+src/pages/api/auth/change-password.ts 3ms (unchanged)
 src/pages/api/auth/forgot-password.ts 2ms (unchanged)
-src/pages/api/auth/login.ts 2ms (unchanged)
-src/pages/api/auth/logout.ts 2ms (unchanged)
-src/pages/api/auth/magic/request.ts 10ms
-src/pages/api/auth/oauth/[provider]/callback.ts 11ms (unchanged)
-src/pages/api/auth/oauth/[provider]/start.ts 6ms (unchanged)
-src/pages/api/auth/register.ts 1ms (unchanged)
+src/pages/api/auth/login.ts 1ms (unchanged)
+src/pages/api/auth/logout.ts 1ms (unchanged)
+src/pages/api/auth/magic/request.ts 15ms (unchanged)
+src/pages/api/auth/oauth/[provider]/callback.ts 13ms (unchanged)
+src/pages/api/auth/oauth/[provider]/start.ts 7ms (unchanged)
+src/pages/api/auth/register.ts 2ms (unchanged)
 src/pages/api/auth/resend-verification.ts 1ms (unchanged)
 src/pages/api/auth/reset-password.ts 1ms (unchanged)
 src/pages/api/auth/verify-email.ts 1ms (unchanged)
 src/pages/api/billing/cancel.ts 4ms (unchanged)
-src/pages/api/billing/credits.ts 4ms (unchanged)
-src/pages/api/billing/link-pending.ts 4ms (unchanged)
-src/pages/api/billing/portal.ts 3ms (unchanged)
-src/pages/api/billing/session.ts 5ms (unchanged)
-src/pages/api/billing/stripe-webhook.ts 11ms (unchanged)
-src/pages/api/billing/sync-callback.ts 2ms (unchanged)
-src/pages/api/billing/sync.ts 9ms (unchanged)
+src/pages/api/billing/credits.ts 3ms (unchanged)
+src/pages/api/billing/link-pending.ts 3ms (unchanged)
+src/pages/api/billing/portal.ts 4ms (unchanged)
+src/pages/api/billing/session.ts 4ms (unchanged)
+src/pages/api/billing/stripe-webhook.ts 14ms (unchanged)
+src/pages/api/billing/sync-callback.ts 4ms (unchanged)
+src/pages/api/billing/sync.ts 7ms (unchanged)
 src/pages/api/comments/[id].ts 10ms (unchanged)
 src/pages/api/comments/[id]/report.ts 3ms (unchanged)
 src/pages/api/comments/count.ts 6ms (unchanged)
-src/pages/api/comments/create.ts 4ms (unchanged)
+src/pages/api/comments/create.ts 3ms (unchanged)
 src/pages/api/comments/index.ts 4ms (unchanged)
 src/pages/api/comments/moderate.ts 8ms (unchanged)
-src/pages/api/comments/performance.ts 14ms (unchanged)
-src/pages/api/comments/recent.ts 4ms (unchanged)
+src/pages/api/comments/performance.ts 6ms (unchanged)
+src/pages/api/comments/recent.ts 5ms (unchanged)
 src/pages/api/contact/index.ts 6ms (unchanged)
-src/pages/api/csp-report.ts 4ms (unchanged)
-src/pages/api/dashboard/activity.ts 2ms (unchanged)
+src/pages/api/csp-report.ts 3ms (unchanged)
+src/pages/api/dashboard/activity.ts 3ms (unchanged)
 src/pages/api/dashboard/billing-summary.ts 6ms (unchanged)
 src/pages/api/dashboard/notifications.ts 2ms (unchanged)
 src/pages/api/dashboard/perform-action.ts 3ms (unchanged)
 src/pages/api/dashboard/projects.ts 3ms (unchanged)
 src/pages/api/dashboard/quick-actions.ts 1ms (unchanged)
 src/pages/api/dashboard/recommendations.ts 2ms (unchanged)
-src/pages/api/dashboard/referral-summary.ts 4ms
-src/pages/api/dashboard/stats.ts 2ms (unchanged)
-src/pages/api/data-export/index.ts 13ms (unchanged)
-src/pages/api/debug-login.ts 4ms (unchanged)
+src/pages/api/dashboard/referral-summary.ts 3ms (unchanged)
+src/pages/api/dashboard/stats.ts 3ms (unchanged)
+src/pages/api/data-export/index.ts 12ms (unchanged)
+src/pages/api/debug-login.ts 5ms (unchanged)
 src/pages/api/debug/client-log.ts 4ms (unchanged)
-src/pages/api/debug/logs-stream.ts 4ms (unchanged)
+src/pages/api/debug/logs-stream.ts 6ms (unchanged)
 src/pages/api/health.ts 4ms (unchanged)
 src/pages/api/health/auth.ts 2ms (unchanged)
 src/pages/api/internal/users/sync.ts 2ms (unchanged)
-src/pages/api/lead-magnets/download.ts 11ms (unchanged)
-src/pages/api/newsletter/confirm.ts 5ms (unchanged)
+src/pages/api/lead-magnets/download.ts 9ms (unchanged)
+src/pages/api/mcp/ping.ts 3ms (unchanged)
+src/pages/api/newsletter/confirm.ts 6ms (unchanged)
 src/pages/api/newsletter/subscribe.ts 4ms (unchanged)
 src/pages/api/newsletter/unsubscribe.ts 2ms (unchanged)
 src/pages/api/notifications/index.ts 6ms (unchanged)
-src/pages/api/notifications/queue/process.ts 4ms (unchanged)
-src/pages/api/notifications/settings.ts 6ms (unchanged)
-src/pages/api/projects/index.ts 4ms (unchanged)
+src/pages/api/notifications/queue/process.ts 5ms (unchanged)
+src/pages/api/notifications/settings/index.ts 3ms (unchanged)
+src/pages/api/notifications/settings/initialize.ts 1ms (unchanged)
+src/pages/api/notifications/settings/utils.ts 2ms (unchanged)
+src/pages/api/projects/index.ts 5ms (unchanged)
 src/pages/api/prompt-enhance.ts 10ms (unchanged)
-src/pages/api/prompt/usage.ts 5ms (unchanged)
+src/pages/api/prompt/usage.ts 6ms (unchanged)
 src/pages/api/telemetry.ts 3ms (unchanged)
-src/pages/api/templates.ts 2ms (unchanged)
+src/pages/api/templates.ts 3ms (unchanged)
+src/pages/api/test/rate-limit.ts 1ms (unchanged)
 src/pages/api/test/seed-email-token.ts 3ms (unchanged)
-src/pages/api/test/seed-suite-v2.ts 4ms (unchanged)
+src/pages/api/test/seed-referral-events.ts 5ms (unchanged)
+src/pages/api/test/seed-suite-v2.ts 6ms (unchanged)
+src/pages/api/testing/evaluate/[id].ts 3ms (unchanged)
+src/pages/api/testing/evaluate/[id]/complete.ts 3ms (unchanged)
+src/pages/api/testing/evaluate/index.ts 3ms (unchanged)
+src/pages/api/testing/evaluate/next.ts 4ms (unchanged)
+src/pages/api/testing/evaluate/next/run.ts 9ms (unchanged)
 src/pages/api/tools.ts 2ms (unchanged)
-src/pages/api/user/account.ts 4ms (unchanged)
-src/pages/api/user/avatar.ts 3ms (unchanged)
-src/pages/api/user/logout-v2.ts 3ms (unchanged)
-src/pages/api/user/logout.ts 3ms (unchanged)
-src/pages/api/user/me.ts 4ms (unchanged)
-src/pages/api/user/password.ts 3ms (unchanged)
-src/pages/api/user/profile.ts 6ms (unchanged)
-src/pages/api/user/settings.ts 2ms (unchanged)
+src/pages/api/user/account.ts 10ms (unchanged)
+src/pages/api/user/avatar.ts 5ms (unchanged)
+src/pages/api/user/logout-v2.ts 4ms (unchanged)
+src/pages/api/user/logout.ts 2ms (unchanged)
+src/pages/api/user/me.ts 2ms (unchanged)
+src/pages/api/user/password.ts 1ms (unchanged)
+src/pages/api/user/profile.ts 7ms (unchanged)
+src/pages/api/user/settings.ts 1ms (unchanged)
 src/pages/api/voice/poll.ts 3ms (unchanged)
-src/pages/api/voice/stream.ts 4ms (unchanged)
-src/pages/api/voice/transcribe.ts 10ms (unchanged)
-src/pages/api/voice/usage.ts 8ms (unchanged)
-src/pages/api/webscraper/extract.ts 6ms (unchanged)
-src/pages/api/webscraper/usage.ts 6ms (unchanged)
-src/pages/auth/notify.astro 12ms (unchanged)
-src/pages/auth/password-reset-sent.astro 6ms (unchanged)
+src/pages/api/voice/stream.ts 5ms (unchanged)
+src/pages/api/voice/transcribe.ts 7ms (unchanged)
+src/pages/api/voice/usage.ts 6ms (unchanged)
+src/pages/api/webscraper/extract.ts 5ms (unchanged)
+src/pages/api/webscraper/usage.ts 4ms (unchanged)
+src/pages/auth/notify.astro 3ms (unchanged)
+src/pages/auth/password-reset-sent.astro 3ms (unchanged)
 src/pages/auth/password-reset-success.astro 4ms (unchanged)
-src/pages/blog/[...slug].astro 32ms (unchanged)
-src/pages/blog/comments-demo.astro 11ms (unchanged)
-src/pages/blog/index.astro 63ms (unchanged)
-src/pages/cookie-einstellungen.astro 31ms (unchanged)
-src/pages/dashboard.astro 70ms (unchanged)
-src/pages/datenschutz.astro 1ms (unchanged)
-src/pages/de/agb.astro 23ms (unchanged)
+src/pages/blog/[...slug].astro 36ms (unchanged)
+src/pages/blog/comments-demo.astro 12ms (unchanged)
+src/pages/blog/index.astro 52ms (unchanged)
+src/pages/blog/kategorie/[...slug].ts 1ms (unchanged)
+src/pages/blog/tag/[...slug].ts 1ms (unchanged)
+src/pages/cookie-einstellungen.astro 27ms (unchanged)
+src/pages/cookie-settings.ts 1ms (unchanged)
+src/pages/dashboard.astro 66ms (unchanged)
+src/pages/datenschutz.astro 2ms (unchanged)
+src/pages/de/agb.astro 22ms (unchanged)
 src/pages/de/cookie-einstellungen.astro 1ms (unchanged)
-src/pages/de/datenschutz.astro 36ms (unchanged)
+src/pages/de/datenschutz.astro 31ms (unchanged)
 src/pages/de/faq.astro 1ms (unchanged)
-src/pages/de/impressum.astro 64ms (unchanged)
-src/pages/de/index.astro 44ms (unchanged)
+src/pages/de/impressum.astro 65ms (unchanged)
+src/pages/de/index.astro 51ms (unchanged)
 src/pages/de/login.astro 12ms (unchanged)
 src/pages/de/register.astro 6ms (unchanged)
 src/pages/de/tools/prompt-enhancer/app.astro 4ms (unchanged)
 src/pages/de/tools/prompt-enhancer/index.astro 1ms (unchanged)
-src/pages/de/tools/voice-visualizer/app.astro 5ms (unchanged)
-src/pages/de/tools/webscraper/app.astro 3ms (unchanged)
-src/pages/de/welcome-profile.astro 11ms (unchanged)
-src/pages/docs/index.astro 25ms (unchanged)
-src/pages/email-verified.astro 38ms (unchanged)
+src/pages/de/tools/voice-visualizer/app.astro 3ms (unchanged)
+src/pages/de/tools/webscraper/app.astro 4ms (unchanged)
+src/pages/de/welcome-profile.astro 10ms (unchanged)
+src/pages/docs/api.ts 1ms (unchanged)
+src/pages/docs/faq.ts 3ms (unchanged)
+src/pages/docs/getting-started.ts 1ms (unchanged)
+src/pages/docs/guides.ts 1ms (unchanged)
+src/pages/docs/index.astro 36ms (unchanged)
+src/pages/email-verified.astro 54ms (unchanged)
 src/pages/en/account/settings.astro 1ms (unchanged)
-src/pages/en/agb.astro 19ms (unchanged)
+src/pages/en/agb.astro 21ms (unchanged)
 src/pages/en/blog/[...slug].astro 1ms (unchanged)
 src/pages/en/blog/index.astro 1ms (unchanged)
+src/pages/en/cookie-einstellungen.ts 1ms (unchanged)
 src/pages/en/cookie-settings.astro 1ms (unchanged)
-src/pages/en/dashboard.astro 43ms (unchanged)
-src/pages/en/datenschutz.astro 32ms (unchanged)
+src/pages/en/dashboard.astro 46ms (unchanged)
+src/pages/en/datenschutz.astro 35ms (unchanged)
+src/pages/en/docs/api.ts 1ms (unchanged)
+src/pages/en/docs/faq.ts 1ms (unchanged)
+src/pages/en/docs/getting-started.ts 1ms (unchanged)
+src/pages/en/docs/guides.ts 1ms (unchanged)
 src/pages/en/docs/index.astro 1ms (unchanged)
-src/pages/en/email-verified.astro 41ms (unchanged)
+src/pages/en/email-verified.astro 38ms (unchanged)
 src/pages/en/faq.astro 1ms (unchanged)
-src/pages/en/impressum.astro 68ms (unchanged)
+src/pages/en/impressum.astro 59ms (unchanged)
 src/pages/en/index.astro 35ms (unchanged)
 src/pages/en/kontakt.astro 1ms (unchanged)
-src/pages/en/login.astro 19ms (unchanged)
-src/pages/en/pricing.astro 3ms (unchanged)
-src/pages/en/register.astro 10ms (unchanged)
-src/pages/en/tools/imag-enhancer/app.astro 31ms (unchanged)
-src/pages/en/tools/imag-enhancer/index.astro 52ms (unchanged)
-src/pages/en/tools/index.astro 59ms (unchanged)
-src/pages/en/tools/prompt-enhancer/app.astro 6ms (unchanged)
-src/pages/en/tools/prompt-enhancer/index.astro 2ms (unchanged)
-src/pages/en/tools/video-enhancer/app.astro 5ms (unchanged)
-src/pages/en/tools/voice-visualizer/app.astro 6ms (unchanged)
-src/pages/en/tools/webscraper/app.astro 13ms (unchanged)
-src/pages/en/verify-email.astro 37ms (unchanged)
-src/pages/en/welcome-profile.astro 22ms (unchanged)
-src/pages/faq.astro 90ms (unchanged)
-src/pages/impressum.astro 99ms (unchanged)
+src/pages/en/login.astro 10ms (unchanged)
+src/pages/en/pricing.astro 1ms (unchanged)
+src/pages/en/register.astro 6ms (unchanged)
+src/pages/en/signup.ts 1ms (unchanged)
+src/pages/en/tools/code-review.ts 1ms (unchanged)
+src/pages/en/tools/content-generator.ts 1ms (unchanged)
+src/pages/en/tools/design-system.ts 1ms (unchanged)
+src/pages/en/tools/imag-enhancer/app.astro 15ms (unchanged)
+src/pages/en/tools/imag-enhancer/index.astro 25ms (unchanged)
+src/pages/en/tools/index.astro 25ms (unchanged)
+src/pages/en/tools/performance-monitor.ts 1ms (unchanged)
+src/pages/en/tools/prompt-enhancer/app.astro 3ms (unchanged)
+src/pages/en/tools/prompt-enhancer/index.astro 1ms (unchanged)
+src/pages/en/tools/seo-analyzer.ts 1ms (unchanged)
+src/pages/en/tools/video-enhancer/app.astro 3ms (unchanged)
+src/pages/en/tools/voice-visualizer/app.astro 3ms (unchanged)
+src/pages/en/tools/webscraper/app.astro 5ms (unchanged)
+src/pages/en/verify-email.astro 16ms (unchanged)
+src/pages/en/welcome-profile.astro 11ms (unchanged)
+src/pages/faq.astro 35ms (unchanged)
+src/pages/impressum.astro 58ms (unchanged)
 src/pages/index.astro 1ms (unchanged)
-src/pages/kontakt.astro 53ms (unchanged)
-src/pages/login.astro 11ms (unchanged)
-src/pages/newsletter/confirm.astro 53ms (unchanged)
-src/pages/pricing.astro 171ms (unchanged)
-src/pages/r2-ai/[...path].ts 12ms (unchanged)
-src/pages/r2/[...path].ts 3ms (unchanged)
-src/pages/register.astro 6ms (unchanged)
+src/pages/kontakt.astro 48ms (unchanged)
+src/pages/login.astro 12ms (unchanged)
+src/pages/newsletter/confirm.astro 40ms (unchanged)
+src/pages/pricing.astro 49ms (unchanged)
+src/pages/r2-ai/[...path].ts 6ms (unchanged)
+src/pages/r2/[...path].ts 2ms (unchanged)
+src/pages/register.astro 9ms (unchanged)
 src/pages/rss.xml.ts 4ms (unchanged)
-src/pages/sitemap.xml.ts 2ms (unchanged)
-src/pages/tools/imag-enhancer/app.astro 16ms (unchanged)
-src/pages/tools/imag-enhancer/index.astro 26ms (unchanged)
-src/pages/tools/index.astro 20ms (unchanged)
-src/pages/tools/prompt-enhancer/app.astro 5ms (unchanged)
+src/pages/signup.ts 1ms (unchanged)
+src/pages/sitemap.xml.ts 4ms (unchanged)
+src/pages/tools/api-tester.ts 1ms (unchanged)
+src/pages/tools/code-review.ts 1ms (unchanged)
+src/pages/tools/content-generator.ts 1ms (unchanged)
+src/pages/tools/design-system.ts 1ms (unchanged)
+src/pages/tools/imag-enhancer/app.astro 15ms (unchanged)
+src/pages/tools/imag-enhancer/index.astro 23ms (unchanged)
+src/pages/tools/index.astro 22ms (unchanged)
+src/pages/tools/performance-monitor.ts 1ms (unchanged)
+src/pages/tools/prompt-enhancer/app.astro 6ms (unchanged)
 src/pages/tools/prompt-enhancer/index.astro 1ms (unchanged)
-src/pages/tools/video-enhancer/app.astro 5ms (unchanged)
-src/pages/tools/voice-visualizer/app.astro 5ms (unchanged)
-src/pages/tools/webscraper/app.astro 4ms (unchanged)
+src/pages/tools/seo-analyzer.ts 1ms (unchanged)
+src/pages/tools/video-enhancer/app.astro 4ms (unchanged)
+src/pages/tools/voice-visualizer/app.astro 4ms (unchanged)
+src/pages/tools/webscraper/app.astro 5ms (unchanged)
 src/pages/verify-email.astro 20ms (unchanged)
-src/pages/welcome-profile.astro 13ms (unchanged)
-src/pages/welcome.astro 6ms (unchanged)
+src/pages/welcome-profile.astro 10ms (unchanged)
+src/pages/welcome.astro 8ms (unchanged)
 src/scripts/blog-post-enhancements.ts 2ms (unchanged)
 src/scripts/landing-bg.ts 13ms (unchanged)
 src/scripts/neural-mesh.ts 10ms (unchanged)
-src/scripts/orchestrate-entrance.ts 6ms (unchanged)
+src/scripts/orchestrate-entrance.ts 5ms (unchanged)
 src/scripts/settings.ts 8ms (unchanged)
 src/server/actions.ts 2ms (unchanged)
 src/server/utils/hashing.ts 1ms (unchanged)
-src/server/utils/jwt.ts 1ms (unchanged)
-src/server/utils/logger-factory.ts 9ms (unchanged)
-src/server/utils/logger.ts 9ms (unchanged)
-src/setupTests.ts 6ms (unchanged)
+src/server/utils/jwt.ts 2ms (unchanged)
+src/server/utils/log-transports.ts 7ms (unchanged)
+src/server/utils/logger-factory.ts 11ms (unchanged)
+src/server/utils/logger.ts 5ms (unchanged)
+src/setupTests.ts 5ms (unchanged)
 src/stores/activityStore.ts 2ms (unchanged)
-src/stores/comment-store.ts 12ms (unchanged)
+src/stores/comment-store.ts 15ms (unchanged)
 src/stores/index.ts 1ms (unchanged)
-src/stores/notificationStore.ts 3ms (unchanged)
+src/stores/notificationStore.ts 2ms (unchanged)
 src/stores/projectStore.ts 4ms (unchanged)
-src/stores/quickActionStore.ts 3ms (unchanged)
+src/stores/quickActionStore.ts 4ms (unchanged)
 src/types/astro-fonts-internal.d.ts 1ms (unchanged)
 src/types/blog.ts 1ms (unchanged)
 src/types/dashboard.ts 2ms (unchanged)
+src/types/jsdom.d.ts 0ms (unchanged)
 src/types/logger.ts 3ms (unchanged)
 src/types/stubs/rate-limiter.d.ts 1ms (unchanged)
-src/types/ts-src-shims.d.ts 6ms
+src/types/ts-src-shims.d.ts 6ms (unchanged)
 src/types/webscraper.ts 1ms (unchanged)
 src/types/ws.d.ts 1ms (unchanged)
-src/utils/feature-flags.ts 2ms (unchanged)
-src/utils/i18n.ts 5ms (unchanged)
+src/utils/feature-flags.ts 3ms (unchanged)
+src/utils/i18n.ts 11ms (unchanged)
 src/utils/sanitizeReturnTo.test.ts 2ms (unchanged)
-src/utils/sanitizeReturnTo.ts 1ms (unchanged)
+src/utils/sanitizeReturnTo.ts 2ms (unchanged)
 tests/e2e/specs/blog-i18n-seo.spec.ts 3ms (unchanged)
-tests/integration/ai-image-enhancer.test.ts 14ms (unchanged)
+tests/e2e/specs/rate-limit-persistence.spec.ts 1ms (unchanged)
+tests/e2e/specs/referral/referral-reward.spec.ts 6ms (unchanged)
+tests/integration/ai-image-enhancer.test.ts 17ms (unchanged)
+tests/integration/api/__fixtures__/comments-performance.ts 6ms (unchanged)
 tests/integration/api/admin-audit-logs.test.ts 3ms (unchanged)
 tests/integration/api/admin-auth-checks.test.ts 1ms (unchanged)
 tests/integration/api/admin-backup.test.ts 2ms (unchanged)
 tests/integration/api/admin-comments.test.ts 2ms (unchanged)
 tests/integration/api/admin-credits-deduct.test.ts 2ms (unchanged)
-tests/integration/api/admin-credits.test.ts 2ms (unchanged)
+tests/integration/api/admin-credits.test.ts 3ms (unchanged)
 tests/integration/api/admin-rate-limits.test.ts 2ms (unchanged)
+tests/integration/api/admin-referrals-list.test.ts 3ms (unchanged)
 tests/integration/api/admin-sessions.test.ts 2ms (unchanged)
 tests/integration/api/admin-users-credits.test.ts 4ms (unchanged)
+tests/integration/api/admin-users-lifecycle.test.ts 3ms (unchanged)
 tests/integration/api/admin-users-set-plan-happy.test.ts 3ms (unchanged)
 tests/integration/api/admin-users-set-plan.test.ts 3ms (unchanged)
-tests/integration/api/ai-video/generate.test.ts 7ms (unchanged)
+tests/integration/api/ai-video/generate.test.ts 5ms (unchanged)
+tests/integration/api/ai-video/usage.test.ts 4ms (unchanged)
+tests/integration/api/comments-performance.test.ts 4ms (unchanged)
 tests/integration/api/comments-routes.test.ts 3ms (unchanged)
 tests/integration/api/debug-logs-stream.test.ts 2ms (unchanged)
+tests/integration/api/mcp-ping.test.ts 2ms (unchanged)
 tests/integration/api/prompt/usage.test.ts 2ms (unchanged)
 tests/integration/api/r2-ai-proxy.test.ts 2ms (unchanged)
-tests/integration/api/voice/transcribe-and-poll.test.ts 4ms (unchanged)
+tests/integration/api/referrals/referral-rewards-webhook.test.ts 4ms (unchanged)
+tests/integration/api/voice/transcribe-and-poll.test.ts 3ms (unchanged)
 tests/integration/api/voice/transcribe.test.ts 2ms (unchanged)
 tests/integration/api/voice/usage.test.ts 2ms (unchanged)
-tests/integration/api/webscraper.test.ts 4ms (unchanged)
-tests/integration/auth.test.ts 6ms (unchanged)
-tests/integration/billing-api.test.ts 14ms (unchanged)
+tests/integration/api/web-eval-complete.test.ts 4ms
+tests/integration/api/web-eval-next.test.ts 5ms (unchanged)
+tests/integration/api/web-eval-run.test.ts 6ms (unchanged)
+tests/integration/api/webscraper.test.ts 3ms (unchanged)
+tests/integration/auth.test.ts 8ms (unchanged)
+tests/integration/billing-api.test.ts 12ms (unchanged)
 tests/integration/blog.test.ts 4ms (unchanged)
 tests/integration/comments-api.test.ts 4ms (unchanged)
-tests/integration/comments.test.ts 17ms (unchanged)
-tests/integration/csp-report.test.ts 4ms (unchanged)
+tests/integration/comments.test.ts 14ms (unchanged)
+tests/integration/csp-report.test.ts 3ms (unchanged)
 tests/integration/dashboard-api.test.ts 18ms (unchanged)
-tests/integration/kv-usage.test.ts 4ms (unchanged)
-tests/integration/lead-magnet-api.test.ts 12ms (unchanged)
-tests/integration/magic-link-happy.test.ts 4ms (unchanged)
+tests/integration/kv-usage.test.ts 2ms (unchanged)
+tests/integration/lead-magnet-api.test.ts 14ms (unchanged)
+tests/integration/magic-link-happy.test.ts 3ms (unchanged)
 tests/integration/magic-link.test.ts 4ms (unchanged)
-tests/integration/newsletter-api.test.ts 10ms (unchanged)
-tests/integration/projects-api.test.ts 16ms (unchanged)
-tests/integration/prompt-enhance-api.test.ts 6ms (unchanged)
-tests/integration/prompt-enhance-multipart.test.ts 5ms (unchanged)
+tests/integration/newsletter-api.test.ts 11ms (unchanged)
+tests/integration/projects-api.test.ts 19ms (unchanged)
+tests/integration/prompt-enhance-api.test.ts 7ms (unchanged)
+tests/integration/prompt-enhance-multipart.test.ts 4ms (unchanged)
 tests/integration/routing/blog-i18n-seo-integration.test.ts 3ms (unchanged)
-tests/integration/routing/blog-routes.test.ts 3ms (unchanged)
+tests/integration/routing/blog-routes.test.ts 2ms (unchanged)
 tests/integration/routing/headers.test.ts 2ms (unchanged)
 tests/integration/routing/lang-alias.test.ts 1ms (unchanged)
-tests/integration/routing/locale-routing.test.ts 2ms (unchanged)
+tests/integration/routing/locale-routing.test.ts 3ms (unchanged)
 tests/integration/routing/seo-hreflang.test.ts 1ms (unchanged)
-tests/integration/routing/voice-visualizer-permissions.test.ts 1ms (unchanged)
+tests/integration/routing/voice-visualizer-permissions.test.ts 2ms (unchanged)
 tests/integration/setup/global-setup.ts 9ms (unchanged)
-tests/integration/user-avatar-api.test.ts 9ms (unchanged)
+tests/integration/setup/referral-fixtures.ts 2ms (unchanged)
+tests/integration/user-avatar-api.test.ts 10ms (unchanged)
 tests/integration/verify-email.test.ts 3ms (unchanged)
 tests/mocks/astro-content.ts 1ms (unchanged)
-tests/performance/rate-limiting-perf.test.ts 13ms (unchanged)
-tests/performance/run-load-tests.ts 8ms (unchanged)
+tests/performance/rate-limiting-perf.test.ts 12ms (unchanged)
+tests/performance/run-load-tests.ts 9ms (unchanged)
 tests/shared/auth.ts 3ms (unchanged)
 tests/shared/http.ts 3ms (unchanged)
 tests/src/helpers/rateLimiter.ts 1ms (unchanged)
-tests/src/legacy/config/test-config.ts 5ms (unchanged)
-tests/src/legacy/utils/database-helpers.ts 6ms (unchanged)
-tests/src/legacy/utils/logger.ts 12ms (unchanged)
-tests/src/legacy/utils/server-helpers.ts 15ms (unchanged)
-tests/src/lib/auth-v2.test.ts 4ms (unchanged)
-tests/src/pages/api/ai-video/generate.test.ts 6ms (unchanged)
+tests/src/legacy/config/test-config.ts 4ms (unchanged)
+tests/src/legacy/utils/database-helpers.ts 7ms (unchanged)
+tests/src/legacy/utils/logger.ts 14ms (unchanged)
+tests/src/legacy/utils/server-helpers.ts 18ms (unchanged)
+tests/src/lib/auth-v2.test.ts 5ms (unchanged)
+tests/src/pages/api/ai-video/generate.test.ts 5ms (unchanged)
 tests/src/pages/api/auth/login-405.test.ts 2ms (unchanged)
-tests/src/pages/api/auth/login-logger.test.ts 10ms (unchanged)
+tests/src/pages/api/auth/login-logger.test.ts 15ms (unchanged)
 tests/src/pages/api/auth/login-service.test.ts 8ms (unchanged)
-tests/src/pages/api/auth/login.test.ts 8ms (unchanged)
-tests/src/pages/api/dashboard/activity._test.ts 8ms (unchanged)
+tests/src/pages/api/auth/login.test.ts 13ms (unchanged)
+tests/src/pages/api/dashboard/activity._test.ts 7ms (unchanged)
 tests/src/pages/api/dashboard/perform-action._test.ts 10ms (unchanged)
-tests/src/pages/api/dashboard/projects._test.ts 8ms (unchanged)
-tests/src/pages/api/projects/index._test.ts 7ms
+tests/src/pages/api/dashboard/projects._test.ts 12ms (unchanged)
+tests/src/pages/api/projects/index._test.ts 9ms (unchanged)
 tests/src/pages/api/tools._test.ts 5ms (unchanged)
 tests/src/pages/api/user/me.test.ts 6ms (unchanged)
 tests/src/scripts/blog-post-enhancements.test.ts 2ms (unchanged)
-tests/src/server/utils/hashing.test.ts 3ms (unchanged)
+tests/src/server/utils/hashing.test.ts 2ms (unchanged)
 tests/src/server/utils/jwt.test.ts 3ms (unchanged)
 tests/types/upstash-kv.d.ts 1ms (unchanged)
 tests/unit/account/delete-account-section.test.tsx 4ms (unchanged)
 tests/unit/ai-image-provider-mapping.test.ts 3ms (unchanged)
-tests/unit/ai-image/aiimage-retry.test.ts 3ms (unchanged)
-tests/unit/ai-jobs-provider-mapping.test.ts 3ms (unchanged)
-tests/unit/api/account-delete.test.ts 4ms (unchanged)
+tests/unit/ai-image/aiimage-retry.test.ts 6ms (unchanged)
+tests/unit/ai-jobs-provider-mapping.test.ts 6ms (unchanged)
+tests/unit/api/account-delete.test.ts 6ms (unchanged)
+tests/unit/api/comments-performance.test.ts 9ms (unchanged)
 tests/unit/blog-sorting.spec.ts 3ms (unchanged)
-tests/unit/comment-components.test.tsx 17ms (unchanged)
-tests/unit/comment-service-simple.test.ts 6ms (unchanged)
-tests/unit/comment-service.test.ts 17ms (unchanged)
+tests/unit/comment-components.test.tsx 12ms (unchanged)
+tests/unit/comment-service-simple.test.ts 5ms (unchanged)
+tests/unit/comment-service.test.ts 20ms (unchanged)
 tests/unit/components/BlogCTA.test.ts 1ms (unchanged)
 tests/unit/components/BlogPost.test.ts 1ms (unchanged)
-tests/unit/components/imag-enhancer/CreditsPanel.test.tsx 2ms (unchanged)
-tests/unit/components/imag-enhancer/ModelControls.test.tsx 2ms (unchanged)
-tests/unit/components/imag-enhancer/UploadSection.test.tsx 3ms (unchanged)
+tests/unit/components/imag-enhancer/CreditsPanel.test.tsx 3ms (unchanged)
+tests/unit/components/imag-enhancer/ModelControls.test.tsx 3ms (unchanged)
+tests/unit/components/imag-enhancer/UploadSection.test.tsx 2ms (unchanged)
 tests/unit/dashboard/billing-card.test.tsx 4ms (unchanged)
 tests/unit/dashboard/projectStore.test.ts 3ms (unchanged)
 tests/unit/dashboard/quickActionStore.test.ts 3ms (unchanged)
 tests/unit/hooks/imag-enhancer/useClipboardImagePaste.test.ts 1ms (unchanged)
-tests/unit/hooks/imag-enhancer/useCompareInteractions.test.tsx 6ms (unchanged)
-tests/unit/hooks/imag-enhancer/useGlobalShortcuts.test.ts 2ms (unchanged)
-tests/unit/hooks/imag-enhancer/usePlanGating.test.ts 2ms (unchanged)
-tests/unit/hooks/imag-enhancer/useViewportUiMetrics.test.ts 3ms (unchanged)
-tests/unit/i18n.test.ts 3ms (unchanged)
+tests/unit/hooks/imag-enhancer/useCompareInteractions.test.tsx 8ms (unchanged)
+tests/unit/hooks/imag-enhancer/useGlobalShortcuts.test.ts 4ms (unchanged)
+tests/unit/hooks/imag-enhancer/usePlanGating.test.ts 4ms (unchanged)
+tests/unit/hooks/imag-enhancer/useViewportUiMetrics.test.ts 2ms (unchanged)
+tests/unit/i18n.test.ts 2ms (unchanged)
 tests/unit/imag-enhancer/help-modal-focus.test.tsx 3ms (unchanged)
-tests/unit/imag-enhancer/keyboard-shortcuts.test.tsx 10ms (unchanged)
+tests/unit/imag-enhancer/keyboard-shortcuts.test.tsx 4ms (unchanged)
+tests/unit/lib/ai-image-service.test.ts 3ms (unchanged)
 tests/unit/lib/aos.test.ts 7ms (unchanged)
-tests/unit/pages/api/user/profile.test.ts 6ms (unchanged)
-tests/unit/security/deprecated-logging.test.ts 9ms (unchanged)
+tests/unit/lib/blog-service.test.ts 6ms (unchanged)
+tests/unit/lib/rate-limiter-kv.test.ts 5ms (unchanged)
+tests/unit/lib/rate-limiter.test.ts 4ms (unchanged)
+tests/unit/pages/api/user/profile.test.ts 8ms (unchanged)
+tests/unit/referral-reward-service.test.ts 9ms (unchanged)
+tests/unit/security/deprecated-logging.test.ts 6ms (unchanged)
 tests/unit/services/provider-error-mapping.test.ts 1ms (unchanged)
-tests/unit/services/webscraper-service.test.ts 6ms (unchanged)
+tests/unit/services/webscraper-service.test.ts 7ms (unchanged)
 tests/unit/spam-detection.test.ts 3ms (unchanged)
 tests/unit/telemetry/telemetry-client.test.ts 2ms (unchanged)
 tests/unit/testimonials-loader.test.ts 4ms (unchanged)
-tests/unit/utils/logger.test.ts 18ms (unchanged)
+tests/unit/utils/database-helpers.test.ts 11ms (unchanged)
+tests/unit/utils/locale-path.test.ts 2ms (unchanged)
+tests/unit/utils/logger-transport.smoke.test.ts 4ms (unchanged)
+tests/unit/utils/logger.test.ts 22ms (unchanged)
 tests/unit/utils/mime.test.ts 2ms (unchanged)
-tests/unit/validation/billing-schema.test.ts 1ms (unchanged)
+tests/unit/utils/server-helpers.test.ts 25ms (unchanged)
+tests/unit/validation/billing-schema.test.ts 2ms (unchanged)
 tests/unit/validation/dashboard-schema.test.ts 1ms (unchanged)
-tests/unit/validation/errors.test.ts 1ms (unchanged)
-tests/unit/validation/newsletter-schema.test.ts 1ms (unchanged)
+tests/unit/validation/errors.test.ts 3ms (unchanged)
+tests/unit/validation/newsletter-schema.test.ts 2ms (unchanged)
 tests/unit/validation/newsletter-unsubscribe-schema.test.ts 1ms (unchanged)
 tests/unit/validation/prompt-schema.test.ts 2ms (unchanged)
 tests/unit/validation/templates-schema.test.ts 1ms (unchanged)
-tests/unit/validation/users-sync-schema.test.ts 1ms (unchanged)
-tests/unit/validation/webscraper-schema.test.ts 1ms (unchanged)
-tests/unit/voice-stream-aggregator.test.ts 3ms (unchanged)
-tests/utils/kv-mock.ts 7ms (unchanged)
+tests/unit/validation/users-sync-schema.test.ts 2ms (unchanged)
+tests/unit/validation/webscraper-schema.test.ts 2ms (unchanged)
+tests/unit/voice-stream-aggregator.test.ts 4ms (unchanged)
+tests/utils/kv-mock.ts 8ms (unchanged)
 scripts/ae-run.mjs 4ms (unchanged)
 scripts/align-de-to-en.mjs 3ms (unchanged)
 scripts/blog-images-audit.ts 4ms (unchanged)
-scripts/blog-images-generate.ts 3ms (unchanged)
-scripts/check-readme-structure.mjs 2ms (unchanged)
+scripts/blog-images-generate.ts 4ms (unchanged)
+scripts/check-readme-structure.mjs 4ms (unchanged)
+scripts/check-wrangler-secrets.ts 6ms (unchanged)
 scripts/coming-soon-client.ts 3ms (unchanged)
 scripts/deploy.ts 3ms (unchanged)
-scripts/dev-menu.ts 53ms (unchanged)
-scripts/dev/capture-readme-screenshots.mjs 2ms (unchanged)
-scripts/dev/docs-linkgraph.mjs 5ms (unchanged)
+scripts/dev-menu.ts 57ms (unchanged)
+scripts/dev/capture-readme-screenshots.mjs 3ms (unchanged)
+scripts/dev/clean-contentful-slug-drafts.ts 4ms (unchanged)
+scripts/dev/docs-linkgraph.mjs 7ms (unchanged)
+scripts/dev/fix-contentful-slug.ts 3ms (unchanged)
 scripts/dev/gen-cascade-rules-coverage.mjs 4ms (unchanged)
-scripts/dev/gen-memory-index.mjs 6ms (unchanged)
-scripts/dev/memory-audit.mjs 8ms (unchanged)
+scripts/dev/gen-memory-index.mjs 5ms (unchanged)
+scripts/dev/generate-contentful-migration.ts 5ms (unchanged)
+scripts/dev/memory-audit.mjs 7ms (unchanged)
 scripts/dev/patch-windsurf-rules.mjs 2ms (unchanged)
+scripts/dev/publish-contentful-assets.ts 4ms (unchanged)
+scripts/dev/publish-contentful-blog-posts.ts 4ms (unchanged)
 scripts/dev/sync-windsurf-rules.mjs 2ms (unchanged)
+scripts/dev/test-contentful-fetch.ts 2ms (unchanged)
 scripts/dev/update-windsurf-rules.mjs 4ms (unchanged)
-scripts/dev/verify-enhancer-download.mjs 3ms (unchanged)
+scripts/dev/upload-contentful-assets.ts 4ms (unchanged)
+scripts/dev/verify-enhancer-download.mjs 5ms (unchanged)
 scripts/doc-drift.mjs 2ms (unchanged)
-scripts/doc-inventory.mjs 6ms (unchanged)
-scripts/doc-links.mjs 3ms (unchanged)
-scripts/docs-auto-fix.ts 7ms (unchanged)
-scripts/docs-disable-md051.ts 2ms (unchanged)
-scripts/docs-fix-anchors.ts 6ms (unchanged)
+scripts/doc-inventory.mjs 7ms (unchanged)
+scripts/doc-links.mjs 4ms (unchanged)
+scripts/docs-auto-fix.ts 8ms (unchanged)
+scripts/docs-disable-md051.ts 3ms (unchanged)
+scripts/docs-fix-anchors.ts 13ms (unchanged)
 scripts/docs-fix-heading-levels.ts 3ms (unchanged)
-scripts/docs-harmonize-anchors.ts 8ms (unchanged)
-scripts/docs-link-audit.mjs 2ms (unchanged)
-scripts/emoji-to-icon-codemod.mjs 8ms (unchanged)
-scripts/fix-blog-images.ts 4ms (unchanged)
-scripts/fix-de-faq-structure.mjs 5ms (unchanged)
+scripts/docs-harmonize-anchors.ts 11ms (unchanged)
+scripts/docs-link-audit.mjs 3ms (unchanged)
+scripts/emoji-to-icon-codemod.mjs 14ms (unchanged)
+scripts/fix-blog-images.ts 10ms (unchanged)
+scripts/fix-de-faq-structure.mjs 7ms (unchanged)
 scripts/gen-env-doc.mjs 3ms (unchanged)
-scripts/gen-openapi.mjs 5ms (unchanged)
-scripts/generate-test-fixtures.ts 1ms (unchanged)
-scripts/generate-wordmark-outlined.ts 7ms (unchanged)
-scripts/health-check.ts 5ms (unchanged)
-scripts/hygiene-copy.mjs 1ms (unchanged)
-scripts/hygiene-to-assistant.mjs 3ms (unchanged)
-scripts/i18n-copy-de-to-en.mjs 2ms (unchanged)
-scripts/i18n-diff.mjs 3ms (unchanged)
-scripts/i18n-diff.ts 4ms (unchanged)
-scripts/i18n-empty-report.mjs 3ms (unchanged)
-scripts/i18n-fill-missing.mjs 4ms (unchanged)
-scripts/i18n-identical.mjs 3ms (unchanged)
-scripts/i18n-migrate-paths.mjs 68ms (unchanged)
-scripts/i18n-prune-unused.mjs 5ms (unchanged)
-scripts/i18n-validate.mjs 19ms (unchanged)
-scripts/migrate-imports.js 7ms (unchanged)
-scripts/migrate-imports.mjs 8ms (unchanged)
-scripts/migrate-imports.ts 17ms (unchanged)
-scripts/onboarding.ts 19ms (unchanged)
-scripts/quality-check.js 3ms (unchanged)
-scripts/remark/remark-demote-h1.ts 1ms (unchanged)
-scripts/resend-check.mjs 5ms (unchanged)
-scripts/run-hygiene.mjs 3ms (unchanged)
-scripts/sanitize-locale.mjs 2ms (unchanged)
-scripts/security/scan-secrets.mjs 3ms (unchanged)
-scripts/setup-local-dev.js 21ms (unchanged)
-scripts/setup-local-dev.ts 18ms (unchanged)
-scripts/smoke-inject-enhancer.mjs 3ms (unchanged)
-scripts/validate-frontmatter.mjs 4ms (unchanged)
-scripts/warmup.ts 7ms (unchanged)
-scripts/zod-openapi-diff.ts 6ms (unchanged)
-scripts/zod-openapi-pilot.ts 2ms (unchanged)
-.lintstagedrc.json 0ms (unchanged)
-.markdownlint.json 0ms (unchanged)
-.prettierrc.json 0ms (unchanged)
+scripts/gen-openapi.mjs 11ms (unchanged)
+scripts/generate-test-fixtures.ts 2ms (unchanged)
+scripts/generate-wordmark-outlined.ts 6ms (unchanged)
+scripts/health-check.ts 8ms (unchanged)
+scripts/hygiene-copy.mjs 2ms (unchanged)
+scripts/hygiene-to-assistant.mjs 5ms (unchanged)
+scripts/i18n-copy-de-to-en.mjs 3ms (unchanged)
+scripts/i18n-diff.mjs 4ms (unchanged)
+scripts/i18n-diff.ts 5ms (unchanged)
+scripts/i18n-empty-report.mjs 2ms (unchanged)
+scripts/i18n-fill-missing.mjs 3ms (unchanged)
+scripts/i18n-identical.mjs 5ms (unchanged)
+scripts/i18n-migrate-paths.mjs 5ms (unchanged)
+scripts/i18n-prune-unused.mjs 4ms (unchanged)
+scripts/i18n-validate.mjs 4ms (unchanged)
+scripts/mcp/cloudflare-mcp.mjs 4ms
+scripts/mcp/gsc-extended.mjs 11ms
+scripts/migrate-imports.js 9ms (unchanged)
+scripts/migrate-imports.mjs 7ms (unchanged)
+scripts/migrate-imports.ts 11ms (unchanged)
+scripts/onboarding.ts 23ms (unchanged)
+scripts/quality-check.js 9ms (unchanged)
+scripts/remark/remark-demote-h1.ts 3ms (unchanged)
+scripts/resend-check.mjs 11ms (unchanged)
+scripts/run-hygiene.mjs 5ms (unchanged)
+scripts/sanitize-locale.mjs 3ms (unchanged)
+scripts/security/scan-secrets.mjs 5ms (unchanged)
+scripts/setup-contentful-blog.mjs 4ms (unchanged)
+scripts/setup-local-dev.js 26ms (unchanged)
+scripts/setup-local-dev.ts 25ms (unchanged)
+scripts/smoke-inject-enhancer.mjs 4ms (unchanged)
+scripts/validate-env.ts 3ms (unchanged)
+scripts/validate-frontmatter.mjs 5ms (unchanged)
+scripts/warmup.ts 8ms (unchanged)
+scripts/web-eval-executor/executor.ts 6ms (unchanged)
+scripts/web-eval-executor/menu.ts 21ms (unchanged)
+scripts/web-eval-executor/runner.ts 9ms (unchanged)
+scripts/web-eval-executor/types.ts 1ms (unchanged)
+scripts/zod-openapi-diff.ts 9ms (unchanged)
+scripts/zod-openapi-pilot.ts 3ms (unchanged)
+.lintstagedrc.json 1ms (unchanged)
+.markdownlint.json 1ms (unchanged)
+.prettierrc.json 1ms (unchanged)
+AGENTS.md 25ms (unchanged)
 api-extractor.json 1ms (unchanged)
 blog-post-content-type.json 1ms (unchanged)
 cache-rules-ci.json 1ms (unchanged)
 cache-rules-create.json 1ms (unchanged)
 cache-rules-rules.json 1ms (unchanged)
 cf-create-ruleset.json 1ms (unchanged)
-CHANGELOG.md 18ms (unchanged)
+CHANGELOG.md 10ms (unchanged)
 CLAUDE.md 0ms (unchanged)
 CODE_OF_CONDUCT.md 1ms (unchanged)
 combined-rules.json 1ms (unchanged)
-CONTRIBUTING.md 9ms (unchanged)
-developer.mozilla.org--mdn-web-docs--20251025-090628_scrapedwithhub-evolutioncom.json 2ms (unchanged)
+contentful-import-error-log-tmtc6fophkx8-2025-11-08T05-09-01.json 1ms (unchanged)
+contentful-import-error-log-tmtc6fophkx8-2025-11-08T05-11-11.json 1ms (unchanged)
+contentful-import-error-log-tmtc6fophkx8-2025-11-08T05-16-05.json 0ms (unchanged)
+contentful-import-error-log-tmtc6fophkx8-2025-11-08T05-21-42.json 2ms (unchanged)
+CONTRIBUTING.md 10ms (unchanged)
+developer.mozilla.org--mdn-web-docs--20251025-090628_scrapedwithhub-evolutioncom.json 3ms (unchanged)
 existing-rules.json 1ms (unchanged)
 package.json 1ms (unchanged)
 README.md 15ms (unchanged)
-renovate.json 0ms
+renovate.json 1ms (unchanged)
 ruleset-current-staging.json 1ms (unchanged)
 rulesets-list.json 1ms (unchanged)
 rulesets-staging-list.json 1ms (unchanged)
 staging-rules.json 0ms (unchanged)
 tsconfig.ai.json 1ms (unchanged)
-tsconfig.astro-check.json 0ms (unchanged)
+tsconfig.astro-check.json 1ms (unchanged)
 tsconfig.astro-check.ui.json 1ms (unchanged)
 tsconfig.astro.json 1ms (unchanged)
-tsconfig.build.json 0ms (unchanged)
+tsconfig.build.json 1ms (unchanged)
 tsconfig.json 1ms (unchanged)
-tsconfig.src.json 0ms (unchanged)
+tsconfig.src.json 1ms (unchanged)
+tsconfig.types.json 1ms (unchanged)
 tsdoc.json 1ms (unchanged)
 update-payload.json 1ms (unchanged)
-update-staging.json 1ms (unchanged)
+update-staging.json 2ms (unchanged)
 
-/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/lib/services/referral-profile-service.ts
-  151:12  warning  'error' is defined but never used. Allowed unused caught errors must match /^_/u  @typescript-eslint/no-unused-vars
+[eslint:fix $ npx eslint 'src/**/*.{ts,astro}' --fix --cache --cache-location .cache/eslint]
 
-✖ 1 problem (0 errors, 1 warning)
+/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/components/dashboard/AccountSettingsSection.astro
+  327:45  error  'App' is not defined  no-undef
 
+/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/pages/admin/comments.astro
+  68:12  warning  'e' is defined but never used. Allowed unused caught errors must match /^_/u  @typescript-eslint/no-unused-vars
+
+/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/pages/admin/status.astro
+   41:12  warning  'e' is defined but never used. Allowed unused caught errors must match /^_/u  @typescript-eslint/no-unused-vars
+  117:63  warning  Unexpected any. Specify a different type                                      @typescript-eslint/no-explicit-any
+
+/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/pages/dashboard.astro
+  16:32  error  'App' is not defined  no-undef
+
+/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/pages/en/dashboard.astro
+  14:32  error  'App' is not defined  no-undef
+
+/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/pages/en/tools/imag-enhancer/app.astro
+  130:43  error  'App' is not defined  no-undef
+
+/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/pages/tools/imag-enhancer/app.astro
+  143:43  error  'App' is not defined  no-undef
+
+✖ 8 problems (5 errors, 3 warnings)
+
+
+[md:fix $ npm run lint:md:fix]
 
 > evolution-hub@0.0.1 lint:md:fix
 > markdownlint-cli2 --fix "docs/**/*.md"
@@ -766,317 +920,209 @@ update-staging.json 1ms (unchanged)
 markdownlint-cli2 v0.18.1 (markdownlint v0.38.0)
 Finding: docs/**/*.md
 Linting: 123 file(s)
-Summary: 1 error(s)
-docs/reference/api/overview.md:6 MD036/no-emphasis-as-heading Emphasis used instead of a heading [Context: "Version 1.0.0"]
-zsh:1: command not found: run-s
-[format:check            ] 
-[format:check            ] > evolution-hub@0.0.1 format:check
-[format:check            ] > prettier --check "src/**/*.{ts,tsx,astro,json,md}" "tests/**/*.{ts,tsx}" "scripts/**/*.{ts,js,mjs}" "*.{json,md,yaml,yml}"
-[format:check            ] 
-[format:check            ] Checking formatting...
-[format:check            ] All matched files use Prettier code style!
-[lint -- --max-warnings=0] 
-[lint -- --max-warnings=0] > evolution-hub@0.0.1 lint
-[lint -- --max-warnings=0] > eslint 'src/**/*.{ts,astro}' --max-warnings=280 --max-warnings=0
-[lint -- --max-warnings=0] 
-[lint -- --max-warnings=0] 
-[lint -- --max-warnings=0] /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/lib/services/referral-profile-service.ts
-[lint -- --max-warnings=0]   151:12  warning  'error' is defined but never used. Allowed unused caught errors must match /^_/u  @typescript-eslint/no-unused-vars
-[lint -- --max-warnings=0] 
-[lint -- --max-warnings=0] ✖ 1 problem (0 errors, 1 warning)
-[lint -- --max-warnings=0] 
-[lint -- --max-warnings=0] ESLint found too many warnings (maximum: 0).
-[typecheck:src           ] 
-[typecheck:src           ] > evolution-hub@0.0.1 typecheck:src
-[typecheck:src           ] > tsc -p tsconfig.src.json --noEmit
-[typecheck:src           ] 
-[typecheck:src           ] src/components/admin/AdminClient.tsx(6,12): error TS2306: File '/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/pages/admin/index.client.ts' is not a module.
-[typecheck:src           ] src/components/comments/CommentErrorBoundary.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
-[typecheck:src           ] src/components/comments/CommentKeyboardNav.tsx(119,26): error TS2367: This comparison appears to be unintentional because the types 'number | undefined' and 'string | null' have no overlap.
-[typecheck:src           ] src/components/comments/CommentKeyboardNav.tsx(124,26): error TS2367: This comparison appears to be unintentional because the types 'number | undefined' and 'string | null' have no overlap.
-[typecheck:src           ] src/components/comments/CommentKeyboardNav.tsx(155,48): error TS6133: 'altKey' is declared but its value is never read.
-[typecheck:src           ] src/components/comments/CommentKeyboardNav.tsx(280,18): error TS2322: Type '{ children: string; jsx: true; }' is not assignable to type 'DetailedHTMLProps<StyleHTMLAttributes<HTMLStyleElement>, HTMLStyleElement>'.
-[typecheck:src           ]   Property 'jsx' does not exist on type 'DetailedHTMLProps<StyleHTMLAttributes<HTMLStyleElement>, HTMLStyleElement>'.
-[typecheck:src           ] src/components/comments/CommentKeyboardNav.tsx(424,23): error TS2367: This comparison appears to be unintentional because the types 'number | undefined' and 'string | null' have no overlap.
-[typecheck:src           ] src/components/comments/CommentKeyboardNav.tsx(426,19): error TS2367: This comparison appears to be unintentional because the types 'number | undefined' and 'string | null' have no overlap.
-[typecheck:src           ] src/components/comments/CommentKeyboardNav.tsx(428,15): error TS2367: This comparison appears to be unintentional because the types 'number | undefined' and 'string | null' have no overlap.
-[typecheck:src           ] src/components/comments/CommentKeyboardNav.tsx(494,14): error TS2367: This comparison appears to be unintentional because the types 'number | undefined' and 'string | null' have no overlap.
-[typecheck:src           ] src/components/comments/CommentKeyboardNav.tsx(513,10): error TS2367: This comparison appears to be unintentional because the types 'number | undefined' and 'string | null' have no overlap.
-[typecheck:src           ] src/components/comments/CommentKeyboardNav.tsx(531,10): error TS18048: 'comment.reportCount' is possibly 'undefined'.
-[typecheck:src           ] src/components/comments/CommentThreading.tsx(3,1): error TS6133: 'Button' is declared but its value is never read.
-[typecheck:src           ] src/components/comments/CommentThreading.tsx(46,3): error TS6133: 'enableSorting' is declared but its value is never read.
-[typecheck:src           ] src/components/comments/CommentThreading.tsx(53,10): error TS6133: 'showFilters' is declared but its value is never read.
-[typecheck:src           ] src/components/comments/CommentThreading.tsx(53,23): error TS6133: 'setShowFilters' is declared but its value is never read.
-[typecheck:src           ] src/components/comments/CommentThreading.tsx(132,20): error TS2345: Argument of type 'string' is not assignable to parameter of type 'SetStateAction<"newest" | "oldest" | "most-replies" | "most-helpful">'.
-[typecheck:src           ] src/components/comments/CommentThreading.tsx(168,11): error TS2322: Type '{ id: number; name: string; email: string; } | null | undefined' is not assignable to type '{ id: string; name: string; email: string; image?: string | undefined; } | null | undefined'.
-[typecheck:src           ]   Type '{ id: number; name: string; email: string; }' is not assignable to type '{ id: string; name: string; email: string; image?: string | undefined; }'.
-[typecheck:src           ]     Types of property 'id' are incompatible.
-[typecheck:src           ]       Type 'number' is not assignable to type 'string'.
-[typecheck:src           ] src/components/comments/CommentThreading.tsx(341,3): error TS6133: 'onClose' is declared but its value is never read.
-[typecheck:src           ] src/components/comments/CommentThreading.tsx(439,3): error TS6133: 'onUpdateComment' is declared but its value is never read.
-[typecheck:src           ] src/components/comments/CommentThreading.tsx(498,18): error TS2367: This comparison appears to be unintentional because the types 'number | undefined' and 'string | null' have no overlap.
-[typecheck:src           ] src/components/dashboard/NewsletterPreferencesCard.tsx(2,1): error TS6133: 'CardReact' is declared but its value is never read.
-[typecheck:src           ] src/components/dashboard/NewsletterPreferencesCard.tsx(2,23): error TS7016: Could not find a declaration file for module '@/components/ui/CardReact.jsx'. '/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/components/ui/CardReact.jsx' implicitly has an 'any' type.
-[typecheck:src           ] src/components/notifications/NotificationCenter.tsx(2,16): error TS6133: 'Check' is declared but its value is never read.
-[typecheck:src           ] src/components/notifications/NotificationCenter.tsx(2,35): error TS6133: 'Settings' is declared but its value is never read.
-[typecheck:src           ] src/components/notifications/NotificationCenter.tsx(2,54): error TS2307: Cannot find module 'lucide-react' or its corresponding type declarations.
-[typecheck:src           ] src/components/notifications/NotificationCenter.tsx(5,3): error TS6196: 'NotificationFilters' is declared but never used.
-[typecheck:src           ] src/components/notifications/NotificationCenter.tsx(15,3): error TS6133: 'userId' is declared but its value is never read.
-[typecheck:src           ] src/components/notifications/NotificationCenter.tsx(48,11): error TS18046: 'result' is of type 'unknown'.
-[typecheck:src           ] src/components/notifications/NotificationCenter.tsx(49,26): error TS18046: 'result' is of type 'unknown'.
-[typecheck:src           ] src/components/notifications/NotificationCenter.tsx(50,18): error TS18046: 'result' is of type 'unknown'.
-[typecheck:src           ] src/components/notifications/NotificationCenter.tsx(53,27): error TS18046: 'result' is of type 'unknown'.
-[typecheck:src           ] src/components/notifications/NotificationCenter.tsx(63,25): error TS18046: 'result' is of type 'unknown'.
-[typecheck:src           ] src/components/notifications/NotificationSettings.tsx(2,10): error TS6133: 'Save' is declared but its value is never read.
-[typecheck:src           ] src/components/notifications/NotificationSettings.tsx(2,33): error TS2307: Cannot find module 'lucide-react' or its corresponding type declarations.
-[typecheck:src           ] src/components/notifications/NotificationSettings.tsx(14,3): error TS6133: 'userId' is declared but its value is never read.
-[typecheck:src           ] src/components/notifications/NotificationSettings.tsx(42,11): error TS18046: 'result' is of type 'unknown'.
-[typecheck:src           ] src/components/notifications/NotificationSettings.tsx(43,21): error TS18046: 'result' is of type 'unknown'.
-[typecheck:src           ] src/components/notifications/NotificationSettings.tsx(45,25): error TS18046: 'result' is of type 'unknown'.
-[typecheck:src           ] src/components/notifications/NotificationSettings.tsx(93,11): error TS18046: 'result' is of type 'unknown'.
-[typecheck:src           ] src/components/notifications/NotificationSettings.tsx(95,21): error TS2345: Argument of type '(prev: NotificationSetting[]) => { enabled: boolean; frequency: string; updatedAt: number; id: number; userId: string; type: NotificationType | "email_digest"; channel: NotificationChannel; createdAt: number; }[]' is not assignable to parameter of type 'SetStateAction<NotificationSetting[]>'.
-[typecheck:src           ]   Type '(prev: NotificationSetting[]) => { enabled: boolean; frequency: string; updatedAt: number; id: number; userId: string; type: NotificationType | "email_digest"; channel: NotificationChannel; createdAt: number; }[]' is not assignable to type '(prevState: NotificationSetting[]) => NotificationSetting[]'.
-[typecheck:src           ]     Type '{ enabled: boolean; frequency: string; updatedAt: number; id: number; userId: string; type: NotificationType | "email_digest"; channel: NotificationChannel; createdAt: number; }[]' is not assignable to type 'NotificationSetting[]'.
-[typecheck:src           ]       Type '{ enabled: boolean; frequency: string; updatedAt: number; id: number; userId: string; type: NotificationType | "email_digest"; channel: NotificationChannel; createdAt: number; }' is not assignable to type 'NotificationSetting'.
-[typecheck:src           ]         Types of property 'frequency' are incompatible.
-[typecheck:src           ]           Type 'string' is not assignable to type 'NotificationFrequency'.
-[typecheck:src           ] src/components/notifications/NotificationSettings.tsx(104,25): error TS18046: 'result' is of type 'unknown'.
-[typecheck:src           ] src/components/notifications/NotificationSettings.tsx(133,11): error TS18046: 'result' is of type 'unknown'.
-[typecheck:src           ] src/components/notifications/NotificationSettings.tsx(134,21): error TS18046: 'result' is of type 'unknown'.
-[typecheck:src           ] src/components/notifications/NotificationSettings.tsx(137,25): error TS18046: 'result' is of type 'unknown'.
-[typecheck:src           ] src/components/projects/ProjectManagement.tsx(90,9): error TS2322: Type '(data: CreateProjectRequest) => Promise<void>' is not assignable to type '(data: CreateProjectRequest | UpdateProjectRequest) => Promise<void>'.
-[typecheck:src           ]   Types of parameters 'data' and 'data' are incompatible.
-[typecheck:src           ]     Type 'CreateProjectRequest | UpdateProjectRequest' is not assignable to type 'CreateProjectRequest'.
-[typecheck:src           ]       Type 'UpdateProjectRequest' is not assignable to type 'CreateProjectRequest'.
-[typecheck:src           ]         Types of property 'title' are incompatible.
-[typecheck:src           ]           Type 'string | undefined' is not assignable to type 'string'.
-[typecheck:src           ]             Type 'undefined' is not assignable to type 'string'.
-[typecheck:src           ] src/components/projects/ProjectManagement.tsx(99,9): error TS2322: Type '(data: UpdateProjectRequest) => Promise<void>' is not assignable to type '(data: CreateProjectRequest | UpdateProjectRequest) => Promise<void>'.
-[typecheck:src           ]   Types of parameters 'data' and 'data' are incompatible.
-[typecheck:src           ]     Type 'CreateProjectRequest | UpdateProjectRequest' is not assignable to type 'UpdateProjectRequest'.
-[typecheck:src           ]       Property 'id' is missing in type 'CreateProjectRequest' but required in type 'UpdateProjectRequest'.
-[typecheck:src           ] src/components/projects/ProjectModal.tsx(36,9): error TS2322: Type '"active" | "completed" | "on-hold" | "archived"' is not assignable to type '"active"'.
-[typecheck:src           ]   Type '"completed"' is not assignable to type '"active"'.
-[typecheck:src           ] src/components/projects/ProjectModal.tsx(37,9): error TS2322: Type '"low" | "medium" | "high"' is not assignable to type '"medium"'.
-[typecheck:src           ]   Type '"low"' is not assignable to type '"medium"'.
-[typecheck:src           ] src/components/tools/imag-enhancer/__tests__/ModelControls.test.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
-[typecheck:src           ] src/components/tools/imag-enhancer/__tests__/useCompareInteractions.test.tsx(3,1): error TS6133: 'userEvent' is declared but its value is never read.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(1,26): error TS6133: 'fireEvent' is declared but its value is never read.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(4,15): error TS2305: Module '"../types"' has no exported member 'EnhancerActionsMVPProps'.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(6,1): error TS2593: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(54,20): error TS2304: Cannot find name 'vi'.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(57,16): error TS2304: Cannot find name 'vi'.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(62,3): error TS2304: Cannot find name 'beforeEach'.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(63,5): error TS2304: Cannot find name 'vi'.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(66,3): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(69,5): error TS2304: Cannot find name 'expect'.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(72,5): error TS2304: Cannot find name 'expect'.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(73,5): error TS2304: Cannot find name 'expect'.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(76,5): error TS2304: Cannot find name 'expect'.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(79,3): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(86,5): error TS2304: Cannot find name 'expect'.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(91,3): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(98,5): error TS2304: Cannot find name 'expect'.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(101,3): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(105,5): error TS2304: Cannot find name 'expect'.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(108,3): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(113,5): error TS2304: Cannot find name 'expect'.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(116,3): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(120,5): error TS2304: Cannot find name 'expect'.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(121,5): error TS2304: Cannot find name 'expect'.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(124,3): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(127,5): error TS2304: Cannot find name 'expect'.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(128,5): error TS2304: Cannot find name 'expect'.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(131,3): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(136,5): error TS2304: Cannot find name 'expect'.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(139,3): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx(143,5): error TS2304: Cannot find name 'expect'.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/SimpleResult.test.tsx(38,23): error TS2304: Cannot find name 'SimpleResultProps'.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(1,27): error TS6133: 'waitFor' is declared but its value is never read.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(8,1): error TS2304: Cannot find name 'vi'.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(9,1): error TS2304: Cannot find name 'vi'.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(11,1): error TS2593: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(17,5): error TS2739: Type '{ imageUrl: string; originalUrl: string; }' is missing the following properties from type 'GenerateResponseData': model, usage, limits
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(23,3): error TS2304: Cannot find name 'beforeEach'.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(24,5): error TS2304: Cannot find name 'vi'.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(25,5): error TS2304: Cannot find name 'vi'.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(28,3): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(31,5): error TS2304: Cannot find name 'expect'.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(34,3): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(37,5): error TS2304: Cannot find name 'vi'.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(50,5): error TS2304: Cannot find name 'expect'.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(51,5): error TS2304: Cannot find name 'expect'.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(54,3): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(57,5): error TS2304: Cannot find name 'vi'.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(69,5): error TS2304: Cannot find name 'expect'.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(70,7): error TS2304: Cannot find name 'expect'.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(76,3): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(79,5): error TS2304: Cannot find name 'vi'.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(88,5): error TS2304: Cannot find name 'expect'.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(91,3): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(102,5): error TS2304: Cannot find name 'vi'.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(111,5): error TS2304: Cannot find name 'expect'.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(114,3): error TS2593: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(119,5): error TS2304: Cannot find name 'vi'.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/__tests__/useEnhanceMVP.test.tsx(128,5): error TS2304: Cannot find name 'expect'.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/hooks/useEnhanceMVP.ts(2,15): error TS2305: Module '"../../types"' has no exported member 'EnhanceMVPArgs'.
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/ImagEnhancerRouter.tsx(30,32): error TS2322: Type 'ImagEnhancerMVPStrings' is not assignable to type 'ImagEnhancerStrings'.
-[typecheck:src           ]   Types of property 'ui' are incompatible.
-[typecheck:src           ]     Type '{ changeModel?: string | undefined; done?: string | undefined; startOver?: string | undefined; upgrade?: string | undefined; } | undefined' is not assignable to type '{ fullscreen: string; exitFullscreen: string; changeModel?: string | undefined; done?: string | undefined; startOver?: string | undefined; faceEnhance?: string | undefined; upgrade?: string | undefined; help?: { ...; } | undefined; } | undefined'.
-[typecheck:src           ]       Type '{ changeModel?: string | undefined; done?: string | undefined; startOver?: string | undefined; upgrade?: string | undefined; }' is missing the following properties from type '{ fullscreen: string; exitFullscreen: string; changeModel?: string | undefined; done?: string | undefined; startOver?: string | undefined; faceEnhance?: string | undefined; upgrade?: string | undefined; help?: { ...; } | undefined; }': fullscreen, exitFullscreen
-[typecheck:src           ] src/components/tools/imag-enhancer/mvp/types.ts(47,18): error TS2430: Interface 'UsageData' incorrectly extends interface 'UsageInfo'.
-[typecheck:src           ]   Types of property 'resetAt' are incompatible.
-[typecheck:src           ]     Type 'string | null' is not assignable to type 'number | null'.
-[typecheck:src           ]       Type 'string' is not assignable to type 'number'.
-[typecheck:src           ] src/components/tools/video-enhancer/VideoEnhancerIsland.tsx(389,21): error TS2322: Type '{ children: Element; asChild: true; variant: "secondary"; size: "sm"; className: string; }' is not assignable to type 'IntrinsicAttributes & (ButtonProps & RefAttributes<HTMLButtonElement | HTMLAnchorElement>)'.
-[typecheck:src           ]   Property 'asChild' does not exist on type 'IntrinsicAttributes & (ButtonProps & RefAttributes<HTMLButtonElement | HTMLAnchorElement>)'.
-[typecheck:src           ] src/components/tools/voice-visualizer/hooks/useTranscribeStream.ts(91,30): error TS2339: Property 'data' does not exist on type '{}'.
-[typecheck:src           ] src/lib/blog.ts(169,25): error TS2339: Property 'forEach' does not exist on type '{}'.
-[typecheck:src           ] src/lib/db/schema.ts(19,9): error TS2347: Untyped function calls may not accept type arguments.
-[typecheck:src           ] src/lib/kv/usage.test.ts(12,39): error TS2307: Cannot find module '../../tests/utils/kv-mock' or its corresponding type declarations.
-[typecheck:src           ] src/lib/services/data-export-service.ts(184,47): error TS7006: Parameter 'c' implicitly has an 'any' type.
-[typecheck:src           ] src/lib/services/data-export-service.ts(206,57): error TS7006: Parameter 'n' implicitly has an 'any' type.
-[typecheck:src           ] src/lib/services/data-export-service.ts(422,22): error TS7006: Parameter 'row' implicitly has an 'any' type.
-[typecheck:src           ] src/lib/services/logger-utils.ts(27,5): error TS2322: Type '(context?: LogContext | undefined) => void' is not assignable to type 'SafeLogMethod'.
-[typecheck:src           ]   Types of parameters 'context' and 'message' are incompatible.
-[typecheck:src           ]     Type 'string' has no properties in common with type 'LogContext'.
-[typecheck:src           ] src/lib/services/performance-service.ts(593,11): error TS6133: '_cacheStats' is declared but its value is never read.
-[typecheck:src           ] src/lib/services/webscraper-service.ts(163,9): error TS2353: Object literal may only specify known properties, and 'url' does not exist in type 'LogContext'.
-[typecheck:src           ] src/lib/services/webscraper-service.ts(418,48): error TS2353: Object literal may only specify known properties, and 'ownerType' does not exist in type 'LogContext'.
-[typecheck:src           ] src/lib/services/webscraper-service.ts(430,7): error TS2353: Object literal may only specify known properties, and 'reqId' does not exist in type 'LogContext'.
-[typecheck:src           ] src/lib/services/webscraper-service.ts(448,9): error TS2353: Object literal may only specify known properties, and 'reqId' does not exist in type 'LogContext'.
-[typecheck:src           ] src/lib/services/webscraper-service.ts(466,9): error TS2353: Object literal may only specify known properties, and 'reqId' does not exist in type 'LogContext'.
-[typecheck:src           ] src/lib/services/webscraper-service.ts(481,9): error TS2353: Object literal may only specify known properties, and 'reqId' does not exist in type 'LogContext'.
-[typecheck:src           ] src/lib/services/webscraper-service.ts(498,9): error TS2353: Object literal may only specify known properties, and 'reqId' does not exist in type 'LogContext'.
-[typecheck:src           ] src/lib/services/webscraper-service.ts(517,9): error TS2353: Object literal may only specify known properties, and 'reqId' does not exist in type 'LogContext'.
-[typecheck:src           ] src/lib/services/webscraper-service.ts(530,7): error TS2353: Object literal may only specify known properties, and 'reqId' does not exist in type 'LogContext'.
-[typecheck:src           ] src/pages/api/admin/backup.legacy.hono.ts(6,24): error TS2305: Module '"hono"' has no exported member 'Next'.
-[typecheck:src           ] src/pages/api/admin/backup.legacy.hono.ts(29,5): error TS2339: Property 'set' does not exist on type 'Context'.
-[typecheck:src           ] src/pages/api/admin/backup.legacy.hono.ts(46,22): error TS7006: Parameter 'c' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/admin/backup.legacy.hono.ts(46,25): error TS7006: Parameter 'next' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/admin/backup.legacy.hono.ts(72,25): error TS2339: Property 'query' does not exist on type '{ param: (name: string) => string; header: (name: string) => string | undefined; raw: Request<unknown, CfProperties<unknown>>; json: <T = any>() => Promise<T>; }'.
-[typecheck:src           ] src/pages/api/admin/backup.legacy.hono.ts(110,20): error TS2339: Property 'get' does not exist on type 'Context'.
-[typecheck:src           ] src/pages/api/admin/backup.legacy.hono.ts(113,24): error TS2339: Property 'get' does not exist on type 'Context'.
-[typecheck:src           ] src/pages/api/admin/backup.legacy.hono.ts(174,20): error TS2339: Property 'get' does not exist on type 'Context'.
-[typecheck:src           ] src/pages/api/admin/backup.legacy.hono.ts(177,24): error TS2339: Property 'get' does not exist on type 'Context'.
-[typecheck:src           ] src/pages/api/admin/backup.legacy.hono.ts(225,20): error TS2339: Property 'get' does not exist on type 'Context'.
-[typecheck:src           ] src/pages/api/admin/backup.legacy.hono.ts(228,24): error TS2339: Property 'get' does not exist on type 'Context'.
-[typecheck:src           ] src/pages/api/admin/backup.legacy.hono.ts(249,5): error TS2339: Property 'post' does not exist on type 'Hono<{ Bindings: { DB: D1Database; JWT_SECRET: string; }; Variables: { userId: string; requestId: string; }; }>'.
-[typecheck:src           ] src/pages/api/admin/backup.legacy.hono.ts(251,23): error TS2339: Property 'get' does not exist on type 'Context'.
-[typecheck:src           ] src/pages/api/admin/backup.legacy.hono.ts(296,20): error TS2339: Property 'get' does not exist on type 'Context'.
-[typecheck:src           ] src/pages/api/admin/backup.legacy.hono.ts(299,24): error TS2339: Property 'get' does not exist on type 'Context'.
-[typecheck:src           ] src/pages/api/admin/backup.legacy.hono.ts(319,5): error TS2339: Property 'post' does not exist on type 'Hono<{ Bindings: { DB: D1Database; JWT_SECRET: string; }; Variables: { userId: string; requestId: string; }; }>'.
-[typecheck:src           ] src/pages/api/admin/backup.legacy.hono.ts(321,11): error TS6133: '_adminId' is declared but its value is never read.
-[typecheck:src           ] src/pages/api/admin/backup.legacy.hono.ts(321,24): error TS2339: Property 'get' does not exist on type 'Context'.
-[typecheck:src           ] src/pages/api/admin/backup.legacy.hono.ts(345,49): error TS2345: Argument of type 'string' is not assignable to parameter of type 'BackupJobType'.
-[typecheck:src           ] src/pages/api/admin/backup.legacy.hono.ts(355,20): error TS2339: Property 'get' does not exist on type 'Context'.
-[typecheck:src           ] src/pages/api/admin/backup.legacy.hono.ts(358,24): error TS2339: Property 'get' does not exist on type 'Context'.
-[typecheck:src           ] src/pages/api/admin/backup.legacy.hono.ts(378,5): error TS2339: Property 'post' does not exist on type 'Hono<{ Bindings: { DB: D1Database; JWT_SECRET: string; }; Variables: { userId: string; requestId: string; }; }>'.
-[typecheck:src           ] src/pages/api/admin/backup.legacy.hono.ts(380,23): error TS2339: Property 'get' does not exist on type 'Context'.
-[typecheck:src           ] src/pages/api/admin/backup.legacy.hono.ts(432,20): error TS2339: Property 'get' does not exist on type 'Context'.
-[typecheck:src           ] src/pages/api/admin/backup.legacy.hono.ts(435,24): error TS2339: Property 'get' does not exist on type 'Context'.
-[typecheck:src           ] src/pages/api/admin/backup.legacy.hono.ts(457,25): error TS2339: Property 'query' does not exist on type '{ param: (name: string) => string; header: (name: string) => string | undefined; raw: Request<unknown, CfProperties<unknown>>; json: <T = any>() => Promise<T>; }'.
-[typecheck:src           ] src/pages/api/admin/backup.legacy.hono.ts(483,20): error TS2339: Property 'get' does not exist on type 'Context'.
-[typecheck:src           ] src/pages/api/admin/backup.legacy.hono.ts(486,24): error TS2339: Property 'get' does not exist on type 'Context'.
-[typecheck:src           ] src/pages/api/admin/backup.legacy.hono.ts(545,20): error TS2339: Property 'get' does not exist on type 'Context'.
-[typecheck:src           ] src/pages/api/admin/backup.legacy.hono.ts(548,24): error TS2339: Property 'get' does not exist on type 'Context'.
-[typecheck:src           ] src/pages/api/admin/backup.legacy.hono.ts(569,5): error TS2339: Property 'post' does not exist on type 'Hono<{ Bindings: { DB: D1Database; JWT_SECRET: string; }; Variables: { userId: string; requestId: string; }; }>'.
-[typecheck:src           ] src/pages/api/admin/backup.legacy.hono.ts(571,11): error TS6133: '_adminId' is declared but its value is never read.
-[typecheck:src           ] src/pages/api/admin/backup.legacy.hono.ts(571,24): error TS2339: Property 'get' does not exist on type 'Context'.
-[typecheck:src           ] src/pages/api/admin/backup.legacy.hono.ts(590,20): error TS2339: Property 'get' does not exist on type 'Context'.
-[typecheck:src           ] src/pages/api/admin/backup.legacy.hono.ts(593,24): error TS2339: Property 'get' does not exist on type 'Context'.
-[typecheck:src           ] src/pages/api/admin/backup.legacy.hono.ts(613,5): error TS2339: Property 'post' does not exist on type 'Hono<{ Bindings: { DB: D1Database; JWT_SECRET: string; }; Variables: { userId: string; requestId: string; }; }>'.
-[typecheck:src           ] src/pages/api/admin/backup.legacy.hono.ts(630,20): error TS2339: Property 'get' does not exist on type 'Context'.
-[typecheck:src           ] src/pages/api/admin/backup.legacy.hono.ts(633,24): error TS2339: Property 'get' does not exist on type 'Context'.
-[typecheck:src           ] src/pages/api/admin/backup.legacy.hono.ts(694,20): error TS2339: Property 'get' does not exist on type 'Context'.
-[typecheck:src           ] src/pages/api/admin/backup.legacy.hono.ts(697,24): error TS2339: Property 'get' does not exist on type 'Context'.
-[typecheck:src           ] src/pages/api/comments/moderate.ts(82,14): error TS7006: Parameter 'origin' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/comments/moderate.ts(96,5): error TS2339: Property 'post' does not exist on type 'Hono<{ Bindings: { DB: D1Database; KV_COMMENTS?: KVNamespace<string> | undefined; }; }>'.
-[typecheck:src           ] src/pages/api/comments/moderate.ts(96,22): error TS7006: Parameter 'c' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/comments/moderate.ts(105,24): error TS2347: Untyped function calls may not accept type arguments.
-[typecheck:src           ] src/pages/api/comments/moderate.ts(168,26): error TS7006: Parameter 'c' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/comments/moderate.ts(199,26): error TS7006: Parameter 'c' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/comments/moderate.ts(249,7): error TS2345: Argument of type '{ [x: string]: any; }' is not assignable to parameter of type 'ModerateCommentRequest'.
-[typecheck:src           ]   Property 'action' is missing in type '{ [x: string]: any; }' but required in type 'ModerateCommentRequest'.
-[typecheck:src           ] src/pages/api/comments/performance.ts(27,24): error TS2315: Type 'Context' is not generic.
-[typecheck:src           ] src/pages/api/comments/performance.ts(176,22): error TS7006: Parameter 'c' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/comments/performance.ts(176,25): error TS7006: Parameter 'next' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/comments/performance.ts(181,27): error TS7006: Parameter 'c' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/comments/performance.ts(181,30): error TS7006: Parameter 'next' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/comments/performance.ts(198,28): error TS7006: Parameter 'c' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/comments/performance.ts(198,31): error TS7006: Parameter 'next' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/comments/performance.ts(204,38): error TS7006: Parameter 'c' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/comments/performance.ts(245,27): error TS7006: Parameter 'c' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/comments/performance.ts(298,5): error TS2339: Property 'post' does not exist on type 'Hono<{ Bindings: CommentsBindings; Variables: CommentsVariables; }>'.
-[typecheck:src           ] src/pages/api/comments/performance.ts(298,37): error TS7006: Parameter 'c' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/comments/performance.ts(341,32): error TS7006: Parameter 'c' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/comments/performance.ts(376,5): error TS2339: Property 'post' does not exist on type 'Hono<{ Bindings: CommentsBindings; Variables: CommentsVariables; }>'.
-[typecheck:src           ] src/pages/api/comments/performance.ts(376,33): error TS7006: Parameter 'c' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/comments/performance.ts(432,26): error TS7006: Parameter 'c' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/comments/performance.ts(467,28): error TS7006: Parameter 'c' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/comments/performance.ts(502,5): error TS2339: Property 'post' does not exist on type 'Hono<{ Bindings: CommentsBindings; Variables: CommentsVariables; }>'.
-[typecheck:src           ] src/pages/api/comments/performance.ts(502,30): error TS7006: Parameter 'c' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/comments/performance.ts(556,34): error TS7006: Parameter 'c' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/comments/recent.ts(58,9): error TS2322: Type 'number' is not assignable to type 'string'.
-[typecheck:src           ] src/pages/api/data-export/index.ts(25,22): error TS7006: Parameter 'c' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/data-export/index.ts(25,25): error TS7006: Parameter 'next' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/data-export/index.ts(63,25): error TS7006: Parameter 'c' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/data-export/index.ts(111,29): error TS7006: Parameter 'c' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/data-export/index.ts(176,38): error TS7006: Parameter 'c' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/data-export/index.ts(231,5): error TS2339: Property 'post' does not exist on type 'Hono<{ Bindings: { DB: D1Database; JWT_SECRET: string; }; Variables: { requestId: string; }; }>'.
-[typecheck:src           ] src/pages/api/data-export/index.ts(231,28): error TS7006: Parameter 'c' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/data-export/index.ts(235,24): error TS2347: Untyped function calls may not accept type arguments.
-[typecheck:src           ] src/pages/api/data-export/index.ts(315,33): error TS7006: Parameter 'c' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/data-export/index.ts(413,5): error TS2339: Property 'post' does not exist on type 'Hono<{ Bindings: { DB: D1Database; JWT_SECRET: string; }; Variables: { requestId: string; }; }>'.
-[typecheck:src           ] src/pages/api/data-export/index.ts(413,36): error TS7006: Parameter 'c' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/data-export/index.ts(417,24): error TS2347: Untyped function calls may not accept type arguments.
-[typecheck:src           ] src/pages/api/data-export/index.ts(454,5): error TS2339: Property 'post' does not exist on type 'Hono<{ Bindings: { DB: D1Database; JWT_SECRET: string; }; Variables: { requestId: string; }; }>'.
-[typecheck:src           ] src/pages/api/data-export/index.ts(454,37): error TS7006: Parameter 'c' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/data-export/index.ts(456,24): error TS2347: Untyped function calls may not accept type arguments.
-[typecheck:src           ] src/pages/api/data-export/index.ts(525,24): error TS7006: Parameter 'c' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/health.ts(95,5): error TS2322: Type '() => Promise<RateLimiter>' is not assignable to type 'RateLimiter'.
-[typecheck:src           ]   Type 'Promise<RateLimiter>' is not assignable to type 'Promise<RateLimiterResult>'.
-[typecheck:src           ]     Type 'RateLimiter' is not assignable to type 'RateLimiterResult'.
-[typecheck:src           ] src/pages/api/newsletter/confirm.ts(32,48): error TS7031: Binding element '_request' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/newsletter/confirm.ts(32,58): error TS7031: Binding element 'url' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/notifications/index.ts(69,14): error TS7006: Parameter 'origin' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/notifications/index.ts(90,21): error TS7006: Parameter 'c' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/notifications/index.ts(115,64): error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
-[typecheck:src           ] src/pages/api/notifications/index.ts(134,5): error TS2339: Property 'post' does not exist on type 'Hono<{ Bindings: { DB: D1Database; JWT_SECRET: string; }; }>'.
-[typecheck:src           ] src/pages/api/notifications/index.ts(134,31): error TS7006: Parameter 'c' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/notifications/index.ts(161,79): error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
-[typecheck:src           ] src/pages/api/notifications/index.ts(180,5): error TS2339: Property 'post' does not exist on type 'Hono<{ Bindings: { DB: D1Database; JWT_SECRET: string; }; }>'.
-[typecheck:src           ] src/pages/api/notifications/index.ts(180,35): error TS7006: Parameter 'c' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/notifications/index.ts(193,45): error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
-[typecheck:src           ] src/pages/api/notifications/index.ts(212,27): error TS7006: Parameter 'c' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/notifications/index.ts(227,66): error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
-[typecheck:src           ] src/pages/api/notifications/index.ts(246,26): error TS7006: Parameter 'c' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/notifications/index.ts(259,66): error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
-[typecheck:src           ] src/pages/api/notifications/settings.ts(17,14): error TS7006: Parameter 'origin' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/notifications/settings.ts(38,21): error TS7006: Parameter 'c' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/notifications/settings.ts(69,5): error TS2339: Property 'post' does not exist on type 'Hono<{ Bindings: { DB: D1Database; JWT_SECRET: string; }; }>'.
-[typecheck:src           ] src/pages/api/notifications/settings.ts(69,22): error TS7006: Parameter 'c' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/notifications/settings.ts(174,5): error TS2339: Property 'post' does not exist on type 'Hono<{ Bindings: { DB: D1Database; JWT_SECRET: string; }; }>'.
-[typecheck:src           ] src/pages/api/notifications/settings.ts(174,32): error TS7006: Parameter 'c' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/notifications/settings.ts(207,5): error TS2339: Property 'post' does not exist on type 'Hono<{ Bindings: { DB: D1Database; JWT_SECRET: string; }; }>'.
-[typecheck:src           ] src/pages/api/notifications/settings.ts(207,27): error TS7006: Parameter 'c' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/templates.ts(27,42): error TS2315: Type 'KVNamespace' is not generic.
-[typecheck:src           ] src/pages/api/test/seed-email-token.ts(40,24): error TS2347: Untyped function calls may not accept type arguments.
-[typecheck:src           ] src/pages/api/user/account.ts(59,39): error TS2347: Untyped function calls may not accept type arguments.
-[typecheck:src           ] src/pages/api/user/account.ts(72,62): error TS7006: Parameter 'subscription' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/user/account.ts(77,43): error TS7006: Parameter 'subscription' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/user/account.ts(78,46): error TS7006: Parameter 'subscription' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/user/account.ts(86,53): error TS7006: Parameter 'subscription' implicitly has an 'any' type.
-[typecheck:src           ] src/pages/api/user/logout.ts(41,35): error TS2347: Untyped function calls may not accept type arguments.
-[typecheck:src           ] src/pages/api/voice/transcribe.ts(144,7): error TS2322: Type 'R2Bucket | undefined' is not assignable to type 'string | undefined'.
-[typecheck:src           ]   Type 'R2Bucket' is not assignable to type 'string'.
-[typecheck:src           ] src/pages/api/voice/transcribe.ts(145,7): error TS2322: Type 'string | number | boolean | undefined' is not assignable to type 'string | undefined'.
-[typecheck:src           ]   Type 'number' is not assignable to type 'string'.
-[typecheck:src           ] src/pages/api/webscraper/extract.ts(79,39): error TS2559: Type '{ format?: "text" | "json" | "html" | undefined; maxDepth?: number | undefined; selector?: string | undefined; }' has no properties in common with type 'Partial<ScrapingConfig>'.
-[typecheck:src           ] src/pages/sitemap.xml.ts(25,39): error TS7031: Binding element 'url' implicitly has an 'any' type.
-[typecheck:src           ] src/scripts/neural-mesh.ts(27,11): error TS2564: Property 'canvas' has no initializer and is not definitely assigned in the constructor.
-[typecheck:src           ] src/scripts/neural-mesh.ts(28,11): error TS2564: Property 'ctx' has no initializer and is not definitely assigned in the constructor.
-[typecheck:src           ] src/server/utils/jwt.ts(13,21): error TS2345: Argument of type 'JwtPayload' is not assignable to parameter of type 'JWTPayload'.
-[typecheck:src           ]   Index signature for type 'string' is missing in type 'JwtPayload'.
-[typecheck:src           ] src/server/utils/jwt.ts(18,5): error TS2741: Property 'userId' is missing in type 'JWTPayload' but required in type 'JwtPayload'.
-ERROR: "typecheck:src" exited with 2.
+Summary: 0 error(s)
+
+[docs:toc $ npm run docs:toc]
+
+> evolution-hub@0.0.1 docs:toc
+> doctoc docs --update-only --notitle
+
+
+DocToccing "docs" and its sub directories for github.com.
+
+Found AUDIT.md, README.md, SECURITY.md, SETUP.md, animation.md, architecture.md, cheat-sheet.md, content.md, db_schema_update.md, i18n.md, seo.md in "docs"
+
+Found README.md, admin_api.md, ai-image_api.md, api-guidelines.md, api-overview.md, auth_api.md, billing_api.md, comments_api.md, dashboard_api.md, error-handling.md, known-issues.md, projects_api.md, prompt-enhance.md, public_api.md, rate-limiting-api.md, user_api.md, voice_api.md, webscraper_api.md in "docs/api"
+
+Found nothing in "docs/api/openapi"
+
+Found nothing in "docs/api/openapi/paths"
+
+Found README.md, ai-image-enhancer.md, ai-orchestrator-open-questions.md, api-middleware-inventory.md, auth-architecture.md, auth-flow.md, data-flow.md, database-schema.md, locale-middleware.md, prompt-enhancer.md, system-overview.md, voice-visualizer-transcriptor.md in "docs/architecture"
+
+Found 0000-adr-template.md, 0001-astro-cloudflare-stack.md, 0002-cloudflare-architecture.md, 0003-astro-frontend-architecture.md, 0004-database-schema.md, 0005-auth-route-locale-normalisierung.md, 0006-dev-echo-non-prod.md in "docs/architecture/adrs"
+
+Found 0001-jwt-authentication.md, 0002-jwt-authentication.md, 0003-database-schema.md in "docs/architecture/adrs/deprecated"
+
+Found BEWERTUNG_LOGIKREVIEW_IMAGE-ENHANCER_USAGE-PILL_PLANANZEIGE.md in "docs/architecture/reviews"
+
+Found README.md, documentation-gap-analysis.md, status-assessment.md in "docs/archive"
+
+Found nothing in "docs/business"
+
+Found ai-operations-cost-report.md in "docs/business/infra-costs"
+
+Found ai-enhancer-licensing.md in "docs/compliance"
+
+Found image-enhancer-mvp.md in "docs/deployment"
+
+Found README.md, api-validation.md, bugfix-session-cookie-fallback.md, ci-cd.md, debug-panel-usage.md, docs-style-guide.md, hybrid-logging-system.md, icon-guidelines.md, inline-ts-refactor.md, local-development.md, stripe-setup.md, stytch-oauth-dev-guide.md, testing-guidelines.md, typescript-integration.md in "docs/development"
+
+Found imag-enhancer-help-ui.md in "docs/development/prs"
+
+Found admin-notifications.md, blog+commentsystem-plan.md, pricing-system.md, production-logging.md in "docs/features"
+
+Found README.md, aos-coordinator.md, card-components.md, coming-soon.md, components.md, design-system.md, entitlements-ui-gating.md, header-scroll-animation.md, imag-enhancer-ui-upgrade.md, toast-notifications.md, ui-components.md, ui-ux.md in "docs/frontend"
+
+Found README.md, content-prompts.md, prompts.md, r2-optimization-plan.md in "docs/lead-magnets"
+
+Found nothing in "docs/media"
+
+Found nothing in "docs/meta"
+
+Found README.md, ai-generate-kv-limiter-plan.md, cloudflare-cache-rules.md, deployment-guide.md, monitoring.md, runbook-image-enhancer-go-live.md in "docs/ops"
+
+Found nothing in "docs/ops/runbooks"
+
+Found auth-envs-and-secrets.md, environment.md in "docs/reference"
+
+Found project-rules-deltas.md, project-structure.md in "docs/rules"
+
+Found logging-pipeline.md in "docs/runbooks"
+
+Found README.md, improvements.md, rate_limiting.md, security_headers.md in "docs/security"
+
+Found README.md, coverage-roadmap-to-95.md, integration-hardening.md, testing-strategy.md, web-eval-executor.md in "docs/testing"
+
+Found debug-panel.md, image-enhancer.md, prompt-enhancer.en.md, prompt-enhancer.md in "docs/tools"
+
+Found IMPLEMENTATION_COMPLETE.md, README.md, guidelines.md, roadmap.md, spec.md, testing.md in "docs/tools/webscraper"
+--update-only flag is enabled. Only updating files that already have a TOC.
+
+==================
+
+"docs/AUDIT.md" is up to date
+"docs/README.md" is up to date
+"docs/SECURITY.md" is up to date
+"docs/SETUP.md" is up to date
+"docs/animation.md" is up to date
+"docs/architecture.md" is up to date
+"docs/cheat-sheet.md" is up to date
+"docs/content.md" is up to date
+"docs/db_schema_update.md" is up to date
+"docs/i18n.md" is up to date
+"docs/seo.md" is up to date
+"docs/api/README.md" is up to date
+"docs/api/admin_api.md" is up to date
+"docs/api/ai-image_api.md" is up to date
+"docs/api/api-guidelines.md" is up to date
+"docs/api/api-overview.md" is up to date
+"docs/api/auth_api.md" is up to date
+"docs/api/billing_api.md" is up to date
+"docs/api/comments_api.md" is up to date
+"docs/api/dashboard_api.md" is up to date
+"docs/api/error-handling.md" is up to date
+"docs/api/known-issues.md" is up to date
+"docs/api/projects_api.md" is up to date
+"docs/api/prompt-enhance.md" is up to date
+"docs/api/public_api.md" is up to date
+"docs/api/rate-limiting-api.md" is up to date
+"docs/api/user_api.md" is up to date
+"docs/api/voice_api.md" is up to date
+"docs/api/webscraper_api.md" is up to date
+"docs/architecture/README.md" is up to date
+"docs/architecture/ai-image-enhancer.md" is up to date
+"docs/architecture/ai-orchestrator-open-questions.md" is up to date
+"docs/architecture/api-middleware-inventory.md" is up to date
+"docs/architecture/auth-architecture.md" is up to date
+"docs/architecture/auth-flow.md" is up to date
+"docs/architecture/data-flow.md" is up to date
+"docs/architecture/database-schema.md" is up to date
+"docs/architecture/locale-middleware.md" is up to date
+"docs/architecture/prompt-enhancer.md" is up to date
+"docs/architecture/system-overview.md" is up to date
+"docs/architecture/voice-visualizer-transcriptor.md" is up to date
+"docs/architecture/adrs/0000-adr-template.md" is up to date
+"docs/architecture/adrs/0001-astro-cloudflare-stack.md" is up to date
+"docs/architecture/adrs/0002-cloudflare-architecture.md" is up to date
+"docs/architecture/adrs/0003-astro-frontend-architecture.md" is up to date
+"docs/architecture/adrs/0004-database-schema.md" is up to date
+"docs/architecture/adrs/0005-auth-route-locale-normalisierung.md" is up to date
+"docs/architecture/adrs/0006-dev-echo-non-prod.md" is up to date
+"docs/architecture/adrs/deprecated/0001-jwt-authentication.md" is up to date
+"docs/architecture/adrs/deprecated/0002-jwt-authentication.md" is up to date
+"docs/architecture/adrs/deprecated/0003-database-schema.md" is up to date
+"docs/architecture/reviews/BEWERTUNG_LOGIKREVIEW_IMAGE-ENHANCER_USAGE-PILL_PLANANZEIGE.md" is up to date
+"docs/archive/README.md" is up to date
+"docs/archive/documentation-gap-analysis.md" is up to date
+"docs/archive/status-assessment.md" is up to date
+"docs/business/infra-costs/ai-operations-cost-report.md" is up to date
+"docs/compliance/ai-enhancer-licensing.md" is up to date
+"docs/deployment/image-enhancer-mvp.md" is up to date
+"docs/development/README.md" is up to date
+"docs/development/api-validation.md" is up to date
+"docs/development/bugfix-session-cookie-fallback.md" is up to date
+"docs/development/ci-cd.md" is up to date
+"docs/development/debug-panel-usage.md" is up to date
+"docs/development/docs-style-guide.md" is up to date
+"docs/development/hybrid-logging-system.md" is up to date
+"docs/development/icon-guidelines.md" is up to date
+"docs/development/inline-ts-refactor.md" is up to date
+"docs/development/local-development.md" is up to date
+"docs/development/stripe-setup.md" is up to date
+"docs/development/stytch-oauth-dev-guide.md" is up to date
+"docs/development/testing-guidelines.md" is up to date
+"docs/development/typescript-integration.md" is up to date
+"docs/development/prs/imag-enhancer-help-ui.md" is up to date
+"docs/features/admin-notifications.md" is up to date
+"docs/features/blog+commentsystem-plan.md" is up to date
+"docs/features/pricing-system.md" is up to date
+"docs/features/production-logging.md" is up to date
+"docs/frontend/README.md" is up to date
+"docs/frontend/aos-coordinator.md" is up to date
+"docs/frontend/card-components.md" is up to date
+"docs/frontend/coming-soon.md" is up to date
+"docs/frontend/components.md" is up to date
+"docs/frontend/design-system.md" is up to date
+"docs/frontend/entitlements-ui-gating.md" is up to date
+"docs/frontend/header-scroll-animation.md" is up to date
+"docs/frontend/imag-enhancer-ui-upgrade.md" is up to date
+"docs/frontend/toast-notifications.md" is up to date
+"docs/frontend/ui-components.md" is up to date
+"docs/frontend/ui-ux.md" is up to date
+"docs/lead-magnets/README.md" is up to date
+"docs/lead-magnets/content-prompts.md" is up to date
+"docs/lead-magnets/prompts.md" is up to date
+"docs/lead-magnets/r2-optimization-plan.md" is up to date
+"docs/ops/README.md" is up to date
+"docs/ops/ai-generate-kv-limiter-plan.md" is up to date
+"docs/ops/cloudflare-cache-rules.md" is up to date
+"docs/ops/deployment-guide.md" is up to date
+"docs/ops/monitoring.md" is up to date
+"docs/ops/runbook-image-enhancer-go-live.md" is up to date
+"docs/reference/auth-envs-and-secrets.md" is up to date
+"docs/reference/environment.md" is up to date
+"docs/rules/project-rules-deltas.md" is up to date
+"docs/rules/project-structure.md" is up to date
+"docs/runbooks/logging-pipeline.md" is up to date
+"docs/security/README.md" is up to date
+"docs/security/improvements.md" is up to date
+"docs/security/rate_limiting.md" is up to date
+"docs/security/security_headers.md" is up to date
+"docs/testing/README.md" is up to date
+"docs/testing/coverage-roadmap-to-95.md" is up to date
+"docs/testing/integration-hardening.md" is up to date
+"docs/testing/testing-strategy.md" is up to date
+"docs/testing/web-eval-executor.md" is up to date
+"docs/tools/debug-panel.md" is up to date
+"docs/tools/image-enhancer.md" is up to date
+"docs/tools/prompt-enhancer.en.md" is up to date
+"docs/tools/prompt-enhancer.md" is up to date
+"docs/tools/webscraper/IMPLEMENTATION_COMPLETE.md" is up to date
+"docs/tools/webscraper/README.md" is up to date
+"docs/tools/webscraper/guidelines.md" is up to date
+"docs/tools/webscraper/roadmap.md" is up to date
+"docs/tools/webscraper/spec.md" is up to date
+"docs/tools/webscraper/testing.md" is up to date
+
+Everything is OK.
+
+[format:check $ npm run format:check]
+
+> evolution-hub@0.0.1 format:check
+> prettier --check "src/**/*.{ts,tsx,astro,json,md}" "tests/**/*.{ts,tsx}" "scripts/**/*.{ts,js,mjs}" "*.{json,md,yaml,yml}"
+
+Checking formatting...
+All matched files use Prettier code style!
+
+[lint(strict) $ npm run lint -- --max-warnings=0]

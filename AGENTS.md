@@ -42,6 +42,7 @@
 - Rate Limiting respektieren (`src/lib/rate-limiter.ts`) und Admin‑Routen besonders schützen.
 - Secrets niemals im Code/Logs; beachte `docs/reference/auth-envs-and-secrets.md`.
 - Für Backups/Exporte: `docs/ops/*` und Admin‑API‑Guidelines befolgen.
+- Cookies/Consent beachten (Analytics/Tracking nur nach Opt‑In): siehe `.windsurf/rules/cookies-and-consent.md`.
 
 ## Tests
 
@@ -49,6 +50,7 @@
 - Utilities/Services: Unit‑Tests (`tests/unit/...` bzw. `test-suite-v2/...`).
 - Performance‑relevantes: bei Hot‑Paths `tests/performance/*` berücksichtigen.
 - Fixtures/Seeds wiederverwenden (`tests/integration/setup/*`, `src/pages/api/test/*`). Keine flakey Tests.
+- Mindestabdeckung: V8 Coverage ≥ 70% für `src/**/*.{ts,tsx}`.
 
 ## i18n & Content
 

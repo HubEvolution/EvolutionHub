@@ -21,7 +21,7 @@ const {
   showNameFields = true,
   variant = 'inline',
   size = 'md',
-} = Astro.props;
+} = Astro.props as Props;
 
 const locale = getLocale(Astro.url.pathname);
 

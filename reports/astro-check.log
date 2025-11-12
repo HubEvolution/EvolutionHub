@@ -1,53 +1,14 @@
-01:46:29 [@astrojs/cloudflare] Enabling sessions with Cloudflare KV with the "SESSION" KV binding.
-01:46:29 [@astrojs/cloudflare] If you see the error "Invalid binding `SESSION`" in your build output, you need to add the binding to your wrangler config file.
-01:46:29 [WARN] [adapter] Cloudflare does not support sharp at runtime. However, you can configure `imageService: "compile"` to optimize images with sharp on prerendered pages during build time.
-01:46:31 [content] Syncing content
-01:46:31 [content] Synced content
-01:46:31 [types] Generated 1.52s
-01:46:31 [check] Getting diagnostics for Astro files in /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub...
-[96msrc/components/BlogList.astro[0m:[93m67[0m:[93m36[0m - [91merror[0m[90m ts(7006): [0mParameter 'idx' implicitly has an 'any' type.
-
-[7m67[0m         {remainingPosts.map((post, idx) => (
-[7m  [0m [91m                                   ~~~[0m
-[96msrc/components/BlogList.astro[0m:[93m67[0m:[93m30[0m - [91merror[0m[90m ts(7006): [0mParameter 'post' implicitly has an 'any' type.
-
-[7m67[0m         {remainingPosts.map((post, idx) => (
-[7m  [0m [91m                             ~~~~[0m
-
-[96msrc/components/blog/LeadMagnetCTA.astro[0m:[93m93[0m:[93m29[0m - [91merror[0m[90m ts(7053): [0mElement implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ card: string; inline: string; banner: string; }'.
-
-[7m93[0m   class={`lead-magnet-cta ${variantStyles[variant]} transition-all duration-300 hover:shadow-xl group my-8`}
-[7m  [0m [91m                            ~~~~~~~~~~~~~~~~~~~~~~[0m
-
-[96msrc/components/dashboard/RecommendationsCard.astro[0m:[93m51[0m:[93m19[0m - [91merror[0m[90m ts(2322): [0mType '{ children: any[]; key: string; href: string; class: string; }' is not assignable to type 'AnchorHTMLAttributes'.
-  Property 'key' does not exist on type 'AnchorHTMLAttributes'.
-
-[7m51[0m                   key={doc.url}
-[7m  [0m [91m                  ~~~[0m
-[96msrc/components/dashboard/RecommendationsCard.astro[0m:[93m28[0m:[93m19[0m - [91merror[0m[90m ts(2322): [0mType '{ children: any[]; key: string; class: string; }' is not assignable to type 'LiHTMLAttributes'.
-  Property 'key' does not exist on type 'LiHTMLAttributes'.
-
-[7m28[0m                   key={tool.id}
-[7m  [0m [91m                  ~~~[0m
-
-[96msrc/components/forms/LeadMagnetForm.astro[0m:[93m48[0m:[93m56[0m - [91merror[0m[90m ts(7053): [0mElement implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ sm: string; md: string; lg: string; }'.
-
-[7m48[0m   class={`lead-magnet-form ${variantStyles[variant]} ${sizeStyles[size]} transition-all duration-300`}
-[7m  [0m [91m                                                       ~~~~~~~~~~~~~~~~[0m
-[96msrc/components/forms/LeadMagnetForm.astro[0m:[93m48[0m:[93m30[0m - [91merror[0m[90m ts(7053): [0mElement implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ modal: string; inline: string; sidebar: string; }'.
-
-[7m48[0m   class={`lead-magnet-form ${variantStyles[variant]} ${sizeStyles[size]} transition-all duration-300`}
-[7m  [0m [91m                             ~~~~~~~~~~~~~~~~~~~~~~[0m
-
+03:48:35 [@astrojs/cloudflare] Enabling sessions with Cloudflare KV with the "SESSION" KV binding.
+03:48:35 [@astrojs/cloudflare] If you see the error "Invalid binding `SESSION`" in your build output, you need to add the binding to your wrangler config file.
+03:48:35 [WARN] [adapter] Cloudflare does not support sharp at runtime. However, you can configure `imageService: "compile"` to optimize images with sharp on prerendered pages during build time.
+03:48:36 [content] Syncing content
+03:48:36 [content] Synced content
+03:48:36 [types] Generated 1.19s
+03:48:36 [check] Getting diagnostics for Astro files in /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub...
 [96msrc/components/projects/ProjectModal.tsx[0m:[93m264[0m:[93m19[0m - [93mwarning[0m[90m ts(6385): [0m'onKeyPress' is deprecated.
 
 [7m264[0m                   onKeyPress={handleKeyPress}
 [7m   [0m [93m                  ~~~~~~~~~~[0m
-
-[96msrc/components/tools/ToolCard.astro[0m:[93m38[0m:[93m3[0m - [91merror[0m[90m ts(2322): [0mType '"article"' is not assignable to type '"div" | "section" | undefined'.
-
-[7m38[0m   as="article"
-[7m  [0m [91m  ~~[0m
 
 [96msrc/components/tools/imag-enhancer/__tests__/ModelControls.test.tsx[0m:[93m1[0m:[93m1[0m - [91merror[0m[90m ts(6133): [0m'React' is declared but its value is never read.
 
@@ -118,41 +79,30 @@ Add the `is:inline` directive explicitly to silence this hint.
 [7m337[0m <script type="module">
 [7m   [0m [93m        ~~~~[0m
 
-[96msrc/pages/pricing.astro[0m:[93m238[0m:[93m19[0m - [91merror[0m[90m ts(2322): [0mType '{ children: string; id: string; type: "button"; variant: "link" | "primary" | "secondary" | "outline" | "ghost" | "accent"; size: "md"; className: string; }' is not assignable to type 'IntrinsicAttributes & Props'.
-  Property 'id' does not exist on type 'IntrinsicAttributes & Props'.
-
-[7m238[0m                   id={`buy-credits-${pack.id}`}
-[7m   [0m [91m                  ~~[0m
-
 [96msrc/pages/account/settings.astro[0m:[93m5[0m:[93m7[0m - [91merror[0m[90m ts(6133): [0m'target' is declared but its value is never read.
 
 [7m5[0m const target =
 [7m [0m [91m      ~~~~~~[0m
 
-[96msrc/pages/blog/[...slug].astro[0m:[93m202[0m:[93m13[0m - [91merror[0m[90m ts(2322): [0mType '{ id: string; name: string | undefined; email: string | undefined; image: string | undefined; } | null' is not assignable to type '{ id: string; name: string; email: string; image?: string | undefined; } | null | undefined'.
-  Type '{ id: string; name: string | undefined; email: string | undefined; image: string | undefined; }' is not assignable to type '{ id: string; name: string; email: string; image?: string | undefined; }'.
+[96msrc/pages/api/testing/evaluate/next/run.ts[0m:[93m8[0m:[93m10[0m - [91merror[0m[90m ts(2305): [0mModule '"@/lib/rate-limiter"' has no exported member 'webEvalBrowserLimiter'.
 
-[7m202[0m             initialUser={initialUser}
-[7m   [0m [91m            ~~~~~~~~~~~[0m
-[96msrc/pages/blog/[...slug].astro[0m:[93m180[0m:[93m70[0m - [91merror[0m[90m ts(2339): [0mProperty 'name' does not exist on type 'string | AuthorInfo'.
-  Property 'name' does not exist on type 'string'.
+[7m8[0m import { webEvalBrowserLimiter } from '@/lib/rate-limiter';
+[7m [0m [91m         ~~~~~~~~~~~~~~~~~~~~~[0m
 
-[7m180[0m   author={Array.isArray(data.author) ? data.author[0] : data.author?.name || 'EvolutionHub Team'}
-[7m   [0m [91m                                                                     ~~~~[0m
-[96msrc/pages/blog/[...slug].astro[0m:[93m145[0m:[93m70[0m - [91merror[0m[90m ts(2339): [0mProperty 'name' does not exist on type 'string | AuthorInfo'.
-  Property 'name' does not exist on type 'string'.
+[96msrc/pages/blog/[...slug].astro[0m:[93m114[0m:[93m66[0m - [91merror[0m[90m ts(2352): [0mConversion of type 'AuthorInfo' to type 'Record<string, unknown>' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Index signature for type 'string' is missing in type 'AuthorInfo'.
 
-[7m145[0m     name: Array.isArray(data.author) ? data.author[0] : data.author?.name || 'EvolutionHub Team',
-[7m   [0m [91m                                                                     ~~~~[0m
-[96msrc/pages/blog/[...slug].astro[0m:[93m7[0m:[93m28[0m - [91merror[0m[90m ts(2305): [0mModule '"@/lib/blog"' has no exported member 'BlogCollectionEntry'.
+[7m114[0m   : typeof data.author === 'object' && data.author && 'name' in (data.author as Record<string, unknown>)
+[7m   [0m [91m                                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/pages/blog/[...slug].astro[0m:[93m85[0m:[93m55[0m - [91merror[0m[90m ts(2345): [0mArgument of type 'ContentfulBlogEntry' is not assignable to parameter of type 'string'.
 
-[7m7[0m import { blogService, type BlogCollectionEntry } from '@/lib/blog';
-[7m [0m [91m                           ~~~~~~~~~~~~~~~~~~~[0m
+[7m85[0m     const related = await blogService.getRelatedPosts(originalEntry!, {
+[7m  [0m [91m                                                      ~~~~~~~~~~~~~~[0m
 
-[96msrc/pages/en/blog/[...slug].astro[0m:[93m5[0m:[93m2[0m - [91merror[0m[90m ts(2322): [0mType '{}' is not assignable to type 'never'.
+[96msrc/pages/en/blog/[...slug].astro[0m:[93m3[0m:[93m7[0m - [91merror[0m[90m ts(6133): [0m'slug' is declared but its value is never read.
 
-[7m5[0m <Page />
-[7m [0m [91m ~~~~[0m
+[7m3[0m const slug = Array.isArray(slugRaw)
+[7m [0m [91m      ~~~~[0m
 
 [96mtests/integration/billing-api.test.ts[0m:[93m425[0m:[93m18[0m - [91merror[0m[90m ts(18048): [0m'json.error' is possibly 'undefined'.
 
@@ -249,79 +199,100 @@ Add the `is:inline` directive explicitly to silence this hint.
 [7m2[0m import { getDb } from '../../src/lib/db/helpers';
 [7m [0m [91m         ~~~~~[0m
 
-[96mtests/integration/lead-magnet-api.test.ts[0m:[93m388[0m:[93m24[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'safeParseJson'.
+[96mtests/integration/lead-magnet-api.test.ts[0m:[93m374[0m:[93m24[0m - [91merror[0m[90m ts(2339): [0mProperty 'data' does not exist on type '{}'.
 
-[7m388[0m           const json = safeParseJson(response.text);
-[7m   [0m [91m                       ~~~~~~~~~~~~~[0m
-[96mtests/integration/lead-magnet-api.test.ts[0m:[93m362[0m:[93m22[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'safeParseJson'.
+[7m374[0m           expect(json?.data?.downloadUrl).toBeDefined();
+[7m   [0m [91m                       ~~~~[0m
+[96mtests/integration/lead-magnet-api.test.ts[0m:[93m373[0m:[93m24[0m - [91merror[0m[90m ts(2339): [0mProperty 'success' does not exist on type '{}'.
 
-[7m362[0m         const json = safeParseJson(response.text);
-[7m   [0m [91m                     ~~~~~~~~~~~~~[0m
-[96mtests/integration/lead-magnet-api.test.ts[0m:[93m329[0m:[93m22[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'safeParseJson'.
+[7m373[0m           expect(json?.success).toBe(true);
+[7m   [0m [91m                       ~~~~~~~[0m
+[96mtests/integration/lead-magnet-api.test.ts[0m:[93m350[0m:[93m22[0m - [91merror[0m[90m ts(2339): [0mProperty 'data' does not exist on type '{}'.
 
-[7m329[0m         const json = safeParseJson(text);
-[7m   [0m [91m                     ~~~~~~~~~~~~~[0m
-[96mtests/integration/lead-magnet-api.test.ts[0m:[93m301[0m:[93m22[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'safeParseJson'.
+[7m350[0m         expect(json?.data?.expiresAt).toBeDefined();
+[7m   [0m [91m                     ~~~~[0m
+[96mtests/integration/lead-magnet-api.test.ts[0m:[93m349[0m:[93m22[0m - [91merror[0m[90m ts(2339): [0mProperty 'data' does not exist on type '{}'.
 
-[7m301[0m         const json = safeParseJson(await response.text());
-[7m   [0m [91m                     ~~~~~~~~~~~~~[0m
-[96mtests/integration/lead-magnet-api.test.ts[0m:[93m287[0m:[93m22[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'safeParseJson'.
+[7m349[0m         expect(json?.data?.downloadUrl).toBeDefined();
+[7m   [0m [91m                     ~~~~[0m
+[96mtests/integration/lead-magnet-api.test.ts[0m:[93m347[0m:[93m22[0m - [91merror[0m[90m ts(2339): [0mProperty 'success' does not exist on type '{}'.
 
-[7m287[0m         const json = safeParseJson(response.text);
-[7m   [0m [91m                     ~~~~~~~~~~~~~[0m
-[96mtests/integration/lead-magnet-api.test.ts[0m:[93m269[0m:[93m22[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'safeParseJson'.
+[7m347[0m         expect(json?.success).toBe(true);
+[7m   [0m [91m                     ~~~~~~~[0m
+[96mtests/integration/lead-magnet-api.test.ts[0m:[93m315[0m:[93m23[0m - [91merror[0m[90m ts(2339): [0mProperty 'success' does not exist on type '{}'.
 
-[7m269[0m         const json = safeParseJson(response.text);
-[7m   [0m [91m                     ~~~~~~~~~~~~~[0m
-[96mtests/integration/lead-magnet-api.test.ts[0m:[93m251[0m:[93m22[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'safeParseJson'.
+[7m315[0m           expect(json.success).toBe(false);
+[7m   [0m [91m                      ~~~~~~~[0m
+[96mtests/integration/lead-magnet-api.test.ts[0m:[93m287[0m:[93m23[0m - [91merror[0m[90m ts(2339): [0mProperty 'success' does not exist on type '{}'.
 
-[7m251[0m         const json = safeParseJson(response.text);
-[7m   [0m [91m                     ~~~~~~~~~~~~~[0m
-[96mtests/integration/lead-magnet-api.test.ts[0m:[93m233[0m:[93m22[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'safeParseJson'.
+[7m287[0m           expect(json.success).toBe(false);
+[7m   [0m [91m                      ~~~~~~~[0m
+[96mtests/integration/lead-magnet-api.test.ts[0m:[93m273[0m:[93m23[0m - [91merror[0m[90m ts(2339): [0mProperty 'success' does not exist on type '{}'.
 
-[7m233[0m         const json = safeParseJson(response.text);
-[7m   [0m [91m                     ~~~~~~~~~~~~~[0m
-[96mtests/integration/lead-magnet-api.test.ts[0m:[93m215[0m:[93m22[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'safeParseJson'.
+[7m273[0m           expect(json.success).toBe(false);
+[7m   [0m [91m                      ~~~~~~~[0m
+[96mtests/integration/lead-magnet-api.test.ts[0m:[93m255[0m:[93m23[0m - [91merror[0m[90m ts(2339): [0mProperty 'success' does not exist on type '{}'.
 
-[7m215[0m         const json = safeParseJson(responses[0].text);
-[7m   [0m [91m                     ~~~~~~~~~~~~~[0m
-[96mtests/integration/lead-magnet-api.test.ts[0m:[93m57[0m:[93m16[0m - [91merror[0m[90m ts(6133): [0m'fetchPage' is declared but its value is never read.
+[7m255[0m           expect(json.success).toBe(false);
+[7m   [0m [91m                      ~~~~~~~[0m
+[96mtests/integration/lead-magnet-api.test.ts[0m:[93m237[0m:[93m23[0m - [91merror[0m[90m ts(2339): [0mProperty 'success' does not exist on type '{}'.
 
-[7m57[0m async function fetchPage(path: string): Promise<FetchResponse> {
-[7m  [0m [91m               ~~~~~~~~~[0m
+[7m237[0m           expect(json.success).toBe(false);
+[7m   [0m [91m                      ~~~~~~~[0m
+[96mtests/integration/lead-magnet-api.test.ts[0m:[93m219[0m:[93m23[0m - [91merror[0m[90m ts(2339): [0mProperty 'success' does not exist on type '{}'.
 
-[96mtests/integration/projects-api.test.ts[0m:[93m501[0m:[93m25[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'safeParseJson'.
+[7m219[0m           expect(json.success).toBe(false);
+[7m   [0m [91m                      ~~~~~~~[0m
+[96mtests/integration/lead-magnet-api.test.ts[0m:[93m201[0m:[93m23[0m - [91merror[0m[90m ts(2339): [0mProperty 'success' does not exist on type '{}'.
+
+[7m201[0m           expect(json.success).toBe(false);
+[7m   [0m [91m                      ~~~~~~~[0m
+
+[96mtests/integration/newsletter-api.test.ts[0m:[93m233[0m:[93m23[0m - [91merror[0m[90m ts(2339): [0mProperty 'success' does not exist on type '{}'.
+
+[7m233[0m           expect(json.success).toBe(false);
+[7m   [0m [91m                      ~~~~~~~[0m
+
+[96mtests/integration/projects-api.test.ts[0m:[93m501[0m:[93m65[0m - [91merror[0m[90m ts(2339): [0mProperty 'data' does not exist on type '{}'.
 
 [7m501[0m       const projects = (safeParseJson(listResponse.text) || {}).data as ProjectItem[];
-[7m   [0m [91m                        ~~~~~~~~~~~~~[0m
-[96mtests/integration/projects-api.test.ts[0m:[93m494[0m:[93m31[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'safeParseJson'.
+[7m   [0m [91m                                                                ~~~~[0m
+[96mtests/integration/projects-api.test.ts[0m:[93m494[0m:[93m73[0m - [91merror[0m[90m ts(2339): [0mProperty 'data' does not exist on type '{}'.
 
 [7m494[0m       const createdProject = (safeParseJson(createResponse.text) || {}).data
-[7m   [0m [91m                              ~~~~~~~~~~~~~[0m
-[96mtests/integration/projects-api.test.ts[0m:[93m473[0m:[93m24[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'safeParseJson'.
+[7m   [0m [91m                                                                        ~~~~[0m
+[96mtests/integration/projects-api.test.ts[0m:[93m475[0m:[93m25[0m - [91merror[0m[90m ts(2339): [0mProperty 'success' does not exist on type '{}'.
 
-[7m473[0m           const json = safeParseJson(response.text);
-[7m   [0m [91m                       ~~~~~~~~~~~~~[0m
-[96mtests/integration/projects-api.test.ts[0m:[93m455[0m:[93m24[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'safeParseJson'.
+[7m475[0m             expect(json.success).toBe(false);
+[7m   [0m [91m                        ~~~~~~~[0m
+[96mtests/integration/projects-api.test.ts[0m:[93m459[0m:[93m25[0m - [91merror[0m[90m ts(2339): [0mProperty 'error' does not exist on type '{}'.
 
-[7m455[0m           const json = safeParseJson(response.text);
-[7m   [0m [91m                       ~~~~~~~~~~~~~[0m
-[96mtests/integration/projects-api.test.ts[0m:[93m381[0m:[93m22[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'safeParseJson'.
+[7m459[0m             expect(json.error.message).toBeDefined();
+[7m   [0m [91m                        ~~~~~[0m
+[96mtests/integration/projects-api.test.ts[0m:[93m458[0m:[93m25[0m - [91merror[0m[90m ts(2339): [0mProperty 'error' does not exist on type '{}'.
 
-[7m381[0m         const json = safeParseJson(response.text);
-[7m   [0m [91m                     ~~~~~~~~~~~~~[0m
-[96mtests/integration/projects-api.test.ts[0m:[93m365[0m:[93m22[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'safeParseJson'.
+[7m458[0m             expect(json.error.type).toBeDefined();
+[7m   [0m [91m                        ~~~~~[0m
+[96mtests/integration/projects-api.test.ts[0m:[93m457[0m:[93m25[0m - [91merror[0m[90m ts(2339): [0mProperty 'success' does not exist on type '{}'.
 
-[7m365[0m         const json = safeParseJson(response.text) as { success: true; data: ProjectItem[] };
-[7m   [0m [91m                     ~~~~~~~~~~~~~[0m
-[96mtests/integration/projects-api.test.ts[0m:[93m350[0m:[93m22[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'safeParseJson'.
+[7m457[0m             expect(json.success).toBe(false);
+[7m   [0m [91m                        ~~~~~~~[0m
+[96mtests/integration/projects-api.test.ts[0m:[93m384[0m:[93m23[0m - [91merror[0m[90m ts(2339): [0mProperty 'data' does not exist on type '{}'.
 
-[7m350[0m         const json = safeParseJson(response.text) as { success: true; data: ProjectItem[] };
-[7m   [0m [91m                     ~~~~~~~~~~~~~[0m
-[96mtests/integration/projects-api.test.ts[0m:[93m319[0m:[93m22[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'safeParseJson'.
+[7m384[0m         expect((json?.data || []).length).toBe(0);
+[7m   [0m [91m                      ~~~~[0m
+[96mtests/integration/projects-api.test.ts[0m:[93m383[0m:[93m36[0m - [91merror[0m[90m ts(2339): [0mProperty 'data' does not exist on type '{}'.
 
-[7m319[0m         const json = safeParseJson(response.text);
-[7m   [0m [91m                     ~~~~~~~~~~~~~[0m
+[7m383[0m         expect(Array.isArray(json?.data)).toBe(true);
+[7m   [0m [91m                                   ~~~~[0m
+[96mtests/integration/projects-api.test.ts[0m:[93m382[0m:[93m22[0m - [91merror[0m[90m ts(2339): [0mProperty 'success' does not exist on type '{}'.
+
+[7m382[0m         expect(json?.success).toBe(true);
+[7m   [0m [91m                     ~~~~~~~[0m
+[96mtests/integration/projects-api.test.ts[0m:[93m321[0m:[93m23[0m - [91merror[0m[90m ts(2339): [0mProperty 'success' does not exist on type '{}'.
+
+[7m321[0m           expect(json.success).toBe(false);
+[7m   [0m [91m                      ~~~~~~~[0m
 
 [96mtests/integration/user-avatar-api.test.ts[0m:[93m84[0m:[93m74[0m - [93mwarning[0m[90m ts(6385): [0m'(from: number, length?: number | undefined): string' is deprecated.
 
@@ -562,7 +533,29 @@ Add the `is:inline` directive explicitly to silence this hint.
 [7m16[0m       if (node.depth === 1) {
 [7m  [0m [91m               ~~~~~[0m
 
-Result (764 files): 
+[96mscripts/web-eval-executor/menu.ts[0m:[93m460[0m:[93m15[0m - [91merror[0m[90m ts(2304): [0mCannot find name 'startFgAuto'.
+
+[7m460[0m         await startFgAuto();
+[7m   [0m [91m              ~~~~~~~~~~~[0m
+[96mscripts/web-eval-executor/menu.ts[0m:[93m99[0m:[93m23[0m - [91merror[0m[90m ts(2339): [0mProperty 'pid' does not exist on type 'ExecaReturnValue<string>'.
+
+[7m99[0m       pids.push(child.pid);
+[7m  [0m [91m                      ~~~[0m
+[96mscripts/web-eval-executor/menu.ts[0m:[93m94[0m:[93m16[0m - [91merror[0m[90m ts(2339): [0mProperty 'pid' does not exist on type 'ExecaReturnValue<string>'.
+
+[7m94[0m     if (child?.pid) {
+[7m  [0m [91m               ~~~[0m
+
+[96mscripts/web-eval-executor/runner.ts[0m:[93m138[0m:[93m9[0m - [91merror[0m[90m ts(2578): [0mUnused '@ts-expect-error' directive.
+
+[7m138[0m         // @ts-expect-error tracing on context may not have strong types here
+[7m   [0m [91m        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96mscripts/web-eval-executor/runner.ts[0m:[93m125[0m:[93m11[0m - [91merror[0m[90m ts(2578): [0mUnused '@ts-expect-error' directive.
+
+[7m125[0m           // @ts-expect-error tracing on context may not have strong types here
+[7m   [0m [91m          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+Result (767 files): 
 - 101 errors
 - 0 warnings
 - 13 hints

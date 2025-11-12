@@ -49,6 +49,35 @@ async function postComplete(
   });
 }
 
+function parseBoolEnv(name: string): boolean | undefined {
+  const v = process.env[name];
+  if (v == null) return undefined;
+  const s = String(v).toLowerCase();
+  if (['1', 'true', 'yes', 'on'].includes(s)) return true;
+  if (['0', 'false', 'no', 'off'].includes(s)) return false;
+  return undefined;
+}
+
+function parseIntEnv(name: string): number | undefined {
+  const v = process.env[name];
+  if (v == null) return undefined;
+  const n = parseInt(String(v), 10);
+  return Number.isFinite(n) ? n : undefined;
+}
+
+function applyRunnerDefaults(task: WebEvalTask): WebEvalTask {
+  const t: WebEvalTask = { ...task };
+  const idle = parseIntEnv('WEB_EVAL_IDLE_WAIT_MS');
+  if (idle !== undefined && t.idleWaitMs == null) t.idleWaitMs = idle;
+  const fatal = parseBoolEnv('WEB_EVAL_FATAL_SAME_ORIGIN');
+  if (fatal !== undefined && t.sameOriginConsoleFatal == null) t.sameOriginConsoleFatal = fatal;
+  const shot = parseBoolEnv('WEB_EVAL_SCREENSHOT_ON_FAILURE');
+  if (shot !== undefined && t.screenshotOnFailure == null) t.screenshotOnFailure = shot;
+  const trace = parseBoolEnv('WEB_EVAL_TRACE_ON_FAILURE');
+  if (trace !== undefined && t.traceOnFailure == null) t.traceOnFailure = trace;
+  return t;
+}
+
 async function main() {
   const token = process.env.WEB_EVAL_EXECUTOR_TOKEN;
   if (!token) {
@@ -84,7 +113,8 @@ async function main() {
       backoff = 2000;
 
       console.log(`[executor] Running task ${task.id} → ${task.url}`);
-      const completion = await runTask(task);
+      const enhancedTask = applyRunnerDefaults(task);
+      const completion = await runTask(enhancedTask);
 
       // Retry completion honoring 429 Retry-After; max ~120s window
       const deadline = Date.now() + 120_000;

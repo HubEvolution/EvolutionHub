@@ -13,6 +13,7 @@ import { execa } from 'execa';
 import type { ExecaChildProcess } from 'execa';
 import { fileURLToPath } from 'url';
 import { join, dirname } from 'path';
+import { safeParseJson } from '../shared/http';
 
 // Lade Umgebungsvariablen
 loadEnv(process.env.NODE_ENV || 'test', process.cwd(), '');
@@ -37,13 +38,7 @@ interface FetchResponse {
   cookies: Record<string, string>;
 }
 
-function safeParseJson(text: string): any | null {
-  try {
-    return JSON.parse(text);
-  } catch {
-    return null;
-  }
-}
+type ApiJson = { success?: boolean; data?: any; error?: any };
 
 // Hilfsfunktion zum Abrufen einer Seite
 async function fetchPage(path: string): Promise<FetchResponse> {
@@ -178,7 +173,7 @@ describe('Newsletter-API-Integration', () => {
 
       expect([200, 500]).toContain(response.status);
       if (response.status === 200 && (contentType || '').includes('application/json')) {
-        const json = safeParseJson(text);
+        const json = safeParseJson<ApiJson>(text);
         expect(json?.success).toBe(true);
         expect(json?.data?.message || '').toContain('confirm');
       }
@@ -216,7 +211,7 @@ describe('Newsletter-API-Integration', () => {
 
       expect([400, 429, 403]).toContain(response.status);
       if ((response.contentType || '').includes('application/json')) {
-        const json = safeParseJson(response.text);
+        const json = safeParseJson<ApiJson>(response.text);
         if (json && Object.prototype.hasOwnProperty.call(json, 'success')) {
           expect(json.success).toBe(false);
         }
@@ -233,7 +228,7 @@ describe('Newsletter-API-Integration', () => {
 
       expect([400, 429, 403]).toContain(response.status);
       if ((response.contentType || '').includes('application/json')) {
-        const json = safeParseJson(response.text);
+        const json = safeParseJson<ApiJson>(response.text);
         if (json && Object.prototype.hasOwnProperty.call(json, 'success')) {
           expect(json.success).toBe(false);
         }
@@ -245,7 +240,7 @@ describe('Newsletter-API-Integration', () => {
 
       expect([405, 404]).toContain(response.status);
       if ((response.contentType || '').includes('application/json')) {
-        const json = safeParseJson(response.text);
+        const json = safeParseJson<ApiJson>(response.text);
         if (json) {
           expect(json.success).toBe(false);
         }
@@ -272,7 +267,7 @@ describe('Newsletter-API-Integration', () => {
       expect([400, 403, 429]).toContain(response.status);
       const text = await response.text();
       if ((response.headers.get('content-type') || '').includes('application/json')) {
-        const json = safeParseJson(text);
+        const json = safeParseJson<ApiJson>(text);
         if (json && Object.prototype.hasOwnProperty.call(json, 'success')) {
           expect(json.success).toBe(false);
         }

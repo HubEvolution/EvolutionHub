@@ -13,6 +13,7 @@ import { execa } from 'execa';
 import type { ExecaChildProcess } from 'execa';
 import { fileURLToPath } from 'url';
 import { join, dirname } from 'path';
+import { safeParseJson } from '../shared/http';
 
 // Lade Umgebungsvariablen
 loadEnv(process.env.NODE_ENV || 'test', process.cwd(), '');
@@ -43,6 +44,8 @@ type ApiResponse<T> = {
   error?: { type: string; message: string };
 };
 
+type ApiJson = { success?: boolean; data?: any; error?: any };
+
 function parseJson<T>(response: FetchResponse): ApiResponse<T> | null {
   if (!(response.contentType || '').includes('application/json')) return null;
   if (!response.text) return null;
@@ -51,25 +54,6 @@ function parseJson<T>(response: FetchResponse): ApiResponse<T> | null {
   } catch {
     return null;
   }
-}
-
-// Hilfsfunktion zum Abrufen einer Seite
-async function fetchPage(path: string): Promise<FetchResponse> {
-  const response = await fetch(`${TEST_URL}${path}`, {
-    redirect: 'manual', // Wichtig für Tests: Redirects nicht automatisch folgen
-    headers: { Origin: TEST_URL },
-  });
-
-  return {
-    status: response.status,
-    contentType: response.headers.get('content-type'),
-    text: response.status !== 302 ? await response.text() : '',
-    isOk: response.ok,
-    headers: response.headers,
-    redirected: response.type === 'opaqueredirect' || response.status === 302,
-    redirectUrl: response.headers.get('location'),
-    cookies: parseCookies(response.headers.get('set-cookie') || ''),
-  };
 }
 
 // Hilfsfunktion zum Parsen von Cookies aus dem Set-Cookie-Header
@@ -212,7 +196,7 @@ describe('Lead-Magnet-API-Integration', () => {
 
       expect([400, 403, 429, 500]).toContain(responses[0].status);
       if ((responses[0].contentType || '').includes('application/json')) {
-        const json = safeParseJson(responses[0].text);
+        const json = safeParseJson<ApiJson>(responses[0].text);
         if (json) {
           expect(json.success).toBe(false);
         }
@@ -230,7 +214,7 @@ describe('Lead-Magnet-API-Integration', () => {
 
       expect([400, 403, 429, 500]).toContain(response.status);
       if ((response.contentType || '').includes('application/json')) {
-        const json = safeParseJson(response.text);
+        const json = safeParseJson<ApiJson>(response.text);
         if (json && Object.prototype.hasOwnProperty.call(json, 'success')) {
           expect(json.success).toBe(false);
         }
@@ -248,7 +232,7 @@ describe('Lead-Magnet-API-Integration', () => {
 
       expect([400, 403, 429, 500]).toContain(response.status);
       if ((response.contentType || '').includes('application/json')) {
-        const json = safeParseJson(response.text);
+        const json = safeParseJson<ApiJson>(response.text);
         if (json && Object.prototype.hasOwnProperty.call(json, 'success')) {
           expect(json.success).toBe(false);
         }
@@ -266,7 +250,7 @@ describe('Lead-Magnet-API-Integration', () => {
 
       expect([400, 403, 429, 500]).toContain(response.status);
       if ((response.contentType || '').includes('application/json')) {
-        const json = safeParseJson(response.text);
+        const json = safeParseJson<ApiJson>(response.text);
         if (json && Object.prototype.hasOwnProperty.call(json, 'success')) {
           expect(json.success).toBe(false);
         }
@@ -284,7 +268,7 @@ describe('Lead-Magnet-API-Integration', () => {
 
       expect([400, 403, 429, 500]).toContain(response.status);
       if ((response.contentType || '').includes('application/json')) {
-        const json = safeParseJson(response.text);
+        const json = safeParseJson<ApiJson>(response.text);
         if (json && Object.prototype.hasOwnProperty.call(json, 'success')) {
           expect(json.success).toBe(false);
         }
@@ -298,7 +282,7 @@ describe('Lead-Magnet-API-Integration', () => {
 
       expect([405, 404, 429]).toContain(response.status);
       if ((response.headers.get('content-type') || '').includes('application/json')) {
-        const json = safeParseJson(await response.text());
+        const json = safeParseJson<ApiJson>(await response.text());
         if (json && Object.prototype.hasOwnProperty.call(json, 'success')) {
           expect(json.success).toBe(false);
         }
@@ -326,7 +310,7 @@ describe('Lead-Magnet-API-Integration', () => {
       expect([400, 403, 429]).toContain(response.status);
       const text = await response.text();
       if ((response.headers.get('content-type') || '').includes('application/json')) {
-        const json = safeParseJson(text);
+        const json = safeParseJson<ApiJson>(text);
         if (json && Object.prototype.hasOwnProperty.call(json, 'success')) {
           expect(json.success).toBe(false);
         }
@@ -359,7 +343,7 @@ describe('Lead-Magnet-API-Integration', () => {
 
       expect([200, 429]).toContain(response.status);
       if (response.status === 200 && (response.contentType || '').includes('application/json')) {
-        const json = safeParseJson(response.text);
+        const json = safeParseJson<ApiJson>(response.text);
         expect(json?.success).toBe(true);
         // Prüfe strukturierte Response
         expect(json?.data?.downloadUrl).toBeDefined();
@@ -385,7 +369,7 @@ describe('Lead-Magnet-API-Integration', () => {
 
         expect([200, 429]).toContain(response.status);
         if (response.status === 200 && (response.contentType || '').includes('application/json')) {
-          const json = safeParseJson(response.text);
+          const json = safeParseJson<ApiJson>(response.text);
           expect(json?.success).toBe(true);
           expect(json?.data?.downloadUrl).toBeDefined();
         }

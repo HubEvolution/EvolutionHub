@@ -1,0 +1,66 @@
+{
+  "format": {
+    "ok": true,
+    "code": 0
+  },
+  "eslint:fix": {
+    "ok": false,
+    "code": 1
+  },
+  "md:fix": {
+    "ok": true,
+    "code": 0
+  },
+  "docs:toc": {
+    "ok": true,
+    "code": 0
+  },
+  "format:check": {
+    "ok": true,
+    "code": 0
+  },
+  "lint(strict)": {
+    "ok": false,
+    "code": 1
+  },
+  "typecheck:src": {
+    "ok": false,
+    "code": 2
+  },
+  "test:unit:run": {
+    "ok": false,
+    "code": 1
+  },
+  "test:integration:run": {
+    "ok": false,
+    "code": 1
+  },
+  "openapi:validate": {
+    "ok": true,
+    "code": 0
+  },
+  "docs:lint": {
+    "ok": true,
+    "code": 0
+  },
+  "lint:md": {
+    "ok": true,
+    "code": 0
+  },
+  "docs:links": {
+    "ok": true,
+    "code": 0
+  },
+  "docs:inventory": {
+    "ok": true,
+    "code": 0
+  },
+  "i18n:audit": {
+    "ok": true,
+    "code": 0
+  },
+  "security:scan": {
+    "ok": true,
+    "code": 0
+  }
+}

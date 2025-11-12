@@ -24,10 +24,7 @@ const hasContent = tools.length > 0 || docs.length > 0;
             </h4>
             <ul class="space-y-2">
               {tools.map((tool) => (
-                <li
-                  key={tool.id}
-                  class="group rounded-lg border border-white/10 bg-white/5 p-3 backdrop-blur-sm transition-all hover:border-violet-400/30 hover:bg-white/10"
-                >
+                <li class="group rounded-lg border border-white/10 bg-white/5 p-3 backdrop-blur-sm transition-all hover:border-violet-400/30 hover:bg-white/10">
                   <a
                     href={tool.url}
                     class="text-sm font-semibold text-violet-300 transition group-hover:text-violet-200"
@@ -48,7 +45,6 @@ const hasContent = tools.length > 0 || docs.length > 0;
             <div class="space-y-2">
               {docs.map((doc) => (
                 <a
-                  key={doc.url}
                   href={doc.url}
                   class="group block rounded-lg border border-white/10 bg-white/5 p-3 backdrop-blur-sm transition-all hover:border-fuchsia-400/30 hover:bg-white/10"
                 >

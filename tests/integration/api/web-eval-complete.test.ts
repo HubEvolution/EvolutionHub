@@ -26,6 +26,8 @@ function makeReport(input: {
   };
 }
 
+type ApiJson = { success?: boolean; data?: any; error?: any };
+
 async function createTask(): Promise<{ taskId: string; cookie: string }> {
   const csrf = hex32();
   const payload = {
@@ -34,7 +36,7 @@ async function createTask(): Promise<{ taskId: string; cookie: string }> {
     headless: true,
     timeoutMs: 15000,
   };
-  const { res, json } = await sendJson('/api/testing/evaluate', payload, {
+  const { res, json } = await sendJson<ApiJson>('/api/testing/evaluate', payload, {
     headers: {
       ...csrfHeaders(csrf),
     },
@@ -44,13 +46,22 @@ async function createTask(): Promise<{ taskId: string; cookie: string }> {
   const setCookie = res.headers.get('set-cookie') || '';
   const guestCookie = setCookie.split(';')[0];
   return {
-    taskId: (json.data.taskId as string) ?? (json.data.task?.id as string),
+    taskId:
+      ((json?.data as { taskId?: unknown; task?: { id?: unknown } } | undefined)?.taskId as
+        | string
+        | undefined) ??
+      ((json?.data as { task?: { id?: unknown } } | undefined)?.task?.id as string | undefined) ??
+      '',
     cookie: guestCookie,
   };
 }
 
-async function postComplete(taskId: string, body: unknown, headers: Record<string, string> = {}) {
-  return sendJson(`/api/testing/evaluate/${encodeURIComponent(taskId)}/complete`, body, {
+async function postComplete(
+  taskId: string,
+  body: unknown,
+  headers: Record<string, string> = {}
+): Promise<{ res: Response; json: ApiJson | null }> {
+  return sendJson<ApiJson>(`/api/testing/evaluate/${encodeURIComponent(taskId)}/complete`, body, {
     headers,
   });
 }

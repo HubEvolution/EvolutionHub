@@ -94,7 +94,7 @@ export const GET = withApiMiddleware(
     // Health check should have minimal rate limiting
     rateLimiter: (() => {
       // Import at runtime-safe path; type is provided via src/types shims for src-only check
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
+
       const { createRateLimiter } = require('@/lib/rate-limiter');
       return createRateLimiter({
         maxRequests: 60,

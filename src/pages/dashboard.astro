@@ -13,7 +13,7 @@ import { localizePath } from '@/lib/locale-path';
 import { getI18n } from '@/utils/i18n';
 // V2 removes shortcuts/recommendations and extra cards
 
-const locals = Astro.locals as any;
+const locals = Astro.locals as App.Locals;
 if (!locals.user) {
   return Astro.redirect('/login');
 }
@@ -36,10 +36,10 @@ async function fetchApi<T>(path: string, timeoutMs = 1200): Promise<T | null> {
     });
     if (!res.ok) return null;
     const json = (await res.json()) as { data?: T } | T | null;
-    if (json && typeof json === 'object' && 'data' in (json as any)) {
+    if (json && typeof json === 'object' && 'data' in (json as Record<string, unknown>)) {
       return (json as { data?: T }).data ?? null;
     }
-    return (json as unknown as T) ?? null;
+    return (json as T) ?? null;
   } catch {
     return null;
   } finally {

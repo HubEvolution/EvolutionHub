@@ -1,4 +1,6 @@
 import { chromium, ConsoleMessage, Browser, Page, Response, Request } from '@playwright/test';
+import { mkdirSync } from 'node:fs';
+import { join } from 'node:path';
 import type { WebEvalTask, CompletionPayload } from './types';
 
 function nowIso() {
@@ -20,6 +22,13 @@ export async function runTask(task: WebEvalTask): Promise<CompletionPayload> {
   try {
     browser = await chromium.launch({ headless: task.headless !== false });
     const context = await browser.newContext();
+    if (task.traceOnFailure) {
+      try {
+        await context.tracing.start({ screenshots: true, snapshots: true });
+      } catch {
+        // ignore tracing start errors
+      }
+    }
     page = await context.newPage();
 
     const taskOrigin = (() => {
@@ -83,7 +92,11 @@ export async function runTask(task: WebEvalTask): Promise<CompletionPayload> {
       timeout,
     });
     // Best-effort short idle wait (3-5s) without stalling the whole run
-    const idleWait = Math.min(5000, Math.max(0, timeout - 5000));
+    const configuredIdle =
+      typeof task.idleWaitMs === 'number' && Number.isFinite(task.idleWaitMs)
+        ? Math.max(0, Math.min(10000, Math.floor(task.idleWaitMs)))
+        : null;
+    const idleWait = configuredIdle ?? Math.min(5000, Math.max(0, timeout - 5000));
     try {
       if (idleWait > 0) {
         await page.waitForLoadState('networkidle', { timeout: idleWait });
@@ -97,10 +110,41 @@ export async function runTask(task: WebEvalTask): Promise<CompletionPayload> {
     const statusOk = response ? response.status() < 400 : true;
     const title = (await page.title()).trim();
     const titleOk = title.length > 0;
-    // Treat only same-origin console errors as fatal; keep all errors in report
-    const success = statusOk && titleOk && !sameOriginConsoleError;
+    // Treat only same-origin console errors as fatal unless disabled; keep all errors in report
+    const fatalSameOrigin = task.sameOriginConsoleFatal ?? true;
+    const success = statusOk && titleOk && !(fatalSameOrigin && sameOriginConsoleError);
 
     const finishedAt = new Date();
+    // Capture artifacts on failure if requested
+    if (!success && task.screenshotOnFailure && page) {
+      try {
+        const dir = join('.logs', 'web-eval-executor', `${task.id}-${Date.now()}`);
+        mkdirSync(dir, { recursive: true });
+        await page
+          .screenshot({ path: join(dir, 'failure.png'), fullPage: true })
+          .catch(() => undefined);
+        try {
+          // stop and save trace if enabled
+          // @ts-expect-error tracing on context may not have strong types here
+          if (task.traceOnFailure && page.context()?.tracing) {
+            await page.context().tracing.stop({ path: join(dir, 'trace.zip') });
+          }
+        } catch {
+          // ignore trace stop errors
+        }
+      } catch {
+        // ignore artifact errors
+      }
+    } else if (task.traceOnFailure) {
+      try {
+        // Stop tracing without saving if success
+        // @ts-expect-error tracing on context may not have strong types here
+        await page?.context()?.tracing?.stop();
+      } catch {
+        // ignore
+      }
+    }
+
     const payload: CompletionPayload = {
       status: success ? 'completed' : 'failed',
       error: success ? undefined : 'page_health_check_failed',

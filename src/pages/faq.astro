@@ -35,14 +35,16 @@ const localizePath = (path: string) => (locale === 'en' ? `/en${path}` : path);
 
 // Build FAQ categories dynamically from locale JSON
 const dict = locale === 'de' ? deTranslations : enTranslations;
-const categoriesData = (dict?.faq?.categories ?? {}) as Record<string, any>;
+const categoriesData = (dict?.faq?.categories ?? {}) as Record<string, unknown>;
 const orderedIds = ['allgemein', 'konto', 'technik'].filter((id) => id in categoriesData);
-const faqCategories = orderedIds.map((id) => ({
-  id,
-  title: categoriesData[id]?.title ?? id,
-  icon: id,
-  items: (categoriesData[id]?.items ?? []) as Array<{ question: string; answer: string }>,
-}));
+const faqCategories = orderedIds.map((id) => {
+  const raw = categoriesData[id] as { title?: unknown; items?: unknown } | undefined;
+  const title = (raw && typeof raw.title === 'string' ? raw.title : id) as string;
+  const items = Array.isArray(raw?.items)
+    ? (raw!.items as Array<{ question: string; answer: string }>)
+    : ([] as Array<{ question: string; answer: string }>);
+  return { id, title, icon: id, items };
+});
 ---
 
 <BaseLayout title={t('faq.title')}>

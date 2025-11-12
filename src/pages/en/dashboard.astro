@@ -11,7 +11,7 @@ import Card from '@/components/ui/Card';
 import { localizePath } from '@/lib/locale-path';
 import { getI18n } from '@/utils/i18n';
 
-const locals = Astro.locals as any;
+const locals = Astro.locals as App.Locals;
 if (!locals.user) {
   return Astro.redirect('/en/login');
 }

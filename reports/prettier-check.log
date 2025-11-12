@@ -1,7 +1,13 @@
+
+> evolution-hub@0.0.1 format:check
+> prettier --check "src/**/*.{ts,tsx,astro,json,md}" "tests/**/*.{ts,tsx}" "scripts/**/*.{ts,js,mjs}" "*.{json,md,yaml,yml}"
+
 Checking formatting...
-[warn] scripts/web-eval-executor/executor.ts
+[warn] src/components/dashboard/RecommendationsCard.astro
+[warn] src/lib/testing/web-eval/ssrf.ts
+[warn] src/pages/api/testing/evaluate/next/run.ts
+[warn] src/pages/blog/[...slug].astro
+[warn] tests/integration/lead-magnet-api.test.ts
 [warn] scripts/web-eval-executor/menu.ts
 [warn] scripts/web-eval-executor/runner.ts
-[warn] test-suite-v2/src/e2e/auth/README.md
-[warn] test-suite-v2/src/unit/services/prompt-enhancer-service.test.ts
-[warn] Code style issues found in 5 files. Run Prettier with --write to fix.
+[warn] Code style issues found in 7 files. Run Prettier with --write to fix.

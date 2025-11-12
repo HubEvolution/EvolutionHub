@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { csrfHeaders, hex32, sendJson, TEST_URL } from '../../shared/http';
+import { csrfHeaders, hex32, sendJson, TEST_URL, safeParseJson } from '../../shared/http';
 
 const ENDPOINT = '/api/testing/evaluate/next';
 const CREATE_ENDPOINT = '/api/testing/evaluate';
@@ -43,13 +43,7 @@ async function callNext(extra: RequestInit = {}) {
   let json: ApiResponse<{ task: unknown | null }> = null;
   if (res.status !== 302 && isJsonResponse(res)) {
     const text = await res.text();
-    if (text) {
-      try {
-        json = JSON.parse(text) as ApiResponse<{ task: unknown | null }>;
-      } catch {
-        json = null;
-      }
-    }
+    json = text ? safeParseJson<ApiResponse<{ task: unknown | null }>>(text) : null;
   }
   return { res, json } as const;
 }

@@ -14,7 +14,7 @@ const {
   variant = 'default',
   title = 'Bleiben Sie auf dem Laufenden',
   description = 'Abonnieren Sie unseren Newsletter, um über Neuigkeiten und Updates informiert zu werden.',
-} = Astro.props;
+} = Astro.props as Props;
 
 const compactMode = variant === 'compact';
 const inlineMode = variant === 'inline';

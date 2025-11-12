@@ -1,0 +1,9 @@
+[lint:md] $ npm run lint:md
+
+> evolution-hub@0.0.1 lint:md
+> markdownlint-cli2 --config .markdownlint-cli2.jsonc "docs/**/*.md"
+
+markdownlint-cli2 v0.18.1 (markdownlint v0.38.0)
+Finding: docs/**/*.md
+Linting: 123 file(s)
+Summary: 0 error(s)

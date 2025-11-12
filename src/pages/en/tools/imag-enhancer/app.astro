@@ -127,7 +127,7 @@ const structuredData = {
       {
         (() => {
           try {
-            const user = Astro.locals.user as any | null;
+            const user = (Astro.locals as App.Locals | undefined)?.user ?? null;
             if (user) return null;
           } catch {}
           const loginHref = localizePath(locale, '/login');

@@ -4,6 +4,10 @@ export type WebEvalTask = {
   task: string;
   headless?: boolean;
   timeoutMs?: number;
+  idleWaitMs?: number;
+  sameOriginConsoleFatal?: boolean;
+  screenshotOnFailure?: boolean;
+  traceOnFailure?: boolean;
 };
 
 export type ClaimNextResponse =

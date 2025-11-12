@@ -4,7 +4,8 @@ export const prerender = false;
 export const revalidate = 300; // Sekunden
 // Import BaseLayout using a relative path.
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { blogService, type BlogCollectionEntry } from '@/lib/blog';
+import { blogService } from '@/lib/blog';
+import type { ContentfulBlogEntry as BlogCollectionEntry } from '@/lib/contentful';
 import BlogPostComponent from '@/components/BlogPost.astro';
 import type { ProcessedBlogPost } from '../../content/types';
 import { CommentSection } from '@/components/comments/CommentSection';
@@ -34,14 +35,15 @@ const user =
         }
       | undefined
   )?.user ?? null;
-const initialUser = user
-  ? {
-      id: String(user.id),
-      name: user.name,
-      email: user.email,
-      image: user.image,
-    }
-  : null;
+const initialUser =
+  user && typeof user === 'object' && user.name && user.email
+    ? {
+        id: String(user.id),
+        name: String(user.name),
+        email: String(user.email),
+        image: user.image,
+      }
+    : null;
 
 // Try to load the blog post
 let postData: ProcessedBlogPost | null = null;
@@ -80,7 +82,7 @@ if (postData) {
   try {
     // Fetch related posts, ensuring originalEntry is non-null.
     // Using a non-null assertion `!` for originalEntry, as it's checked above.
-    const related = await blogService.getRelatedPosts(originalEntry!, {
+    const related = await blogService.getRelatedPosts(slugParam, {
       limit: 3,
       includeDrafts: import.meta.env.DEV,
     });
@@ -107,6 +109,15 @@ if (postData) {
 
 // SEO Metadaten
 const data = postData.data as import('../../content/types').BlogPostData;
+const authorName = Array.isArray(data.author)
+  ? String((data.author as unknown[])[0] ?? 'EvolutionHub Team')
+  : typeof data.author === 'object' &&
+      data.author &&
+      'name' in (data.author as unknown as Record<string, unknown>)
+    ? String((data.author as { name?: unknown }).name)
+    : typeof data.author === 'string'
+      ? data.author
+      : 'EvolutionHub Team';
 const title = String(data.title);
 const description = String(data.description || '');
 const siteBase: URL = (Astro.site as URL) || new URL('http://127.0.0.1:8787');
@@ -142,7 +153,7 @@ const structuredData = {
   image: imageUrl,
   author: {
     '@type': 'Person',
-    name: Array.isArray(data.author) ? data.author[0] : data.author?.name || 'EvolutionHub Team',
+    name: authorName,
     url: 'https://evolution-hub.de/team', // Placeholder URL, adjust if specific author URLs exist
   },
   publisher: {
@@ -177,7 +188,7 @@ export async function getStaticPaths() {
   type="article"
   publishedTime={datePublishedISO}
   modifiedTime={dateModifiedISO}
-  author={Array.isArray(data.author) ? data.author[0] : data.author?.name || 'EvolutionHub Team'}
+  author={authorName}
   section={data.category}
   tags={data.tags}
 >

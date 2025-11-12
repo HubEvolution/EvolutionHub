@@ -1,13 +1,15 @@
 ---
-description: Web-Eval Executor – Header/Secret/How-to-run
+description: Web-Eval Executor – Header/Secret/How-to-run (incl. CBR runner)
 owner: platform
 priority: P2
 lastSync: 2025-11-12
 codeRefs:
   - src/pages/api/testing/evaluate/next.ts
+  - src/pages/api/testing/evaluate/next/run.ts
   - src/lib/testing/web-eval/**
 testRefs:
   - tests/integration/api/web-eval-next.test.ts
+  - tests/integration/api/web-eval-run.test.ts
 ---
 
 # Web‑Eval Executor – Kurzleitfaden
@@ -30,19 +32,19 @@ testRefs:
 
 - **Executor lokal starten**
   - Standard (lokaler Worker auf 8787):
-  
+
     ```bash
     WEB_EVAL_EXECUTOR_TOKEN=<token> npm run web-eval:executor
     ```
-  
+
   - Gegen Staging/andere URL:
-  
+
     ```bash
     BASE_URL=https://staging.hub-evolution.com \
     WEB_EVAL_EXECUTOR_TOKEN=<token> \
     npm run web-eval:executor
     ```
-  
+
   - Env-Variablen: `WEB_EVAL_EXECUTOR_TOKEN` (Pflicht), `BASE_URL` oder `TEST_BASE_URL` (optional)
 
 - **Optionaler CI‑Smoke**
@@ -57,3 +59,36 @@ testRefs:
 - **Compliance (Global Rules)**
   - Keine Secrets im Code / TOML → ausschließlich Wrangler Secrets.
   - API‑Middleware (`withApiMiddleware`) und einheitliche JSON‑Shapes (`createApiSuccess`, `createApiError`) sind bereits umgesetzt.
+
+## Interner CBR‑Runner (Cloudflare Browser Rendering)
+
+- **Endpoint (intern)**
+  - `POST /api/testing/evaluate/next/run`
+  - Rate‑Limit: `webEvalBrowserLimiter` (5/min)
+
+- **Prod‑Gating Header**
+  - `x-internal-exec: 1` ist in Produktion Pflicht.
+  - Ohne Header in Prod → `forbidden` mit `disabled_in_production` und minimalem Report.
+
+- **Feature‑Flags (Env)**
+  - `WEB_EVAL_BROWSER_ENABLE`:
+    - `"1"` → Feature aktiv.
+    - Andere Werte → `browser_disabled` (Task wird als `failed` mit Report markiert).
+  - `WEB_EVAL_BROWSER_ALLOW_PROD`:
+    - `"1"` → Prod erlaubt (zusätzlich `x-internal-exec: 1` erforderlich).
+    - Andere Werte → in Prod geblockt (`disabled_in_production`).
+
+- **Bindings**
+  - `BROWSER` (Cloudflare Browser Rendering binding)
+  - Wenn Flag an, aber `BROWSER` fehlt → `browser_not_configured` (Task `failed` + Report).
+
+- **Fehlerformen & Reports (Phase B)**
+  - `browser_disabled` wenn Flag aus.
+  - `browser_not_configured` wenn Flag an, aber Binding fehlt.
+  - `browser_runner_not_implemented` solange der eigentliche Runner noch nicht integriert ist.
+
+- **Tests**
+  - Siehe `tests/integration/api/web-eval-run.test.ts`:
+    - Leere Queue → `task: null`.
+    - Claim + Fail ohne Binding/Flag → `browser_disabled`/`browser_not_configured` + Report.
+    - Prod‑Gating (`WEB_EVAL_BROWSER_TEST_PROD=1`) → Headerpflicht `x-internal-exec: 1`.

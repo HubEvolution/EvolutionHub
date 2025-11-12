@@ -1,0 +1,6 @@
+[openapi:validate] $ npm run openapi:validate
+
+> evolution-hub@0.0.1 openapi:validate
+> npx swagger-cli validate openapi.yaml
+
+openapi.yaml is valid

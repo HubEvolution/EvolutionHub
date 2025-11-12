@@ -77,7 +77,7 @@ export async function sendJson<T = unknown>(
   return { res, json: text ? safeParseJson<T>(text) : null };
 }
 
-function safeParseJson<T>(text: string): T | null {
+export function safeParseJson<T>(text: string): T | null {
   try {
     return JSON.parse(text) as T;
   } catch {

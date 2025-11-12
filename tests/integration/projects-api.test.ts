@@ -4,7 +4,7 @@ import { execa } from 'execa';
 import type { ExecaChildProcess } from 'execa';
 import { fileURLToPath } from 'url';
 import { join, dirname } from 'path';
-import { TEST_URL } from '../shared/http';
+import { TEST_URL, safeParseJson } from '../shared/http';
 
 // Lade Umgebungsvariablen
 loadEnv(process.env.NODE_ENV || 'test', process.cwd(), '');
@@ -33,6 +33,8 @@ type ApiResponse<T> = {
   data?: T;
   error?: { type: string; message: string };
 };
+
+type ApiJson = { success?: boolean; data?: any; error?: any };
 
 function parseJson<T>(response: FetchResponse): ApiResponse<T> | null {
   if (!(response.contentType || '').includes('application/json')) return null;
@@ -316,7 +318,7 @@ describe('Projects-API-Integration', () => {
 
       expect([404, 401]).toContain(response.status);
       if ((response.contentType || '').includes('application/json')) {
-        const json = safeParseJson(response.text);
+        const json = safeParseJson<ApiJson>(response.text);
         if (json) {
           expect(json.success).toBe(false);
         }
@@ -347,11 +349,12 @@ describe('Projects-API-Integration', () => {
 
       expect([200, 404]).toContain(response.status);
       if (response.status === 200) {
-        const json = safeParseJson(response.text) as { success: true; data: ProjectItem[] };
+        const json = safeParseJson<ApiJson>(response.text);
         expect(json?.success).toBe(true);
-        expect(Array.isArray(json?.data)).toBe(true);
+        const list: ProjectItem[] = Array.isArray(json?.data) ? (json!.data as ProjectItem[]) : [];
+        expect(Array.isArray(list)).toBe(true);
         // Alle zurückgegebenen Projekte sollten den Status 'active' haben
-        json?.data?.forEach((project) => {
+        list.forEach((project) => {
           expect(project.status).toBe('active');
         });
       }
@@ -362,10 +365,11 @@ describe('Projects-API-Integration', () => {
 
       expect([200, 404]).toContain(response.status);
       if (response.status === 200) {
-        const json = safeParseJson(response.text) as { success: true; data: ProjectItem[] };
+        const json = safeParseJson<ApiJson>(response.text);
         expect(json?.success).toBe(true);
-        expect(Array.isArray(json?.data)).toBe(true);
-        const hasMatchingProject = (json?.data || []).some(
+        const list: ProjectItem[] = Array.isArray(json?.data) ? (json!.data as ProjectItem[]) : [];
+        expect(Array.isArray(list)).toBe(true);
+        const hasMatchingProject = list.some(
           (project) =>
             project.name.includes('Alpha') || (project.description || '').includes('Alpha')
         );
@@ -378,7 +382,7 @@ describe('Projects-API-Integration', () => {
 
       expect([200, 404]).toContain(response.status);
       if (response.status === 200) {
-        const json = safeParseJson(response.text);
+        const json = safeParseJson<ApiJson>(response.text);
         expect(json?.success).toBe(true);
         expect(Array.isArray(json?.data)).toBe(true);
         expect((json?.data || []).length).toBe(0);
@@ -452,7 +456,7 @@ describe('Projects-API-Integration', () => {
           : await sendJson(endpoint, requestData);
 
         if (response.status >= 400 && (response.contentType || '').includes('application/json')) {
-          const json = safeParseJson(response.text);
+          const json = safeParseJson<ApiJson>(response.text);
           if (json) {
             expect(json.success).toBe(false);
             expect(json.error.type).toBeDefined();
@@ -470,7 +474,7 @@ describe('Projects-API-Integration', () => {
 
         expect([405, 404, 401]).toContain(response.status);
         if ((response.contentType || '').includes('application/json')) {
-          const json = safeParseJson(response.text);
+          const json = safeParseJson<ApiJson>(response.text);
           if (json) {
             expect(json.success).toBe(false);
           }
@@ -491,14 +495,18 @@ describe('Projects-API-Integration', () => {
       const createResponse = await sendJson('/api/projects', projectData);
       expect([200, 401, 404]).toContain(createResponse.status);
       if (createResponse.status !== 200) return; // Ohne erfolgreiche Erstellung keine Konsistenzprüfung
-      const createdProject = (safeParseJson(createResponse.text) || {}).data
-        ?.project as ProjectItem;
+      const createdJson = safeParseJson<ApiJson>(createResponse.text);
+      if (!createdJson || !createdJson.data) return;
+      const createdProject = (createdJson.data as { project?: ProjectItem }).project as ProjectItem;
 
       // Hole die Projektliste
       const listResponse = await fetchPage('/api/projects');
       expect([200, 401, 404]).toContain(listResponse.status);
       if (listResponse.status !== 200) return;
-      const projects = (safeParseJson(listResponse.text) || {}).data as ProjectItem[];
+      const listJson = safeParseJson<ApiJson>(listResponse.text);
+      const projects: ProjectItem[] = Array.isArray(listJson?.data)
+        ? (listJson!.data as ProjectItem[])
+        : [];
 
       // Das erstellte Projekt sollte in der Liste enthalten sein
       const foundProject = projects.find((p) => p.id === createdProject.id);

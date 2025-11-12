@@ -1,0 +1,6 @@
+[docs:inventory] $ npm run docs:inventory
+
+> evolution-hub@0.0.1 docs:inventory
+> node ./scripts/doc-inventory.mjs
+
+Documentation registry generated for 578 files at docs/meta/registry.json

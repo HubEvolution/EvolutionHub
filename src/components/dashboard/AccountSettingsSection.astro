@@ -62,7 +62,7 @@ interface Props {
 }
 
 const { user, planLabels, billingUrl, redirectUrl, dangerStrings, profileCopy, i18nSettings } =
-  Astro.props;
+  Astro.props as Props;
 ---
 
 <section id="account-settings" class="space-y-4">
@@ -324,7 +324,7 @@ const { user, planLabels, billingUrl, redirectUrl, dangerStrings, profileCopy, i
     </div>
   </div>
 
-  <script is:inline nonce={(Astro.locals as { cspNonce?: string } | undefined)?.cspNonce}>
+  <script is:inline nonce={(Astro.locals as App.Locals | undefined)?.cspNonce}>
     const i18nEl = document.getElementById('i18n-settings');
     const I18N = i18nEl ? JSON.parse(i18nEl.getAttribute('data-json') || '{}') : {};
     const modal = document.getElementById('avatar-modal');

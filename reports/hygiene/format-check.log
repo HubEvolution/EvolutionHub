@@ -1,0 +1,14 @@
+[format:check] $ npm run format:check
+
+> evolution-hub@0.0.1 format:check
+> prettier --check "src/**/*.{ts,tsx,astro,json,md}" "tests/**/*.{ts,tsx}" "scripts/**/*.{ts,js,mjs}" "*.{json,md,yaml,yml}"
+
+Checking formatting...
+All matched files use Prettier code style!
+[format:check] $ npm run format:check
+
+> evolution-hub@0.0.1 format:check
+> prettier --check "src/**/*.{ts,tsx,astro,json,md}" "tests/**/*.{ts,tsx}" "scripts/**/*.{ts,js,mjs}" "*.{json,md,yaml,yml}"
+
+Checking formatting...
+All matched files use Prettier code style!

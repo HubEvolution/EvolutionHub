@@ -6,7 +6,7 @@
 
 - **Frage:** Wie wird der Orchestrator eingebunden, ohne bestehende API-Verträge zu brechen?
 - **Empfohlene Lösung:** Wir führen einen `AiOrchestratorService` unter `src/lib/services/ai-orchestrator-service.ts` ein, der von `AbstractBaseService` erbt. Damit übernimmt er das vorhandene Transaktions- und Fehlerhandling, wie es in `src/lib/services/base-service.ts` etabliert ist. API-Routen konsumieren den Service analog zu `src/pages/api/prompt-enhance.ts`: Die Route bleibt stabil, nutzt weiterhin `withApiMiddleware`, Rate-Limiter und das bestehende Response-Envelope (`createApiSuccess`/`createApiError`). Lediglich der interne Service-Aufruf wechselt auf den Orchestrator.
-- **Begründung:** Dieses Muster entspricht der dokumentierten Schichtenarchitektur (`Service Layer` vermittelt zwischen API und D1`, siehe `docs/architecture/system-overview.md`) und vermeidet Breaking Changes, weil API-Signaturen und Middleware-Stapel unverändert bleiben. Der Ansatz lässt sich in bestehenden Tests wie `tests/integration/...` wiederverwenden, da die HTTP-Verträge identisch bleiben.
+- **Begründung:** Dieses Muster entspricht der dokumentierten Schichtenarchitektur (`Service Layer` vermittelt zwischen API und D1`, siehe`docs/architecture/system-overview.md`) und vermeidet Breaking Changes, weil API-Signaturen und Middleware-Stapel unverändert bleiben. Der Ansatz lässt sich in bestehenden Tests wie`tests/integration/...` wiederverwenden, da die HTTP-Verträge identisch bleiben.
 
 ### 2. Datenmodell für Sessions, Tasks und Kontext in D1
 

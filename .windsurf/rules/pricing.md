@@ -1,3 +1,7 @@
+---
+trigger: always_on
+---
+
 trigger: always_on
 scope: feature
 extends:
@@ -36,16 +40,13 @@ Saubere Billing‑Integration mit verifizierten Webhooks, plan→Entitlements‑
     - `prorationBehavior`: `create_prorations | none`
     - `cancelAtPeriodEnd`: boolean (Downgrade‑Standard: true)
     - `cancelImmediately`: boolean (nur explizit)
-  - Sicherheit: `withAuthApiMiddleware`, Same‑Origin + Double‑Submit CSRF, `sensitiveActionLimiter` (Preset).
-  - Stripe‑Secret Pflicht für aktive Orchestrierung: `STRIPE_SECRET`, Webhook: `STRIPE_WEBHOOK_SECRET`.
 
-- OpenAPI
-  - Relevante Endpunkte/Schemata gepflegt (Requests/Responses, Fehlerformen, CSRF Header wo nötig).
-  - AdminSetPlanRequest enthält `interval`, `prorationBehavior`, `cancelAtPeriodEnd`, `cancelImmediately`. Zod↔OpenAPI synchron halten.
+- Sicherheit
+  - `withAuthApiMiddleware` auf Admin‑Routen; Same‑Origin; Double‑Submit CSRF für sensitive Endpunkte.
+  - Rate‑Limit für Admin‑Operationen passend konfigurieren.
 
-## Sollte
-
-- Customer metadata nur minimal; keine freien Textfelder persistieren.
+- Datenschutz
+  - Minimalprinzip für PII; IDs/Hashes bevorzugen; keine freien Textfelder persistieren.
 - Observability: Korrelation über Request‑ID/Stripe‑Event‑ID; keine Payload‑Dumps.
 
 ## Nicht
@@ -65,8 +66,8 @@ Saubere Billing‑Integration mit verifizierten Webhooks, plan→Entitlements‑
 ## Code‑Anker
 
 - `src/pages/api/billing/**`
-- [src/pages/api/billing/stripe-webhook.ts](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/pages/api/billing/stripe-webhook.ts:0:0-0:0)
-- [src/pages/api/admin/users/set-plan.ts](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/pages/api/admin/users/set-plan.ts:0:0-0:0)
+- `src/pages/api/billing/stripe-webhook.ts`
+- `src/pages/api/admin/users/set-plan.ts`
 - Entitlements: `src/config/ai-image/entitlements.ts`
 - OpenAPI: `openapi.yaml`
 
@@ -79,7 +80,7 @@ Saubere Billing‑Integration mit verifizierten Webhooks, plan→Entitlements‑
 ## Referenzen
 
 - Global Rules; API & Security Rules; Zod↔OpenAPI.
-- `.windsurf/rules/pricing.md`
+- [.windsurf/rules/pricing.md](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/.windsurf/rules/pricing.md:0:0-0:0)
 
 ## Changelog
 

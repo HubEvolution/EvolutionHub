@@ -1,5 +1,7 @@
 ---
-import Page from '../../blog/[...slug].astro';
+const slugRaw = (Astro.params as Record<string, unknown>)?.slug;
+// Redirect to canonical blog route; underlying page handles localization
+return Astro.redirect(
+  `/blog/${Array.isArray(slugRaw) ? slugRaw.join('/') : typeof slugRaw === 'string' ? slugRaw : ''}`
+);
 ---
-
-<Page />

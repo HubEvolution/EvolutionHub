@@ -1,0 +1,4 @@
+# Exclude internal rule docs and build/output artifacts from markdownlint
+.windsurf/**
+.backups/**
+dist/**

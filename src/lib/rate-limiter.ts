@@ -348,6 +348,13 @@ export const webEvalTaskLimiter = createRateLimiter({
   name: 'webEvalTasks',
 });
 
+// For Cloudflare Browser Rendering run endpoint (stricter: 5/min)
+export const webEvalBrowserLimiter = createRateLimiter({
+  maxRequests: 5,
+  windowMs: 60 * 1000,
+  name: 'webEvalBrowser',
+});
+
 /**
  * Einfache Rate-Limiting-Funktion für Service-Layer
  * Nutzt die bestehende Store-Infrastruktur ohne Request-Kontext
