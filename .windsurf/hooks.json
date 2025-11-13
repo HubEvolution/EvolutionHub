@@ -1,0 +1,36 @@
+{
+  "$schema": "https://docs.windsurf.com/schemas/hooks.json",
+  "hooks": {
+    "pre_read_code": [
+      {
+        "command": "node scripts/hooks/pre-read-security-check.mjs",
+        "show_output": false,
+        "description": "Security check: Block access to sensitive files"
+      }
+    ],
+    "post_write_code": [
+      {
+        "command": "node scripts/hooks/post-write-quality-check.mjs",
+        "show_output": true,
+        "description": "Quality check: Auto-lint and validate changed files"
+      },
+      {
+        "command": "node scripts/hooks/post-write-typecheck.mjs",
+        "show_output": false,
+        "description": "Type check: Quick validation of TypeScript changes"
+      }
+    ],
+    "post_run_command": [
+      {
+        "command": "node scripts/hooks/post-command-logger.mjs",
+        "show_output": false,
+        "description": "Command logger: Track command execution for compliance"
+      }
+    ]
+  },
+  "settings": {
+    "enabled": true,
+    "timeout_seconds": 30,
+    "retry_on_failure": false
+  }
+}

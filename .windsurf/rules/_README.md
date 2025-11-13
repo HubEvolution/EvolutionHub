@@ -1,8 +1,8 @@
 # Windsurf Rules Index
 
-> **Letzte Aktualisierung:** 2025-11-12  
+> **Letzte Aktualisierung:** 2025-11-13  
 > **Maintainer:** Architecture Team  
-> **Status:** 🟢 18 aktive Rules | 🟡 8 geplante Rules
+> **Status:** 🟢 19 aktive Rules | 🟡 8 geplante Rules
 
 Alle projektspezifischen Regeln für KI-Assistenten und Entwickler in diesem Repository.
 
@@ -30,7 +30,7 @@ Alle projektspezifischen Regeln für KI-Assistenten und Entwickler in diesem Rep
 |-----------|--------|---------|
 | **Core Infrastructure** | 4 | api-and-security, auth, infra, project-structure |
 | **Feature-Specific** | 6 | image-enhancer, video-enhancer, transcriptor, prompt, scraper, pricing |
-| **Quality & Tooling** | 5 | testing-and-ci, tooling-and-style, zod-openapi, docs-documentation, agentic-workflow |
+| **Quality & Tooling** | 6 | testing-and-ci, tooling-and-style, zod-openapi, docs-documentation, agentic-workflow, cascade-hooks |
 | **Cross-Cutting** | 3 | cookies-and-consent, content, (prompt) |
 | **Geplant (Phase 1-2)** | 8 | database-migrations, caching-kv, email-notifications, background-jobs, observability, frontend-state, i18n, performance |
 
@@ -40,7 +40,7 @@ Alle projektspezifischen Regeln für KI-Assistenten und Entwickler in diesem Rep
 |-----------|-------|--------|---------|
 | 🔴 **Critical** | Core, Infra | ✅ Aktiv | api-and-security, auth, testing-and-ci |
 | 🟠 **High** | Features, Quality | ✅ Aktiv | pricing, image-enhancer, video-enhancer, infra, tooling-and-style, zod-openapi |
-| 🟡 **Medium** | Features, Docs | ✅ Aktiv | transcriptor, prompt, scraper, docs-documentation, agentic-workflow, cookies-and-consent |
+| 🟡 **Medium** | Features, Docs | ✅ Aktiv | transcriptor, prompt, scraper, docs-documentation, agentic-workflow, cookies-and-consent, cascade-hooks |
 | 🟢 **Low** | Content | ⚠️ Minimal | content |
 
 ## Vollständige Rules-Liste
@@ -220,6 +220,18 @@ Alle projektspezifischen Regeln für KI-Assistenten und Entwickler in diesem Rep
   - Freigabepflicht vor Datei-Änderungen
   - 10-Schritte-SOP: Ziel → Kontext → Constraints → Entwurf → Freigabe → Umsetzung → Verifikation → Docs → Handover → Follow-ups
 
+#### [cascade-hooks.md](./cascade-hooks.md) 🟡 Medium
+- **Zweck:** Windsurf Cascade Hooks Integration, automatische Quality Gates und Security Controls
+- **Extends:** tooling-and-style, testing-and-ci
+- **Last Update:** 2025-11-13
+- **Status:** ✅ Vollständig (316 Zeilen)
+- **Key Points:**
+  - Workspace-level hooks in `.windsurf/hooks.json`
+  - Pre-read hooks für Security (blockieren sensible Dateien)
+  - Post-write hooks für Auto-Lint/Format/TypeCheck
+  - Post-command hooks für Audit-Logging
+  - Integration mit bestehendem Hygiene-Workflow
+
 ### Cross-Cutting Concerns
 
 #### [cookies-and-consent.md](./cookies-and-consent.md) 🟡 Medium
@@ -272,7 +284,12 @@ infra.md (Basis für Worker/Edge)
   └─ project-structure.md
 
 tooling-and-style.md (Basis für Code-Qualität)
+  ├─ cascade-hooks.md
   └─ [gesamter Codebase]
+
+testing-and-ci.md (Basis für alle Tests)
+  ├─ cascade-hooks.md
+  └─ [alle Features mit Tests]
 
 docs-documentation.md (Basis für Docs)
   └─ [docs/**]
