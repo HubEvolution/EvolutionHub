@@ -2,7 +2,7 @@
 /**
  * Post-Write Quality Check Hook
  * Automatically runs linting and formatting on changed files
- * 
+ *
  * This hook is triggered after Cascade writes code.
  * Non-zero exit codes are logged but don't block the operation.
  */
@@ -15,11 +15,21 @@ import { relative, extname } from 'node:path';
 const LINTABLE_EXTENSIONS = ['.ts', '.tsx', '.astro', '.js', '.mjs'];
 
 // File extensions that should be formatted
-const FORMATTABLE_EXTENSIONS = ['.ts', '.tsx', '.astro', '.js', '.mjs', '.json', '.md', '.yaml', '.yml'];
+const FORMATTABLE_EXTENSIONS = [
+  '.ts',
+  '.tsx',
+  '.astro',
+  '.js',
+  '.mjs',
+  '.json',
+  '.md',
+  '.yaml',
+  '.yml',
+];
 
 function main() {
   let context;
-  
+
   try {
     // Read context from stdin (Cascade provides this as JSON)
     const stdin = readFileSync(0, 'utf-8');
@@ -27,7 +37,7 @@ function main() {
       // No input means this might be a test run or manual invocation
       process.exit(0);
     }
-    
+
     context = JSON.parse(stdin);
   } catch (err) {
     // If we can't parse context, just exit gracefully
@@ -36,7 +46,7 @@ function main() {
 
   // Extract file path from context
   const filePath = context?.file_path || context?.path || '';
-  
+
   if (!filePath) {
     // No file path provided
     process.exit(0);
@@ -44,7 +54,7 @@ function main() {
 
   const ext = extname(filePath);
   const relativePath = relative(process.cwd(), filePath);
-  
+
   console.log(`\n🔍 Quality Check: ${relativePath}`);
 
   let hasIssues = false;
@@ -53,9 +63,9 @@ function main() {
   if (FORMATTABLE_EXTENSIONS.includes(ext)) {
     try {
       console.log('   ✓ Running Prettier...');
-      execSync(`npx prettier --write "${filePath}"`, { 
+      execSync(`npx prettier --write "${filePath}"`, {
         stdio: 'pipe',
-        encoding: 'utf-8'
+        encoding: 'utf-8',
       });
       console.log('   ✓ Formatted successfully');
     } catch (err) {
@@ -70,7 +80,7 @@ function main() {
       console.log('   ✓ Running ESLint...');
       execSync(`npx eslint "${filePath}" --fix --cache --cache-location .cache/eslint`, {
         stdio: 'pipe',
-        encoding: 'utf-8'
+        encoding: 'utf-8',
       });
       console.log('   ✓ Linting passed');
     } catch (err) {
@@ -87,7 +97,7 @@ function main() {
       // Just check if tsc can parse the file (not a full project check)
       execSync(`npx tsc --noEmit --skipLibCheck "${filePath}"`, {
         stdio: 'pipe',
-        encoding: 'utf-8'
+        encoding: 'utf-8',
       });
       console.log('   ✓ Type check passed');
     } catch (err) {

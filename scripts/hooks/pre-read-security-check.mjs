@@ -2,7 +2,7 @@
 /**
  * Pre-Read Security Check Hook
  * Blocks access to sensitive files and enforces security policies
- * 
+ *
  * This hook is triggered before Cascade reads code files.
  * Exit code 2 blocks the read operation.
  */
@@ -11,37 +11,37 @@ import { readFileSync } from 'node:fs';
 
 // Sensitive files/patterns that should not be accessed
 const SENSITIVE_PATTERNS = [
-  /\.env(?:\.\w+)?$/,                    // .env files (all variants)
-  /\.env\.local$/,                        // Local environment files
-  /\.env\.production$/,                   // Production secrets
-  /secrets\.json$/,                       // Secret files
-  /private.*key$/i,                       // Private keys
-  /\.pem$/,                               // Certificate files
-  /\.pfx$/,                               // Certificate files
-  /\.p12$/,                               // Certificate files
-  /wrangler\.toml$/,                      // May contain secrets
-  /\.npmrc$/,                             // May contain auth tokens
-  /\.yarnrc\.yml$/,                       // May contain auth tokens
-  /\.git\/config$/,                       // Git config with credentials
-  /node_modules\//,                       // Don't read dependencies
-  /\.cache\//,                            // Cache directories
-  /\.logs?\//,                            // Log directories
-  /\.backups?\//,                         // Backup directories
-  /dist\//,                               // Build artifacts
-  /out\//,                                // Build artifacts
-  /reports\//,                            // Reports may contain sensitive data
+  /\.env(?:\.\w+)?$/, // .env files (all variants)
+  /\.env\.local$/, // Local environment files
+  /\.env\.production$/, // Production secrets
+  /secrets\.json$/, // Secret files
+  /private.*key$/i, // Private keys
+  /\.pem$/, // Certificate files
+  /\.pfx$/, // Certificate files
+  /\.p12$/, // Certificate files
+  /wrangler\.toml$/, // May contain secrets
+  /\.npmrc$/, // May contain auth tokens
+  /\.yarnrc\.yml$/, // May contain auth tokens
+  /\.git\/config$/, // Git config with credentials
+  /node_modules\//, // Don't read dependencies
+  /\.cache\//, // Cache directories
+  /\.logs?\//, // Log directories
+  /\.backups?\//, // Backup directories
+  /dist\//, // Build artifacts
+  /out\//, // Build artifacts
+  /reports\//, // Reports may contain sensitive data
 ];
 
 // Files that require team lead approval
 const APPROVAL_REQUIRED_PATTERNS = [
-  /migrations\//,                         // Database migrations
-  /\.github\/workflows\//,                // CI/CD workflows
-  /scripts\/deploy/,                      // Deployment scripts
+  /migrations\//, // Database migrations
+  /\.github\/workflows\//, // CI/CD workflows
+  /scripts\/deploy/, // Deployment scripts
 ];
 
 function main() {
   let context;
-  
+
   try {
     // Read context from stdin (Cascade provides this as JSON)
     const stdin = readFileSync(0, 'utf-8');
@@ -49,7 +49,7 @@ function main() {
       // No input means this might be a test run or manual invocation
       process.exit(0);
     }
-    
+
     context = JSON.parse(stdin);
   } catch (err) {
     // If we can't parse context, allow the operation
@@ -59,7 +59,7 @@ function main() {
 
   // Extract file path from context
   const filePath = context?.file_path || context?.path || '';
-  
+
   if (!filePath) {
     // No file path provided, allow operation
     process.exit(0);

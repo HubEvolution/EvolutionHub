@@ -3,8 +3,8 @@ trigger: always_on
 ---
 
 ---
-trigger: always_on
----
+
+## trigger: always_on
 
 # AI Video Enhancer Rules
 

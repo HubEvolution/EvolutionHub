@@ -23,12 +23,12 @@ Konsistente Tooling‑Konfiguration und Typ‑Strenge für verlässliches Refact
 - Prettier:
   - 2 spaces, single quotes, width 100, `semi: true`.
   - Astro‑Plugin aktiv.
-  - `.prettierignore` enthält u. a.:  
-    - `dist/`  
-    - `reports/`  
-    - `playwright-report/`  
-    - `test-suite-v2/reports/`  
-    - `tests/performance/README.md`  ← hinzugefügt, um unnötige Format‑Diffs zu vermeiden.
+  - `.prettierignore` enthält u. a.:
+    - `dist/`
+    - `reports/`
+    - `playwright-report/`
+    - `test-suite-v2/reports/`
+    - `tests/performance/README.md` ← hinzugefügt, um unnötige Format‑Diffs zu vermeiden.
 - Imports immer am Dateianfang; keine Imports mitten im File.
 - Aliase: ausschließlich `@/*` (kein `~/*`).
 

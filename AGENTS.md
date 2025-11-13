@@ -17,6 +17,7 @@
 - Minimal‑invasiv ändern, keine ungefragten Groß‑Refactors.
 - Keine neuen Dependencies ohne explizite Freigabe.
 - Bevorzuge bestehende Patterns/Utilities und halte dich an Repository‑Konventionen.
+- Cascade Hooks: Automatische Quality Gates (Lint/Format/TypeCheck) und Security Controls sind aktiv. Beachte Hook-Output für Warnungen.
 
 ## Technologie-/Repo-Kontext
 
@@ -112,6 +113,9 @@
 - Health/Sicherheit
   - Health‑Check: `npm run health-check`
   - Env/Secrets: `npm run validate:env` | `npm run secrets:check`
+- Cascade Hooks
+  - Test Hooks: `node scripts/test-hooks.mjs` (validiert alle Hook-Scripts)
+  - Hook-Logs: `.logs/cascade-audit.log` (Audit-Trail für Commands)
 
 Hinweise
 

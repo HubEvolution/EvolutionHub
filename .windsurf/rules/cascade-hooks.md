@@ -119,16 +119,19 @@ Bei Änderungen an Hooks:
 ## Code-Anker
 
 ### Hook-Konfiguration
+
 - `.windsurf/hooks.json` — Workspace-level hook configuration
 - `scripts/hooks/` — All hook scripts
 
 ### Implementierte Hooks
+
 - `scripts/hooks/pre-read-security-check.mjs` — Security pre-read hook
 - `scripts/hooks/post-write-quality-check.mjs` — Auto-lint/format hook
 - `scripts/hooks/post-write-typecheck.mjs` — Type checking hook
 - `scripts/hooks/post-command-logger.mjs` — Audit logging hook
 
 ### Dokumentation
+
 - `docs/development/cascade-hooks.md` — Vollständige Hooks-Dokumentation
 
 ## CI/Gates
@@ -147,12 +150,14 @@ echo '{"file_path": "src/test.ts"}' | node scripts/hooks/post-write-quality-chec
 ## Referenzen
 
 ### Interne Docs
+
 - [Cascade Hooks Dokumentation](../../docs/development/cascade-hooks.md)
 - [Agentic Workflow Rule](./agentic-workflow.md) — SOP für Agenten
 - [Tooling & Style Rule](./tooling-and-style.md) — Linting/Formatting Standards
 - [Testing & CI Rule](./testing-and-ci.md) — Testing Standards
 
 ### Externe Ressourcen
+
 - [Official Cascade Hooks Docs](https://docs.windsurf.com/windsurf/cascade/hooks)
 - [Cascade Customizations Catalog](https://github.com/Windsurf-Samples/cascade-customizations-catalog)
 - [Windsurf Blog: Cascade Customization](https://windsurf.com/blog/windsurf-wave-8-cascade-customization-features)
@@ -173,7 +178,7 @@ function main() {
   } catch {
     process.exit(0); // Graceful fallback
   }
-  
+
   const path = context?.file_path || '';
   for (const pattern of BLOCKED) {
     if (pattern.test(path)) {
@@ -200,19 +205,19 @@ function main() {
   } catch {
     process.exit(0);
   }
-  
+
   const path = context?.file_path || '';
   if (!path.endsWith('.ts')) {
     process.exit(0);
   }
-  
+
   try {
     execSync(`npx prettier --write "${path}"`, { stdio: 'pipe' });
     console.log(`✓ Formatted: ${path}`);
   } catch (err) {
     console.warn(`⚠️  Format failed: ${path}`);
   }
-  
+
   process.exit(0); // Non-blocking
 }
 
@@ -222,6 +227,7 @@ main();
 ## Changelog
 
 ### 2025-11-13: Initial Rule
+
 - ✅ Hook-Konfiguration definiert
 - ✅ Security-Requirements festgelegt
 - ✅ Performance-Guidelines

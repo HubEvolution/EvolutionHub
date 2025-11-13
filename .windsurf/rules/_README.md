@@ -26,28 +26,29 @@ Alle projektspezifischen Regeln für KI-Assistenten und Entwickler in diesem Rep
 
 ### Nach Kategorie
 
-| Kategorie | Anzahl | Dateien |
-|-----------|--------|---------|
-| **Core Infrastructure** | 4 | api-and-security, auth, infra, project-structure |
-| **Feature-Specific** | 6 | image-enhancer, video-enhancer, transcriptor, prompt, scraper, pricing |
-| **Quality & Tooling** | 6 | testing-and-ci, tooling-and-style, zod-openapi, docs-documentation, agentic-workflow, cascade-hooks |
-| **Cross-Cutting** | 3 | cookies-and-consent, content, (prompt) |
-| **Geplant (Phase 1-2)** | 8 | database-migrations, caching-kv, email-notifications, background-jobs, observability, frontend-state, i18n, performance |
+| Kategorie               | Anzahl | Dateien                                                                                                                 |
+| ----------------------- | ------ | ----------------------------------------------------------------------------------------------------------------------- |
+| **Core Infrastructure** | 4      | api-and-security, auth, infra, project-structure                                                                        |
+| **Feature-Specific**    | 6      | image-enhancer, video-enhancer, transcriptor, prompt, scraper, pricing                                                  |
+| **Quality & Tooling**   | 6      | testing-and-ci, tooling-and-style, zod-openapi, docs-documentation, agentic-workflow, cascade-hooks                     |
+| **Cross-Cutting**       | 3      | cookies-and-consent, content, (prompt)                                                                                  |
+| **Geplant (Phase 1-2)** | 8      | database-migrations, caching-kv, email-notifications, background-jobs, observability, frontend-state, i18n, performance |
 
 ### Nach Priorität
 
-| Priorität | Scope | Status | Dateien |
-|-----------|-------|--------|---------|
-| 🔴 **Critical** | Core, Infra | ✅ Aktiv | api-and-security, auth, testing-and-ci |
-| 🟠 **High** | Features, Quality | ✅ Aktiv | pricing, image-enhancer, video-enhancer, infra, tooling-and-style, zod-openapi |
-| 🟡 **Medium** | Features, Docs | ✅ Aktiv | transcriptor, prompt, scraper, docs-documentation, agentic-workflow, cookies-and-consent, cascade-hooks |
-| 🟢 **Low** | Content | ⚠️ Minimal | content |
+| Priorität       | Scope             | Status     | Dateien                                                                                                 |
+| --------------- | ----------------- | ---------- | ------------------------------------------------------------------------------------------------------- |
+| 🔴 **Critical** | Core, Infra       | ✅ Aktiv   | api-and-security, auth, testing-and-ci                                                                  |
+| 🟠 **High**     | Features, Quality | ✅ Aktiv   | pricing, image-enhancer, video-enhancer, infra, tooling-and-style, zod-openapi                          |
+| 🟡 **Medium**   | Features, Docs    | ✅ Aktiv   | transcriptor, prompt, scraper, docs-documentation, agentic-workflow, cookies-and-consent, cascade-hooks |
+| 🟢 **Low**      | Content           | ⚠️ Minimal | content                                                                                                 |
 
 ## Vollständige Rules-Liste
 
 ### Core Infrastructure
 
 #### [api-and-security.md](./api-and-security.md) 🔴 Critical
+
 - **Zweck:** Middleware, Security-Header, CSRF/Same-Origin, JSON-Error-Shapes
 - **Extends:** -
 - **Last Update:** 2025-11-03
@@ -60,6 +61,7 @@ Alle projektspezifischen Regeln für KI-Assistenten und Entwickler in diesem Rep
   - `/r2-ai/**` bleibt öffentlich und ungated
 
 #### [auth.md](./auth.md) 🔴 Critical
+
 - **Zweck:** Auth-Flows (Magic Link/OAuth), PKCE, Session-Cookies, 410-Stubs
 - **Extends:** -
 - **Last Update:** 2025-10-31
@@ -71,6 +73,7 @@ Alle projektspezifischen Regeln für KI-Assistenten und Entwickler in diesem Rep
   - `X-Stytch-Request-Id` in Auth-Callback-Responses
 
 #### [infra.md](./infra.md) 🟠 High
+
 - **Zweck:** Worker-Config, Bindings, Middleware, Assets-Serving
 - **Extends:** -
 - **Last Update:** 2025-10-31
@@ -83,6 +86,7 @@ Alle projektspezifischen Regeln für KI-Assistenten und Entwickler in diesem Rep
 - **Gaps:** Bindings-Zugriff, Edge-Caching, Deployment-Strategien fehlen
 
 #### [project-structure.md](./project-structure.md) 🟠 High
+
 - **Zweck:** Ordnerstruktur, Pfade, Aliase, Build-Artefakte
 - **Extends:** -
 - **Last Update:** 2025-11-03
@@ -96,6 +100,7 @@ Alle projektspezifischen Regeln für KI-Assistenten und Entwickler in diesem Rep
 ### Feature-Specific Rules
 
 #### [pricing.md](./pricing.md) 🟠 High
+
 - **Zweck:** Stripe-Integration, Webhooks, Plans/Entitlements, Admin-APIs
 - **Extends:** api-and-security, zod-openapi
 - **Last Update:** 2025-11-02
@@ -108,6 +113,7 @@ Alle projektspezifischen Regeln für KI-Assistenten und Entwickler in diesem Rep
 - **Gaps:** Refund-Flows nicht dokumentiert
 
 #### [image-enhancer.md](./image-enhancer.md) 🟠 High
+
 - **Zweck:** AI Image (Workers AI + Replicate), Provider-Gating, Quoten, R2
 - **Extends:** -
 - **Last Update:** 2025-10-31
@@ -120,6 +126,7 @@ Alle projektspezifischen Regeln für KI-Assistenten und Entwickler in diesem Rep
 - **Gaps:** Cost-Tracking fehlt
 
 #### [video-enhancer.md](./video-enhancer.md) 🟠 High
+
 - **Zweck:** Video-Upscaling (Replicate), Upload-Guardrails, Quoten/Kredite, R2
 - **Extends:** -
 - **Last Update:** 2025-11-05
@@ -131,6 +138,7 @@ Alle projektspezifischen Regeln für KI-Assistenten und Entwickler in diesem Rep
   - Job-Polling: Eigentum validieren (Session vs. `guest_id`)
 
 #### [transcriptor.md](./transcriptor.md) 🟡 Medium
+
 - **Zweck:** Whisper-Transkription, Multipart-Upload, Quoten, Rate-Limits
 - **Extends:** -
 - **Last Update:** 2025-10-31
@@ -142,6 +150,7 @@ Alle projektspezifischen Regeln für KI-Assistenten und Entwickler in diesem Rep
 - **Gaps:** SSE/Poll für Streaming (Phase 2+)
 
 #### [prompt.md](./prompt.md) 🟡 Medium
+
 - **Zweck:** Prompt-Enhance-API, Validierung, Same-Origin/CSRF, Quoten
 - **Extends:** -
 - **Last Update:** 2025-10-31
@@ -153,6 +162,7 @@ Alle projektspezifischen Regeln für KI-Assistenten und Entwickler in diesem Rep
 - **Gaps:** PII-Filter in Validation fehlen
 
 #### [scraper.md](./scraper.md) 🟡 Medium
+
 - **Zweck:** Webscraper mit SSRF-Schutz, Netz-/Inhalts-Guardrails, Rate-Limits
 - **Extends:** -
 - **Last Update:** 2025-10-31
@@ -166,6 +176,7 @@ Alle projektspezifischen Regeln für KI-Assistenten und Entwickler in diesem Rep
 ### Quality & Tooling
 
 #### [testing-and-ci.md](./testing-and-ci.md) 🔴 Critical
+
 - **Zweck:** Unit/Integration/E2E-Tests, Coverage, OpenAPI-Validation, CI-Gates
 - **Extends:** -
 - **Last Update:** 2025-11-12
@@ -177,6 +188,7 @@ Alle projektspezifischen Regeln für KI-Assistenten und Entwickler in diesem Rep
   - Hygiene-Reports: `reports/lint.txt`, `reports/astro-check.txt`, etc.
 
 #### [tooling-and-style.md](./tooling-and-style.md) 🟠 High
+
 - **Zweck:** TypeScript strict, ESLint, Prettier, Astro-Linting
 - **Extends:** -
 - **Last Update:** 2025-11-12
@@ -188,6 +200,7 @@ Alle projektspezifischen Regeln für KI-Assistenten und Entwickler in diesem Rep
   - `.prettierignore` enthält `tests/performance/README.md`
 
 #### [zod-openapi.md](./zod-openapi.md) 🟠 High
+
 - **Zweck:** Hybrid-Ansatz Zod↔OpenAPI, Drift minimieren, Pilot/Diff
 - **Extends:** -
 - **Last Update:** 2025-10-31
@@ -199,6 +212,7 @@ Alle projektspezifischen Regeln für KI-Assistenten und Entwickler in diesem Rep
   - Pilot/Diff: `npm run openapi:zod:pilot|diff`
 
 #### [docs-documentation.md](./docs-documentation.md) 🟡 Medium
+
 - **Zweck:** Docs-Standards, Frontmatter, Struktur, Link-Checks, Changelog
 - **Extends:** -
 - **Last Update:** 2025-11-06
@@ -210,6 +224,7 @@ Alle projektspezifischen Regeln für KI-Assistenten und Entwickler in diesem Rep
   - Archiv: `docs/archive/` (nicht verlinkt aus aktiven Docs)
 
 #### [agentic-workflow.md](./agentic-workflow.md) 🟡 Medium
+
 - **Zweck:** Agent-Arbeitsablauf, Planung, Freigabe, SOP (Standard Operating Procedure)
 - **Extends:** -
 - **Last Update:** 2025-11-12
@@ -221,6 +236,7 @@ Alle projektspezifischen Regeln für KI-Assistenten und Entwickler in diesem Rep
   - 10-Schritte-SOP: Ziel → Kontext → Constraints → Entwurf → Freigabe → Umsetzung → Verifikation → Docs → Handover → Follow-ups
 
 #### [cascade-hooks.md](./cascade-hooks.md) 🟡 Medium
+
 - **Zweck:** Windsurf Cascade Hooks Integration, automatische Quality Gates und Security Controls
 - **Extends:** tooling-and-style, testing-and-ci
 - **Last Update:** 2025-11-13
@@ -235,6 +251,7 @@ Alle projektspezifischen Regeln für KI-Assistenten und Entwickler in diesem Rep
 ### Cross-Cutting Concerns
 
 #### [cookies-and-consent.md](./cookies-and-consent.md) 🟡 Medium
+
 - **Zweck:** GDPR-Consent, CookieConsent v3, Event-Bridge, Analytics-Gating
 - **Extends:** api-and-security, auth, project-structure
 - **Last Update:** 2025-11-03
@@ -247,6 +264,7 @@ Alle projektspezifischen Regeln für KI-Assistenten und Entwickler in diesem Rep
   - Consent-UI: Speichern, Alle akzeptieren, Alle ablehnen, Zurücksetzen
 
 #### [content.md](./content.md) 🟢 Low
+
 - **Zweck:** Content Collections, Locales, Pages consuming Content
 - **Extends:** -
 - **Last Update:** N/A
@@ -302,23 +320,23 @@ agentic-workflow.md (Basis für Agent-Prozesse)
 
 ### Phase 1: Kritische Lücken (Woche 1-2) 🔴
 
-| Rule | Priorität | Status | Owner |
-|------|-----------|--------|-------|
-| `database-migrations.md` | Critical | 🔴 Fehlt | DevOps |
-| `caching-kv.md` | High | 🔴 Fehlt | Backend |
-| `email-notifications.md` | High | 🔴 Fehlt | Backend |
-| `background-jobs.md` | High | 🔴 Fehlt | DevOps |
-| `observability.md` | High | 🔴 Fehlt | SRE |
-| `infra.md` (Erweiterung) | High | ⚠️ Minimal | DevOps |
+| Rule                     | Priorität | Status     | Owner   |
+| ------------------------ | --------- | ---------- | ------- |
+| `database-migrations.md` | Critical  | 🔴 Fehlt   | DevOps  |
+| `caching-kv.md`          | High      | 🔴 Fehlt   | Backend |
+| `email-notifications.md` | High      | 🔴 Fehlt   | Backend |
+| `background-jobs.md`     | High      | 🔴 Fehlt   | DevOps  |
+| `observability.md`       | High      | 🔴 Fehlt   | SRE     |
+| `infra.md` (Erweiterung) | High      | ⚠️ Minimal | DevOps  |
 
 ### Phase 2: Erweiterte Rules (Woche 3-4) 🟡
 
-| Rule | Priorität | Status | Owner |
-|------|-----------|--------|-------|
-| `content.md` (Erweiterung) | Medium | ⚠️ Minimal | Content |
-| `frontend-state.md` | Medium | 🔴 Fehlt | Frontend |
-| `i18n.md` | Medium | 🔴 Fehlt | i18n-Team |
-| `performance.md` | Medium | 🔴 Fehlt | Performance |
+| Rule                       | Priorität | Status     | Owner       |
+| -------------------------- | --------- | ---------- | ----------- |
+| `content.md` (Erweiterung) | Medium    | ⚠️ Minimal | Content     |
+| `frontend-state.md`        | Medium    | 🔴 Fehlt   | Frontend    |
+| `i18n.md`                  | Medium    | 🔴 Fehlt   | i18n-Team   |
+| `performance.md`           | Medium    | 🔴 Fehlt   | Performance |
 
 ### Phase 3: Strukturelle Optimierung (Woche 5-6) 🟢
 
@@ -335,13 +353,13 @@ agentic-workflow.md (Basis für Agent-Prozesse)
 
 ```yaml
 ---
-trigger: always_on        # required (immer aktiv für Agenten)
+trigger: always_on # required (immer aktiv für Agenten)
 scope: core|feature|infra|quality|cross-cutting # optional (empfohlen)
-priority: critical|high|medium|low               # optional (empfohlen)
-extends:                  # optional (Dependencies)
+priority: critical|high|medium|low # optional (empfohlen)
+extends: # optional (Dependencies)
   - ../relative/path.md
-lastUpdate: YYYY-MM-DD    # optional (empfohlen)
-maintainer: team-name     # optional
+lastUpdate: YYYY-MM-DD # optional (empfohlen)
+maintainer: team-name # optional
 ---
 ```
 
@@ -355,32 +373,41 @@ Siehe [Anhang B im Analyse-Report](../../docs/architecture/configuration-analysi
 # [Feature/Area] Rules
 
 ## Zweck
+
 Kurze Beschreibung (1-2 Sätze).
 
 ## Muss
+
 - Verpflichtende Anforderungen (Bullet-Points)
 
 ## Sollte
+
 - Empfohlene Best Practices
 
 ## Nicht
+
 - Verbotene Patterns
 
 ## Checkliste
+
 - [ ] Requirement 1
 - [ ] Requirement 2
 
 ## Code-Anker
+
 - `src/path/to/code.ts`
 - `tests/path/to/tests.ts`
 
 ## CI/Gates
+
 - `npm run command`
 
 ## Referenzen
+
 - Verwandte Rules (relative Links)
 
 ## Changelog
+
 - YYYY-MM-DD: Änderung
 ```
 

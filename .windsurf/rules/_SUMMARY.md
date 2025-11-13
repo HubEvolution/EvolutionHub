@@ -19,9 +19,11 @@ Die projektspezifischen Konfigurationen des EvolutionHub-Repositories sind **sol
 ## Deliverables dieser Analyse
 
 ### 1. Umfassender Analyse-Report (29 KB)
+
 **Datei:** [`docs/architecture/configuration-analysis-2025-11-12.md`](../docs/architecture/configuration-analysis-2025-11-12.md)
 
 **Inhalte:**
+
 - Vollständige Bestandsaufnahme (18 Rules analysiert)
 - Detaillierte Gap-Analyse mit Priorisierung
 - Konkrete Verbesserungsvorschläge mit Code-Beispielen
@@ -29,9 +31,11 @@ Die projektspezifischen Konfigurationen des EvolutionHub-Repositories sind **sol
 - Rules-Matrix und Template-Struktur im Anhang
 
 ### 2. Rules-Index & Entwickler-Guide (16 KB)
+
 **Datei:** [`.windsurf/rules/README.md`](./README.md)
 
 **Inhalte:**
+
 - Schnellstart für Agenten und Entwickler
 - Vollständige Rules-Liste mit Status/Priorität
 - Dependency-Graph (Visualisierung der Cross-References)
@@ -40,6 +44,7 @@ Die projektspezifischen Konfigurationen des EvolutionHub-Repositories sind **sol
 - Tools & Automation (Roadmap)
 
 ### 3. Diese Zusammenfassung
+
 **Datei:** `.windsurf/rules/SUMMARY.md` (dieses Dokument)
 
 **Zweck:** Schnellreferenz für Sofortmaßnahmen und Team-Meeting
@@ -72,33 +77,35 @@ Die projektspezifischen Konfigurationen des EvolutionHub-Repositories sind **sol
 
 ### 🔴 Kritische Lücken (Priorität: Hoch)
 
-| # | Fehlende Rule | Impact | Betroffene Bereiche |
-|---|---------------|--------|---------------------|
-| 1 | `database-migrations.md` | **Sehr hoch** | Alle DB-Änderungen, Schema-Evolution, Rollbacks |
-| 2 | `caching-kv.md` | **Hoch** | KV-Namespaces, TTL-Strategien, R2-Lifecycle, Cache-Invalidierung |
-| 3 | `email-notifications.md` | **Hoch** | Resend-Integration, Template-Management, Rate-Limiting |
-| 4 | `background-jobs.md` | **Hoch** | Cron-Worker, Job-Scheduling, Failure-Handling, Monitoring |
-| 5 | `observability.md` | **Hoch** | Logging-Standards, Metriken, Error-Tracking, Dashboards |
+| #   | Fehlende Rule            | Impact        | Betroffene Bereiche                                              |
+| --- | ------------------------ | ------------- | ---------------------------------------------------------------- |
+| 1   | `database-migrations.md` | **Sehr hoch** | Alle DB-Änderungen, Schema-Evolution, Rollbacks                  |
+| 2   | `caching-kv.md`          | **Hoch**      | KV-Namespaces, TTL-Strategien, R2-Lifecycle, Cache-Invalidierung |
+| 3   | `email-notifications.md` | **Hoch**      | Resend-Integration, Template-Management, Rate-Limiting           |
+| 4   | `background-jobs.md`     | **Hoch**      | Cron-Worker, Job-Scheduling, Failure-Handling, Monitoring        |
+| 5   | `observability.md`       | **Hoch**      | Logging-Standards, Metriken, Error-Tracking, Dashboards          |
 
 **Risiko:** Ohne diese Rules können inkonsistente Implementierungen entstehen, die später schwer zu refactoren sind.
 
 ### 🟡 Mittlere Lücken
 
-| # | Issue | Impact | Lösung |
-|---|-------|--------|--------|
-| 6 | `infra.md` zu kurz (36 Zeilen) | Mittel | Erweitern: Bindings-Zugriff, Edge-Caching, Deployment-Strategien |
-| 7 | `content.md` minimal (20 Zeilen) | Mittel | Erweitern: Content Collections, Frontmatter-Standards, Slug-Generierung |
-| 8 | Fehlende AGENTS.md für `src/lib/` | Mittel | Neu: Service-Konventionen, Utils, Config-Patterns |
-| 9 | Fehlende AGENTS.md für `migrations/` | Mittel | Neu: Migration-Naming, Struktur, Idempotenz |
-| 10 | Unvollständige Cross-References | Niedrig | Script: `rules-validate-refs.ts` implementieren |
+| #   | Issue                                | Impact  | Lösung                                                                  |
+| --- | ------------------------------------ | ------- | ----------------------------------------------------------------------- |
+| 6   | `infra.md` zu kurz (36 Zeilen)       | Mittel  | Erweitern: Bindings-Zugriff, Edge-Caching, Deployment-Strategien        |
+| 7   | `content.md` minimal (20 Zeilen)     | Mittel  | Erweitern: Content Collections, Frontmatter-Standards, Slug-Generierung |
+| 8   | Fehlende AGENTS.md für `src/lib/`    | Mittel  | Neu: Service-Konventionen, Utils, Config-Patterns                       |
+| 9   | Fehlende AGENTS.md für `migrations/` | Mittel  | Neu: Migration-Naming, Struktur, Idempotenz                             |
+| 10  | Unvollständige Cross-References      | Niedrig | Script: `rules-validate-refs.ts` implementieren                         |
 
 ## Sofortmaßnahmen (Top 3)
 
 ### 1. Team-Review & Priorisierung (diese Woche)
+
 **Owner:** Architecture Team  
 **Dauer:** 1-2 Stunden Meeting
 
 **Agenda:**
+
 1. Vorstellung Analyse-Report (15 Min)
 2. Diskussion kritischer Lücken (30 Min)
 3. Priorisierung bestätigen oder anpassen (15 Min)
@@ -106,14 +113,17 @@ Die projektspezifischen Konfigurationen des EvolutionHub-Repositories sind **sol
 5. Nächste Schritte festlegen (15 Min)
 
 **Vorbereitung:**
+
 - Alle Teilnehmer lesen `.windsurf/rules/README.md` (Schnellstart + Geplante Erweiterungen)
 - Tech Lead reviewed `docs/architecture/configuration-analysis-2025-11-12.md` (Kapitel 2 + 3)
 
 ### 2. Phase 1 starten: `database-migrations.md` erstellen (nächste Woche)
+
 **Owner:** DevOps + Backend  
 **Dauer:** 1-2 Tage
 
 **Schritte:**
+
 1. Template kopieren (Anhang B im Analyse-Report)
 2. Bestehende Migration-Files analysieren (`migrations/*.ts`)
 3. Drizzle-spezifische Patterns dokumentieren
@@ -121,15 +131,18 @@ Die projektspezifischen Konfigurationen des EvolutionHub-Repositories sind **sol
 5. Code-Beispiele aus bestehenden Migrations extrahieren
 6. PR mit `[RULES]` Prefix öffnen
 
-**Erfolgs-Kriterium:** 
+**Erfolgs-Kriterium:**
+
 - Neue Migrations folgen dokumentierten Conventions
 - Rollback-Plan für jede Migration vorhanden
 
 ### 3. Phase 1 parallel: `caching-kv.md` erstellen (nächste Woche)
+
 **Owner:** Backend + Infra  
 **Dauer:** 1-2 Tage
 
 **Schritte:**
+
 1. Template kopieren
 2. KV-Namespaces inventarisieren (`SESSION`, `RATE_LIMIT`, `CACHE`, `JOBS`)
 3. TTL-Strategien dokumentieren (bestehende Patterns)
@@ -138,92 +151,104 @@ Die projektspezifischen Konfigurationen des EvolutionHub-Repositories sind **sol
 6. PR öffnen
 
 **Erfolgs-Kriterium:**
+
 - Alle KV-Zugriffe folgen dokumentierten Patterns
 - TTL immer explizit gesetzt
 
 ## Roadmap-Übersicht (6 Wochen)
 
 ### Phase 1: Kritische Lücken (Woche 1-2) 🔴
+
 **Fokus:** Infrastructure & Core Services
 
-| Woche | Rules | Owner | Status |
-|-------|-------|-------|--------|
-| W1 | `database-migrations.md` | DevOps | 🔴 To Do |
-| W1 | `caching-kv.md` | Backend | 🔴 To Do |
-| W2 | `email-notifications.md` | Backend | 🔴 To Do |
-| W2 | `background-jobs.md` | DevOps | 🔴 To Do |
-| W2 | `observability.md` | SRE | 🔴 To Do |
-| W2 | `infra.md` (Erweiterung) | DevOps | 🔴 To Do |
+| Woche | Rules                    | Owner   | Status   |
+| ----- | ------------------------ | ------- | -------- |
+| W1    | `database-migrations.md` | DevOps  | 🔴 To Do |
+| W1    | `caching-kv.md`          | Backend | 🔴 To Do |
+| W2    | `email-notifications.md` | Backend | 🔴 To Do |
+| W2    | `background-jobs.md`     | DevOps  | 🔴 To Do |
+| W2    | `observability.md`       | SRE     | 🔴 To Do |
+| W2    | `infra.md` (Erweiterung) | DevOps  | 🔴 To Do |
 
 ### Phase 2: Erweiterte Rules (Woche 3-4) 🟡
+
 **Fokus:** Frontend, Content, i18n
 
-| Woche | Rules | Owner | Status |
-|-------|-------|-------|--------|
-| W3 | `content.md` (Erweiterung) | Content | 🟡 Geplant |
-| W3 | `frontend-state.md` | Frontend | 🟡 Geplant |
-| W4 | `i18n.md` | i18n-Team | 🟡 Geplant |
-| W4 | `performance.md` | Performance | 🟡 Geplant |
-| W4 | AGENTS.md für `src/lib/` | Backend | 🟡 Geplant |
-| W4 | AGENTS.md für `migrations/` | DevOps | 🟡 Geplant |
+| Woche | Rules                       | Owner       | Status     |
+| ----- | --------------------------- | ----------- | ---------- |
+| W3    | `content.md` (Erweiterung)  | Content     | 🟡 Geplant |
+| W3    | `frontend-state.md`         | Frontend    | 🟡 Geplant |
+| W4    | `i18n.md`                   | i18n-Team   | 🟡 Geplant |
+| W4    | `performance.md`            | Performance | 🟡 Geplant |
+| W4    | AGENTS.md für `src/lib/`    | Backend     | 🟡 Geplant |
+| W4    | AGENTS.md für `migrations/` | DevOps      | 🟡 Geplant |
 
 ### Phase 3: Strukturelle Optimierung (Woche 5-6) 🟢
+
 **Fokus:** Governance & Automation
 
-| Woche | Task | Owner | Status |
-|-------|------|-------|--------|
-| W5 | Frontmatter-Standardisierung | Architecture | 🟢 Optional |
-| W5 | Rules-Linting (`npm run rules:lint`) | DevOps | 🟢 Optional |
-| W6 | Cross-Reference-Validation | DevOps | 🟢 Optional |
-| W6 | Coverage-Report | Architecture | 🟢 Optional |
-| W6 | CI-Integration | DevOps | 🟢 Optional |
+| Woche | Task                                 | Owner        | Status      |
+| ----- | ------------------------------------ | ------------ | ----------- |
+| W5    | Frontmatter-Standardisierung         | Architecture | 🟢 Optional |
+| W5    | Rules-Linting (`npm run rules:lint`) | DevOps       | 🟢 Optional |
+| W6    | Cross-Reference-Validation           | DevOps       | 🟢 Optional |
+| W6    | Coverage-Report                      | Architecture | 🟢 Optional |
+| W6    | CI-Integration                       | DevOps       | 🟢 Optional |
 
 ## Success Metrics
 
 ### Phase 1 (Ende Woche 2)
+
 - [ ] 6 neue/erweiterte Rules-Dateien merged
 - [ ] Alle neuen Rules in Root `AGENTS.md` referenziert
 - [ ] Mindestens 1 Code-Beispiel pro Rule
 - [ ] CI-Gates (lint, tests) grün
 
 ### Phase 2 (Ende Woche 4)
+
 - [ ] 6 weitere Rules-Dateien merged (4 neue + 2 erweiterte)
 - [ ] Cross-References aktualisiert
 - [ ] AGENTS.md-Hierarchie vollständig
 
 ### Phase 3 (Ende Woche 6)
+
 - [ ] Rules-Governance-Tooling einsatzbereit
 - [ ] Automatisierte Quality-Checks in CI
 - [ ] Maintenance-Playbook dokumentiert
 
 ## Risiken & Mitigation
 
-| Risiko | Wahrscheinlichkeit | Impact | Mitigation |
-|--------|-------------------|--------|------------|
-| **Ressourcen-Engpass** (Phase 1) | Mittel | Hoch | Pair-Programming, Review-Slots blocken |
-| **Scope-Creep** (zu detailliert) | Mittel | Mittel | Template-Länge begrenzen (≤100 Zeilen), pragmatisch bleiben |
-| **Adoption-Rate niedrig** | Niedrig | Hoch | Agenten automatisch referenzieren, Code-Reviews checken |
-| **Veraltete Rules** | Hoch | Mittel | Changelog-Pflicht, quartalsweise Reviews |
+| Risiko                           | Wahrscheinlichkeit | Impact | Mitigation                                                  |
+| -------------------------------- | ------------------ | ------ | ----------------------------------------------------------- |
+| **Ressourcen-Engpass** (Phase 1) | Mittel             | Hoch   | Pair-Programming, Review-Slots blocken                      |
+| **Scope-Creep** (zu detailliert) | Mittel             | Mittel | Template-Länge begrenzen (≤100 Zeilen), pragmatisch bleiben |
+| **Adoption-Rate niedrig**        | Niedrig            | Hoch   | Agenten automatisch referenzieren, Code-Reviews checken     |
+| **Veraltete Rules**              | Hoch               | Mittel | Changelog-Pflicht, quartalsweise Reviews                    |
 
 ## Nächste Meetings
 
 ### 1. Kick-Off (diese Woche)
+
 **Teilnehmer:** Architecture Team, Tech Lead, DevOps, Backend Leads  
 **Dauer:** 1-2 Stunden  
 **Agenda:** Siehe [Sofortmaßnahme #1](#1-team-review--priorisierung-diese-woche)
 
 ### 2. Phase 1 Check-In (Ende Woche 1)
+
 **Teilnehmer:** Phase 1 Owners  
 **Dauer:** 30 Min  
 **Agenda:**
+
 - Status `database-migrations.md` und `caching-kv.md`
 - Blocker identifizieren
 - Nächste Schritte koordinieren
 
 ### 3. Phase 1 Retro (Ende Woche 2)
+
 **Teilnehmer:** Alle Phase 1 Contributors  
 **Dauer:** 45 Min  
 **Agenda:**
+
 - Was lief gut?
 - Was kann verbessert werden?
 - Lessons Learned für Phase 2
@@ -231,11 +256,13 @@ Die projektspezifischen Konfigurationen des EvolutionHub-Repositories sind **sol
 ## Anhänge
 
 ### Links zu Haupt-Dokumenten
+
 - **Vollständiger Analyse-Report:** [`docs/architecture/configuration-analysis-2025-11-12.md`](../docs/architecture/configuration-analysis-2025-11-12.md)
 - **Rules-Index:** [`.windsurf/rules/README.md`](./README.md)
 - **Root AGENTS.md:** [`/AGENTS.md`](../../AGENTS.md)
 
 ### Template-Vorschau (verkürzt)
+
 Siehe [Anhang B im Analyse-Report](../docs/architecture/configuration-analysis-2025-11-12.md#b-vorgeschlagene-template-struktur) für vollständiges Template.
 
 ```markdown
@@ -250,34 +277,44 @@ lastUpdate: YYYY-MM-DD
 # [Feature] Rules
 
 ## Zweck
+
 1-2 Sätze
 
 ## Muss
+
 - Verpflichtend
 
 ## Sollte
+
 - Empfohlen
 
 ## Nicht
+
 - Verboten
 
 ## Checkliste
+
 - [ ] Item
 
 ## Code-Anker
+
 - `src/path.ts`
 
 ## CI/Gates
+
 - `npm run command`
 
 ## Referenzen
+
 - [other.md](./other.md)
 
 ## Changelog
+
 - YYYY-MM-DD: Change
 ```
 
 ### Contact
+
 **Fragen:** Architecture Team  
 **Issues:** Label `rules-feedback`  
 **PR-Reviews:** Tech Lead Approval erforderlich

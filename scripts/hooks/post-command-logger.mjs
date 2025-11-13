@@ -2,7 +2,7 @@
 /**
  * Post-Command Logger Hook
  * Tracks command execution for compliance and audit purposes
- * 
+ *
  * This hook logs commands executed via Cascade for audit trails.
  */
 
@@ -14,20 +14,20 @@ const AUDIT_LOG = join(LOG_DIR, 'cascade-audit.log');
 
 function main() {
   let context;
-  
+
   try {
     const stdin = readFileSync(0, 'utf-8');
     if (!stdin.trim()) {
       process.exit(0);
     }
-    
+
     context = JSON.parse(stdin);
   } catch (err) {
     process.exit(0);
   }
 
   const command = context?.command || context?.cmd || '';
-  
+
   if (!command) {
     process.exit(0);
   }

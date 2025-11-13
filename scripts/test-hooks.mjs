@@ -21,7 +21,7 @@ function log(status, message) {
 
 function testHook(hookScript, testCases) {
   console.log(`\n📝 Testing ${hookScript}...`);
-  
+
   const hookPath = join(HOOKS_DIR, hookScript);
   if (!existsSync(hookPath)) {
     log('FAIL', `Hook script not found: ${hookPath}`);
@@ -32,14 +32,14 @@ function testHook(hookScript, testCases) {
 
   for (const testCase of testCases) {
     const { name, input, expectedExitCode, shouldContain } = testCase;
-    
+
     try {
       const cmd = `echo '${JSON.stringify(input)}' | node ${hookPath}`;
-      const result = execSync(cmd, { 
+      const result = execSync(cmd, {
         encoding: 'utf-8',
-        stdio: ['pipe', 'pipe', 'pipe']
+        stdio: ['pipe', 'pipe', 'pipe'],
       });
-      
+
       if (expectedExitCode === 0) {
         log('PASS', `${name} - Returned exit code 0`);
         if (shouldContain && !result.includes(shouldContain)) {
@@ -68,7 +68,7 @@ function testHook(hookScript, testCases) {
 
 function main() {
   console.log('🧪 Cascade Hooks Test Suite\n');
-  
+
   let totalTests = 0;
   let passedTests = 0;
 
@@ -77,36 +77,36 @@ function main() {
     {
       name: 'Allow normal file',
       input: { file_path: 'src/components/MyComponent.tsx' },
-      expectedExitCode: 0
+      expectedExitCode: 0,
     },
     {
       name: 'Block .env file',
       input: { file_path: '.env.local' },
       expectedExitCode: 2,
-      shouldContain: 'SECURITY'
+      shouldContain: 'SECURITY',
     },
     {
       name: 'Block secrets.json',
       input: { file_path: 'secrets.json' },
       expectedExitCode: 2,
-      shouldContain: 'SECURITY'
+      shouldContain: 'SECURITY',
     },
     {
       name: 'Block node_modules',
       input: { file_path: 'node_modules/package/index.js' },
-      expectedExitCode: 2
+      expectedExitCode: 2,
     },
     {
       name: 'Warn for migrations',
       input: { file_path: 'migrations/001-initial.sql' },
       expectedExitCode: 0,
-      shouldContain: 'APPROVAL'
+      shouldContain: 'APPROVAL',
     },
     {
       name: 'Handle empty input',
       input: {},
-      expectedExitCode: 0
-    }
+      expectedExitCode: 0,
+    },
   ];
 
   if (testHook('pre-read-security-check.mjs', securityTests)) {
@@ -119,23 +119,23 @@ function main() {
     {
       name: 'Handle TypeScript file',
       input: { file_path: 'src/components/Button.tsx' },
-      expectedExitCode: 0
+      expectedExitCode: 0,
     },
     {
       name: 'Handle JSON file',
       input: { file_path: 'package.json' },
-      expectedExitCode: 0
+      expectedExitCode: 0,
     },
     {
       name: 'Handle non-lintable file',
       input: { file_path: 'README.md' },
-      expectedExitCode: 0
+      expectedExitCode: 0,
     },
     {
       name: 'Handle empty input',
       input: {},
-      expectedExitCode: 0
-    }
+      expectedExitCode: 0,
+    },
   ];
 
   if (testHook('post-write-quality-check.mjs', qualityTests)) {
@@ -148,18 +148,18 @@ function main() {
     {
       name: 'Handle TypeScript file',
       input: { file_path: 'src/lib/utils.ts' },
-      expectedExitCode: 0
+      expectedExitCode: 0,
     },
     {
       name: 'Ignore non-TypeScript file',
       input: { file_path: 'src/components/Button.astro' },
-      expectedExitCode: 0
+      expectedExitCode: 0,
     },
     {
       name: 'Handle empty input',
       input: {},
-      expectedExitCode: 0
-    }
+      expectedExitCode: 0,
+    },
   ];
 
   if (testHook('post-write-typecheck.mjs', typeCheckTests)) {
@@ -172,13 +172,13 @@ function main() {
     {
       name: 'Log command',
       input: { command: 'npm test' },
-      expectedExitCode: 0
+      expectedExitCode: 0,
     },
     {
       name: 'Handle empty input',
       input: {},
-      expectedExitCode: 0
-    }
+      expectedExitCode: 0,
+    },
   ];
 
   if (testHook('post-command-logger.mjs', loggerTests)) {
@@ -189,7 +189,7 @@ function main() {
   // Summary
   console.log('\n' + '='.repeat(50));
   console.log(`\n📊 Test Summary: ${passedTests}/${totalTests} hooks passed`);
-  
+
   if (passedTests === totalTests) {
     log('PASS', 'All hooks tests passed! ✨');
     process.exit(0);

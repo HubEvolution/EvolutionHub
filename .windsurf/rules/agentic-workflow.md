@@ -7,6 +7,7 @@ trigger: always_on
 ## Zweck
 
 Sicherstellen, dass für jede Aufgabe ein nachvollziehbarer, fehlerarmer Ablauf eingehalten wird:
+
 - Zuerst gründlich planen (Ziele, Kontext, Risiken, Tasks).
 - Zwischenschritte in der richtigen Reihenfolge ausführen und wiederholen, bis „Done“.
 - Umsetzung erst nach deiner ausdrücklichen Freigabe.
@@ -27,16 +28,16 @@ Sicherstellen, dass für jede Aufgabe ein nachvollziehbarer, fehlerarmer Ablauf 
   - Keine unbelegten Behauptungen. Relevante Dateien vollständig öffnen, nicht nur Ausschnitte.
 
 - Reihenfolgepflicht (SOP – Standardablauf)
-  1) Ziel & Erfolgskriterien klären
-  2) Kontextanalyse (Suche/Readfiles)
-  3) Constraints prüfen (Global/API&Security/Zod‑OpenAPI/Tooling&Style/Testing&CI/Project‑Structure)
-  4) Lösungsentwurf + ToDos (todo_list) erstellen
-  5) Freigabe einholen
-  6) Umsetzung minimal‑invasiv (kleine, fokussierte Änderungen)
-  7) Verifikation (lint, tests, openapi:validate) und Ergebnis prüfen
-  8) Docs/OpenAPI synchronisieren (falls betroffen)
-  9) Handover & Zusammenfassung
-  10) Follow‑ups/Todos aktualisieren
+  1. Ziel & Erfolgskriterien klären
+  2. Kontextanalyse (Suche/Readfiles)
+  3. Constraints prüfen (Global/API&Security/Zod‑OpenAPI/Tooling&Style/Testing&CI/Project‑Structure)
+  4. Lösungsentwurf + ToDos (todo_list) erstellen
+  5. Freigabe einholen
+  6. Umsetzung minimal‑invasiv (kleine, fokussierte Änderungen)
+  7. Verifikation (lint, tests, openapi:validate) und Ergebnis prüfen
+  8. Docs/OpenAPI synchronisieren (falls betroffen)
+  9. Handover & Zusammenfassung
+  10. Follow‑ups/Todos aktualisieren
 
 - Freigabepflicht
   - Vor jeder Umsetzung, die Dateien ändert: deine explizite Bestätigung einholen.
