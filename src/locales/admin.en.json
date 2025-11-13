@@ -1,0 +1,97 @@
+{
+  "common": {
+    "loading": "Loading…",
+    "updating": "Updating…",
+    "refresh": "Refresh",
+    "search": "Search",
+    "reset": "Reset",
+    "all": "All",
+    "loadMore": "Load more",
+    "refreshBalance": "Update balance",
+    "refreshHistory": "Update history"
+  },
+  "kpi": {
+    "heading": "Metrics & Alerts",
+    "loading": "Loading metrics…",
+    "trafficTitle": "Traffic (30 days)",
+    "trafficSum": "Total requests",
+    "stripeTitle": "Stripe volume (30 days)",
+    "stripeNote": "Balance report",
+    "cacheHit": "Cache hit (valid for {seconds}s)",
+    "live": "Live data updated",
+    "alerts": "Alerts",
+    "active": "active"
+  },
+  "insights": {
+    "heading": "User Insights",
+    "searchLabel": "Search (email, name or ID)",
+    "searchPlaceholder": "user@example.com or user_id",
+    "status": "Status",
+    "plan": "Plan",
+    "statusOptions": {
+      "active": "Active",
+      "banned": "Banned",
+      "deleted": "Deleted"
+    },
+    "listHeading": "User list",
+    "listReload": "Reload list",
+    "details": "Show details",
+    "actions": {
+      "ban": "Ban",
+      "unban": "Unban",
+      "delete": "Delete"
+    },
+    "table": {
+      "user": "User",
+      "plan": "Plan",
+      "status": "Status",
+      "credits": "Credits",
+      "sessions": "Sessions",
+      "lastActivity": "Last activity",
+      "actions": "Actions"
+    },
+    "list": {
+      "none": "No users found."
+    },
+    "summary": {
+      "user": "User",
+      "subscription": "Subscription",
+      "subscriptionNone": "No active subscription",
+      "subscriptionEnd": "Ends",
+      "lastActivity": "Last activity",
+      "ip": "IP"
+    },
+    "sessions": {
+      "heading": "Sessions",
+      "revokeAll": "Revoke all sessions",
+      "none": "No active sessions.",
+      "table": {
+        "id": "Session ID",
+        "expires": "Expires"
+      }
+    },
+    "credits": {
+      "heading": "Credits",
+      "tenthsLabel": "Tenths"
+    },
+    "history": {
+      "none": "No credit history.",
+      "table": {
+        "pack": "Pack",
+        "units": "Units (tenths)",
+        "created": "Created",
+        "expires": "Expires"
+      }
+    }
+  },
+  "errors": {
+    "userListLoad": "Failed to load user list.",
+    "userListLoadMore": "Failed to load more users.",
+    "userBan": "Failed to ban user.",
+    "userUnban": "Failed to unban user.",
+    "userDelete": "Failed to delete user.",
+    "userLookup": "Lookup failed.",
+    "sessionsLoad": "Failed to load sessions.",
+    "sessionsRevoke": "Failed to revoke sessions."
+  }
+}

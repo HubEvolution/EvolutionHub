@@ -2,17 +2,19 @@ import React, { useMemo } from 'react';
 import Card from '@/components/ui/Card';
 import { useAdminMetrics } from '@/components/admin/dashboard/hooks/useAdminMetrics';
 import { useAdminTelemetry } from '@/components/admin/dashboard/hooks/useAdminTelemetry';
+import { useAdminStrings } from '@/lib/i18n-admin';
 
-const numberFormatter = new Intl.NumberFormat('de-DE');
-const percentFormatter = new Intl.NumberFormat('de-DE', {
-  style: 'percent',
-  maximumFractionDigits: 1,
-});
-const currencyFormatter = new Intl.NumberFormat('de-DE', {
-  style: 'currency',
-  currency: 'EUR',
-  maximumFractionDigits: 0,
-});
+function makeFormatters(locale: string) {
+  return {
+    number: new Intl.NumberFormat(locale),
+    percent: new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 1 }),
+    currency: new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency: locale.startsWith('en') ? 'USD' : 'EUR',
+      maximumFractionDigits: 0,
+    }),
+  } as const;
+}
 
 function Sparkline({ values }: { values: number[] }) {
   if (!values.length || typeof window === 'undefined') {
@@ -52,7 +54,10 @@ function TrendBadge({ value }: { value: number | null | undefined }) {
   }
 
   const clamped = Math.max(Math.min(value, 10), -10);
-  const formatted = percentFormatter.format(clamped);
+  const formatted = new Intl.NumberFormat(
+    typeof window !== 'undefined' && window.location.pathname.startsWith('/en') ? 'en-US' : 'de-DE',
+    { style: 'percent', maximumFractionDigits: 1 }
+  ).format(clamped);
   const isPositive = clamped >= 0;
 
   return (
@@ -92,6 +97,11 @@ function AlertBadge({
 const KpiOverviewSection: React.FC = () => {
   const { metrics, loading, error, reload } = useAdminMetrics();
   const { sendEvent } = useAdminTelemetry('kpi-overview');
+  const strings = useAdminStrings();
+
+  const localeTag =
+    typeof window !== 'undefined' && window.location.pathname.startsWith('/en') ? 'en-US' : 'de-DE';
+  const fmt = useMemo(() => makeFormatters(localeTag), [localeTag]);
 
   const trafficSeries = useMemo(() => {
     if (!metrics?.traffic) return [] as number[];
@@ -145,17 +155,17 @@ const KpiOverviewSection: React.FC = () => {
             id="admin-kpi-overview"
             className="text-xl font-semibold text-gray-900 dark:text-white"
           >
-            Kennzahlen & Alerts
+            {strings.kpi.heading}
           </h2>
           <div className="flex items-center gap-3 text-sm">
-            {loading && <span className="text-white/50">Lade Kennzahlen …</span>}
+            {loading && <span className="text-white/50">{strings.kpi.loading}</span>}
             {error && <span className="text-red-300">{error}</span>}
             <button
               type="button"
               onClick={handleReload}
               className="rounded-md border border-white/10 px-3 py-1 text-white/80 hover:bg-white/10"
             >
-              Aktualisieren
+              {strings.common.refresh}
             </button>
           </div>
         </div>
@@ -165,7 +175,7 @@ const KpiOverviewSection: React.FC = () => {
               <div>
                 <p className="text-sm text-white/60">{label}</p>
                 <p className="mt-2 text-2xl font-semibold text-white">
-                  {Number.isFinite(value) ? numberFormatter.format(Number(value)) : '–'}
+                  {Number.isFinite(value) ? fmt.number.format(Number(value)) : '–'}
                 </p>
               </div>
               <div className="mt-3 flex items-center justify-between text-xs text-white/50">
@@ -179,12 +189,12 @@ const KpiOverviewSection: React.FC = () => {
           <Card className="p-4" variant="default">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-white/60">Traffic (30 Tage)</p>
-                <p className="text-xs text-white/40">Requests gesamt</p>
+                <p className="text-sm text-white/60">{strings.kpi.trafficTitle}</p>
+                <p className="text-xs text-white/40">{strings.kpi.trafficSum}</p>
               </div>
               <span className="text-sm text-white/70">
                 {trafficSeries.length > 0
-                  ? numberFormatter.format(
+                  ? fmt.number.format(
                       trafficSeries.reduce((acc, curr) => acc + Number(curr || 0), 0)
                     )
                   : '–'}
@@ -196,26 +206,31 @@ const KpiOverviewSection: React.FC = () => {
           </Card>
           <Card className="flex flex-col gap-3 p-4" variant="default">
             <div className="flex items-center justify-between">
-              <p className="text-sm text-white/60">Stripe Volumen (30 Tage)</p>
-              <span className="text-xs text-white/40">Balance Report</span>
+              <p className="text-sm text-white/60">{strings.kpi.stripeTitle}</p>
+              <span className="text-xs text-white/40">{strings.kpi.stripeNote}</span>
             </div>
             <p className="text-2xl font-semibold text-white">
               {Number.isFinite(metrics?.stripe?.total_volume)
-                ? currencyFormatter.format(Number(metrics?.stripe?.total_volume))
+                ? fmt.currency.format(Number(metrics?.stripe?.total_volume))
                 : '–'}
             </p>
             <div className="mt-auto text-xs text-white/40">
               {metrics?.cacheHit
-                ? `Cache-Treffer (noch ${(metrics.cacheTtlMs ?? 0) / 1000}s gültig)`
-                : 'Live-Daten aktualisiert'}
+                ? strings.kpi.cacheHit.replace(
+                    '{seconds}',
+                    String(Math.max(0, Math.round((metrics.cacheTtlMs ?? 0) / 1000)))
+                  )
+                : strings.kpi.live}
             </div>
           </Card>
         </div>
         {metrics?.alerts && metrics.alerts.length > 0 && (
           <Card className="space-y-2 p-4" variant="default">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-medium text-white">Alerts</p>
-              <span className="text-xs text-white/50">{metrics.alerts.length} aktiv</span>
+              <p className="text-sm font-medium text-white">{strings.kpi.alerts}</p>
+              <span className="text-xs text-white/50">
+                {metrics.alerts.length} {strings.kpi.active}
+              </span>
             </div>
             <div className="flex flex-wrap gap-2">
               {metrics.alerts.map((alert) => (

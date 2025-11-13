@@ -57,3 +57,8 @@ src/pages/api/testing/evaluate/next/run.ts(8,10): error TS2305: Module '"@/lib/r
 > evolution-hub@0.0.1 typecheck:src
 > tsc -p tsconfig.src.json --noEmit
 
+[typecheck:src] $ npm run typecheck:src
+
+> evolution-hub@0.0.1 typecheck:src
+> tsc -p tsconfig.src.json --noEmit
+

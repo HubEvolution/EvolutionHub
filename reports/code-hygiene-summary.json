@@ -28,8 +28,8 @@
     "code": 0
   },
   "test:unit:run": {
-    "ok": false,
-    "code": 1
+    "ok": true,
+    "code": 0
   },
   "test:integration:run": {
     "ok": false,

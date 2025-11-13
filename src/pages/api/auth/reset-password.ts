@@ -1,5 +1,6 @@
 import type { APIContext } from 'astro';
 import { createDeprecatedGoneHtml, createDeprecatedGoneJson } from '@/lib/response-helpers';
+import { withRedirectMiddleware } from '@/lib/api-middleware';
 
 // Deprecated endpoint: serve 410 responses only
 
@@ -10,9 +11,9 @@ import { createDeprecatedGoneHtml, createDeprecatedGoneJson } from '@/lib/respon
  *
  * WICHTIG: Dieser Endpunkt verwendet KEINE API-Middleware, da er Redirects statt JSON zurückgibt!
  */
-export const POST = async (context: APIContext) => {
+export const POST = withRedirectMiddleware(async (context: APIContext) => {
   return createDeprecatedGoneHtml(context);
-};
+});
 
 // Explizite 410-Handler für nicht unterstützte Methoden (Endpoint deprecated)
 const methodNotAllowed = (context: APIContext) =>

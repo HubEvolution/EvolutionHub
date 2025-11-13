@@ -40,7 +40,7 @@ Diese Analyse untersucht die projektspezifischen Konfigurationen des EvolutionHu
     - [🔴 Kritisch: Fehlende Rules](#-kritisch-fehlende-rules)
     - [🟡 Mittel: Unterrepräsentierte Bereiche](#-mittel-unterrepr%C3%A4sentierte-bereiche)
   - [2.2 Unvollständige Cross-References](#22-unvollst%C3%A4ndige-cross-references)
-    - [Beispiele:](#beispiele)
+    - [Beispiele](#beispiele)
   - [2.3 Inkonsistenzen in der Dokumentation](#23-inkonsistenzen-in-der-dokumentation)
     - [Frontmatter-Unterschiede](#frontmatter-unterschiede)
     - [Changelog-Pflege](#changelog-pflege)
@@ -66,8 +66,11 @@ Diese Analyse untersucht die projektspezifischen Konfigurationen des EvolutionHu
     - [3. Rules-Coverage-Report](#3-rules-coverage-report)
 - [4. Implementierungs-Roadmap](#4-implementierungs-roadmap)
   - [Phase 1: Kritische Lücken schließen (Woche 1-2)](#phase-1-kritische-l%C3%BCcken-schlie%C3%9Fen-woche-1-2)
+    - [Priorität: Hoch](#priorit%C3%A4t-hoch)
   - [Phase 2: Erweiterte Rules (Woche 3-4)](#phase-2-erweiterte-rules-woche-3-4)
+    - [Priorität: Mittel](#priorit%C3%A4t-mittel)
   - [Phase 3: Strukturelle Optimierungen (Woche 5-6)](#phase-3-strukturelle-optimierungen-woche-5-6)
+    - [Priorität: Niedrig](#priorit%C3%A4t-niedrig)
 - [5. Maintenance & Governance](#5-maintenance--governance)
   - [Verantwortlichkeiten](#verantwortlichkeiten)
   - [Review-Prozess](#review-prozess)
@@ -124,7 +127,7 @@ Diese Analyse untersucht die projektspezifischen Konfigurationen des EvolutionHu
 
 ### 1.2 AGENTS.md Hierarchie
 
-```
+```text
 AGENTS.md (Root)                        ✅ Umfassend (138 Zeilen)
 ├── src/pages/api/AGENTS.md             ✅ Detailliert (37 Zeilen)
 ├── src/components/AGENTS.md            ✅ Gut strukturiert (27 Zeilen)
@@ -133,11 +136,13 @@ AGENTS.md (Root)                        ✅ Umfassend (138 Zeilen)
 ```
 
 **Stärken:**
+
 - Klare Kaskadierung (Root → Feature-Ordner)
 - Konsistente Struktur (Muss/Sollte/Nicht)
 - Gute Referenzierung auf `.windsurf/rules/*`
 
 **Schwächen:**
+
 - Keine AGENTS.md für `src/lib/` (Services, Utils, Config)
 - Keine AGENTS.md für `migrations/`
 - Keine AGENTS.md für `workers/cron-worker/`
@@ -145,6 +150,7 @@ AGENTS.md (Root)                        ✅ Umfassend (138 Zeilen)
 ### 1.3 Weitere Konfigurationen
 
 #### .codex/config.toml
+
 ```toml
 ✅ Vollständig konfiguriert
 - Model: gpt-5-codex
@@ -154,6 +160,7 @@ AGENTS.md (Root)                        ✅ Umfassend (138 Zeilen)
 ```
 
 #### Package.json Scripts
+
 ```json
 ✅ Umfassend (80+ Scripts)
 - Build-Varianten: worker, staging, ci
@@ -163,6 +170,7 @@ AGENTS.md (Root)                        ✅ Umfassend (138 Zeilen)
 ```
 
 #### CI/CD Workflows (.github/workflows/)
+
 ```yaml
 ✅ Solide Abdeckung (11 Workflows)
 - quality-gate.yml
@@ -211,18 +219,18 @@ AGENTS.md (Root)                        ✅ Umfassend (138 Zeilen)
 
 #### 🟡 Mittel: Unterrepräsentierte Bereiche
 
-6. **Frontend State Management** (`frontend-state.md`)
+1. **Frontend State Management** (`frontend-state.md`)
    - React-State-Patterns nicht dokumentiert
    - Form-Handling-Conventions fehlen
    - Client-side-Caching unklar
 
-7. **Internationalization (i18n)** (`i18n.md`)
+2. **Internationalization (i18n)** (`i18n.md`)
    - Nur kurz in Root AGENTS.md erwähnt
    - Key-Naming-Conventions fehlen
    - Pluralisierung/Interpolation nicht dokumentiert
    - RTL-Support (falls geplant) fehlt
 
-8. **Performance Optimization** (`performance.md`)
+3. **Performance Optimization** (`performance.md`)
    - Nur in `tests/performance` vorhanden
    - Core Web Vitals nicht dokumentiert
    - Bundle-Size-Budgets fehlen
@@ -232,7 +240,7 @@ AGENTS.md (Root)                        ✅ Umfassend (138 Zeilen)
 
 **Problem:** Rules referenzieren sich gegenseitig, aber nicht konsistent.
 
-#### Beispiele:
+#### Beispiele
 
 ```markdown
 # pricing.md
@@ -252,6 +260,7 @@ Referenzen:
 ```
 
 **Fehlende Referenzen:**
+
 - `infra.md` → `api-and-security.md` (Security-Header)
 - `cookies-and-consent.md` → `infra.md` (CSP-Konfiguration)
 - `image-enhancer.md` → `caching-kv.md` (R2-Speicherung)
@@ -277,11 +286,13 @@ extends: [...]  # nur in 3 Dateien
 #### Changelog-Pflege
 
 **Gut gepflegt:**
+
 - `api-and-security.md` ✅ (3 Einträge)
 - `testing-and-ci.md` ✅ (4 Einträge)
 - `video-enhancer.md` ✅ (1 Eintrag, neu)
 
 **Fehlend:**
+
 - `content.md` ❌ (kein Changelog)
 - `prompt.md` ✅ (1 Eintrag)
 - `scraper.md` ✅ (1 Eintrag)
@@ -876,6 +887,7 @@ maintainer: team-name
 ```
 
 **Migration-Plan:**
+
 1. Template erstellen (`.windsurf/rules/TEMPLATE.md`)
 2. Script schreiben (`scripts/rules-frontmatter-update.ts`)
 3. Batch-Update mit Review
@@ -920,7 +932,7 @@ maintainer: team-name
 
 ### Phase 1: Kritische Lücken schließen (Woche 1-2)
 
-**Priorität: Hoch**
+#### Priorität: Hoch
 
 - [ ] `database-migrations.md` erstellen und mit Team reviewen
 - [ ] `caching-kv.md` erstellen (R2-Lifecycle-Policies dokumentieren)
@@ -930,13 +942,14 @@ maintainer: team-name
 - [ ] `infra.md` erweitern (Bindings, Edge-Caching, Deployment)
 
 **Deliverables:**
+
 - 6 neue/erweiterte Rules-Dateien
 - Integration in Root `AGENTS.md`
 - Code-Beispiele für jede Rule
 
 ### Phase 2: Erweiterte Rules (Woche 3-4)
 
-**Priorität: Mittel**
+#### Priorität: Mittel
 
 - [ ] `content.md` erweitern (Collections, Frontmatter, Slugs)
 - [ ] `frontend-state.md` erstellen (React-Patterns, Forms)
@@ -946,13 +959,14 @@ maintainer: team-name
 - [ ] AGENTS.md für `migrations/` erstellen
 
 **Deliverables:**
+
 - 4 neue Rules-Dateien
 - 2 neue AGENTS.md
 - Aktualisierte Cross-References
 
 ### Phase 3: Strukturelle Optimierungen (Woche 5-6)
 
-**Priorität: Niedrig**
+#### Priorität: Niedrig
 
 - [ ] `.windsurf/rules/README.md` erstellen (Index + Dependency-Graph)
 - [ ] Frontmatter standardisieren (Template + Script)
@@ -962,6 +976,7 @@ maintainer: team-name
 - [ ] CI-Integration für Rules-Quality-Checks
 
 **Deliverables:**
+
 - Rules-Governance-Tooling
 - Automatisierte Quality-Gates
 - Maintenance-Playbook
@@ -1044,6 +1059,7 @@ maintainer: team-name
 | **`performance.md`** | quality | medium | ❌ Missing | - | infra | **Neu** |
 
 **Legende:**
+
 - ✅ Complete: Vollständig dokumentiert
 - ⚠️ Minimal: Vorhanden, aber ausbaufähig
 - ❌ Missing: Fehlt komplett

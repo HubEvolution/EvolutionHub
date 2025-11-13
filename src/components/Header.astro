@@ -549,6 +549,47 @@ const localeHref = (target: 'de' | 'en') => mapLocaleHref(target, Astro.url);
 
       let isOpen = false;
       let mobileInfoLoaded = false;
+      let restoreScroll = () => {};
+      let removeFocusTrap = () => {};
+
+      function lockScroll() {
+        const prev = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        return () => {
+          document.body.style.overflow = prev;
+        };
+      }
+
+      function trapFocus(container, initialEl) {
+        const selectors =
+          'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])';
+        const nodes = Array.from(container.querySelectorAll(selectors)).filter(
+          (el) => !el.hasAttribute('disabled') && el.getAttribute('aria-hidden') !== 'true'
+        );
+        if (initialEl && typeof initialEl.focus === 'function') {
+          initialEl.focus();
+        } else if (nodes[0] && typeof nodes[0].focus === 'function') {
+          nodes[0].focus();
+        } else if (typeof container.focus === 'function') {
+          container.setAttribute('tabindex', '-1');
+          container.focus();
+        }
+        const handler = (e) => {
+          if (e.key !== 'Tab') return;
+          const focusables = nodes.length ? nodes : [container];
+          const first = focusables[0];
+          const last = focusables[focusables.length - 1];
+          if (e.shiftKey && document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          } else if (!e.shiftKey && document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        };
+        container.addEventListener('keydown', handler);
+        return () => container.removeEventListener('keydown', handler);
+      }
 
       function toggleMenu() {
         console.log('[MobileMenu] 🔄 Toggling menu, current state:', isOpen);
@@ -559,6 +600,10 @@ const localeHref = (target: 'de' | 'en') => mapLocaleHref(target, Astro.url);
           mobileMenu.classList.add('block');
           mobileMenuButton.setAttribute('aria-expanded', 'true');
           console.log('[MobileMenu] ✅ Menu opened');
+
+          restoreScroll = lockScroll();
+          const firstLink = mobileMenu.querySelector('a, button');
+          removeFocusTrap = trapFocus(mobileMenu, firstLink);
 
           // Lazy-load plan & credits for mobile once (if elements exist)
           if (!mobileInfoLoaded) {
@@ -601,6 +646,14 @@ const localeHref = (target: 'de' | 'en') => mapLocaleHref(target, Astro.url);
             }
           }
         } else {
+          try {
+            if (removeFocusTrap) removeFocusTrap();
+          } catch {}
+          try {
+            if (restoreScroll) restoreScroll();
+          } catch {}
+          removeFocusTrap = () => {};
+          restoreScroll = () => {};
           mobileMenu.classList.remove('block');
           mobileMenu.classList.add('hidden');
           mobileMenuButton.setAttribute('aria-expanded', 'false');

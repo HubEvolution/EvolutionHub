@@ -1,8 +1,14 @@
 import type { APIContext } from 'astro';
-import { withAuthApiMiddleware, createApiSuccess, createApiError } from '@/lib/api-middleware';
+import {
+  withAuthApiMiddleware,
+  createApiSuccess,
+  createApiError,
+  createMethodNotAllowed,
+} from '@/lib/api-middleware';
 import Stripe from 'stripe';
 import { logUserEvent } from '@/lib/security-logger';
 import { sanitizeReturnTo } from '@/utils/sanitizeReturnTo';
+import { sensitiveActionLimiter } from '@/lib/rate-limiter';
 
 /**
  * POST /api/billing/session
@@ -120,15 +126,19 @@ export const POST = withAuthApiMiddleware(
         ipAddress: clientAddress,
       });
 
-      return new Response(JSON.stringify({ error: 'An error occurred during checkout' }), {
-        status: 500,
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-          Pragma: 'no-cache',
-          Expires: '0',
-        },
-      });
+      return createApiError('server_error', 'An error occurred during checkout');
     },
+    enforceCsrfToken: true,
+    requireSameOriginForUnsafeMethods: true,
+    rateLimiter: sensitiveActionLimiter,
   }
 );
+
+// 405 for unsupported methods (standardized error shape)
+const methodNotAllowed = () => createMethodNotAllowed('POST');
+export const GET = methodNotAllowed;
+export const PUT = methodNotAllowed;
+export const PATCH = methodNotAllowed;
+export const DELETE = methodNotAllowed;
+export const OPTIONS = methodNotAllowed;
+export const HEAD = methodNotAllowed;

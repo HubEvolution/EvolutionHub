@@ -1,9 +1,15 @@
 import type { APIContext } from 'astro';
-import { withAuthApiMiddleware, createApiError, createApiSuccess } from '@/lib/api-middleware';
+import {
+  withAuthApiMiddleware,
+  createApiError,
+  createApiSuccess,
+  createMethodNotAllowed,
+} from '@/lib/api-middleware';
 import { formatZodError } from '@/lib/validation';
 import { billingCancelRequestSchema } from '@/lib/validation';
 import Stripe from 'stripe';
 import { logUserEvent } from '@/lib/security-logger';
+import { sensitiveActionLimiter } from '@/lib/rate-limiter';
 
 export const POST = withAuthApiMiddleware(
   async (context: APIContext) => {
@@ -108,5 +114,17 @@ export const POST = withAuthApiMiddleware(
   },
   {
     logMetadata: { action: 'subscription_cancel_requested' },
+    enforceCsrfToken: true,
+    requireSameOriginForUnsafeMethods: true,
+    rateLimiter: sensitiveActionLimiter,
   }
 );
+
+// 405 for unsupported methods (standardized error shape)
+const methodNotAllowed = () => createMethodNotAllowed('POST');
+export const GET = methodNotAllowed;
+export const PUT = methodNotAllowed;
+export const PATCH = methodNotAllowed;
+export const DELETE = methodNotAllowed;
+export const OPTIONS = methodNotAllowed;
+export const HEAD = methodNotAllowed;

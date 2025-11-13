@@ -19,7 +19,7 @@ export function useViewportUiMetrics({ actionsRef, topReserveRef }: UseViewportU
         setIsMobile(false);
         return;
       }
-      const mq = window.matchMedia('(max-width: 768px)');
+      const mq = window.matchMedia('(max-width: 767px)');
       const onChange = () => setIsMobile(!!mq && !!mq.matches);
       onChange();
       mq.addEventListener('change', onChange);

@@ -569,7 +569,7 @@ main :is(div, section).min-h-screen {
   background-image: none !important;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .enhance-button,
   .slider-handle {
     min-height: 44px;

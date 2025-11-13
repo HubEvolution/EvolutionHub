@@ -18,8 +18,8 @@ const goneJson = (context: APIContext): Response =>
   );
 
 export const GET = goneJson;
-export const PUT = goneJson;
-export const PATCH = goneJson;
-export const DELETE = goneJson;
+export const PUT = withRedirectMiddleware(async (context) => goneJson(context));
+export const PATCH = withRedirectMiddleware(async (context) => goneJson(context));
+export const DELETE = withRedirectMiddleware(async (context) => goneJson(context));
 export const OPTIONS = goneJson;
 export const HEAD = goneJson;

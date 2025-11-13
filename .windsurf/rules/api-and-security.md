@@ -22,8 +22,8 @@ Kurze, durchsetzbare Baseline für API‑Middleware, Sicherheitsheader, CSRF/Ori
   - `X-Content-Type-Options: nosniff`
   - `Referrer-Policy: strict-origin-when-cross-origin`
   - `Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()`
-  - Hinweis: CSP wird in `src/middleware.ts` gesetzt (HTML). API‑JSON benötigt keine CSP.
-- `/r2-ai/**` bleibt öffentlich und ungated.
+  - Hinweis: CSP wird in [src/middleware.ts](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/middleware.ts:0:0-0:0) gesetzt (HTML). API‑JSON benötigt keine CSP.
+- `/r2-ai/**` bleibt öffentlich erreichbar. `uploads/*` ist öffentlich (Provider‑Fetch). `results/<ownerType>/<ownerId>/*` ist nur für den jeweiligen Besitzer zugänglich (Owner‑Gating via Session bzw. `guest_id`). Cache‑Hinweis: `private, max-age=31536000, immutable` für results; `public, max-age=900, immutable` für uploads.
 - Allowed‑Origin Allowlist per Env zusätzlich zur Request‑Origin zulässig: `ALLOWED_ORIGINS`, `ALLOW_ORIGINS`, `APP_ORIGIN`, `PUBLIC_APP_ORIGIN` (Komma‑separiert).
 
 ## Sollte
@@ -59,7 +59,7 @@ Kurze, durchsetzbare Baseline für API‑Middleware, Sicherheitsheader, CSRF/Ori
 ## Code‑Anker
 
 - `src/lib/api-middleware.ts`
-- `src/middleware.ts`
+- [src/middleware.ts](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/middleware.ts:0:0-0:0)
 - `src/lib/validation/**`
 - `src/pages/r2-ai/**`
 
@@ -75,5 +75,6 @@ Kurze, durchsetzbare Baseline für API‑Middleware, Sicherheitsheader, CSRF/Ori
 
 ## Changelog
 
+- 2025‑11‑13: Klarstellung R2‑AI: Route öffentlich erreichbar; `uploads/*` öffentlich; `results/<ownerType>/<ownerId>/*` owner‑gegated; Cache‑Hinweise ergänzt.
 - 2025‑11‑03: Verweis auf Cookies & Consent Rules ergänzt.
 - 2025‑10‑31: Ausrichtung an aktueller Middleware, Headern, CSRF/Origin, JSON‑Shapes.

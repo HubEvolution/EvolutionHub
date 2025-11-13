@@ -115,10 +115,9 @@ describe('/api/testing/evaluate/:id/complete', () => {
     expect(json?.data?.taskId).toBe(taskId);
 
     // optional verification via GET /api/testing/evaluate/:id (if implemented)
-    const { res: getRes } = await getJson(
-      `/api/testing/evaluate/${encodeURIComponent(taskId)}`,
-      { headers: { Cookie: cookie } }
-    );
+    const { res: getRes } = await getJson(`/api/testing/evaluate/${encodeURIComponent(taskId)}`, {
+      headers: { Cookie: cookie },
+    });
     expect(getRes.status).toBe(200);
   });
 });

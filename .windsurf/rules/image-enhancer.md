@@ -13,7 +13,9 @@ Klarer Rahmen für Hybrid‑Provider (Workers AI + Replicate), Env‑Gating, Quo
 - Provider/Env‑Gating
   - Testing/Local: Replicate serverseitig verboten (403); UI blendet Replicate aus.
   - Staging/Prod: Beide Provider erlaubt; Workers AI via `[ai] binding = "AI"`.
-- R2‑Ablage: Ergebnisbilder werden in R2 gespeichert; `/r2-ai/**` ist öffentlich und darf nicht gegatet werden.
+- R2‑Ablage
+  - Uploads unter `.../uploads/*` sind öffentlich (Provider‑Fetch).
+  - Ergebnisse unter `.../results/<ownerType>/<ownerId>/*` sind owner‑gegated und werden über `/r2-ai/**` ausgeliefert.
 - Quoten/Entitlements: Server erzwingt Limits (Plan/Gast); UI zeigt nur an (kein Enforce in UI).
 - Rate‑Limits: `aiGenerateLimiter` (15/min) und `aiJobsLimiter` (10/min) nutzen.
 - Validierung: Eingaben strikt über Zod; in Testing Parameterkappen (z. B. strength/guidance/steps) geltend machen.
@@ -32,7 +34,7 @@ Klarer Rahmen für Hybrid‑Provider (Workers AI + Replicate), Env‑Gating, Quo
 ## Checkliste
 
 - [ ] Testing: Replicate 403 serverseitig; UI zeigt nur Workers AI Modelle.
-- [ ] R2‑Schreiben ok; `/r2-ai/**` öffentlich abrufbar.
+- [ ] R2‑Schreiben ok; `/r2-ai/**` erreichbar; `uploads/*` öffentlich, `results/*` owner‑gegated.
 - [ ] Rate‑Limits aktiv; 429 enthält `Retry-After`.
 - [ ] Zod‑Validierung aktiv; Param‑Caps in Testing greifen.
 - [ ] Fehler‑Mapping korrekt (4xx→validation/forbidden, 5xx→server_error).
@@ -57,4 +59,5 @@ Klarer Rahmen für Hybrid‑Provider (Workers AI + Replicate), Env‑Gating, Quo
 
 ## Changelog
 
+- 2025‑11‑13: R2‑Ablage präzisiert: `uploads/*` öffentlich; `results/<ownerType>/<ownerId>/*` owner‑gegated; Checkliste angepasst.
 - 2025‑10‑31: Hybrid‑Gating/Quoten/R2/Rate‑Limits/Fehler‑Mapping festgelegt.

@@ -1,6 +1,6 @@
 {
   "$schema": "schema.json",
-  "generatedAt": "2025-11-12T13:07:32.050Z",
+  "generatedAt": "2025-11-12T18:45:56.350Z",
   "generatedBy": "scripts/doc-inventory.mjs",
   "sourceRoot": "/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub",
   "documents": [
@@ -1520,6 +1520,232 @@
       "lastModified": "2025-11-12T04:05:59.704Z"
     },
     {
+      "path": ".windsurf/rules/README.md",
+      "title": "Windsurf Rules Index",
+      "format": "markdown",
+      "hash": "733f7cbe60d411ce160ae5d836a7f7e50ff629cfbfcbcff688a9ffee31d5ae98",
+      "size": 16387,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Windsurf Rules Index"
+        },
+        {
+          "level": 2,
+          "value": "Schnellstart"
+        },
+        {
+          "level": 3,
+          "value": "Für KI-Agenten"
+        },
+        {
+          "level": 3,
+          "value": "Für Entwickler"
+        },
+        {
+          "level": 2,
+          "value": "Übersicht"
+        },
+        {
+          "level": 3,
+          "value": "Nach Kategorie"
+        },
+        {
+          "level": 3,
+          "value": "Nach Priorität"
+        },
+        {
+          "level": 2,
+          "value": "Vollständige Rules-Liste"
+        },
+        {
+          "level": 3,
+          "value": "Core Infrastructure"
+        },
+        {
+          "level": 4,
+          "value": "[api-and-security.md](./api-and-security.md) 🔴 Critical"
+        },
+        {
+          "level": 4,
+          "value": "[auth.md](./auth.md) 🔴 Critical"
+        },
+        {
+          "level": 4,
+          "value": "[infra.md](./infra.md) 🟠 High"
+        },
+        {
+          "level": 4,
+          "value": "[project-structure.md](./project-structure.md) 🟠 High"
+        },
+        {
+          "level": 3,
+          "value": "Feature-Specific Rules"
+        },
+        {
+          "level": 4,
+          "value": "[pricing.md](./pricing.md) 🟠 High"
+        },
+        {
+          "level": 4,
+          "value": "[image-enhancer.md](./image-enhancer.md) 🟠 High"
+        },
+        {
+          "level": 4,
+          "value": "[video-enhancer.md](./video-enhancer.md) 🟠 High"
+        },
+        {
+          "level": 4,
+          "value": "[transcriptor.md](./transcriptor.md) 🟡 Medium"
+        },
+        {
+          "level": 4,
+          "value": "[prompt.md](./prompt.md) 🟡 Medium"
+        },
+        {
+          "level": 4,
+          "value": "[scraper.md](./scraper.md) 🟡 Medium"
+        },
+        {
+          "level": 3,
+          "value": "Quality & Tooling"
+        },
+        {
+          "level": 4,
+          "value": "[testing-and-ci.md](./testing-and-ci.md) 🔴 Critical"
+        },
+        {
+          "level": 4,
+          "value": "[tooling-and-style.md](./tooling-and-style.md) 🟠 High"
+        },
+        {
+          "level": 4,
+          "value": "[zod-openapi.md](./zod-openapi.md) 🟠 High"
+        },
+        {
+          "level": 4,
+          "value": "[docs-documentation.md](./docs-documentation.md) 🟡 Medium"
+        },
+        {
+          "level": 4,
+          "value": "[agentic-workflow.md](./agentic-workflow.md) 🟡 Medium"
+        },
+        {
+          "level": 3,
+          "value": "Cross-Cutting Concerns"
+        },
+        {
+          "level": 4,
+          "value": "[cookies-and-consent.md](./cookies-and-consent.md) 🟡 Medium"
+        },
+        {
+          "level": 4,
+          "value": "[content.md](./content.md) 🟢 Low"
+        },
+        {
+          "level": 2,
+          "value": "Dependency-Graph"
+        },
+        {
+          "level": 2,
+          "value": "Geplante Erweiterungen"
+        },
+        {
+          "level": 3,
+          "value": "Phase 1: Kritische Lücken (Woche 1-2) 🔴"
+        },
+        {
+          "level": 3,
+          "value": "Phase 2: Erweiterte Rules (Woche 3-4) 🟡"
+        },
+        {
+          "level": 3,
+          "value": "Phase 3: Strukturelle Optimierung (Woche 5-6) 🟢"
+        },
+        {
+          "level": 2,
+          "value": "Konventionen"
+        },
+        {
+          "level": 3,
+          "value": "Frontmatter (Standard)"
+        },
+        {
+          "level": 3,
+          "value": "Struktur-Template {#template}"
+        },
+        {
+          "level": 1,
+          "value": "[Feature/Area] Rules"
+        },
+        {
+          "level": 2,
+          "value": "Zweck"
+        },
+        {
+          "level": 2,
+          "value": "Muss"
+        },
+        {
+          "level": 2,
+          "value": "Sollte"
+        },
+        {
+          "level": 2,
+          "value": "Nicht"
+        },
+        {
+          "level": 2,
+          "value": "Checkliste"
+        },
+        {
+          "level": 2,
+          "value": "Code-Anker"
+        },
+        {
+          "level": 2,
+          "value": "CI/Gates"
+        },
+        {
+          "level": 2,
+          "value": "Referenzen"
+        },
+        {
+          "level": 2,
+          "value": "Changelog"
+        },
+        {
+          "level": 2,
+          "value": "Verwendung"
+        },
+        {
+          "level": 3,
+          "value": "Für neue Features"
+        },
+        {
+          "level": 3,
+          "value": "Für Rule-Änderungen"
+        },
+        {
+          "level": 3,
+          "value": "Für Deprecation"
+        },
+        {
+          "level": 2,
+          "value": "Tools & Automation (Roadmap)"
+        },
+        {
+          "level": 2,
+          "value": "Weitere Ressourcen"
+        },
+        {
+          "level": 2,
+          "value": "Kontakt & Maintenance"
+        }
+      ],
+      "lastModified": "2025-11-12T15:07:23.692Z"
+    },
+    {
       "path": ".windsurf/rules/scraper.md",
       "title": "Webscraper Rules",
       "format": "markdown",
@@ -1590,6 +1816,180 @@
         "description": "Snyk Security At Inception"
       },
       "lastModified": "2025-11-10T16:15:37.680Z"
+    },
+    {
+      "path": ".windsurf/rules/SUMMARY.md",
+      "title": "Konfigurations-Analyse: Zusammenfassung & Sofortmaßnahmen",
+      "format": "markdown",
+      "hash": "e102d3a575d9f0b66a5507aab4efcb4e1c18d03c97dafa9459a46bfac3f9afeb",
+      "size": 10257,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Konfigurations-Analyse: Zusammenfassung & Sofortmaßnahmen"
+        },
+        {
+          "level": 2,
+          "value": "Executive Summary"
+        },
+        {
+          "level": 2,
+          "value": "Deliverables dieser Analyse"
+        },
+        {
+          "level": 3,
+          "value": "1. Umfassender Analyse-Report (29 KB)"
+        },
+        {
+          "level": 3,
+          "value": "2. Rules-Index & Entwickler-Guide (16 KB)"
+        },
+        {
+          "level": 3,
+          "value": "3. Diese Zusammenfassung"
+        },
+        {
+          "level": 2,
+          "value": "Kritische Erkenntnisse"
+        },
+        {
+          "level": 3,
+          "value": "🟢 Stärken"
+        },
+        {
+          "level": 3,
+          "value": "🔴 Kritische Lücken (Priorität: Hoch)"
+        },
+        {
+          "level": 3,
+          "value": "🟡 Mittlere Lücken"
+        },
+        {
+          "level": 2,
+          "value": "Sofortmaßnahmen (Top 3)"
+        },
+        {
+          "level": 3,
+          "value": "1. Team-Review & Priorisierung (diese Woche)"
+        },
+        {
+          "level": 3,
+          "value": "2. Phase 1 starten: `database-migrations.md` erstellen (nächste Woche)"
+        },
+        {
+          "level": 3,
+          "value": "3. Phase 1 parallel: `caching-kv.md` erstellen (nächste Woche)"
+        },
+        {
+          "level": 2,
+          "value": "Roadmap-Übersicht (6 Wochen)"
+        },
+        {
+          "level": 3,
+          "value": "Phase 1: Kritische Lücken (Woche 1-2) 🔴"
+        },
+        {
+          "level": 3,
+          "value": "Phase 2: Erweiterte Rules (Woche 3-4) 🟡"
+        },
+        {
+          "level": 3,
+          "value": "Phase 3: Strukturelle Optimierung (Woche 5-6) 🟢"
+        },
+        {
+          "level": 2,
+          "value": "Success Metrics"
+        },
+        {
+          "level": 3,
+          "value": "Phase 1 (Ende Woche 2)"
+        },
+        {
+          "level": 3,
+          "value": "Phase 2 (Ende Woche 4)"
+        },
+        {
+          "level": 3,
+          "value": "Phase 3 (Ende Woche 6)"
+        },
+        {
+          "level": 2,
+          "value": "Risiken & Mitigation"
+        },
+        {
+          "level": 2,
+          "value": "Nächste Meetings"
+        },
+        {
+          "level": 3,
+          "value": "1. Kick-Off (diese Woche)"
+        },
+        {
+          "level": 3,
+          "value": "2. Phase 1 Check-In (Ende Woche 1)"
+        },
+        {
+          "level": 3,
+          "value": "3. Phase 1 Retro (Ende Woche 2)"
+        },
+        {
+          "level": 2,
+          "value": "Anhänge"
+        },
+        {
+          "level": 3,
+          "value": "Links zu Haupt-Dokumenten"
+        },
+        {
+          "level": 3,
+          "value": "Template-Vorschau (verkürzt)"
+        },
+        {
+          "level": 1,
+          "value": "[Feature] Rules"
+        },
+        {
+          "level": 2,
+          "value": "Zweck"
+        },
+        {
+          "level": 2,
+          "value": "Muss"
+        },
+        {
+          "level": 2,
+          "value": "Sollte"
+        },
+        {
+          "level": 2,
+          "value": "Nicht"
+        },
+        {
+          "level": 2,
+          "value": "Checkliste"
+        },
+        {
+          "level": 2,
+          "value": "Code-Anker"
+        },
+        {
+          "level": 2,
+          "value": "CI/Gates"
+        },
+        {
+          "level": 2,
+          "value": "Referenzen"
+        },
+        {
+          "level": 2,
+          "value": "Changelog"
+        },
+        {
+          "level": 3,
+          "value": "Contact"
+        }
+      ],
+      "lastModified": "2025-11-12T15:07:23.692Z"
     },
     {
       "path": ".windsurf/rules/testing-and-ci.md",
@@ -8183,6 +8583,645 @@
         "testRefs": "'N/A'"
       },
       "lastModified": "2025-11-11T07:42:17.604Z"
+    },
+    {
+      "path": "docs/architecture/configuration-analysis-2025-11-12.md",
+      "title": "Projektspezifische Konfigurations-Analyse 2025-11-12",
+      "description": "Umfassende Analyse der projektspezifischen Konfigurationen mit Lücken und Verbesserungsvorschlägen",
+      "format": "markdown",
+      "hash": "8fe850dcae7272737765eafcd18b9332de3e99916ba1a448de1a1fddf4355ffb",
+      "size": 31664,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Projektspezifische Konfigurations-Analyse 2025-11-12"
+        },
+        {
+          "level": 2,
+          "value": "Executive Summary"
+        },
+        {
+          "level": 2,
+          "value": "Inhaltsverzeichnis"
+        },
+        {
+          "level": 2,
+          "value": "1. Bestandsaufnahme"
+        },
+        {
+          "level": 3,
+          "value": "1.1 Vorhandene Rules-Dateien"
+        },
+        {
+          "level": 4,
+          "value": "Core Infrastructure (4 Dateien)"
+        },
+        {
+          "level": 4,
+          "value": "Feature-Specific (6 Dateien)"
+        },
+        {
+          "level": 4,
+          "value": "Quality & Tooling (5 Dateien)"
+        },
+        {
+          "level": 4,
+          "value": "Cross-Cutting (3 Dateien)"
+        },
+        {
+          "level": 3,
+          "value": "1.2 AGENTS.md Hierarchie"
+        },
+        {
+          "level": 3,
+          "value": "1.3 Weitere Konfigurationen"
+        },
+        {
+          "level": 4,
+          "value": ".codex/config.toml"
+        },
+        {
+          "level": 4,
+          "value": "Package.json Scripts"
+        },
+        {
+          "level": 4,
+          "value": "CI/CD Workflows (.github/workflows/)"
+        },
+        {
+          "level": 2,
+          "value": "2. Gap-Analyse"
+        },
+        {
+          "level": 3,
+          "value": "2.1 Fehlende Feature-spezifische Rules"
+        },
+        {
+          "level": 4,
+          "value": "🔴 Kritisch: Fehlende Rules"
+        },
+        {
+          "level": 4,
+          "value": "🟡 Mittel: Unterrepräsentierte Bereiche"
+        },
+        {
+          "level": 3,
+          "value": "2.2 Unvollständige Cross-References"
+        },
+        {
+          "level": 4,
+          "value": "Beispiele"
+        },
+        {
+          "level": 1,
+          "value": "pricing.md"
+        },
+        {
+          "level": 1,
+          "value": "video-enhancer.md"
+        },
+        {
+          "level": 1,
+          "value": "auth.md"
+        },
+        {
+          "level": 3,
+          "value": "2.3 Inkonsistenzen in der Dokumentation"
+        },
+        {
+          "level": 4,
+          "value": "Frontmatter-Unterschiede"
+        },
+        {
+          "level": 1,
+          "value": "Konsistent in neueren Dateien:"
+        },
+        {
+          "level": 1,
+          "value": "Uneinheitlich:"
+        },
+        {
+          "level": 4,
+          "value": "Changelog-Pflege"
+        },
+        {
+          "level": 3,
+          "value": "2.4 Fehlende Integrations-Guidelines"
+        },
+        {
+          "level": 3,
+          "value": "2.5 Unklare Scope-Definitionen"
+        },
+        {
+          "level": 1,
+          "value": "pricing.md"
+        },
+        {
+          "level": 1,
+          "value": "cookies-and-consent.md"
+        },
+        {
+          "level": 1,
+          "value": "Fehlend in:"
+        },
+        {
+          "level": 2,
+          "value": "3. Verbesserungsvorschläge"
+        },
+        {
+          "level": 3,
+          "value": "3.1 Neue Rules-Dateien (Priorität: Hoch)"
+        },
+        {
+          "level": 4,
+          "value": "1. `database-migrations.md`"
+        },
+        {
+          "level": 1,
+          "value": "Database & Migrations Rules"
+        },
+        {
+          "level": 2,
+          "value": "Zweck"
+        },
+        {
+          "level": 2,
+          "value": "Muss"
+        },
+        {
+          "level": 2,
+          "value": "Migration-Workflow"
+        },
+        {
+          "level": 2,
+          "value": "Rollback-Strategie"
+        },
+        {
+          "level": 2,
+          "value": "Checkliste"
+        },
+        {
+          "level": 2,
+          "value": "Code-Anker"
+        },
+        {
+          "level": 2,
+          "value": "Changelog"
+        },
+        {
+          "level": 4,
+          "value": "2. `caching-kv.md`"
+        },
+        {
+          "level": 1,
+          "value": "Caching & KV Storage Rules"
+        },
+        {
+          "level": 2,
+          "value": "Zweck"
+        },
+        {
+          "level": 2,
+          "value": "KV Namespaces"
+        },
+        {
+          "level": 2,
+          "value": "Muss"
+        },
+        {
+          "level": 2,
+          "value": "Cache-Invalidierung"
+        },
+        {
+          "level": 2,
+          "value": "R2 Lifecycle"
+        },
+        {
+          "level": 2,
+          "value": "Checkliste"
+        },
+        {
+          "level": 2,
+          "value": "Code-Anker"
+        },
+        {
+          "level": 2,
+          "value": "Changelog"
+        },
+        {
+          "level": 4,
+          "value": "3. `email-notifications.md`"
+        },
+        {
+          "level": 1,
+          "value": "Email & Notifications Rules"
+        },
+        {
+          "level": 2,
+          "value": "Zweck"
+        },
+        {
+          "level": 2,
+          "value": "Muss"
+        },
+        {
+          "level": 2,
+          "value": "Template-Struktur"
+        },
+        {
+          "level": 2,
+          "value": "Versand-Workflow"
+        },
+        {
+          "level": 2,
+          "value": "Fehlerbehandlung"
+        },
+        {
+          "level": 2,
+          "value": "Checkliste"
+        },
+        {
+          "level": 2,
+          "value": "Code-Anker"
+        },
+        {
+          "level": 2,
+          "value": "Changelog"
+        },
+        {
+          "level": 4,
+          "value": "4. `background-jobs.md`"
+        },
+        {
+          "level": 1,
+          "value": "Background Jobs & Cron Rules"
+        },
+        {
+          "level": 2,
+          "value": "Zweck"
+        },
+        {
+          "level": 2,
+          "value": "Cron-Worker-Struktur"
+        },
+        {
+          "level": 2,
+          "value": "Muss"
+        },
+        {
+          "level": 2,
+          "value": "Job-Patterns"
+        },
+        {
+          "level": 2,
+          "value": "Verfügbare Cron-Jobs"
+        },
+        {
+          "level": 2,
+          "value": "Checkliste"
+        },
+        {
+          "level": 2,
+          "value": "Code-Anker"
+        },
+        {
+          "level": 2,
+          "value": "Changelog"
+        },
+        {
+          "level": 4,
+          "value": "5. `observability.md`"
+        },
+        {
+          "level": 1,
+          "value": "Observability & Monitoring Rules"
+        },
+        {
+          "level": 2,
+          "value": "Zweck"
+        },
+        {
+          "level": 2,
+          "value": "Logging-Standards"
+        },
+        {
+          "level": 2,
+          "value": "Metriken (Cloudflare Analytics)"
+        },
+        {
+          "level": 2,
+          "value": "Error-Tracking"
+        },
+        {
+          "level": 2,
+          "value": "Correlation-IDs"
+        },
+        {
+          "level": 2,
+          "value": "Dashboards"
+        },
+        {
+          "level": 2,
+          "value": "Checkliste"
+        },
+        {
+          "level": 2,
+          "value": "Code-Anker"
+        },
+        {
+          "level": 2,
+          "value": "Changelog"
+        },
+        {
+          "level": 3,
+          "value": "3.2 Erweiterte Bestehende Rules (Priorität: Mittel)"
+        },
+        {
+          "level": 4,
+          "value": "1. `infra.md` erweitern"
+        },
+        {
+          "level": 2,
+          "value": "Cloudflare-spezifische Patterns"
+        },
+        {
+          "level": 3,
+          "value": "Bindings-Zugriff"
+        },
+        {
+          "level": 3,
+          "value": "Edge-Caching"
+        },
+        {
+          "level": 3,
+          "value": "Wrangler-Environments"
+        },
+        {
+          "level": 3,
+          "value": "Deployment-Strategie"
+        },
+        {
+          "level": 2,
+          "value": "Code-Anker"
+        },
+        {
+          "level": 4,
+          "value": "2. `content.md` erweitern"
+        },
+        {
+          "level": 1,
+          "value": "Content Rules (erweitert)"
+        },
+        {
+          "level": 2,
+          "value": "Content Collections"
+        },
+        {
+          "level": 3,
+          "value": "Schema-Definition"
+        },
+        {
+          "level": 3,
+          "value": "Verfügbare Collections"
+        },
+        {
+          "level": 3,
+          "value": "Frontmatter-Standards"
+        },
+        {
+          "level": 3,
+          "value": "Slug-Generierung"
+        },
+        {
+          "level": 2,
+          "value": "Images & Media"
+        },
+        {
+          "level": 2,
+          "value": "Checkliste"
+        },
+        {
+          "level": 2,
+          "value": "Code-Anker"
+        },
+        {
+          "level": 3,
+          "value": "3.3 Strukturelle Verbesserungen (Priorität: Mittel)"
+        },
+        {
+          "level": 4,
+          "value": "1. Rules-Index erstellen"
+        },
+        {
+          "level": 1,
+          "value": "Windsurf Rules Index"
+        },
+        {
+          "level": 2,
+          "value": "Übersicht"
+        },
+        {
+          "level": 2,
+          "value": "Verwendung"
+        },
+        {
+          "level": 3,
+          "value": "Für Agenten"
+        },
+        {
+          "level": 3,
+          "value": "Für Entwickler"
+        },
+        {
+          "level": 2,
+          "value": "Dependency-Graph"
+        },
+        {
+          "level": 2,
+          "value": "Konventionen"
+        },
+        {
+          "level": 3,
+          "value": "Frontmatter"
+        },
+        {
+          "level": 3,
+          "value": "Struktur"
+        },
+        {
+          "level": 4,
+          "value": "2. AGENTS.md für fehlende Bereiche"
+        },
+        {
+          "level": 1,
+          "value": "AGENTS.md (Lib)"
+        },
+        {
+          "level": 2,
+          "value": "Service-Konventionen"
+        },
+        {
+          "level": 2,
+          "value": "Utils"
+        },
+        {
+          "level": 2,
+          "value": "Config"
+        },
+        {
+          "level": 2,
+          "value": "Typisierung"
+        },
+        {
+          "level": 2,
+          "value": "Tests"
+        },
+        {
+          "level": 1,
+          "value": "AGENTS.md (Migrations)"
+        },
+        {
+          "level": 2,
+          "value": "Naming"
+        },
+        {
+          "level": 2,
+          "value": "Struktur"
+        },
+        {
+          "level": 2,
+          "value": "Muss"
+        },
+        {
+          "level": 2,
+          "value": "Nicht"
+        },
+        {
+          "level": 4,
+          "value": "3. Frontmatter-Standardisierung"
+        },
+        {
+          "level": 3,
+          "value": "3.4 Dokumentations-Optimierungen (Priorität: Niedrig)"
+        },
+        {
+          "level": 4,
+          "value": "1. Rules-Linting"
+        },
+        {
+          "level": 4,
+          "value": "2. Automated Cross-Reference-Check"
+        },
+        {
+          "level": 4,
+          "value": "3. Rules-Coverage-Report"
+        },
+        {
+          "level": 2,
+          "value": "4. Implementierungs-Roadmap"
+        },
+        {
+          "level": 3,
+          "value": "Phase 1: Kritische Lücken schließen (Woche 1-2)"
+        },
+        {
+          "level": 4,
+          "value": "Priorität: Hoch"
+        },
+        {
+          "level": 3,
+          "value": "Phase 2: Erweiterte Rules (Woche 3-4)"
+        },
+        {
+          "level": 4,
+          "value": "Priorität: Mittel"
+        },
+        {
+          "level": 3,
+          "value": "Phase 3: Strukturelle Optimierungen (Woche 5-6)"
+        },
+        {
+          "level": 4,
+          "value": "Priorität: Niedrig"
+        },
+        {
+          "level": 2,
+          "value": "5. Maintenance & Governance"
+        },
+        {
+          "level": 3,
+          "value": "Verantwortlichkeiten"
+        },
+        {
+          "level": 3,
+          "value": "Review-Prozess"
+        },
+        {
+          "level": 3,
+          "value": "Automatisierung"
+        },
+        {
+          "level": 2,
+          "value": "Anhang"
+        },
+        {
+          "level": 3,
+          "value": "A. Vollständige Rules-Matrix"
+        },
+        {
+          "level": 3,
+          "value": "B. Vorgeschlagene Template-Struktur"
+        },
+        {
+          "level": 1,
+          "value": "[Feature/Area] Rules"
+        },
+        {
+          "level": 2,
+          "value": "Zweck"
+        },
+        {
+          "level": 2,
+          "value": "Muss"
+        },
+        {
+          "level": 2,
+          "value": "Sollte"
+        },
+        {
+          "level": 2,
+          "value": "Nicht"
+        },
+        {
+          "level": 2,
+          "value": "Checkliste"
+        },
+        {
+          "level": 2,
+          "value": "Code-Anker"
+        },
+        {
+          "level": 2,
+          "value": "CI/Gates"
+        },
+        {
+          "level": 2,
+          "value": "Referenzen"
+        },
+        {
+          "level": 2,
+          "value": "Changelog"
+        }
+      ],
+      "frontMatter": {
+        "description": "Umfassende Analyse der projektspezifischen Konfigurationen mit Lücken und Verbesserungsvorschlägen",
+        "owner": "architecture",
+        "priority": "high",
+        "lastSync": "2025-11-12",
+        "codeRefs": "",
+        "testRefs": "N/A"
+      },
+      "lastModified": "2025-11-12T18:45:28.919Z"
     },
     {
       "path": "docs/architecture/data-flow.md",
@@ -14819,6 +15858,52 @@
       "lastModified": "2025-11-11T07:42:17.623Z"
     },
     {
+      "path": "docs/mcp/psi-integration.md",
+      "title": "PageSpeed Insights (PSI) + GSC MCP Integration",
+      "format": "markdown",
+      "hash": "6b82bbe18acdfcbba048d874ca9ce09d54cd9a88b8edc17b48b5037f2b736279",
+      "size": 2450,
+      "headings": [
+        {
+          "level": 1,
+          "value": "PageSpeed Insights (PSI) + GSC MCP Integration"
+        },
+        {
+          "level": 2,
+          "value": "What you get"
+        },
+        {
+          "level": 2,
+          "value": "Prerequisites"
+        },
+        {
+          "level": 2,
+          "value": "Get a PageSpeed API key"
+        },
+        {
+          "level": 2,
+          "value": "PSI audit script"
+        },
+        {
+          "level": 2,
+          "value": "Examples"
+        },
+        {
+          "level": 2,
+          "value": "GSC + PSI workflow"
+        },
+        {
+          "level": 2,
+          "value": "MCP usage"
+        },
+        {
+          "level": 2,
+          "value": "Notes"
+        }
+      ],
+      "lastModified": "2025-11-12T18:45:28.299Z"
+    },
+    {
       "path": "docs/ops/ai-generate-kv-limiter-plan.md",
       "title": "Plan: KV/Durable Object–backed limiter for /api/ai-image/generate",
       "description": "'Plan für KV/Durable Object Limiter von /api/ai-image/generate (deterministische 429)'",
@@ -15091,8 +16176,8 @@
       "title": "Operations Documentation",
       "description": "'Operative Dokumentation, Deployment und Third-Party-Service-Management für Evolution Hub'",
       "format": "markdown",
-      "hash": "146e8b77ff13145399b6d9c993333dfd1de3878c556fec1d6c089be47b2ce75b",
-      "size": 3720,
+      "hash": "575e1f5a10ff7c74716e03bdba11066cf0c4de5812ca91361bf21396691d2c9d",
+      "size": 3850,
       "headings": [
         {
           "level": 1,
@@ -15143,7 +16228,7 @@
         "codeRefs": "'wrangler.toml, package.json, .github/workflows'",
         "testRefs": "'test-suite-v2/src/e2e/smoke'"
       },
-      "lastModified": "2025-11-12T06:08:05.094Z"
+      "lastModified": "2025-11-12T18:00:21.030Z"
     },
     {
       "path": "docs/ops/runbook-image-enhancer-go-live.md",
@@ -15203,6 +16288,45 @@
         "testRefs": "'N/A'"
       },
       "lastModified": "2025-11-11T22:45:49.090Z"
+    },
+    {
+      "path": "docs/ops/web-eval-executor-runbook.md",
+      "title": "Web‑Eval Executor – Runbook",
+      "description": "Web-Eval Executor – Header/Secret/How-to-run (incl. CBR runner)",
+      "format": "markdown",
+      "hash": "9ceed27608f83e5b4ec2feb41869423f831993268fd0a9b1346ab4ffbbc4ccfb",
+      "size": 5700,
+      "headings": [
+        {
+          "level": 1,
+          "value": "Web‑Eval Executor – Runbook"
+        },
+        {
+          "level": 2,
+          "value": "Security & Headers (Kurzüberblick)"
+        },
+        {
+          "level": 2,
+          "value": "Task‑Status & Ownership"
+        },
+        {
+          "level": 2,
+          "value": "SSRF Verhalten"
+        },
+        {
+          "level": 2,
+          "value": "Interner CBR‑Runner (Cloudflare Browser Rendering)"
+        }
+      ],
+      "frontMatter": {
+        "description": "Web-Eval Executor – Header/Secret/How-to-run (incl. CBR runner)",
+        "owner": "platform",
+        "priority": "P2",
+        "lastSync": "2025-11-12",
+        "codeRefs": "",
+        "testRefs": ""
+      },
+      "lastModified": "2025-11-12T17:59:07.126Z"
     },
     {
       "path": "docs/README.md",
@@ -16961,19 +18085,15 @@
     },
     {
       "path": "docs/testing/web-eval-executor.md",
-      "title": "Web‑Eval Executor – Kurzleitfaden",
+      "title": "Web‑Eval Executor – Hinweis",
       "description": "Web-Eval Executor – Header/Secret/How-to-run (incl. CBR runner)",
       "format": "markdown",
-      "hash": "4f214ee1364273323c7599212ac7ab063c97512a65a95181183c0b1129bed4b9",
-      "size": 3762,
+      "hash": "a1dd5f469372bee0cde904ee0e1b1ceb4e079b973866544bcce66ea289e1ed31",
+      "size": 679,
       "headings": [
         {
           "level": 1,
-          "value": "Web‑Eval Executor – Kurzleitfaden"
-        },
-        {
-          "level": 2,
-          "value": "Interner CBR‑Runner (Cloudflare Browser Rendering)"
+          "value": "Web‑Eval Executor – Hinweis"
         }
       ],
       "frontMatter": {
@@ -16984,7 +18104,7 @@
         "codeRefs": "",
         "testRefs": ""
       },
-      "lastModified": "2025-11-12T03:53:42.678Z"
+      "lastModified": "2025-11-12T18:02:07.685Z"
     },
     {
       "path": "docs/tools/debug-panel.md",
@@ -20322,8 +21442,8 @@
       "path": "reports/assistant-task.md",
       "title": "Hygiene Report for Assistant",
       "format": "markdown",
-      "hash": "0aabb8183f066ad924cd2c72aaee5693fe8899689a944b7433dc75449796850e",
-      "size": 128589,
+      "hash": "92ee0fd88c5a4345e7bbc6219781ac9736258628e612806d9993ecde616385db",
+      "size": 127134,
       "headings": [
         {
           "level": 1,
@@ -20418,7 +21538,7 @@
           "value": "Next Actions (for Assistant)"
         }
       ],
-      "lastModified": "2025-11-12T08:41:16.650Z"
+      "lastModified": "2025-11-12T15:07:24.092Z"
     },
     {
       "path": "reports/replicate/20251112T115454Z/veo_id.txt",
@@ -20427,7 +21547,7 @@
       "hash": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
       "size": 5,
       "headings": [],
-      "lastModified": "2025-11-12T11:54:55.432Z"
+      "lastModified": "2025-11-12T15:07:24.190Z"
     },
     {
       "path": "reports/replicate/20251112T115454Z/wan_id.txt",
@@ -20436,7 +21556,7 @@
       "hash": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
       "size": 5,
       "headings": [],
-      "lastModified": "2025-11-12T11:54:56.031Z"
+      "lastModified": "2025-11-12T15:07:24.191Z"
     },
     {
       "path": "reports/replicate/20251112T125905Z/veo_id.txt",
@@ -20445,7 +21565,7 @@
       "hash": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
       "size": 5,
       "headings": [],
-      "lastModified": "2025-11-12T12:59:05.931Z"
+      "lastModified": "2025-11-12T15:07:24.191Z"
     },
     {
       "path": "reports/replicate/20251112T125905Z/wan_id.txt",
@@ -20454,7 +21574,7 @@
       "hash": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
       "size": 5,
       "headings": [],
-      "lastModified": "2025-11-12T12:59:06.827Z"
+      "lastModified": "2025-11-12T15:07:24.191Z"
     },
     {
       "path": "reports/replicate/20251112T130146Z/seedance_id.txt",
@@ -20463,7 +21583,7 @@
       "hash": "31d96c9c7e475c2e817306e6260ba91217efe7c8ccd02288a80dffe464b0657b",
       "size": 27,
       "headings": [],
-      "lastModified": "2025-11-12T13:01:47.629Z"
+      "lastModified": "2025-11-12T15:07:24.194Z"
     },
     {
       "path": "reports/replicate/20251112T130207Z/veo_id.txt",
@@ -20472,7 +21592,7 @@
       "hash": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
       "size": 5,
       "headings": [],
-      "lastModified": "2025-11-12T13:02:07.942Z"
+      "lastModified": "2025-11-12T15:07:24.196Z"
     },
     {
       "path": "reports/replicate/20251112T130207Z/wan_id.txt",
@@ -20481,7 +21601,34 @@
       "hash": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
       "size": 5,
       "headings": [],
-      "lastModified": "2025-11-12T13:02:08.624Z"
+      "lastModified": "2025-11-12T15:07:24.196Z"
+    },
+    {
+      "path": "reports/replicate/20251112T131347Z/veo_id.txt",
+      "description": "null",
+      "format": "text",
+      "hash": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "size": 5,
+      "headings": [],
+      "lastModified": "2025-11-12T15:07:24.197Z"
+    },
+    {
+      "path": "reports/replicate/20251112T131347Z/wan_id.txt",
+      "description": "null",
+      "format": "text",
+      "hash": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+      "size": 5,
+      "headings": [],
+      "lastModified": "2025-11-12T15:07:24.199Z"
+    },
+    {
+      "path": "reports/replicate/20251112T131350Z/seedance_id.txt",
+      "description": "hf1mf3ksqnrme0ctf0stxy58dm",
+      "format": "text",
+      "hash": "0e67e6df0bb534dc336939ca9643ecb3af3f3a46aa865495daea20491ebd7f83",
+      "size": 27,
+      "headings": [],
+      "lastModified": "2025-11-12T15:07:24.200Z"
     },
     {
       "path": "reports/tests-catalog-development.md",

@@ -60,6 +60,13 @@ paths:
       description: Marks the subscription to cancel at period end
       x-source: src/pages/api/billing/cancel.ts
       operationId: postBillingCancel
+      parameters:
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          schema:
+            type: string
+          description: Double-submit token; must match cookie 'csrf_token'
       requestBody:
         required: true
         content:
@@ -514,6 +521,76 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiErrorResponse'
+  /api/auth/magic/request:
+    post:
+      summary: Request Magic Link
+      description: >
+        Initiate Stytch Magic Link login. Same‑Origin enforced for unsafe methods; requires Double‑Submit CSRF header.
+      x-source: src/pages/api/auth/magic/request.ts
+      operationId: postAuthMagicRequest
+      parameters:
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          schema:
+            type: string
+          description: Double-submit token; must match cookie 'csrf_token'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                email:
+                  type: string
+                  format: email
+                r:
+                  type: string
+                  description: Relative path for post-auth redirect (same-origin only)
+                name:
+                  type: string
+                username:
+                  type: string
+                locale:
+                  type: string
+                  enum: [de, en]
+                cf-turnstile-response:
+                  type: string
+                  description: Cloudflare Turnstile token
+              required:
+                - email
+      responses:
+        "200":
+          description: Magic link request accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        "400":
+          description: Validation error (e.g., invalid email)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "403":
+          description: Forbidden (CSRF/Origin or Turnstile failure)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "429":
+          description: Rate limited
+          headers:
+            Retry-After:
+              description: Seconds to wait before retrying
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /api/tools:
     get:
       summary: List available tools
@@ -529,6 +606,79 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Tool'
+
+  # Deprecated legacy auth endpoints — all return 410 Gone
+  /api/auth/login:
+    post:
+      summary: Legacy email/password login (deprecated)
+      description: Endpoint removed. Returns 410 Gone.
+      x-source: src/pages/api/auth/login.ts
+      operationId: postAuthLoginDeprecated
+      responses:
+        "410":
+          description: Gone (deprecated)
+  /api/auth/logout:
+    get:
+      summary: Legacy logout (deprecated)
+      description: Endpoint removed. Returns 410 Gone.
+      x-source: src/pages/api/auth/logout.ts
+      operationId: getAuthLogoutDeprecated
+      responses:
+        "410":
+          description: Gone (deprecated)
+    post:
+      summary: Legacy logout (deprecated)
+      description: Endpoint removed. Returns 410 Gone.
+      x-source: src/pages/api/auth/logout.ts
+      operationId: postAuthLogoutDeprecated
+      responses:
+        "410":
+          description: Gone (deprecated)
+  /api/auth/change-password:
+    post:
+      summary: Legacy change password (deprecated)
+      description: Endpoint removed. Returns 410 Gone.
+      x-source: src/pages/api/auth/change-password.ts
+      operationId: postAuthChangePasswordDeprecated
+      responses:
+        "410":
+          description: Gone (deprecated)
+  /api/auth/forgot-password:
+    post:
+      summary: Legacy forgot password (deprecated)
+      description: Endpoint removed. Returns 410 Gone.
+      x-source: src/pages/api/auth/forgot-password.ts
+      operationId: postAuthForgotPasswordDeprecated
+      responses:
+        "410":
+          description: Gone (deprecated)
+  /api/auth/reset-password:
+    post:
+      summary: Legacy reset password (deprecated)
+      description: Endpoint removed. Returns 410 Gone.
+      x-source: src/pages/api/auth/reset-password.ts
+      operationId: postAuthResetPasswordDeprecated
+      responses:
+        "410":
+          description: Gone (deprecated)
+  /api/auth/register:
+    post:
+      summary: Legacy register (deprecated)
+      description: Endpoint removed. Returns 410 Gone.
+      x-source: src/pages/api/auth/register.ts
+      operationId: postAuthRegisterDeprecated
+      responses:
+        "410":
+          description: Gone (deprecated)
+  /api/auth/verify-email:
+    get:
+      summary: Legacy verify email (deprecated)
+      description: Endpoint removed. Returns 410 Gone.
+      x-source: src/pages/api/auth/verify-email.ts
+      operationId: getAuthVerifyEmailDeprecated
+      responses:
+        "410":
+          description: Gone (deprecated)
   /api/analytics/views:
     get:
       summary: Get views count for a blog post
@@ -1064,189 +1214,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiErrorResponse'
-  /api/auth/change-password:
-    post:
-      summary: Change password (deprecated)
-      description: Deprecated endpoint — returns 410 Gone (HTML).
-      deprecated: true
-      x-source: src/pages/api/auth/change-password.ts
-      operationId: postAuthChangePassword
-      responses:
-        "410":
-          description: Gone
-          content:
-            text/html:
-              schema:
-                type: string
-  /api/auth/forgot-password:
-    post:
-      summary: Request password reset (deprecated)
-      description: Deprecated endpoint — returns 410 Gone (HTML).
-      deprecated: true
-      x-source: src/pages/api/auth/forgot-password.ts
-      operationId: postAuthForgotPassword
-      responses:
-        "410":
-          description: Gone
-          content:
-            text/html:
-              schema:
-                type: string
-  /api/auth/login:
-    post:
-      summary: Authenticate user (deprecated)
-      description: Deprecated endpoint — returns 410 Gone (HTML).
-      deprecated: true
-      x-source: src/pages/api/auth/login.ts
-      operationId: postAuthLogin
-      responses:
-        "410":
-          description: Gone
-          content:
-            text/html:
-              schema:
-                type: string
-  /api/auth/logout:
-    get:
-      summary: Logout (deprecated)
-      description: Deprecated endpoint — returns 410 Gone (HTML).
-      deprecated: true
-      x-source: src/pages/api/auth/logout.ts
-      operationId: getAuthLogout
-      responses:
-        "410":
-          description: Gone
-          content:
-            text/html:
-              schema:
-                type: string
-    post:
-      summary: Logout (deprecated)
-      description: Deprecated endpoint — returns 410 Gone (HTML).
-      deprecated: true
-      x-source: src/pages/api/auth/logout.ts
-      operationId: postAuthLogout
-      responses:
-        "410":
-          description: Gone
-          content:
-            text/html:
-              schema:
-                type: string
-  /api/auth/register:
-    post:
-      summary: Register user (deprecated)
-      description: Deprecated endpoint — returns 410 Gone (HTML).
-      deprecated: true
-      x-source: src/pages/api/auth/register.ts
-      operationId: postAuthRegister
-      responses:
-        "410":
-          description: Gone
-          content:
-            text/html:
-              schema:
-                type: string
-  /api/auth/resend-verification:
-    post:
-      summary: Resend verification email (deprecated)
-      description: Deprecated endpoint — returns 410 Gone (JSON).
-      deprecated: true
-      x-source: src/pages/api/auth/resend-verification.ts
-      operationId: postAuthResendVerification
-      responses:
-        "410":
-          description: Gone
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiErrorResponse'
-  /api/auth/reset-password:
-    post:
-      summary: Reset password (deprecated)
-      description: Deprecated endpoint — returns 410 Gone (HTML).
-      deprecated: true
-      x-source: src/pages/api/auth/reset-password.ts
-      operationId: postAuthResetPassword
-      responses:
-        "410":
-          description: Gone
-          content:
-            text/html:
-              schema:
-                type: string
-  /api/auth/verify-email:
-    get:
-      summary: Verify email (deprecated)
-      description: Deprecated endpoint — returns 410 Gone (HTML).
-      deprecated: true
-      x-source: src/pages/api/auth/verify-email.ts
-      operationId: getAuthVerifyEmail
-      responses:
-        "410":
-          description: Gone
-          content:
-            text/html:
-              schema:
-                type: string
-  /api/auth/magic/request:
-    post:
-      summary: Request Magic Link
-      description: Request a magic link for login or signup. Returns JSON success or an HTML redirect (progressive enhancement).
-      x-source: src/pages/api/auth/magic/request.ts
-      operationId: postAuthMagicRequest
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                email:
-                  type: string
-                r:
-                  type: string
-                  description: Optional relative redirect target after auth
-                name:
-                  type: string
-                username:
-                  type: string
-                locale:
-                  type: string
-                  enum: [de, en]
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              properties:
-                email:
-                  type: string
-                r:
-                  type: string
-                name:
-                  type: string
-                username:
-                  type: string
-                locale:
-                  type: string
-                  enum: [de, en]
-      responses:
-        "200":
-          description: Magic link request accepted
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    enum: [true]
-                  data:
-                    type: object
-                    properties:
-                      sent:
-                        type: boolean
-        "303":
-          description: Redirect to localized login page with success hint (HTML navigation)
   /api/auth/callback:
     get:
       summary: Magic Link callback
@@ -1278,6 +1245,34 @@ paths:
       description: Creates a Stripe checkout session
       x-source: src/pages/api/billing/session.ts
       operationId: postBillingSession
+      parameters:
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          schema:
+            type: string
+          description: Double-submit token; must match cookie 'csrf_token'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [plan, workspaceId]
+              properties:
+                plan:
+                  type: string
+                  enum: [pro, premium, enterprise]
+                workspaceId:
+                  type: string
+                interval:
+                  type: string
+                  enum: [monthly, annual]
+                  default: monthly
+                returnTo:
+                  type: string
+                  description: Optional relative path to redirect back after sync
       responses:
         "200":
           description: Checkout session URL
@@ -1288,6 +1283,31 @@ paths:
                 properties:
                   url:
                     type: string
+  /api/billing/sync:
+    get:
+      summary: Sync Stripe checkout session and update plan
+      description: Retrieves the Stripe checkout session, upserts customer/subscription, updates the user's plan, and redirects to the dashboard or the provided return path.
+      x-source: src/pages/api/billing/sync.ts
+      operationId: getBillingSync
+      parameters:
+        - name: session_id
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: ws
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: return_to
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "302":
+          description: Redirect to dashboard or the provided return_to path
   /api/dashboard/activity:
     get:
       summary: Get activity feed
@@ -2328,19 +2348,6 @@ paths:
       responses:
         "204":
           description: No Content
-  /api/user/avatar:
-    post:
-      summary: Upload avatar
-      description: Upload profile image to R2; supports CORS preflight internally
-      x-source: src/pages/api/user/avatar.ts
-      operationId: postUserAvatar
-      responses:
-        "200":
-          description: Avatar updated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GenericResponse'
   /api/user/logout-v2:
     get:
       summary: Logout v2 (GET)
@@ -2493,6 +2500,57 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GenericResponse'
+  /api/user/avatar:
+    post:
+      summary: Upload avatar
+      description: Upload a new profile image (multipart) to R2 and update user's image URL. CSRF protected.
+      x-source: src/pages/api/user/avatar.ts
+      operationId: postUserAvatar
+      parameters:
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          description: Double-submit token; must match cookie 'csrf_token'
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                avatar:
+                  type: string
+                  format: binary
+              required:
+                - avatar
+      responses:
+        "200":
+          description: Avatar updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "403":
+          description: Forbidden (CSRF/Origin)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /api/user/settings:
     put:
       summary: Update settings
@@ -3117,6 +3175,13 @@ paths:
       description: Creates a Stripe Checkout Session for one-time credit packs (200 / 1000 images)
       x-source: src/pages/api/billing/credits.ts
       operationId: postBillingCredits
+      parameters:
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          description: Double-submit token; must match cookie 'csrf_token'
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -3147,8 +3212,52 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiErrorResponse'
+        "403":
+          description: Forbidden (CSRF/Origin)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
         "500":
           description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+  /api/dashboard/billing-summary:
+    get:
+      summary: Dashboard billing summary
+      description: Returns plan, subscription status, credits remaining, monthly usage and period end for the authenticated user.
+      x-source: src/pages/api/dashboard/billing-summary.ts
+      operationId: getDashboardBillingSummary
+      responses:
+        "200":
+          description: Billing summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+  /api/dashboard/referral-summary:
+    get:
+      summary: Dashboard referral summary
+      description: Returns referral link, aggregated stats and recent events for the authenticated user.
+      x-source: src/pages/api/dashboard/referral-summary.ts
+      operationId: getDashboardReferralSummary
+      responses:
+        "200":
+          description: Referral summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        "401":
+          description: Unauthorized
           content:
             application/json:
               schema:

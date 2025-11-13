@@ -10,16 +10,28 @@ import { sanitizeCommentContent } from '@/lib/security/sanitize';
 
 /**
  * Hook to detect if user is on mobile device
- * Uses viewport width and touch capability
+ * Defaults to viewport width only; touch detection can be enabled via options.
  */
-export function useIsMobile(breakpoint: number = 768): boolean {
+export function useIsMobile(
+  breakpoint: number = 768,
+  options?: { considerTouch?: boolean; touchOverridesWidth?: boolean }
+): boolean {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    const considerTouch = options?.considerTouch ?? false;
+    const touchOverridesWidth = options?.touchOverridesWidth ?? false;
+
     const checkMobile = () => {
       const width = window.innerWidth;
-      const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-      setIsMobile(width < breakpoint || hasTouch);
+      const isWidthMobile = width < breakpoint;
+      if (considerTouch) {
+        const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        const touchMobile = touchOverridesWidth ? hasTouch : hasTouch && isWidthMobile;
+        setIsMobile(isWidthMobile || touchMobile);
+      } else {
+        setIsMobile(isWidthMobile);
+      }
     };
 
     // Initial check
@@ -28,7 +40,7 @@ export function useIsMobile(breakpoint: number = 768): boolean {
     // Listen for resize
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
-  }, [breakpoint]);
+  }, [breakpoint, options?.considerTouch, options?.touchOverridesWidth]);
 
   return isMobile;
 }

@@ -39,7 +39,7 @@ export async function GET(context: APIContext) {
     }
 
     // Cache-Headers für bessere Performance
-    headers.set('Cache-Control', 'public, max-age=31536000'); // 1 Jahr
+    headers.set('Cache-Control', 'public, max-age=31536000, immutable'); // 1 Jahr
     headers.set('ETag', object.httpEtag || '');
 
     // Avoid ReadableStream type mismatch by converting to ArrayBuffer

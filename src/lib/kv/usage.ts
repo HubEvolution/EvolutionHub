@@ -337,7 +337,7 @@ export async function consumeCreditsTenths(
     breakdown,
     idempotent: false,
   };
-  await kv.put(recordKey, JSON.stringify(result));
+  await kv.put(recordKey, JSON.stringify(result), { expirationTtl: 60 * 60 * 24 * 180 });
   return result;
 }
 
@@ -394,6 +394,6 @@ export async function consumeVideoMonthlyQuotaTenths(
   if (next > Math.max(0, Math.round(limitTenths))) {
     throw new Error('insufficient_quota');
   }
-  await kv.put(key, String(next));
-  await kv.put(tx, '1');
+  await kv.put(key, String(next), { expirationTtl: endOfMonthTtlSeconds() });
+  await kv.put(tx, '1', { expirationTtl: endOfMonthTtlSeconds() });
 }

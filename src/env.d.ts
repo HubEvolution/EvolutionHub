@@ -53,11 +53,18 @@ declare namespace App {
         KV_AI_ENHANCER?: import('@cloudflare/workers-types').KVNamespace;
         // KV Namespace for Voice Transcriber quotas/metadata (optional in dev)
         KV_VOICE_TRANSCRIBE?: import('@cloudflare/workers-types').KVNamespace;
+        SESSION?: import('@cloudflare/workers-types').KVNamespace;
+        KV_WEBSCRAPER?: import('@cloudflare/workers-types').KVNamespace;
+        KV_PROMPT_ENHANCER?: import('@cloudflare/workers-types').KVNamespace;
+        KV_WEB_EVAL?: import('@cloudflare/workers-types').KVNamespace;
         // External provider token
         REPLICATE_API_TOKEN?: string;
         // OpenAI API and Whisper model selection
         OPENAI_API_KEY?: string;
         WHISPER_MODEL?: string;
+        AI?: {
+          run: (model: string, payload: Record<string, unknown>) => Promise<unknown>;
+        };
         // Name der Laufzeitumgebung (z. B. 'staging', 'production')
         ENVIRONMENT?: string;
         /**

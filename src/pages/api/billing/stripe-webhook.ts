@@ -1,7 +1,7 @@
 import type { APIContext } from 'astro';
 import Stripe from 'stripe';
 // Avoid strict KV typings in src-only typecheck scope
-import { withApiMiddleware } from '@/lib/api-middleware';
+import { withApiMiddleware, createMethodNotAllowed } from '@/lib/api-middleware';
 import { createRateLimiter } from '@/lib/rate-limiter';
 import { createSecureErrorResponse, createSecureJsonResponse } from '@/lib/response-helpers';
 import { addCreditPackTenths, getCreditsBalanceTenths } from '@/lib/kv/usage';
@@ -401,3 +401,12 @@ export const POST = withApiMiddleware(
     enforceCsrfToken: false,
   }
 );
+
+// 405 for unsupported methods (standardized error shape)
+const methodNotAllowed = () => createMethodNotAllowed('POST');
+export const GET = methodNotAllowed;
+export const PUT = methodNotAllowed;
+export const PATCH = methodNotAllowed;
+export const DELETE = methodNotAllowed;
+export const OPTIONS = methodNotAllowed;
+export const HEAD = methodNotAllowed;

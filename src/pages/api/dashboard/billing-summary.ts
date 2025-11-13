@@ -1,6 +1,12 @@
 import type { APIContext } from 'astro';
 import type { KVNamespace } from '@cloudflare/workers-types';
-import { withAuthApiMiddleware, createApiError, createApiSuccess } from '@/lib/api-middleware';
+import {
+  withAuthApiMiddleware,
+  withApiMiddleware,
+  createApiError,
+  createApiSuccess,
+  createMethodNotAllowed,
+} from '@/lib/api-middleware';
 import { logUserEvent } from '@/lib/security-logger';
 import { getCreditsBalanceTenths, monthlyKey, legacyMonthlyKey } from '@/lib/kv/usage';
 import { getEntitlementsFor, type Plan } from '@/config/ai-image/entitlements';
@@ -186,3 +192,22 @@ export const GET = withAuthApiMiddleware(
     logMetadata: { action: 'billing_summary_accessed' },
   }
 );
+
+export const POST = withApiMiddleware(() => createMethodNotAllowed('GET'), {
+  disableAutoLogging: true,
+});
+export const PUT = withApiMiddleware(() => createMethodNotAllowed('GET'), {
+  disableAutoLogging: true,
+});
+export const PATCH = withApiMiddleware(() => createMethodNotAllowed('GET'), {
+  disableAutoLogging: true,
+});
+export const DELETE = withApiMiddleware(() => createMethodNotAllowed('GET'), {
+  disableAutoLogging: true,
+});
+export const OPTIONS = withApiMiddleware(() => createMethodNotAllowed('GET'), {
+  disableAutoLogging: true,
+});
+export const HEAD = withApiMiddleware(() => createMethodNotAllowed('GET'), {
+  disableAutoLogging: true,
+});

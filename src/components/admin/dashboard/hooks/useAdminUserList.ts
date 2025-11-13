@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   fetchAdminUsersList,
   adminBanUser,
@@ -7,6 +7,8 @@ import {
   type AdminUserListItem,
   type AdminUserActionResult,
 } from '@/lib/admin/api-client';
+import { AdminApiError } from '@/lib/admin/api-client';
+import { getAdminStrings } from '@/lib/i18n-admin';
 
 export type AdminUserListFilters = {
   search?: string;
@@ -67,6 +69,9 @@ function mergeActionResult(
 export function useAdminUserList(initialFilters: AdminUserListFilters = {}) {
   const [state, setState] = useState<UserListState>(initialState);
   const filtersRef = useRef<AdminUserListFilters>(cleanFilters(initialFilters));
+  const controllerRef = useRef<AbortController | null>(null);
+  const retryTimeoutRef = useRef<number | null>(null);
+  const strings = getAdminStrings();
 
   const refresh = useCallback(async (filters?: AdminUserListFilters) => {
     const appliedFilters = cleanFilters(filters ?? filtersRef.current ?? {});
@@ -85,7 +90,14 @@ export function useAdminUserList(initialFilters: AdminUserListFilters = {}) {
       actionError: undefined,
     }));
     try {
-      const data = await fetchAdminUsersList(applied);
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current);
+        retryTimeoutRef.current = null;
+      }
+      controllerRef.current?.abort();
+      const controller = new AbortController();
+      controllerRef.current = controller;
+      const data = await fetchAdminUsersList(applied, controller.signal);
       setState((prev) => ({
         ...prev,
         items: data.items ?? [],
@@ -95,8 +107,37 @@ export function useAdminUserList(initialFilters: AdminUserListFilters = {}) {
       }));
       return data;
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Benutzerliste konnte nicht geladen werden.';
+      if ((error as DOMException)?.name === 'AbortError') return undefined;
+      if (error instanceof AdminApiError && error.status === 429 && error.retryAfterSec) {
+        if (retryTimeoutRef.current) {
+          clearTimeout(retryTimeoutRef.current);
+          retryTimeoutRef.current = null;
+        }
+        const ms = Math.max(0, Math.floor(error.retryAfterSec * 1000));
+        const timeoutId = window.setTimeout(() => {
+          const next = new AbortController();
+          controllerRef.current = next;
+          fetchAdminUsersList(applied, next.signal)
+            .then((data) => {
+              setState((prev) => ({
+                ...prev,
+                items: data.items ?? [],
+                nextCursor: data.nextCursor,
+                loading: false,
+                loadingMore: false,
+              }));
+            })
+            .catch((e) => {
+              if ((e as DOMException)?.name === 'AbortError') return;
+              const msg =
+                e instanceof Error ? e.message : 'Benutzerliste konnte nicht geladen werden.';
+              setState((prev) => ({ ...prev, loading: false, loadingMore: false, error: msg }));
+            });
+        }, ms);
+        retryTimeoutRef.current = timeoutId as unknown as number;
+        return undefined;
+      }
+      const message = error instanceof Error ? error.message : strings.errors.userListLoad;
       setState((prev) => ({
         ...prev,
         loading: false,
@@ -116,13 +157,23 @@ export function useAdminUserList(initialFilters: AdminUserListFilters = {}) {
     }));
     try {
       const current = filtersRef.current ?? cleanFilters({});
-      const data = await fetchAdminUsersList({
-        search: current.search ?? undefined,
-        status: current.status ?? undefined,
-        plan: current.plan ?? undefined,
-        cursor: state.nextCursor,
-        limit: 20,
-      });
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current);
+        retryTimeoutRef.current = null;
+      }
+      controllerRef.current?.abort();
+      const controller = new AbortController();
+      controllerRef.current = controller;
+      const data = await fetchAdminUsersList(
+        {
+          search: current.search ?? undefined,
+          status: current.status ?? undefined,
+          plan: current.plan ?? undefined,
+          cursor: state.nextCursor,
+          limit: 20,
+        },
+        controller.signal
+      );
       setState((prev) => ({
         ...prev,
         items: [...prev.items, ...(data.items ?? [])],
@@ -131,8 +182,47 @@ export function useAdminUserList(initialFilters: AdminUserListFilters = {}) {
       }));
       return data;
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Weitere Benutzer konnten nicht geladen werden.';
+      if ((error as DOMException)?.name === 'AbortError') return null;
+      if (error instanceof AdminApiError && error.status === 429 && error.retryAfterSec) {
+        if (retryTimeoutRef.current) {
+          clearTimeout(retryTimeoutRef.current);
+          retryTimeoutRef.current = null;
+        }
+        const snapshotCursor = state.nextCursor;
+        const ms = Math.max(0, Math.floor(error.retryAfterSec * 1000));
+        const timeoutId = window.setTimeout(() => {
+          const current2 = filtersRef.current ?? cleanFilters({});
+          const next = new AbortController();
+          controllerRef.current = next;
+          fetchAdminUsersList(
+            {
+              search: current2.search ?? undefined,
+              status: current2.status ?? undefined,
+              plan: current2.plan ?? undefined,
+              cursor: snapshotCursor,
+              limit: 20,
+            },
+            next.signal
+          )
+            .then((data) => {
+              setState((prev) => ({
+                ...prev,
+                items: [...prev.items, ...(data.items ?? [])],
+                nextCursor: data.nextCursor,
+                loadingMore: false,
+              }));
+            })
+            .catch((e) => {
+              if ((e as DOMException)?.name === 'AbortError') return;
+              const msg =
+                e instanceof Error ? e.message : 'Weitere Benutzer konnten nicht geladen werden.';
+              setState((prev) => ({ ...prev, loadingMore: false, error: msg }));
+            });
+        }, ms);
+        retryTimeoutRef.current = timeoutId as unknown as number;
+        return null;
+      }
+      const message = error instanceof Error ? error.message : strings.errors.userListLoadMore;
       setState((prev) => ({
         ...prev,
         loadingMore: false,
@@ -176,13 +266,9 @@ export function useAdminUserList(initialFilters: AdminUserListFilters = {}) {
 
   const banUser = useCallback(
     async (userId: string, payload: { reason?: string; sendEmail?: boolean } = {}) => {
-      return runLifecycleAction(
-        userId,
-        (id) => adminBanUser(id, payload),
-        'Benutzer konnte nicht gesperrt werden.'
-      );
+      return runLifecycleAction(userId, (id) => adminBanUser(id, payload), strings.errors.userBan);
     },
-    [runLifecycleAction]
+    [runLifecycleAction, strings.errors.userBan]
   );
 
   const unbanUser = useCallback(
@@ -190,10 +276,10 @@ export function useAdminUserList(initialFilters: AdminUserListFilters = {}) {
       return runLifecycleAction(
         userId,
         (id) => adminUnbanUser(id, payload),
-        'Benutzer konnte nicht entsperrt werden.'
+        strings.errors.userUnban
       );
     },
-    [runLifecycleAction]
+    [runLifecycleAction, strings.errors.userUnban]
   );
 
   const deleteUser = useCallback(
@@ -201,11 +287,21 @@ export function useAdminUserList(initialFilters: AdminUserListFilters = {}) {
       return runLifecycleAction(
         userId,
         (id) => adminDeleteUser(id, payload),
-        'Benutzer konnte nicht gelöscht werden.'
+        strings.errors.userDelete
       );
     },
-    [runLifecycleAction]
+    [runLifecycleAction, strings.errors.userDelete]
   );
+
+  useEffect(() => {
+    return () => {
+      controllerRef.current?.abort();
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current);
+        retryTimeoutRef.current = null;
+      }
+    };
+  }, []);
 
   return {
     items: state.items,

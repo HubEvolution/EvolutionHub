@@ -1,0 +1,97 @@
+{
+  "common": {
+    "loading": "Lade …",
+    "updating": "Aktualisiere …",
+    "refresh": "Aktualisieren",
+    "search": "Suchen",
+    "reset": "Zurücksetzen",
+    "all": "Alle",
+    "loadMore": "Mehr laden",
+    "refreshBalance": "Balance aktualisieren",
+    "refreshHistory": "Historie aktualisieren"
+  },
+  "kpi": {
+    "heading": "Kennzahlen & Alerts",
+    "loading": "Lade Kennzahlen …",
+    "trafficTitle": "Traffic (30 Tage)",
+    "trafficSum": "Requests gesamt",
+    "stripeTitle": "Stripe Volumen (30 Tage)",
+    "stripeNote": "Balance Report",
+    "cacheHit": "Cache-Treffer (noch {seconds}s gültig)",
+    "live": "Live-Daten aktualisiert",
+    "alerts": "Alerts",
+    "active": "aktiv"
+  },
+  "insights": {
+    "heading": "User Insights",
+    "searchLabel": "Suche (E-Mail, Name oder ID)",
+    "searchPlaceholder": "user@example.com oder user_id",
+    "status": "Status",
+    "plan": "Plan",
+    "statusOptions": {
+      "active": "Aktiv",
+      "banned": "Gesperrt",
+      "deleted": "Gelöscht"
+    },
+    "listHeading": "Benutzerliste",
+    "listReload": "Liste aktualisieren",
+    "details": "Details anzeigen",
+    "actions": {
+      "ban": "Sperren",
+      "unban": "Entsperren",
+      "delete": "Löschen"
+    },
+    "table": {
+      "user": "User",
+      "plan": "Plan",
+      "status": "Status",
+      "credits": "Credits",
+      "sessions": "Sessions",
+      "lastActivity": "Letzte Aktivität",
+      "actions": "Aktionen"
+    },
+    "list": {
+      "none": "Keine Benutzer gefunden."
+    },
+    "summary": {
+      "user": "Benutzer",
+      "subscription": "Subscription",
+      "subscriptionNone": "Keine aktive Subscription",
+      "subscriptionEnd": "Ende",
+      "lastActivity": "Letzte Aktivität",
+      "ip": "IP"
+    },
+    "sessions": {
+      "heading": "Sitzungen",
+      "revokeAll": "Alle Sitzungen widerrufen",
+      "none": "Keine aktiven Sitzungen vorhanden.",
+      "table": {
+        "id": "Session-ID",
+        "expires": "Ablauf"
+      }
+    },
+    "credits": {
+      "heading": "Credits",
+      "tenthsLabel": "Zehntel"
+    },
+    "history": {
+      "none": "Keine Credit-Historie vorhanden.",
+      "table": {
+        "pack": "Pack",
+        "units": "Units (tenths)",
+        "created": "Erstellt",
+        "expires": "Ablauf"
+      }
+    }
+  },
+  "errors": {
+    "userListLoad": "Benutzerliste konnte nicht geladen werden.",
+    "userListLoadMore": "Weitere Benutzer konnten nicht geladen werden.",
+    "userBan": "Benutzer konnte nicht gesperrt werden.",
+    "userUnban": "Benutzer konnte nicht entsperrt werden.",
+    "userDelete": "Benutzer konnte nicht gelöscht werden.",
+    "userLookup": "Lookup fehlgeschlagen.",
+    "sessionsLoad": "Sitzungen konnten nicht geladen werden.",
+    "sessionsRevoke": "Sitzungen konnten nicht widerrufen werden."
+  }
+}

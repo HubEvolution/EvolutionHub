@@ -48,9 +48,9 @@ describe('Blog i18n & SEO (integration)', () => {
     expect($('h1').length).toBe(1);
 
     // Related heading (EN) — optional depending on content source
-    const relatedCountEn = $('h2')
-      .filter((_, el) => $(el).text().trim() === 'Related Articles')
-      .length;
+    const relatedCountEn = $('h2').filter(
+      (_, el) => $(el).text().trim() === 'Related Articles'
+    ).length;
     expect(relatedCountEn).toBeGreaterThanOrEqual(0);
   });
 });

@@ -17,6 +17,8 @@ testRefs: 'test-suite-v2/src/e2e/smoke'
 
 - **[Runbook: Image Enhancer Go-Live](./runbook-image-enhancer-go-live.md)** — Schritt-für-Schritt-Ablauf für Deployments & Rollbacks
 
+- **[Runbook: Web‑Eval Executor](./web-eval-executor-runbook.md)** — Auth, Secrets, Start/Stop, Prod‑Gating, Rate‑Limits
+
 - **[Monitoring & Runbook](./monitoring.md)** — Monitoring-Baseline, Healthchecks und Incident-Prozesse
 - **[Deployment Guide — Cloudflare Workers](./deployment-guide.md)** — Deploy ausschließlich via Wrangler CLI; GitHub Actions = Pre‑Release Validierung
 

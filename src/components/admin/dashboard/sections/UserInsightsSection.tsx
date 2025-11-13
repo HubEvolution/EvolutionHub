@@ -7,10 +7,17 @@ import {
   useAdminUserList,
   type AdminUserListFilters,
 } from '@/components/admin/dashboard/hooks/useAdminUserList';
+import { useAdminStrings } from '@/lib/i18n-admin';
 
-const numberFormatter = new Intl.NumberFormat('de-DE');
+function makeNumberFormatter(locale: string) {
+  return new Intl.NumberFormat(locale);
+}
 
 const UserInsightsSection: React.FC = () => {
+  const strings = useAdminStrings();
+  const localeTag =
+    typeof window !== 'undefined' && window.location.pathname.startsWith('/en') ? 'en-US' : 'de-DE';
+  const numberFormatter = useMemo(() => makeNumberFormatter(localeTag), [localeTag]);
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'' | 'active' | 'banned' | 'deleted'>('');
   const [planFilter, setPlanFilter] = useState<'' | 'free' | 'pro' | 'premium' | 'enterprise'>('');
@@ -113,44 +120,44 @@ const UserInsightsSection: React.FC = () => {
           id="admin-user-insights"
           className="text-xl font-semibold text-gray-900 dark:text-white"
         >
-          User Insights
+          {strings.insights.heading}
         </h2>
-        {loading && <span className="text-sm text-white/60">Lade …</span>}
+        {loading && <span className="text-sm text-white/60">{strings.common.loading}</span>}
       </div>
 
       <Card className="p-4" variant="default">
         <form className="flex flex-wrap items-end gap-3" onSubmit={handleSearch}>
           <label className="flex-1 min-w-[200px] text-sm text-white/70">
-            Suche (E-Mail, Name oder ID)
+            {strings.insights.searchLabel}
             <input
               type="text"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               className="mt-1 w-full rounded-md border border-white/10 bg-white/5 p-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              placeholder="user@example.com oder user_id"
+              placeholder={strings.insights.searchPlaceholder}
             />
           </label>
           <label className="min-w-[140px] text-sm text-white/70">
-            Status
+            {strings.insights.status}
             <select
               value={statusFilter}
               onChange={(event) => setStatusFilter(event.target.value as typeof statusFilter)}
               className="mt-1 w-full rounded-md border border-white/10 bg-white/5 p-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
             >
-              <option value="">Alle</option>
-              <option value="active">Aktiv</option>
-              <option value="banned">Gesperrt</option>
-              <option value="deleted">Gelöscht</option>
+              <option value="">{strings.common.all}</option>
+              <option value="active">{strings.insights.statusOptions.active}</option>
+              <option value="banned">{strings.insights.statusOptions.banned}</option>
+              <option value="deleted">{strings.insights.statusOptions.deleted}</option>
             </select>
           </label>
           <label className="min-w-[140px] text-sm text-white/70">
-            Plan
+            {strings.insights.plan}
             <select
               value={planFilter}
               onChange={(event) => setPlanFilter(event.target.value as typeof planFilter)}
               className="mt-1 w-full rounded-md border border-white/10 bg-white/5 p-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
             >
-              <option value="">Alle</option>
+              <option value="">{strings.common.all}</option>
               <option value="free">Free</option>
               <option value="pro">Pro</option>
               <option value="premium">Premium</option>
@@ -162,7 +169,7 @@ const UserInsightsSection: React.FC = () => {
             className="inline-flex items-center rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
             disabled={listLoading}
           >
-            Suchen
+            {strings.common.search}
           </button>
           <button
             type="button"
@@ -174,7 +181,7 @@ const UserInsightsSection: React.FC = () => {
             }}
             className="rounded-md border border-white/10 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
           >
-            Zurücksetzen
+            {strings.common.reset}
           </button>
         </form>
         {error && <p className="mt-3 text-sm text-red-300">{error}</p>}
@@ -185,11 +192,11 @@ const UserInsightsSection: React.FC = () => {
       <Card className="p-4" variant="default">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold uppercase tracking-wide text-white/60">
-            Benutzerliste
+            {strings.insights.listHeading}
           </h3>
           <div className="flex items-center gap-2">
             {(listLoading || listLoadingMore) && (
-              <span className="text-xs text-white/50">Lade …</span>
+              <span className="text-xs text-white/50">{strings.common.loading}</span>
             )}
             <button
               type="button"
@@ -197,7 +204,7 @@ const UserInsightsSection: React.FC = () => {
               className="rounded-md border border-white/10 px-3 py-1 text-xs text-white/80 hover:bg-white/10"
               disabled={listLoading}
             >
-              Liste aktualisieren
+              {strings.insights.listReload}
             </button>
           </div>
         </div>
@@ -205,20 +212,20 @@ const UserInsightsSection: React.FC = () => {
           <table className="min-w-full divide-y divide-white/10 text-sm text-white/80">
             <thead className="bg-white/5 text-xs uppercase tracking-wide text-white/60">
               <tr>
-                <th className="px-3 py-2 text-left">User</th>
-                <th className="px-3 py-2 text-left">Plan</th>
-                <th className="px-3 py-2 text-left">Status</th>
-                <th className="px-3 py-2 text-left">Credits</th>
-                <th className="px-3 py-2 text-left">Sessions</th>
-                <th className="px-3 py-2 text-left">Letzte Aktivität</th>
-                <th className="px-3 py-2 text-left">Aktionen</th>
+                <th className="px-3 py-2 text-left">{strings.insights.table.user}</th>
+                <th className="px-3 py-2 text-left">{strings.insights.table.plan}</th>
+                <th className="px-3 py-2 text-left">{strings.insights.table.status}</th>
+                <th className="px-3 py-2 text-left">{strings.insights.table.credits}</th>
+                <th className="px-3 py-2 text-left">{strings.insights.table.sessions}</th>
+                <th className="px-3 py-2 text-left">{strings.insights.table.lastActivity}</th>
+                <th className="px-3 py-2 text-left">{strings.insights.table.actions}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5 bg-white/5">
               {userList.length === 0 ? (
                 <tr>
                   <td className="px-3 py-3 text-sm text-white/50" colSpan={7}>
-                    Keine Benutzer gefunden.
+                    {strings.insights.list.none}
                   </td>
                 </tr>
               ) : (
@@ -246,7 +253,7 @@ const UserInsightsSection: React.FC = () => {
                               .catch(() => undefined);
                           }}
                         >
-                          Details anzeigen
+                          {strings.insights.details}
                         </button>
                       </td>
                       <td className="px-3 py-2 text-xs text-white/60">{item.user.plan}</td>
@@ -258,7 +265,9 @@ const UserInsightsSection: React.FC = () => {
                         {item.stats.activeSessions}
                       </td>
                       <td className="px-3 py-2 text-xs text-white/60">
-                        {item.lastSeenAt ? new Date(item.lastSeenAt).toLocaleString('de-DE') : '—'}
+                        {item.lastSeenAt
+                          ? new Date(item.lastSeenAt).toLocaleString(localeTag)
+                          : '—'}
                       </td>
                       <td className="px-3 py-2 text-xs text-white/70">
                         <div className="flex flex-wrap gap-2">
@@ -286,7 +295,7 @@ const UserInsightsSection: React.FC = () => {
                                 )
                             }
                           >
-                            Sperren
+                            {strings.insights.actions.ban}
                           </button>
                           <button
                             type="button"
@@ -312,7 +321,7 @@ const UserInsightsSection: React.FC = () => {
                                 )
                             }
                           >
-                            Entsperren
+                            {strings.insights.actions.unban}
                           </button>
                           <button
                             type="button"
@@ -338,7 +347,7 @@ const UserInsightsSection: React.FC = () => {
                                 )
                             }
                           >
-                            Löschen
+                            {strings.insights.actions.delete}
                           </button>
                         </div>
                       </td>
@@ -357,7 +366,7 @@ const UserInsightsSection: React.FC = () => {
               className="rounded-md border border-white/10 px-3 py-2 text-sm text-white/80 hover:bg-white/10"
               disabled={listLoadingMore}
             >
-              Weitere laden
+              {strings.common.loadMore}
             </button>
           </div>
         )}
@@ -367,34 +376,40 @@ const UserInsightsSection: React.FC = () => {
         <Card className="p-4" variant="default">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <div>
-              <p className="text-xs uppercase text-white/50">Benutzer</p>
+              <p className="text-xs uppercase text-white/50">{strings.insights.summary.user}</p>
               <p className="text-sm text-white/80">{summary.user.name || '—'}</p>
               <p className="text-sm text-white/40">{summary.user.email}</p>
             </div>
             <div>
-              <p className="text-xs uppercase text-white/50">Plan</p>
+              <p className="text-xs uppercase text-white/50">{strings.insights.plan}</p>
               <p className="text-sm font-semibold text-white">{summary.user.plan}</p>
             </div>
             <div>
-              <p className="text-xs uppercase text-white/50">Credits</p>
+              <p className="text-xs uppercase text-white/50">{strings.insights.table.credits}</p>
               <p className="text-sm font-semibold text-white">
                 {numberFormatter.format(summary.credits)}
               </p>
             </div>
             <div>
-              <p className="text-xs uppercase text-white/50">Subscription</p>
+              <p className="text-xs uppercase text-white/50">
+                {strings.insights.summary.subscription}
+              </p>
               <p className="text-sm text-white/80">
                 {summary.subscription
-                  ? `${summary.subscription.status} (Ende: ${summary.subscription.currentPeriodEnd ? new Date(summary.subscription.currentPeriodEnd * 1000).toLocaleString('de-DE') : '—'})`
-                  : 'Keine aktive Subscription'}
+                  ? `${summary.subscription.status} (${strings.insights.summary.subscriptionEnd}: ${summary.subscription.currentPeriodEnd ? new Date(summary.subscription.currentPeriodEnd * 1000).toLocaleString(localeTag) : '—'})`
+                  : strings.insights.summary.subscriptionNone}
               </p>
             </div>
             <div>
-              <p className="text-xs uppercase text-white/50">Letzte Aktivität</p>
-              <p className="text-sm text-white/80">
-                {summary.lastSeenAt ? new Date(summary.lastSeenAt).toLocaleString('de-DE') : '—'}
+              <p className="text-xs uppercase text-white/50">
+                {strings.insights.summary.lastActivity}
               </p>
-              <p className="text-xs text-white/50">IP: {summary.lastIp || '—'}</p>
+              <p className="text-sm text-white/80">
+                {summary.lastSeenAt ? new Date(summary.lastSeenAt).toLocaleString(localeTag) : '—'}
+              </p>
+              <p className="text-xs text-white/50">
+                {strings.insights.summary.ip}: {summary.lastIp || '—'}
+              </p>
             </div>
           </div>
         </Card>
@@ -402,16 +417,20 @@ const UserInsightsSection: React.FC = () => {
 
       <Card className="p-4" variant="default">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold uppercase tracking-wide text-white/60">Sitzungen</h3>
+          <h3 className="text-sm font-semibold uppercase tracking-wide text-white/60">
+            {strings.insights.sessions.heading}
+          </h3>
           <div className="flex items-center gap-2">
-            {sessionsLoading && <span className="text-xs text-white/50">Aktualisiere …</span>}
+            {sessionsLoading && (
+              <span className="text-xs text-white/50">{strings.common.updating}</span>
+            )}
             <button
               type="button"
               onClick={() => userId && loadSessions(userId)}
               className="rounded-md border border-white/10 px-3 py-1 text-xs text-white/80 hover:bg-white/10"
               disabled={!userId || sessionsLoading}
             >
-              Aktualisieren
+              {strings.common.refresh}
             </button>
             <button
               type="button"
@@ -426,7 +445,7 @@ const UserInsightsSection: React.FC = () => {
               className="rounded-md bg-rose-600 px-3 py-1 text-xs font-semibold text-white hover:bg-rose-700"
               disabled={!userId || actionLoading}
             >
-              Alle Sitzungen widerrufen
+              {strings.insights.sessions.revokeAll}
             </button>
           </div>
         </div>
@@ -435,15 +454,15 @@ const UserInsightsSection: React.FC = () => {
           <table className="min-w-full divide-y divide-white/10 text-sm text-white/80">
             <thead className="bg-white/5 text-xs uppercase tracking-wide text-white/60">
               <tr>
-                <th className="px-3 py-2 text-left">Session ID</th>
-                <th className="px-3 py-2 text-left">Expires</th>
+                <th className="px-3 py-2 text-left">{strings.insights.sessions.table.id}</th>
+                <th className="px-3 py-2 text-left">{strings.insights.sessions.table.expires}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5 bg-white/5">
               {sessions.length === 0 ? (
                 <tr>
                   <td className="px-3 py-3 text-sm text-white/50" colSpan={2}>
-                    Keine aktiven Sitzungen vorhanden.
+                    {strings.insights.sessions.none}
                   </td>
                 </tr>
               ) : (
@@ -452,7 +471,7 @@ const UserInsightsSection: React.FC = () => {
                     <td className="px-3 py-2 font-mono text-xs text-white/70">{session.id}</td>
                     <td className="px-3 py-2 text-xs text-white/60">
                       {session.expiresAt
-                        ? new Date(session.expiresAt).toLocaleString('de-DE')
+                        ? new Date(session.expiresAt).toLocaleString(localeTag)
                         : '—'}
                     </td>
                   </tr>
@@ -465,10 +484,12 @@ const UserInsightsSection: React.FC = () => {
 
       <Card className="p-4" variant="default">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold uppercase tracking-wide text-white/60">Credits</h3>
+          <h3 className="text-sm font-semibold uppercase tracking-wide text-white/60">
+            {strings.insights.credits.heading}
+          </h3>
           <div className="flex gap-2">
             {(creditsLoading || historyLoading) && (
-              <span className="text-xs text-white/50">Aktualisiere …</span>
+              <span className="text-xs text-white/50">{strings.common.updating}</span>
             )}
             <button
               type="button"
@@ -476,7 +497,7 @@ const UserInsightsSection: React.FC = () => {
               className="rounded-md border border-white/10 px-3 py-1 text-xs text-white/80 hover:bg-white/10"
               disabled={!userId || creditsLoading}
             >
-              Balance aktualisieren
+              {strings.common.refreshBalance}
             </button>
             <button
               type="button"
@@ -484,7 +505,7 @@ const UserInsightsSection: React.FC = () => {
               className="rounded-md border border-white/10 px-3 py-1 text-xs text-white/80 hover:bg-white/10"
               disabled={!userId || historyLoading}
             >
-              Historie aktualisieren
+              {strings.common.refreshHistory}
             </button>
           </div>
         </div>
@@ -492,12 +513,12 @@ const UserInsightsSection: React.FC = () => {
         {usage && (
           <div className="mt-3 grid gap-3 md:grid-cols-2">
             <div className="rounded border border-white/10 bg-white/5 p-3">
-              <p className="text-xs uppercase text-white/50">Credits</p>
+              <p className="text-xs uppercase text-white/50">{strings.insights.table.credits}</p>
               <p className="text-lg font-semibold text-white">
                 {numberFormatter.format(usage.credits)}
               </p>
               <p className="text-xs text-white/50">
-                (Tenths: {numberFormatter.format(usage.tenths)})
+                ({strings.insights.credits.tenthsLabel}: {numberFormatter.format(usage.tenths)})
               </p>
             </div>
           </div>
@@ -507,17 +528,17 @@ const UserInsightsSection: React.FC = () => {
           <table className="min-w-full divide-y divide-white/10 text-sm text-white/80">
             <thead className="bg-white/5 text-xs uppercase tracking-wide text-white/60">
               <tr>
-                <th className="px-3 py-2 text-left">Pack</th>
-                <th className="px-3 py-2 text-left">Units (tenths)</th>
-                <th className="px-3 py-2 text-left">Created</th>
-                <th className="px-3 py-2 text-left">Expires</th>
+                <th className="px-3 py-2 text-left">{strings.insights.history.table.pack}</th>
+                <th className="px-3 py-2 text-left">{strings.insights.history.table.units}</th>
+                <th className="px-3 py-2 text-left">{strings.insights.history.table.created}</th>
+                <th className="px-3 py-2 text-left">{strings.insights.history.table.expires}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5 bg-white/5">
               {history.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="px-3 py-3 text-sm text-white/50">
-                    Keine Credit-Historie vorhanden.
+                    {strings.insights.history.none}
                   </td>
                 </tr>
               ) : (
@@ -528,10 +549,10 @@ const UserInsightsSection: React.FC = () => {
                       {numberFormatter.format(item.unitsTenths)}
                     </td>
                     <td className="px-3 py-2 text-xs text-white/60">
-                      {item.createdAt ? new Date(item.createdAt).toLocaleString('de-DE') : '—'}
+                      {item.createdAt ? new Date(item.createdAt).toLocaleString(localeTag) : '—'}
                     </td>
                     <td className="px-3 py-2 text-xs text-white/60">
-                      {item.expiresAt ? new Date(item.expiresAt).toLocaleString('de-DE') : '—'}
+                      {item.expiresAt ? new Date(item.expiresAt).toLocaleString(localeTag) : '—'}
                     </td>
                   </tr>
                 ))

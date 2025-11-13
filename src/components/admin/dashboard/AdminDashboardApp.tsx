@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, Suspense, lazy } from 'react';
 import KpiOverviewSection from './sections/KpiOverviewSection';
-import UserInsightsSection from './sections/UserInsightsSection';
-import FinancialFeatureSection from './sections/FinancialFeatureSection';
 import AuditMonitoringSection from './sections/AuditMonitoringSection';
 import { useAdminTelemetry } from './hooks/useAdminTelemetry';
+
+const UserInsightsSection = lazy(() => import('./sections/UserInsightsSection'));
+const FinancialFeatureSection = lazy(() => import('./sections/FinancialFeatureSection'));
 
 /**
  * Root React island for the admin dashboard.
@@ -26,8 +27,12 @@ const AdminDashboardApp: React.FC = () => {
       </header>
 
       <KpiOverviewSection />
-      <UserInsightsSection />
-      <FinancialFeatureSection />
+      <Suspense fallback={<div aria-busy="true" className="h-24 rounded-md bg-white/5" />}>
+        <UserInsightsSection />
+      </Suspense>
+      <Suspense fallback={<div aria-busy="true" className="h-24 rounded-md bg-white/5" />}>
+        <FinancialFeatureSection />
+      </Suspense>
       <AuditMonitoringSection />
     </div>
   );

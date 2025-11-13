@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   fetchAdminUserSummary,
   fetchAdminUserSessions,
@@ -6,6 +6,7 @@ import {
   type AdminUserSummaryResponse,
   type AdminUserSessionsResponse,
 } from '@/lib/admin/api-client';
+import { AdminApiError } from '@/lib/admin/api-client';
 
 interface UserInsightsState {
   summary?: AdminUserSummaryResponse;
@@ -26,6 +27,7 @@ export function useAdminUserInsights() {
   });
 
   const controllerRef = useRef<AbortController | null>(null);
+  const retryTimeoutRef = useRef<number | null>(null);
 
   const search = useCallback(async (identifier: string) => {
     const query = identifier.trim();
@@ -58,6 +60,34 @@ export function useAdminUserInsights() {
       if ((error as DOMException)?.name === 'AbortError') {
         return undefined;
       }
+      if (error instanceof AdminApiError && error.status === 429 && error.retryAfterSec) {
+        if (retryTimeoutRef.current) {
+          clearTimeout(retryTimeoutRef.current);
+          retryTimeoutRef.current = null;
+        }
+        const ms = Math.max(0, Math.floor(error.retryAfterSec * 1000));
+        const timeoutId = window.setTimeout(() => {
+          const next = new AbortController();
+          controllerRef.current = next;
+          const params2 = query.includes('@') ? { email: query.toLowerCase() } : { id: query };
+          fetchAdminUserSummary(params2, next.signal)
+            .then((data) => {
+              setState((prev) => ({
+                ...prev,
+                summary: data,
+                loading: false,
+                error: undefined,
+              }));
+            })
+            .catch((e) => {
+              if ((e as DOMException)?.name === 'AbortError') return;
+              const message = e instanceof Error ? e.message : 'Lookup fehlgeschlagen.';
+              setState((prev) => ({ ...prev, loading: false, error: message }));
+            });
+        }, ms);
+        retryTimeoutRef.current = timeoutId as unknown as number;
+        return undefined;
+      }
       const message = error instanceof Error ? error.message : 'Lookup fehlgeschlagen.';
       setState((prev) => ({ ...prev, loading: false, error: message }));
       throw error;
@@ -68,6 +98,10 @@ export function useAdminUserInsights() {
     if (!userId) return;
     setState((prev) => ({ ...prev, sessionsLoading: true, sessionsError: undefined }));
     try {
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current);
+        retryTimeoutRef.current = null;
+      }
       const data = await fetchAdminUserSessions({ userId });
       setState((prev) => ({
         ...prev,
@@ -75,6 +109,22 @@ export function useAdminUserInsights() {
         sessionsLoading: false,
       }));
     } catch (error) {
+      if (error instanceof AdminApiError && error.status === 429 && error.retryAfterSec) {
+        const ms = Math.max(0, Math.floor(error.retryAfterSec * 1000));
+        const timeoutId = window.setTimeout(() => {
+          fetchAdminUserSessions({ userId })
+            .then((data) => {
+              setState((prev) => ({ ...prev, sessions: data.items ?? [], sessionsLoading: false }));
+            })
+            .catch((e) => {
+              const msg =
+                e instanceof Error ? e.message : 'Sitzungen konnten nicht geladen werden.';
+              setState((prev) => ({ ...prev, sessionsLoading: false, sessionsError: msg }));
+            });
+        }, ms);
+        retryTimeoutRef.current = timeoutId as unknown as number;
+        return;
+      }
       const message =
         error instanceof Error ? error.message : 'Sitzungen konnten nicht geladen werden.';
       setState((prev) => ({ ...prev, sessionsLoading: false, sessionsError: message }));
@@ -97,6 +147,18 @@ export function useAdminUserInsights() {
     },
     [loadSessions]
   );
+
+  useEffect(() => {
+    return () => {
+      try {
+        controllerRef.current?.abort();
+      } catch {}
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current);
+        retryTimeoutRef.current = null;
+      }
+    };
+  }, []);
 
   return {
     summary: state.summary,

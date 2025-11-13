@@ -22,12 +22,19 @@ export type AdminApiErrorBody = {
 export class AdminApiError extends Error {
   readonly status: number;
   readonly payload: AdminApiErrorBody | undefined;
+  readonly retryAfterSec?: number;
 
-  constructor(status: number, message: string, payload?: AdminApiErrorBody) {
+  constructor(
+    status: number,
+    message: string,
+    payload?: AdminApiErrorBody,
+    retryAfterSec?: number
+  ) {
     super(message);
     this.name = 'AdminApiError';
     this.status = status;
     this.payload = payload;
+    this.retryAfterSec = retryAfterSec;
   }
 }
 
@@ -128,11 +135,26 @@ async function adminFetch<T>(path: string, options: AdminFetchOptions = {}): Pro
     : undefined;
 
   if (!response.ok) {
+    let retryAfterSec: number | undefined = undefined;
+    const retryAfterHeader = response.headers.get('Retry-After');
+    if (retryAfterHeader) {
+      const parsed = Number.parseInt(retryAfterHeader, 10);
+      if (Number.isFinite(parsed) && parsed > 0) retryAfterSec = parsed;
+    }
+    if (!retryAfterSec && payload && typeof payload === 'object') {
+      const ra = (payload as { retryAfter?: unknown })?.retryAfter;
+      if (typeof ra === 'number' && Number.isFinite(ra) && ra > 0) retryAfterSec = ra;
+    }
     const message =
       (payload as AdminApiErrorBody | undefined)?.error?.message ||
       response.statusText ||
       'Request failed';
-    throw new AdminApiError(response.status, message, payload as AdminApiErrorBody | undefined);
+    throw new AdminApiError(
+      response.status,
+      message,
+      payload as AdminApiErrorBody | undefined,
+      retryAfterSec
+    );
   }
 
   if (!payload || typeof payload !== 'object') {

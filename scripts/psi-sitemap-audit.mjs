@@ -61,7 +61,10 @@ function pickSample(items, n) {
 
 async function readUrlsFromFile(file) {
   const content = await fs.readFile(file, 'utf8');
-  return content.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  return content
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter(Boolean);
 }
 
 async function readUrlsFromSitemap(url) {
@@ -70,7 +73,9 @@ async function readUrlsFromSitemap(url) {
   const xml = await res.text();
   const urls = Array.from(xml.matchAll(/<loc>([^<]+)<\/loc>/g)).map((m) => m[1].trim());
   // Handle sitemap indexes by including nested sitemap <loc> entries if present
-  const nestedSitemaps = Array.from(xml.matchAll(/<sitemap>\s*<loc>([^<]+)<\/loc>/g)).map((m) => m[1].trim());
+  const nestedSitemaps = Array.from(xml.matchAll(/<sitemap>\s*<loc>([^<]+)<\/loc>/g)).map((m) =>
+    m[1].trim()
+  );
   for (const sm of nestedSitemaps) {
     try {
       const nested = await readUrlsFromSitemap(sm);
@@ -91,7 +96,12 @@ function buildPsiUrl({ url, strategy, categories, key }) {
 }
 
 async function runPsi(url, opts) {
-  const endpoint = buildPsiUrl({ url, strategy: opts.strategy, categories: opts.categories, key: opts.key });
+  const endpoint = buildPsiUrl({
+    url,
+    strategy: opts.strategy,
+    categories: opts.categories,
+    key: opts.key,
+  });
   const res = await fetch(endpoint);
   if (!res.ok) {
     const body = await res.text().catch(() => '');
@@ -113,7 +123,9 @@ async function runPsi(url, opts) {
 
 async function pool(items, limit, worker) {
   const results = [];
-  let i = 0; let active = 0; let rej;
+  let i = 0;
+  let active = 0;
+  let rej;
   return await new Promise((resolve, reject) => {
     rej = reject;
     const maybeNext = () => {
@@ -121,9 +133,15 @@ async function pool(items, limit, worker) {
       while (active < limit && i < items.length) {
         const idx = i++;
         active++;
-        Promise.resolve(worker(items[idx], idx)).then((r) => {
-          results[idx] = r; active--; maybeNext();
-        }).catch((err) => { reject(err); });
+        Promise.resolve(worker(items[idx], idx))
+          .then((r) => {
+            results[idx] = r;
+            active--;
+            maybeNext();
+          })
+          .catch((err) => {
+            reject(err);
+          });
       }
     };
     maybeNext();
@@ -150,12 +168,18 @@ function printTable(rows) {
 
 async function main() {
   const args = parseArgs(process.argv);
-  if (args.help) { console.log(HELP); return; }
+  if (args.help) {
+    console.log(HELP);
+    return;
+  }
 
   const strategy = (args.strategy || 'mobile').toLowerCase();
-  if (!['mobile', 'desktop'].includes(strategy)) throw new Error('Invalid --strategy (mobile|desktop)');
+  if (!['mobile', 'desktop'].includes(strategy))
+    throw new Error('Invalid --strategy (mobile|desktop)');
   const categories = (args.categories || 'performance,seo,best-practices,accessibility')
-    .split(',').map((s) => s.trim()).filter(Boolean);
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
   const concurrency = Number.isFinite(args.concurrency) ? Math.max(1, args.concurrency) : 3;
   const key = args.key || process.env.PAGESPEED_API_KEY;
   if (!key) {
@@ -178,10 +202,16 @@ async function main() {
   const picked = pickSample(urls, sample);
   if (picked.length === 0) throw new Error('No URLs found to audit');
 
-  console.log(`Auditing ${picked.length} URLs with strategy=${strategy} categories=${categories.join(',')} concurrency=${concurrency}`);
-  const rows = await pool(picked, concurrency, (u) => runPsi(u, {
-    strategy, categories, key: args.key,
-  }));
+  console.log(
+    `Auditing ${picked.length} URLs with strategy=${strategy} categories=${categories.join(',')} concurrency=${concurrency}`
+  );
+  const rows = await pool(picked, concurrency, (u) =>
+    runPsi(u, {
+      strategy,
+      categories,
+      key: args.key,
+    })
+  );
   printTable(rows);
   if (args.json) {
     console.log(JSON.stringify({ strategy, categories, results: rows }, null, 2));
@@ -192,4 +222,3 @@ main().catch((err) => {
   console.error('[psi-sitemap-audit] Error:', err.message || err);
   process.exit(1);
 });
-

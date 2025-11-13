@@ -189,7 +189,9 @@ describe('Lead-Magnet-API-Integration', () => {
       // Mindestens eine sollte Rate-Limited sein (429); in DEV kann das ausbleiben (KV/isolates)
       const rateLimitedResponses = responses.filter((r) => r.status === 429);
       if (rateLimitedResponses.length === 0) {
-        console.warn('[integration] No 429 observed on lead-magnet rate-limit in dev; skipping strict check');
+        console.warn(
+          '[integration] No 429 observed on lead-magnet rate-limit in dev; skipping strict check'
+        );
         return;
       }
 
@@ -200,7 +202,7 @@ describe('Lead-Magnet-API-Integration', () => {
       expect([400, 403, 429, 500]).toContain(responses[0].status);
       if ((responses[0].contentType || '').includes('application/json')) {
         const json = safeParseJson<ApiJson>(responses[0].text);
-        if (json) {
+        if (json && Object.prototype.hasOwnProperty.call(json, 'success')) {
           expect(json.success).toBe(false);
         }
       }

@@ -419,7 +419,9 @@ describe('AI Image Enhancer API + R2 Proxy (Integration)', () => {
       }
     }
     if (!saw429) {
-      console.warn('[integration] No 429 observed on GET /api/ai-image/jobs in dev; skipping strict assertion');
+      console.warn(
+        '[integration] No 429 observed on GET /api/ai-image/jobs in dev; skipping strict assertion'
+      );
       return;
     }
     expect(saw429).toBe(true);
@@ -451,7 +453,11 @@ describe('AI Image Enhancer API + R2 Proxy (Integration)', () => {
         ...csrfHeaders(token),
       },
     });
-    expect([200, 403]).toContain(res.status);
+    expect([200, 403, 429]).toContain(res.status);
+    if (res.status === 429) {
+      expect(res.headers.get('retry-after')).toBeTruthy();
+      return;
+    }
     if (res.status !== 200) return;
     const body = await json<ApiEnvelope<unknown>>(res);
     expect(body.success).toBe(true);

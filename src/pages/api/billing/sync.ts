@@ -1,5 +1,5 @@
 import type { APIContext } from 'astro';
-import { withAuthApiMiddleware } from '@/lib/api-middleware';
+import { withAuthApiMiddleware, createMethodNotAllowed } from '@/lib/api-middleware';
 import { createSecureErrorResponse, createSecureRedirect } from '@/lib/response-helpers';
 import Stripe from 'stripe';
 import { sanitizeReturnTo } from '@/utils/sanitizeReturnTo';
@@ -177,3 +177,12 @@ export const GET = withAuthApiMiddleware(
       createSecureErrorResponse('sync_error', 500),
   }
 );
+
+// 405 for unsupported methods (standardized error shape)
+const methodNotAllowed = () => createMethodNotAllowed('GET');
+export const POST = methodNotAllowed;
+export const PUT = methodNotAllowed;
+export const PATCH = methodNotAllowed;
+export const DELETE = methodNotAllowed;
+export const OPTIONS = methodNotAllowed;
+export const HEAD = methodNotAllowed;

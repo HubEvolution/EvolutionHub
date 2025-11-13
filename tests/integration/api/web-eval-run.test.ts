@@ -120,6 +120,17 @@ describe('/api/testing/evaluate/next/run', () => {
       if (json && json.success === false) {
         expect((json as any).error.type).toBe('rate_limit');
       }
+    } else if (res.status === 403) {
+      // Forbidden when CBR is disabled in this environment
+      if (!json || json.success !== false) {
+        throw new Error('Expected forbidden error response when CBR is disabled');
+      }
+      expect((json as any).error.type).toBe('forbidden');
+      // message can vary ('browser_disabled' | 'browser_not_configured')
+      const msg = (json as any).error?.message;
+      if (typeof msg === 'string') {
+        expect(['browser_disabled', 'browser_not_configured']).toContain(msg);
+      }
     } else {
       expect(res.status).toBe(200);
       if (!json || json.success !== true) {
@@ -169,10 +180,13 @@ describe('/api/testing/evaluate/next/run', () => {
     } else if (run.res.status === 200) {
       // When run succeeded, allow task status to be one of the terminal or in-progress states.
       // In dev, a race may leave the task briefly pending if nothing was actually claimed.
-      const claimed = (run.json && run.json.success === true && (run.json as any).data)
-        ? ((run.json as any).data.task as unknown | null)
-        : null;
-      const allowed = claimed ? ['processing', 'completed', 'failed'] : ['pending', 'processing', 'completed', 'failed'];
+      const claimed =
+        run.json && run.json.success === true && (run.json as any).data
+          ? ((run.json as any).data.task as unknown | null)
+          : null;
+      const allowed = claimed
+        ? ['processing', 'completed', 'failed']
+        : ['pending', 'processing', 'completed', 'failed'];
       expect(allowed).toContain(js.data.task.status);
     } else {
       // Error path assertions

@@ -2,6 +2,7 @@ import type { APIContext } from 'astro';
 import type { D1Database } from '@cloudflare/workers-types';
 import {
   withAuthApiMiddleware,
+  withApiMiddleware,
   createApiError,
   createApiSuccess,
   createMethodNotAllowed,
@@ -117,6 +118,21 @@ export const GET = withAuthApiMiddleware(
   }
 );
 
-export const POST = withAuthApiMiddleware(() => createMethodNotAllowed('GET'), {
+export const POST = withApiMiddleware(() => createMethodNotAllowed('GET'), {
+  disableAutoLogging: true,
+});
+export const PUT = withApiMiddleware(() => createMethodNotAllowed('GET'), {
+  disableAutoLogging: true,
+});
+export const PATCH = withApiMiddleware(() => createMethodNotAllowed('GET'), {
+  disableAutoLogging: true,
+});
+export const DELETE = withApiMiddleware(() => createMethodNotAllowed('GET'), {
+  disableAutoLogging: true,
+});
+export const OPTIONS = withApiMiddleware(() => createMethodNotAllowed('GET'), {
+  disableAutoLogging: true,
+});
+export const HEAD = withApiMiddleware(() => createMethodNotAllowed('GET'), {
   disableAutoLogging: true,
 });
