@@ -16,6 +16,7 @@ Verlässliche Qualitäts‑Gates für schnelle Iteration mit klaren Reports.
 - Lint/Format: `npm run lint`, `npm run format:check` vor PRs.
 
 ### Test‑JSON‑Parsing (konkret, by design)
+
 - In Tests KEIN direktes `JSON.parse`. Stattdessen:
   - `tests/shared/http.ts` → `safeParseJson<T>()` verwenden.
   - Responses auf [ApiJson](cci:2://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/tests/integration/api/web-eval-complete.test.ts:28:0-28:62) (oder spezifische Typen) typisieren: `safeParseJson<ApiJson>(text)`.
@@ -23,6 +24,7 @@ Verlässliche Qualitäts‑Gates für schnelle Iteration mit klaren Reports.
 - Ziel: Keine `{}`/`as any`‑Fallbacks, keine `(... || {})` Patterns.
 
 ### Env‑guarded Integrationen
+
 - Stripe‑abhängige Flows sind env‑guarded und werden übersprungen, wenn `STRIPE_SECRET` oder Preis‑Mappings fehlen.
 - Preis‑Mappings für Tests: `PRICING_TABLE`, `PRICING_TABLE_ANNUAL`.
 - Admin‑Endpoints dürfen eine vorseedete Admin‑Session verwenden (nur für Tests).
@@ -39,6 +41,9 @@ Verlässliche Qualitäts‑Gates für schnelle Iteration mit klaren Reports.
   - `npm run openapi:zod:diff`
   - Workflow: `.github/workflows/openapi-zod-diff.yml`
 - Optional Consent‑Smoke (Playwright) gemäß Cookies‑Rules.
+- Cascade Hooks unterstützen lokal die Einhaltung der Testing‑/CI‑Baseline:
+  - `post_write_code` erinnert nach Writes durch Cascade an passende Checks (z. B. `lint`, `typecheck:src`, `openapi:validate`, `test:integration`), ersetzt aber **nicht** die verpflichtenden CI‑Gates unter „Muss“.
+  - Ob diese Kommandos ausgeführt werden, bleibt eine bewusste Entscheidung der Entwickler:innen; die CI‑Workflows sind weiterhin Single Source of Truth für Qualität.
 
 ## Logs & Reports
 
@@ -66,6 +71,7 @@ Verlässliche Qualitäts‑Gates für schnelle Iteration mit klaren Reports.
 
 ## Changelog
 
+- 2025‑11‑13: Cascade Hooks als lokale Ergänzung zu den CI‑Gates erwähnt (Hinweise statt automatischer Läufe).
 - 2025‑11‑12: Verbindliche Test‑Konventionen: `safeParseJson<T>` + [ApiJson](cci:2://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/tests/integration/api/web-eval-complete.test.ts:28:0-28:62) statt direktem `JSON.parse`; Reports unter `reports/` präzisiert.
 - 2025‑11‑03: Optionalen Consent‑Smoke‑Hinweis ergänzt.
 - 2025‑11‑02: Env‑guarded Stripe‑Integrationstests + vorseedete Admin‑Session dokumentiert.

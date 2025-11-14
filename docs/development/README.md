@@ -159,6 +159,8 @@ Siehe auch: [../SETUP.md](../SETUP.md) für Schnellstart-Anleitung
 
 - **[Hybrid Logging System](./hybrid-logging-system.md)** — WebSocket/SSE-basiertes Logging für Astro/Wrangler Dev
 
+- **[Agentische Entwicklung mit Cascade & Hooks](./agentic-cascade-hooks.md)** — Leitfaden für Cascade + Cascade Hooks im Repository
+
 - **[Icon Guidelines](./icon-guidelines.md)** — Verwendung von Icons (Heroicons, Lottie)
 
 ## Third-Party Integrations

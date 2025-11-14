@@ -1,0 +1,11 @@
+2025-11-14T02:31:30.500Z pre_run_command: npm run dev
+2025-11-14T03:15:56.838Z pre_run_command: npm run lint
+2025-11-14T03:16:56.382Z pre_run_command: echo "hook test"
+2025-11-14T03:19:47.328Z pre_run_command: npm run dev
+2025-11-14T04:40:29.408Z pre_run_command: npm run health-check
+2025-11-14T04:42:43.450Z pre_run_command: BASE_URL="https://hub-evolution.com" npm run health-check
+2025-11-14T04:43:07.927Z pre_run_command: npm run test:e2e:v2
+2025-11-14T05:08:27.146Z pre_run_command: npm run test:e2e:v2
+2025-11-14T05:38:53.794Z pre_run_command: npx playwright test -c test-suite-v2/playwright.config.ts src/e2e/features/comment-system.spec.ts --project=chromium --reporter=line
+2025-11-14T05:51:36.805Z pre_run_command: npx playwright test -c test-suite-v2/playwright.config.ts src/e2e/smoke/pricing-checkout-smoke.spec.ts --project=chromium --reporter=line
+2025-11-14T06:01:10.275Z pre_run_command: npx playwright test -c test-suite-v2/playwright.config.ts src/e2e/smoke/pricing-checkout-smoke.spec.ts --project=chromium --reporter=line

@@ -146,7 +146,7 @@ export function useAdminUserList(initialFilters: AdminUserListFilters = {}) {
       }));
       throw error;
     }
-  }, []);
+  }, [strings.errors.userListLoad]);
 
   const loadMore = useCallback(async () => {
     if (!state.nextCursor) return null;
@@ -230,7 +230,7 @@ export function useAdminUserList(initialFilters: AdminUserListFilters = {}) {
       }));
       throw error;
     }
-  }, [state.nextCursor]);
+  }, [state.nextCursor, strings.errors.userListLoadMore]);
 
   const runLifecycleAction = useCallback(
     async (

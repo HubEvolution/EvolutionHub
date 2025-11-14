@@ -124,6 +124,24 @@ paths:
           description: Forbidden (not admin)
         "404":
           description: Not found
+    post:
+      summary: Method Not Allowed
+      description: Only GET is supported for this endpoint.
+      x-source: src/pages/api/admin/audit/logs/[id].ts
+      operationId: postAdminAuditLogByIdNotAllowed
+      responses:
+        "405":
+          description: Method Not Allowed
+          headers:
+            Allow:
+              description: Comma-separated list of allowed methods
+              schema:
+                type: string
+              example: GET
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /api/admin/users/list:
     get:
       summary: List users with admin insights
@@ -184,6 +202,24 @@ paths:
           description: Forbidden (not admin)
         "429":
           description: Rate limited
+    post:
+      summary: Method Not Allowed
+      description: Only GET is supported for this endpoint.
+      x-source: src/pages/api/admin/users/list.ts
+      operationId: postAdminUsersListNotAllowed
+      responses:
+        "405":
+          description: Method Not Allowed
+          headers:
+            Allow:
+              description: Comma-separated list of allowed methods
+              schema:
+                type: string
+              example: GET
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /api/admin/users/{id}/ban:
     post:
       summary: Ban user
@@ -350,6 +386,24 @@ paths:
           description: Unauthorized
         "403":
           description: Forbidden (not admin)
+    post:
+      summary: Method Not Allowed
+      description: Only GET is supported for this endpoint.
+      x-source: src/pages/api/admin/credits/history.ts
+      operationId: postAdminCreditsHistoryNotAllowed
+      responses:
+        "405":
+          description: Method Not Allowed
+          headers:
+            Allow:
+              description: Comma-separated list of allowed methods
+              schema:
+                type: string
+              example: GET
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /api/admin/credits/usage:
     get:
       summary: Get credits balance
@@ -375,6 +429,24 @@ paths:
           description: Unauthorized
         "403":
           description: Forbidden (not admin)
+    post:
+      summary: Method Not Allowed
+      description: Only GET is supported for this endpoint.
+      x-source: src/pages/api/admin/credits/usage.ts
+      operationId: postAdminCreditsUsageNotAllowed
+      responses:
+        "405":
+          description: Method Not Allowed
+          headers:
+            Allow:
+              description: Comma-separated list of allowed methods
+              schema:
+                type: string
+              example: GET
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /api/admin/credits/grant:
     post:
       summary: Grant credits to a user
@@ -1372,6 +1444,24 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Project'
+    post:
+      summary: Method Not Allowed
+      description: Only GET is supported for this endpoint.
+      x-source: src/pages/api/dashboard/projects.ts
+      operationId: postDashboardProjectsNotAllowed
+      responses:
+        "405":
+          description: Method Not Allowed
+          headers:
+            Allow:
+              description: Comma-separated list of allowed methods
+              schema:
+                type: string
+              example: GET
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /api/dashboard/quick-actions:
     get:
       summary: Get quick actions
@@ -1387,6 +1477,24 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/QuickAction'
+    post:
+      summary: Method Not Allowed
+      description: Only GET is supported for this endpoint.
+      x-source: src/pages/api/dashboard/quick-actions.ts
+      operationId: postDashboardQuickActionsNotAllowed
+      responses:
+        "405":
+          description: Method Not Allowed
+          headers:
+            Allow:
+              description: Comma-separated list of allowed methods
+              schema:
+                type: string
+              example: GET
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /api/dashboard/stats:
     get:
       summary: Get dashboard stats
@@ -1400,6 +1508,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Stats'
+    post:
+      summary: Method Not Allowed
+      description: Only GET is supported for this endpoint.
+      x-source: src/pages/api/dashboard/stats.ts
+      operationId: postDashboardStatsNotAllowed
+      responses:
+        "405":
+          description: Method Not Allowed
+          headers:
+            Allow:
+              description: Comma-separated list of allowed methods
+              schema:
+                type: string
+              example: GET
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /api/admin/status:
     get:
       summary: Admin status for current user
@@ -1419,6 +1545,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiErrorResponse'
+    post:
+      summary: Method Not Allowed
+      description: Only GET is supported for this endpoint.
+      x-source: src/pages/api/admin/status.ts
+      operationId: postAdminStatusNotAllowed
+      responses:
+        "405":
+          description: Method Not Allowed
+          headers:
+            Allow:
+              description: Comma-separated list of allowed methods
+              schema:
+                type: string
+              example: GET
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /api/admin/metrics:
     get:
       summary: Live admin metrics
@@ -1427,11 +1571,29 @@ paths:
       operationId: getAdminMetrics
       responses:
         "200":
-          description: Metrics object in GenericResponse wrapper
+          description: Metrics payload
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/GenericResponse'
+    post:
+      summary: Method Not Allowed
+      description: Only GET is supported for this endpoint.
+      x-source: src/pages/api/admin/metrics.ts
+      operationId: postAdminMetricsNotAllowed
+      responses:
+        "405":
+          description: Method Not Allowed
+          headers:
+            Allow:
+              description: Comma-separated list of allowed methods
+              schema:
+                type: string
+              example: GET
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
         "401":
           description: Unauthorized
           content:
@@ -1497,6 +1659,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiErrorResponse'
+    post:
+      summary: Method Not Allowed
+      description: Only GET is supported for this endpoint.
+      x-source: src/pages/api/admin/traffic-24h.ts
+      operationId: postAdminTraffic24hNotAllowed
+      responses:
+        "405":
+          description: Method Not Allowed
+          headers:
+            Allow:
+              description: Comma-separated list of allowed methods
+              schema:
+                type: string
+              example: GET
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /api/admin/comments:
     get:
       summary: Admin comments list
@@ -1512,6 +1692,24 @@ paths:
                 $ref: '#/components/schemas/GenericResponse'
         "401":
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+    post:
+      summary: Method Not Allowed
+      description: Only GET is supported for this endpoint.
+      x-source: src/pages/api/admin/comments/index.ts
+      operationId: postAdminCommentsNotAllowed
+      responses:
+        "405":
+          description: Method Not Allowed
+          headers:
+            Allow:
+              description: Comma-separated list of allowed methods
+              schema:
+                type: string
+              example: GET
           content:
             application/json:
               schema:
@@ -1543,6 +1741,24 @@ paths:
                 $ref: '#/components/schemas/ApiErrorResponse'
         "404":
           description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+    post:
+      summary: Method Not Allowed
+      description: Only GET/DELETE are supported for this endpoint.
+      x-source: src/pages/api/admin/comments/[id]/index.ts
+      operationId: postAdminCommentByIdNotAllowed
+      responses:
+        "405":
+          description: Method Not Allowed
+          headers:
+            Allow:
+              description: Comma-separated list of allowed methods
+              schema:
+                type: string
+              example: GET, DELETE
           content:
             application/json:
               schema:
@@ -1612,6 +1828,24 @@ paths:
                 $ref: '#/components/schemas/GenericResponse'
         "401":
           description: Unauthorized
+    post:
+      summary: Method Not Allowed
+      description: Only GET is supported for this endpoint.
+      x-source: src/pages/api/admin/backup/jobs/index.ts
+      operationId: postAdminBackupJobsNotAllowed
+      responses:
+        "405":
+          description: Method Not Allowed
+          headers:
+            Allow:
+              description: Comma-separated list of allowed methods
+              schema:
+                type: string
+              example: GET
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /api/admin/backup/jobs/{id}:
     get:
       summary: Get backup job
@@ -1633,6 +1867,24 @@ paths:
                 $ref: '#/components/schemas/GenericResponse'
         "404":
           description: Not found
+    post:
+      summary: Method Not Allowed
+      description: Only GET is supported for this endpoint.
+      x-source: src/pages/api/admin/backup/jobs/[id]/index.ts
+      operationId: postAdminBackupJobNotAllowed
+      responses:
+        "405":
+          description: Method Not Allowed
+          headers:
+            Allow:
+              description: Comma-separated list of allowed methods
+              schema:
+                type: string
+              example: GET
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /api/admin/backup/jobs/{id}/progress:
     get:
       summary: Get backup progress
@@ -1654,6 +1906,24 @@ paths:
                 $ref: '#/components/schemas/GenericResponse'
         "404":
           description: Not found
+    post:
+      summary: Method Not Allowed
+      description: Only GET is supported for this endpoint.
+      x-source: src/pages/api/admin/backup/jobs/[id]/progress.ts
+      operationId: postAdminBackupJobProgressNotAllowed
+      responses:
+        "405":
+          description: Method Not Allowed
+          headers:
+            Allow:
+              description: Comma-separated list of allowed methods
+              schema:
+                type: string
+              example: GET
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /api/admin/backup/maintenance/jobs:
     get:
       summary: List maintenance jobs
@@ -1676,6 +1946,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GenericResponse'
+    post:
+      summary: Method Not Allowed
+      description: Only GET is supported for this endpoint.
+      x-source: src/pages/api/admin/backup/maintenance/jobs/index.ts
+      operationId: postAdminMaintenanceJobsNotAllowed
+      responses:
+        "405":
+          description: Method Not Allowed
+          headers:
+            Allow:
+              description: Comma-separated list of allowed methods
+              schema:
+                type: string
+              example: GET
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /api/admin/backup/maintenance/jobs/{id}:
     get:
       summary: Get maintenance job
@@ -1697,6 +1985,24 @@ paths:
                 $ref: '#/components/schemas/GenericResponse'
         "404":
           description: Not found
+    post:
+      summary: Method Not Allowed
+      description: Only GET is supported for this endpoint.
+      x-source: src/pages/api/admin/backup/maintenance/jobs/[id].ts
+      operationId: postAdminMaintenanceJobNotAllowed
+      responses:
+        "405":
+          description: Method Not Allowed
+          headers:
+            Allow:
+              description: Comma-separated list of allowed methods
+              schema:
+                type: string
+              example: GET
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /api/admin/backup/stats:
     get:
       summary: Backup statistics
@@ -1710,6 +2016,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GenericResponse'
+    post:
+      summary: Method Not Allowed
+      description: Only GET is supported for this endpoint.
+      x-source: src/pages/api/admin/backup/stats.ts
+      operationId: postAdminBackupStatsNotAllowed
+      responses:
+        "405":
+          description: Method Not Allowed
+          headers:
+            Allow:
+              description: Comma-separated list of allowed methods
+              schema:
+                type: string
+              example: GET
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /api/admin/backup/create:
     post:
       summary: Create backup job
@@ -2004,6 +2328,24 @@ paths:
           description: Unauthorized
         "403":
           description: Forbidden (not admin)
+    post:
+      summary: Method Not Allowed
+      description: Only GET is supported for this endpoint.
+      x-source: src/pages/api/admin/audit/logs/index.ts
+      operationId: postAdminAuditLogsNotAllowed
+      responses:
+        "405":
+          description: Method Not Allowed
+          headers:
+            Allow:
+              description: Comma-separated list of allowed methods
+              schema:
+                type: string
+              example: GET
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /api/admin/audit/logs/{id}:
     get:
       summary: Get audit log by id
@@ -2054,6 +2396,24 @@ paths:
           description: Unauthorized
         "403":
           description: Forbidden (not admin)
+    post:
+      summary: Method Not Allowed
+      description: Only GET is supported for this endpoint.
+      x-source: src/pages/api/admin/users/sessions.ts
+      operationId: postAdminUserSessionsNotAllowed
+      responses:
+        "405":
+          description: Method Not Allowed
+          headers:
+            Allow:
+              description: Comma-separated list of allowed methods
+              schema:
+                type: string
+              example: GET
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /api/admin/users/revoke-sessions:
     post:
       summary: Revoke sessions for a user or a specific session
@@ -2114,6 +2474,24 @@ paths:
           description: Unauthorized
         "403":
           description: Forbidden (not admin)
+    post:
+      summary: Method Not Allowed
+      description: Only GET is supported for this endpoint.
+      x-source: src/pages/api/admin/rate-limits/state.ts
+      operationId: postAdminRateLimitsStateNotAllowed
+      responses:
+        "405":
+          description: Method Not Allowed
+          headers:
+            Allow:
+              description: Comma-separated list of allowed methods
+              schema:
+                type: string
+              example: GET
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /api/admin/rate-limits/reset:
     post:
       summary: Reset a limiter key

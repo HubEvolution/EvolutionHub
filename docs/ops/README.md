@@ -22,6 +22,8 @@ testRefs: 'test-suite-v2/src/e2e/smoke'
 - **[Monitoring & Runbook](./monitoring.md)** — Monitoring-Baseline, Healthchecks und Incident-Prozesse
 - **[Deployment Guide — Cloudflare Workers](./deployment-guide.md)** — Deploy ausschließlich via Wrangler CLI; GitHub Actions = Pre‑Release Validierung
 
+- **[Runbook: Dashboard System](./dashboard-runbook.md)** — Dashboard APIs, CSRF/Origin, Stripe, R2 proxy policy, verification checklist
+
 ## Sekundär-/Spezialdokumente
 
 - **[Cloudflare Cache Rules (CI/Staging)](./cloudflare-cache-rules.md)** — HTTP Cache Bypass-Regeln & API-Skripte

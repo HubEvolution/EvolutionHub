@@ -1,4 +1,6 @@
-import { log } from '@/server/utils/logger';
+import { loggerFactory } from '@/server/utils/logger-factory';
+import type { LogContext } from '@/config/logging';
+import type { SecurityLogger as CoreSecurityLogger } from '@/types/logger';
 
 /**
  * Global logging function for the application.
@@ -18,6 +20,15 @@ import { log } from '@/server/utils/logger';
  * Alle sicherheitsbezogenen Ereignisse sollten über diese Funktionen protokolliert werden,
  * um ein konsistentes Audit-Log zu gewährleisten.
  */
+
+let securityLogger: CoreSecurityLogger | null = null;
+
+function getSecurityLogger(): CoreSecurityLogger {
+  if (!securityLogger) {
+    securityLogger = loggerFactory.createSecurityLogger();
+  }
+  return securityLogger;
+}
 
 type SecurityEventType =
   | 'AUTH_SUCCESS' // Erfolgreiche Authentifizierung
@@ -58,55 +69,12 @@ export function logSecurityEvent(
     ipAddress?: string;
   } = {}
 ): void {
-  const event: SecurityEvent = {
-    type,
-    userId: options.userId,
-    targetResource: options.targetResource,
-    ipAddress: options.ipAddress,
-    timestamp: Date.now(),
-    details,
+  const mergedDetails: Record<string, unknown> = {
+    ...options,
+    ...details,
   };
 
-  // Bestimme das Log-Level basierend auf dem SecurityEventType
-  let logLevel: string;
-  switch (type) {
-    case 'AUTH_SUCCESS':
-    case 'API_ACCESS':
-    case 'USER_EVENT':
-      logLevel = 'info';
-      break;
-    case 'AUTH_FAILURE':
-    case 'PERMISSION_DENIED':
-    case 'API_ERROR':
-    case 'RATE_LIMIT_EXCEEDED':
-    case 'SUSPICIOUS_ACTIVITY':
-      logLevel = 'error';
-      break;
-    case 'PASSWORD_RESET':
-      logLevel = 'warn';
-      break;
-    default:
-      // Fallback für unbekannte Typen, falls neue Typen hinzugefügt werden
-      logLevel = 'info';
-  }
-
-  // Erstelle eine aussagekräftige Basismeldung
-  const logMessage = `Security Event: ${type}`;
-
-  // Erstelle ein umfassendes Context-Objekt für den zentralen Log-Aufruf
-  const messageMaybe = (details as { message?: unknown }).message;
-  const userMessage = typeof messageMaybe === 'string' ? messageMaybe : undefined;
-  const contextForLog = {
-    ...options, // Beinhaltet userId, targetResource, ipAddress
-    securityEventType: type, // Expliziter Typ für den Log-Eintrag
-    originalDetails: details, // Die originalen Detail-Informationen
-    ...(userMessage ? { userMessage } : {}), // Füge eine spezifische Nachricht hinzu, falls vorhanden
-    logLevel: logLevel, // Behalte das bestimmte Level bei, falls es im Kontext nützlich ist
-    eventSnapshot: event, // vollständiger Ereignis-Snapshot zur Nachverfolgbarkeit
-  };
-
-  // Rufe die zentrale log-Funktion auf, die die Nachrichten an die Clients broadcastet
-  log(logLevel, logMessage, contextForLog);
+  getSecurityLogger().logSecurityEvent(type, mergedDetails);
 }
 
 /**
@@ -117,14 +85,25 @@ export function logAuthSuccess(
   ipAddress?: string,
   details: Record<string, unknown> = {}
 ) {
-  logSecurityEvent('AUTH_SUCCESS', details, { userId, ipAddress });
+  const mergedDetails: Record<string, unknown> = {
+    userId,
+    ...(ipAddress ? { ipAddress } : {}),
+    ...details,
+  };
+
+  getSecurityLogger().logAuthSuccess(mergedDetails);
 }
 
 /**
  * Hilfsfunktion für fehlgeschlagene Authentifizierungs-Events
  */
 export function logAuthFailure(ipAddress?: string, details: Record<string, unknown> = {}) {
-  logSecurityEvent('AUTH_FAILURE', details, { ipAddress });
+  const mergedDetails: Record<string, unknown> = {
+    ...(ipAddress ? { ipAddress } : {}),
+    ...details,
+  };
+
+  getSecurityLogger().logAuthFailure(mergedDetails);
 }
 
 /**
@@ -135,14 +114,25 @@ export function logPasswordReset(
   ipAddress?: string,
   details: Record<string, unknown> = {}
 ) {
-  logSecurityEvent('PASSWORD_RESET', details, { userId, ipAddress });
+  const mergedDetails: Record<string, unknown> = {
+    userId,
+    ...(ipAddress ? { ipAddress } : {}),
+    ...details,
+  };
+
+  logSecurityEvent('PASSWORD_RESET', mergedDetails);
 }
 
 /**
  * Hilfsfunktion für Profil-Update-Events
  */
 export function logProfileUpdate(userId: string, details: Record<string, unknown> = {}) {
-  logSecurityEvent('PROFILE_UPDATE', details, { userId });
+  const mergedDetails: Record<string, unknown> = {
+    userId,
+    ...details,
+  };
+
+  logSecurityEvent('PROFILE_UPDATE', mergedDetails);
 }
 
 /**
@@ -153,7 +143,13 @@ export function logPermissionDenied(
   targetResource: string,
   details: Record<string, unknown> = {}
 ) {
-  logSecurityEvent('PERMISSION_DENIED', details, { userId, targetResource });
+  const mergedDetails: Record<string, unknown> = {
+    userId,
+    targetResource,
+    ...details,
+  };
+
+  logSecurityEvent('PERMISSION_DENIED', mergedDetails);
 }
 
 /**
@@ -164,14 +160,25 @@ export function logRateLimitExceeded(
   targetResource: string,
   details: Record<string, unknown> = {}
 ) {
-  logSecurityEvent('RATE_LIMIT_EXCEEDED', details, { ipAddress, targetResource });
+  const mergedDetails: Record<string, unknown> = {
+    ipAddress,
+    targetResource,
+    ...details,
+  };
+
+  logSecurityEvent('RATE_LIMIT_EXCEEDED', mergedDetails);
 }
 
 /**
  * Hilfsfunktion für verdächtige Aktivitäten
  */
 export function logSuspiciousActivity(ipAddress: string, details: Record<string, unknown> = {}) {
-  logSecurityEvent('SUSPICIOUS_ACTIVITY', details, { ipAddress });
+  const mergedDetails: Record<string, unknown> = {
+    ipAddress,
+    ...details,
+  };
+
+  logSecurityEvent('SUSPICIOUS_ACTIVITY', mergedDetails);
 }
 
 /**
@@ -186,11 +193,13 @@ export function logApiError(
   details: Record<string, unknown> = {},
   options: { userId?: string; ipAddress?: string } = {}
 ) {
-  logSecurityEvent('API_ERROR', details, {
+  const mergedDetails: Record<string, unknown> = {
     targetResource,
-    userId: options.userId,
-    ipAddress: options.ipAddress,
-  });
+    ...options,
+    ...details,
+  };
+
+  getSecurityLogger().logApiError(mergedDetails);
 }
 
 /**
@@ -208,18 +217,27 @@ export function logApiAccess(
   const d = details as { endpoint?: unknown; path?: unknown };
   const endpoint = typeof d.endpoint === 'string' ? d.endpoint : undefined;
   const path = typeof d.path === 'string' ? d.path : undefined;
-  logSecurityEvent('API_ACCESS', details, {
+
+  const mergedDetails: Record<string, unknown> = {
     userId: userId || 'anonymous',
     ipAddress: ipAddress || 'unknown',
     targetResource: endpoint || path || 'unknown',
-  });
+    ...details,
+  };
+
+  getSecurityLogger().logApiAccess(mergedDetails);
 }
 
 /**
  * Hilfsfunktion für Authentifizierungsversuche
  */
 export function logAuthAttempt(ipAddress: string, details: Record<string, unknown> = {}) {
-  logSecurityEvent('AUTH_FAILURE', details, { ipAddress });
+  const mergedDetails: Record<string, unknown> = {
+    ipAddress,
+    ...details,
+  };
+
+  logSecurityEvent('AUTH_FAILURE', mergedDetails);
 }
 
 /**
@@ -237,15 +255,20 @@ export function logUserEvent(
   eventType: string,
   details: Record<string, unknown> = {}
 ) {
-  logSecurityEvent('USER_EVENT', { eventType, ...details }, { userId });
+  const mergedDetails: Record<string, unknown> = {
+    eventType,
+    userId,
+    ...details,
+  };
+
+  logSecurityEvent('USER_EVENT', mergedDetails);
 }
 
 /**
  * Metric-Helper (gebündelte Telemetrie über zentrale Log-Pipeline)
  */
 export function logMetricCounter(name: string, value = 1, dims?: Record<string, unknown>) {
-  log('info', 'METRIC', {
-    type: 'METRIC',
+  logSecurityEvent('METRIC', {
     metric: {
       kind: 'counter',
       name,
@@ -257,8 +280,7 @@ export function logMetricCounter(name: string, value = 1, dims?: Record<string, 
 }
 
 export function logMetricGauge(name: string, value: number, dims?: Record<string, unknown>) {
-  log('info', 'METRIC', {
-    type: 'METRIC',
+  logSecurityEvent('METRIC', {
     metric: {
       kind: 'gauge',
       name,
@@ -270,8 +292,7 @@ export function logMetricGauge(name: string, value: number, dims?: Record<string
 }
 
 export function logMetricTiming(name: string, ms: number, dims?: Record<string, unknown>) {
-  log('info', 'METRIC', {
-    type: 'METRIC',
+  logSecurityEvent('METRIC', {
     metric: {
       kind: 'timing',
       name,

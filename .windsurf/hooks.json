@@ -1,0 +1,25 @@
+{
+  "hooks": {
+    "pre_run_command": [
+      {
+        "command": "node ./scripts/hooks/pre-run-command.mjs",
+        "show_output": true,
+        "working_directory": "/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub"
+      }
+    ],
+    "pre_write_code": [
+      {
+        "command": "node ./scripts/hooks/pre-write-guard.mjs",
+        "show_output": true,
+        "working_directory": "/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub"
+      }
+    ],
+    "post_write_code": [
+      {
+        "command": "node ./scripts/hooks/post-write-quality.mjs",
+        "show_output": true,
+        "working_directory": "/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub"
+      }
+    ]
+  }
+}

@@ -13,7 +13,7 @@ Sicherstellen, dass für jede Aufgabe ein nachvollziehbarer, fehlerarmer Ablauf 
 
 ## Präzedenz & Scope
 
-- Präzedenz: Global Rules > projektbezogene Rules > diese Regel.
+- Präzedenz: Global Rules < projektbezogene Rules
 - Scope: Gilt für alle Arbeiten im Repo (Planung, Recherche, Implementierung, Tests, Docs).
 
 ## Muss

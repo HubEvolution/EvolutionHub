@@ -73,6 +73,8 @@ testRefs: 'tests/integration/api, test-suite-v2/src/e2e'
 
 - **POST** `/api/billing/credits` - Credit-Paket-Kauf (siehe [Billing API](./billing_api.md))
 
+- **Dashboard APIs (Overview)** — siehe [Dashboard APIs](./dashboard.md) für billing/referral summaries, credits, sync, avatar und newsletter.
+
 #### Comments System
 
 - Siehe [Comments API](./comments_api.md) für CRUD, Moderation und Statusmodelle

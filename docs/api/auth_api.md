@@ -2,7 +2,7 @@
 description: 'API-Referenz für Authentifizierungs- und Session-Endpunkte'
 owner: 'Auth Team'
 priority: 'high'
-lastSync: '2025-11-03'
+lastSync: '2025-11-13'
 codeRefs: 'src/pages/api/auth/**, src/lib/stytch.ts, src/lib/api-middleware.ts'
 testRefs: 'N/A'
 ---
@@ -53,6 +53,21 @@ Hinweis: Die frühere Login-Variante `login-v2` wurde entfernt. Verwende ausschl
     - HTML `303 See Other` Redirect zur lokalisierten Login-Seite mit `?success=magic_sent` bei klassischem Formular‑POST
 
   - `callback` antwortet mit direktem `302` Redirect zum Ziel (ggf. lokalisiert)
+
+### Magic Request – Security & Limits
+
+- CSRF: Double‑Submit (`X-CSRF-Token` == Cookie `csrf_token`), Same‑Origin Pflicht
+- Turnstile: Wenn `TURNSTILE_SECRET_KEY` gesetzt ist, muss `cf-turnstile-response` vorliegen
+- Zusätzliche Limits (service‑level, neben `authLimiter`):
+  - pro E‑Mail: 5/min und 50/Tag
+  - pro IP: 10/min
+  - Überschreitung → `429` mit Header `Retry-After: 60`
+
+### Observability
+
+- `X-Stytch-Request-Id` wird auf Auth‑Responses gesetzt:
+  - Magic Request (JSON und 303‑Redirect)
+  - Callbacks (Magic Link / OAuth)
 
 ### Beispiele
 

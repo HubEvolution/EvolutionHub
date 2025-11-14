@@ -53,6 +53,33 @@ Konsistente Tooling‑Konfiguration und Typ‑Strenge für verlässliches Refact
 
 - API‑Handler mit `APIContext` typisieren. Kontextuelle Typisierung via `withApiMiddleware`/`withAuthApiMiddleware` ist zulässig; explizite Annotation empfohlen.
 
+## Cascade Hooks (IDE Guardrails)
+
+- Workspace‑Hooks sind Teil der Tooling‑Baseline und werden über [.windsurf/hooks.json](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/.windsurf/hooks.json:0:0-0:0) konfiguriert:
+  - `pre_run_command`:
+    - Blockiert gefährliche bzw. high‑impact Kommandos, die Cascade ausführen möchte, z. B.:
+      - `npm run deploy*`
+      - `npm run secrets*`
+      - `wrangler publish`, `wrangler deploy`
+      - `git push`, `git commit`
+      - Shell‑Patterns wie `rm -rf`, `rm -r`, `chmod -R`, `chown -R`
+    - Blockierende Rückmeldung über Exit‑Code `2` und Fehlermeldung auf `stderr` (im Cascade‑UI sichtbar).
+  - `pre_write_code`:
+    - Schützt kritische Single Sources of Truth vor automatischen Writes durch Cascade, insbesondere:
+      - `.env`, `.env.*`
+      - `wrangler.toml`, `wrangler.ci.toml`
+      - `.windsurf/rules/**`
+      - `openapi.yaml`
+      - `migrations/**`
+    - Blockiert Writes mit Exit‑Code `2` und Hinweis im Cascade‑UI; manuelle Edits im Editor bleiben erlaubt.
+  - `post_write_code`:
+    - Führt **keine** automatischen CI‑Läufe aus.
+    - Gibt nach Writes durch Cascade lediglich Hinweise auf passende lokale Checks, z. B.:
+      - `npm run lint`, `npm run typecheck:src` für Änderungen unter `src/**`
+      - `npm run openapi:validate` und `npm run test:integration` für Änderungen an API/Validation‑Code bzw. `openapi.yaml`.
+
+- Änderungen an den Hooks (Konfiguration oder Skripte unter `scripts/hooks/*.mjs`) dürfen die bestehende Sicherheits‑ und CI‑Baseline nicht abschwächen und sollten nur nach Review durch Platform/Security‑Owner erfolgen.
+
 ## Should
 
 - React Hooks Rules einhalten; `no-console` nur dort, wo gezielt ausgerollt.
@@ -69,5 +96,6 @@ Konsistente Tooling‑Konfiguration und Typ‑Strenge für verlässliches Refact
 
 ## Changelog
 
+- 2025‑11‑13: Cascade Hooks als Teil der Tooling‑Baseline dokumentiert (Workspace‑Hooks, Guardrails).
 - 2025‑11‑12: Astro‑Linting präzisiert (plugin‑astro), `.prettierignore` um `tests/performance/README.md` erweitert, Astro.locals‑Leitlinie verankert.
 - 2025‑10‑31: `no-explicit-any=error` in `src/**` festgelegt; Tests warnend.

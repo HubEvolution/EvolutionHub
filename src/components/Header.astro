@@ -78,6 +78,7 @@ const localeHref = (target: 'de' | 'en') => mapLocaleHref(target, Astro.url);
           class="flex items-center space-x-3 group-hover:scale-105 transition-transform duration-300"
         >
           <EvolutionHubLogo class="w-9 h-9 md:w-10 md:h-10" />
+          <span class="sr-only">Evolution Hub</span>
         </a>
       </div>
 
@@ -114,7 +115,7 @@ const localeHref = (target: 'de' | 'en') => mapLocaleHref(target, Astro.url);
                 type="button"
                 id="user-menu-button"
                 class="inline-flex items-center gap-2 rounded-full bg-white/60 px-2.5 py-1.5 text-sm font-medium text-gray-800 shadow-sm ring-1 ring-gray-200 backdrop-blur-md transition hover:bg-white/80 dark:bg-slate-800/60 dark:text-slate-100 dark:ring-slate-700"
-                aria-haspopup="menu"
+                aria-haspopup="true"
                 aria-expanded="false"
                 aria-controls="user-menu-dropdown"
               >
@@ -140,7 +141,6 @@ const localeHref = (target: 'de' | 'en') => mapLocaleHref(target, Astro.url);
               </button>
               <div
                 id="user-menu-dropdown"
-                role="menu"
                 aria-labelledby="user-menu-button"
                 class="absolute right-4 top-[4.5rem] w-64 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-gray-200 dark:border-slate-700 py-2 z-50 opacity-0 transform scale-95 transition-all duration-200 pointer-events-none"
               >
@@ -254,7 +254,7 @@ const localeHref = (target: 'de' | 'en') => mapLocaleHref(target, Astro.url);
                 class="inline-flex items-center gap-2 rounded-full bg-white/60 px-2.5 py-1.5 text-sm font-medium text-gray-800 shadow-sm ring-1 ring-gray-200 backdrop-blur-md transition hover:bg-white/80 dark:bg-slate-800/60 dark:text-slate-100 dark:ring-slate-700"
                 title={currentLocale === 'de' ? 'Anmelden' : 'Login'}
                 aria-label={currentLocale === 'de' ? 'Anmelden' : 'Login'}
-                aria-haspopup="menu"
+                aria-haspopup="true"
                 aria-expanded="false"
                 aria-controls="user-menu-dropdown"
               >
