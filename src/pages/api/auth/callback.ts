@@ -11,7 +11,7 @@ import type { Locale } from '@/lib/i18n';
 import { stytchMagicLinkAuthenticate } from '@/lib/stytch';
 import { createSession } from '@/lib/auth-v2';
 import { recordReferralSignup } from '@/lib/services/referral-event-service';
-import { logUserEvent } from '@/lib/security-logger';
+import { logApiError, logUserEvent } from '@/lib/security-logger';
 
 function isAllowedRelativePath(r: string): boolean {
   return typeof r === 'string' && r.startsWith('/') && !r.startsWith('//');
@@ -190,8 +190,10 @@ const getHandler: ApiHandler = async (context: APIContext) => {
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      console.error('[auth][magic][callback] referral_record_failed', {
-        message,
+      logApiError('/api/auth/callback', {
+        reason: 'referral_record_failed',
+        referralCode: referralCookie,
+        error: message,
       });
       logUserEvent(upsert.id, 'referral_signup_error', {
         referralCode: referralCookie,

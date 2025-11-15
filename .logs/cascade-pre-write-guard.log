@@ -18,3 +18,6 @@
 2025-11-15T02:25:47.650Z pre_write_code: src/pages/api/user/logout.ts
 2025-11-15T15:37:37.517Z pre_write_code: src/pages/api/user/logout-v2.ts
 2025-11-15T15:41:35.443Z pre_write_code: src/pages/api/billing/stripe-webhook.ts
+2025-11-15T16:08:45.816Z pre_write_code: src/pages/api/auth/callback.ts
+2025-11-15T16:09:04.798Z pre_write_code: src/pages/api/auth/oauth/[provider]/callback.ts
+2025-11-15T16:09:19.298Z pre_write_code: src/pages/api/user/account.ts

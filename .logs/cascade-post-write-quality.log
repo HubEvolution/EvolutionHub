@@ -17,3 +17,6 @@
 2025-11-15T02:25:49.747Z post_write_code: src/pages/api/user/logout.ts [api]
 2025-11-15T15:37:39.591Z post_write_code: src/pages/api/user/logout-v2.ts [api]
 2025-11-15T15:41:37.574Z post_write_code: src/pages/api/billing/stripe-webhook.ts [api]
+2025-11-15T16:08:47.894Z post_write_code: src/pages/api/auth/callback.ts [api]
+2025-11-15T16:09:06.880Z post_write_code: src/pages/api/auth/oauth/[provider]/callback.ts [api]
+2025-11-15T16:09:21.365Z post_write_code: src/pages/api/user/account.ts [api]

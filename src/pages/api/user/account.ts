@@ -1,5 +1,5 @@
 import { withAuthApiMiddleware, createApiError } from '@/lib/api-middleware';
-import { logUserEvent } from '@/lib/security-logger';
+import { logApiError, logUserEvent } from '@/lib/security-logger';
 import Stripe from 'stripe';
 import type { D1Database } from '@cloudflare/workers-types';
 
@@ -209,8 +209,12 @@ export const DELETE = withAuthApiMiddleware(
       // 204 No Content zurückgeben
       return new Response(null, { status: 204 });
     } catch (error) {
-      // Error wird von der Middleware geloggt und behandelt
-      console.error(`Error deleting account for user ${user.id}:`, error);
+      const message = error instanceof Error ? error.message : String(error);
+      logApiError('/api/user/account', {
+        reason: 'account_deletion_error',
+        userId: user.id,
+        error: message,
+      });
       throw error; // Error weitergeben, damit die Middleware ihn behandeln kann
     }
   },
