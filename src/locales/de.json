@@ -1723,5 +1723,60 @@
         }
       }
     }
+  },
+  "admin": {
+    "discounts": {
+      "title": "Rabattcode-Verwaltung",
+      "subtitle": "Rabattcodes erstellen, verwalten und nachverfolgen",
+      "list": {
+        "title": "Aktive Rabattcodes",
+        "empty": "Keine Rabattcodes gefunden",
+        "code": "Code",
+        "type": "Typ",
+        "value": "Wert",
+        "uses": "Verwendungen",
+        "status": "Status",
+        "actions": "Aktionen"
+      },
+      "create": {
+        "title": "Rabattcode erstellen",
+        "button": "Code erstellen",
+        "code_label": "Code",
+        "code_placeholder": "SOMMER2024",
+        "type_label": "Typ",
+        "type_percentage": "Prozent",
+        "type_fixed": "Fester Betrag",
+        "value_label": "Wert",
+        "value_placeholder": "Wert eingeben",
+        "max_uses_label": "Maximale Verwendungen",
+        "max_uses_placeholder": "Leer lassen für unbegrenzt",
+        "valid_from_label": "Gültig ab",
+        "valid_until_label": "Gültig bis",
+        "description_label": "Beschreibung",
+        "description_placeholder": "Optionale Beschreibung",
+        "status_label": "Status",
+        "status_active": "Aktiv",
+        "status_inactive": "Inaktiv",
+        "success": "Rabattcode erfolgreich erstellt",
+        "error": "Fehler beim Erstellen des Rabattcodes"
+      },
+      "delete": {
+        "button": "Löschen",
+        "confirm": "Möchten Sie diesen Rabattcode wirklich löschen?",
+        "success": "Rabattcode erfolgreich gelöscht",
+        "error": "Fehler beim Löschen des Rabattcodes"
+      },
+      "usage": {
+        "button": "Verwendung anzeigen",
+        "title": "Nutzungsstatistiken",
+        "total_uses": "Gesamtverwendungen",
+        "remaining_uses": "Verbleibende Verwendungen",
+        "unlimited": "Unbegrenzt",
+        "recent_usage": "Letzte Verwendungen",
+        "user": "Benutzer",
+        "date": "Datum",
+        "amount": "Rabattbetrag"
+      }
+    }
   }
 }

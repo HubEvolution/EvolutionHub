@@ -1726,5 +1726,60 @@
         }
       }
     }
+  },
+  "admin": {
+    "discounts": {
+      "title": "Discount Code Management",
+      "subtitle": "Create, manage, and track discount codes for promotions",
+      "list": {
+        "title": "Active Discount Codes",
+        "empty": "No discount codes found",
+        "code": "Code",
+        "type": "Type",
+        "value": "Value",
+        "uses": "Uses",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "create": {
+        "title": "Create Discount Code",
+        "button": "Create Code",
+        "code_label": "Code",
+        "code_placeholder": "SUMMER2024",
+        "type_label": "Type",
+        "type_percentage": "Percentage",
+        "type_fixed": "Fixed Amount",
+        "value_label": "Value",
+        "value_placeholder": "Enter value",
+        "max_uses_label": "Max Uses",
+        "max_uses_placeholder": "Leave empty for unlimited",
+        "valid_from_label": "Valid From",
+        "valid_until_label": "Valid Until",
+        "description_label": "Description",
+        "description_placeholder": "Optional description",
+        "status_label": "Status",
+        "status_active": "Active",
+        "status_inactive": "Inactive",
+        "success": "Discount code created successfully",
+        "error": "Failed to create discount code"
+      },
+      "delete": {
+        "button": "Delete",
+        "confirm": "Are you sure you want to delete this discount code?",
+        "success": "Discount code deleted successfully",
+        "error": "Failed to delete discount code"
+      },
+      "usage": {
+        "button": "View Usage",
+        "title": "Usage Statistics",
+        "total_uses": "Total Uses",
+        "remaining_uses": "Remaining Uses",
+        "unlimited": "Unlimited",
+        "recent_usage": "Recent Usage",
+        "user": "User",
+        "date": "Date",
+        "amount": "Discount Amount"
+      }
+    }
   }
 }

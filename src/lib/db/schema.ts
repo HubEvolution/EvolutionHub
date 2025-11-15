@@ -286,3 +286,33 @@ export const referralEvents = sqliteTable('referral_events', {
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
 });
+
+// Discount codes management tables
+export const discountCodes = sqliteTable('discount_codes', {
+  id: text('id').primaryKey(),
+  code: text('code').notNull().unique(),
+  type: text('type', { enum: ['percentage', 'fixed'] }).notNull(),
+  value: integer('value').notNull(),
+  maxUses: integer('max_uses'),
+  usesCount: integer('uses_count').notNull().default(0),
+  validFrom: integer('valid_from', { mode: 'timestamp' }),
+  validUntil: integer('valid_until', { mode: 'timestamp' }),
+  status: text('status', { enum: ['active', 'inactive', 'expired'] })
+    .notNull()
+    .default('active'),
+  description: text('description'),
+  createdBy: text('created_by').references(() => users.id, { onDelete: 'set null' }),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
+});
+
+export const discountCodeUsages = sqliteTable('discount_code_usages', {
+  id: text('id').primaryKey(),
+  discountCodeId: text('discount_code_id')
+    .notNull()
+    .references(() => discountCodes.id, { onDelete: 'cascade' }),
+  userId: text('user_id').references(() => users.id, { onDelete: 'set null' }),
+  orderId: text('order_id'),
+  discountAmount: integer('discount_amount').notNull(),
+  usedAt: integer('used_at', { mode: 'timestamp' }).notNull(),
+});
