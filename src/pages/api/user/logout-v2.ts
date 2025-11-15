@@ -32,11 +32,11 @@ const handleLogoutV2 = async (context: APIContext) => {
         'RATE_LIMIT_EXCEEDED',
         {
           reason: 'rate_limit',
-          path: '/api/user/logout',
+          path: '/api/user/logout-v2',
         },
         {
           ipAddress: context.clientAddress,
-          targetResource: '/api/user/logout',
+          targetResource: '/api/user/logout-v2',
         }
       );
 
@@ -57,7 +57,7 @@ const handleLogoutV2 = async (context: APIContext) => {
         'AUTH_FAILURE',
         {
           reason: 'missing_runtime',
-          path: '/api/user/logout',
+          path: '/api/user/logout-v2',
         },
         {
           ipAddress: context.clientAddress,

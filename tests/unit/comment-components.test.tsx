@@ -84,6 +84,16 @@ describe('CommentSection', () => {
     expect(screen.getByText('Test Blog Post')).toBeInTheDocument();
   });
 
+  it('should render mobile variant when useIsMobile returns true', () => {
+    vi.spyOn(CommentMobileModule, 'useIsMobile').mockReturnValue(true);
+
+    render(<CommentSection {...sectionProps} />);
+
+    const container = document.getElementById('comments');
+    expect(container).not.toBeNull();
+    expect(container?.className).toContain('comment-section--mobile');
+  });
+
   it('should show loading state', () => {
     vi.spyOn(CommentMobileModule, 'useIsMobile').mockReturnValue(false);
     useCommentStoreMock.mockReturnValue({

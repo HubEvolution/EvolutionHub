@@ -9,3 +9,6 @@
 2025-11-14T05:38:53.794Z pre_run_command: npx playwright test -c test-suite-v2/playwright.config.ts src/e2e/features/comment-system.spec.ts --project=chromium --reporter=line
 2025-11-14T05:51:36.805Z pre_run_command: npx playwright test -c test-suite-v2/playwright.config.ts src/e2e/smoke/pricing-checkout-smoke.spec.ts --project=chromium --reporter=line
 2025-11-14T06:01:10.275Z pre_run_command: npx playwright test -c test-suite-v2/playwright.config.ts src/e2e/smoke/pricing-checkout-smoke.spec.ts --project=chromium --reporter=line
+2025-11-15T00:28:28.676Z pre_run_command: npm run docs:lint
+2025-11-15T00:28:47.603Z pre_run_command: npm run test:e2e:v1 -- tests/e2e/specs/auth-magic-request.spec.ts
+2025-11-15T00:34:51.507Z pre_run_command: npm run docs:lint

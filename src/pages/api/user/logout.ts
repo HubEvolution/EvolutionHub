@@ -4,6 +4,7 @@ import { invalidateSession } from '@/lib/auth-v2';
 import { standardApiLimiter } from '@/lib/rate-limiter';
 import { logSecurityEvent, logUserEvent } from '@/lib/security-logger';
 import { createSecureRedirect } from '@/lib/response-helpers';
+import { getErrorCode } from '@/lib/error-handler';
 
 /**
  * Gemeinsame Logout-Funktion für GET und POST Requests
@@ -86,14 +87,16 @@ const handleLogout = async (context: APIContext) => {
   } catch (error) {
     const sessionId = context.cookies.get('session_id')?.value ?? null;
 
-    // Fehler protokollieren
+    // Fehler protokollieren mit standardisiertem Fehlercode
+    const errorCode = getErrorCode(error);
     logSecurityEvent(
       'AUTH_FAILURE',
       {
         reason: 'logout_error',
         sessionId: sessionId,
+        errorCode,
         path: '/api/user/logout',
-        error: error,
+        error: error instanceof Error ? error.message : String(error),
       },
       {
         ipAddress: context.clientAddress,

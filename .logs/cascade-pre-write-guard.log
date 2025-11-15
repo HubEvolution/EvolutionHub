@@ -4,3 +4,17 @@
 2025-11-14T05:03:21.381Z pre_write_code: docs/ops/runbook-auth.md
 2025-11-14T05:03:36.238Z pre_write_code: docs/ops/runbook-auth.md
 2025-11-14T08:01:48.962Z pre_write_code: src/lib/security-logger.ts
+2025-11-14T21:01:54.610Z pre_write_code: tests/unit/logging/log-utils.sanitizeObject.test.ts
+2025-11-14T21:03:13.360Z pre_write_code: tests/unit/logging/security-logger.test.ts
+2025-11-14T21:41:55.422Z pre_write_code: tests/e2e/specs/auth-magic-request.spec.ts
+2025-11-15T00:07:57.590Z pre_write_code: tests/unit/services/auth-service-login.logging.test.ts
+2025-11-15T00:08:08.148Z pre_write_code: docs/ops/runbook-auth.md
+2025-11-15T00:08:29.345Z pre_write_code: docs/features/production-logging.md
+2025-11-15T00:34:45.742Z pre_write_code: docs/ops/runbook-auth.md
+2025-11-15T02:21:55.906Z pre_write_code: src/components/blog/BlogCTA.astro
+2025-11-15T02:22:39.818Z pre_write_code: src/components/blog/LeadMagnetCTA.astro
+2025-11-15T02:23:03.352Z pre_write_code: tests/integration/api/debug-login.test.ts
+2025-11-15T02:23:20.760Z pre_write_code: tests/unit/comment-components.test.tsx
+2025-11-15T02:25:47.650Z pre_write_code: src/pages/api/user/logout.ts
+2025-11-15T15:37:37.517Z pre_write_code: src/pages/api/user/logout-v2.ts
+2025-11-15T15:41:35.443Z pre_write_code: src/pages/api/billing/stripe-webhook.ts

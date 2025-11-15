@@ -2,7 +2,7 @@
 description: 'Produktionslogging – Transports, Bindings und Redaktion'
 owner: 'Platform Team'
 priority: 'medium'
-lastSync: '2025-11-11'
+lastSync: '2025-11-15'
 codeRefs: 'src/config/logging.ts, src/server/utils/logger-factory.ts, src/server/utils/log-transports.ts'
 feature: 'observability-logging'
 status: 'in_progress'
@@ -35,3 +35,11 @@ Additional env variables:
 Redaction uses `LOG_CONFIG.filters`: nested keys matching `sensitiveKeys` are replaced with `[FILTERED]`, strings are truncated to `maxStringLength`, and recursion is limited by `maxObjectDepth`.
 
 Security and general (metrics-like) service logs created through `loggerFactory` automatically flow through the selected transports.
+
+## Auth Magic Request Logging
+
+- Magic‑Link Requests nutzen Security‑Logger‑Metriken:
+  - `auth_magic_request_success` / `auth_magic_request_error` mit `source: "magic_request"`.
+  - `turnstile_verify_success` / `turnstile_verify_failed` / `turnstile_verify_unavailable` mit `source: "magic_request"`.
+- Providerfehler werden als strukturierte Logs mit `status`, `providerType` und `requestId` geschrieben (keine E‑Mail/PII).
+- Der Header `X-Stytch-Request-Id` erlaubt die Korrelation zwischen Stytch‑`request_id`, Logs und API‑Responses.

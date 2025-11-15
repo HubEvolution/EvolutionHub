@@ -6,6 +6,7 @@ import { createRateLimiter } from '@/lib/rate-limiter';
 import { createSecureErrorResponse, createSecureJsonResponse } from '@/lib/response-helpers';
 import { addCreditPackTenths, getCreditsBalanceTenths } from '@/lib/kv/usage';
 import { verifyReferral } from '@/lib/services/referral-reward-service';
+import { logApiError, logSecurityEvent } from '@/lib/security-logger';
 import type { D1Database, KVNamespace } from '@cloudflare/workers-types';
 
 const stripeWebhookLimiter = createRateLimiter({
@@ -61,16 +62,21 @@ export const POST = withApiMiddleware(
     try {
       const stripe = new Stripe(stripeSecret);
       event = await stripe.webhooks.constructEventAsync(rawBody, sig, webhookSecret);
-      console.log('[stripe_webhook] received', {
-        id: event.id,
-        type: event.type,
+      // Minimal, redacted access log for received webhook
+      logSecurityEvent('API_ACCESS', {
+        endpoint: '/api/billing/stripe-webhook',
+        stripeEventId: event.id,
+        stripeEventType: event.type,
+        source: 'stripe',
       });
     } catch (err) {
       try {
-        console.error('[stripe_webhook] signature_verify_failed', {
+        const message = err instanceof Error ? err.message : String(err);
+        logApiError('/api/billing/stripe-webhook', {
+          reason: 'signature_verify_failed',
           hasSig: !!sig,
           sigLen: typeof sig === 'string' ? sig.length : 0,
-          err: err instanceof Error ? err.message : String(err),
+          error: message,
         });
       } catch {}
       return createSecureErrorResponse('Invalid signature', 400);
@@ -182,11 +188,12 @@ export const POST = withApiMiddleware(
               const legacyKey = `ai:credits:user:${userId}`;
               const legacyInt = Math.floor(totalTenths / 10);
               await kv.put(legacyKey, String(legacyInt));
-              console.log('[stripe_webhook] credits_pack_applied', {
+              logSecurityEvent('USER_EVENT', {
+                eventType: 'stripe_credits_pack_applied',
                 userId,
                 packId,
                 units,
-                total: legacyInt,
+                totalCredits: legacyInt,
               });
             }
             break; // for credits we are done here
@@ -262,27 +269,34 @@ export const POST = withApiMiddleware(
                 subscriptionId,
               });
               if (reward.type === 'verified') {
-                console.log('[stripe_webhook] referral_reward_verified', {
+                logSecurityEvent('USER_EVENT', {
+                  eventType: 'referral_reward_verified',
                   userId: resolvedUserId,
                   referralEventId: reward.eventId,
                 });
               } else if (reward.type !== 'disabled' && reward.type !== 'no_referral') {
-                console.log('[stripe_webhook] referral_reward_skipped', {
+                logSecurityEvent('USER_EVENT', {
+                  eventType: 'referral_reward_skipped',
                   userId: resolvedUserId,
                   referralOutcome: reward.type,
                   reason: reward.reason,
                 });
               }
             } catch (rewardErr) {
-              console.error('[stripe_webhook] referral_reward_error', {
+              const message =
+                rewardErr instanceof Error ? rewardErr.message : String(rewardErr);
+              logApiError('/api/billing/stripe-webhook', {
+                reason: 'referral_reward_error',
                 subscriptionId,
                 userId: resolvedUserId,
-                message: rewardErr instanceof Error ? rewardErr.message : String(rewardErr),
+                error: message,
               });
             }
           }
 
-          console.log('[stripe_webhook] handled checkout.session.completed', {
+          logSecurityEvent('API_ACCESS', {
+            endpoint: '/api/billing/stripe-webhook',
+            phase: 'handled_checkout.session.completed',
             userId: resolvedUserId,
             customerId: customerId ? 'set' : 'missing',
             subscriptionId: subscriptionId ? 'set' : 'missing',
@@ -353,13 +367,15 @@ export const POST = withApiMiddleware(
                 subscriptionId: sub.id,
               });
               if (reward.type === 'verified') {
-                console.log('[stripe_webhook] referral_reward_verified', {
+                logSecurityEvent('USER_EVENT', {
+                  eventType: 'referral_reward_verified',
                   userId,
                   referralEventId: reward.eventId,
                   subscriptionId: sub.id,
                 });
               } else if (reward.type !== 'disabled' && reward.type !== 'no_referral') {
-                console.log('[stripe_webhook] referral_reward_skipped', {
+                logSecurityEvent('USER_EVENT', {
+                  eventType: 'referral_reward_skipped',
                   userId,
                   referralOutcome: reward.type,
                   reason: reward.reason,
@@ -367,16 +383,21 @@ export const POST = withApiMiddleware(
                 });
               }
             } catch (rewardErr) {
-              console.error('[stripe_webhook] referral_reward_error', {
+              const message =
+                rewardErr instanceof Error ? rewardErr.message : String(rewardErr);
+              logApiError('/api/billing/stripe-webhook', {
+                reason: 'referral_reward_error',
                 subscriptionId: sub.id,
                 userId,
-                message: rewardErr instanceof Error ? rewardErr.message : String(rewardErr),
+                error: message,
               });
             }
           }
 
-          console.log('[stripe_webhook] handled subscription event', {
-            event: event.type,
+          logSecurityEvent('API_ACCESS', {
+            endpoint: '/api/billing/stripe-webhook',
+            phase: 'handled_subscription_event',
+            stripeEventType: event.type,
             userId,
             status,
             plan,
@@ -390,7 +411,12 @@ export const POST = withApiMiddleware(
       }
       return createSecureJsonResponse({ received: true });
     } catch (err) {
-      console.error('[stripe_webhook] error', err instanceof Error ? err.message : String(err));
+      const message = err instanceof Error ? err.message : String(err);
+      logApiError('/api/billing/stripe-webhook', {
+        reason: 'webhook_error',
+        error: message,
+        stripeEventType: event?.type ?? 'unknown',
+      });
       return createSecureErrorResponse('webhook_error', 500);
     }
   },
