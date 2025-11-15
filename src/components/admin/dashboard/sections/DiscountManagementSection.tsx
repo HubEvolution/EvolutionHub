@@ -16,17 +16,11 @@ interface DiscountCode {
   updatedAt: number;
 }
 
-const dateFormatter = new Intl.DateTimeFormat('de-DE', {
-  dateStyle: 'short',
-  timeStyle: 'short',
-});
-
 const DiscountManagementSection: React.FC = () => {
   const [discountCodes, setDiscountCodes] = useState<DiscountCode[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [selectedCode, setSelectedCode] = useState<string | null>(null);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -48,7 +42,7 @@ const DiscountManagementSection: React.FC = () => {
       if (!response.ok) {
         throw new Error('Failed to fetch discount codes');
       }
-      const data = await response.json();
+      const data: { data?: { discountCodes?: DiscountCode[] } } = await response.json();
       setDiscountCodes(data.data?.discountCodes || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -86,7 +80,7 @@ const DiscountManagementSection: React.FC = () => {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData: { error?: { message?: string } } = await response.json();
         throw new Error(errorData.error?.message || 'Failed to create discount code');
       }
 
@@ -120,7 +114,7 @@ const DiscountManagementSection: React.FC = () => {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData: { error?: { message?: string } } = await response.json();
         throw new Error(errorData.error?.message || 'Failed to delete discount code');
       }
 
