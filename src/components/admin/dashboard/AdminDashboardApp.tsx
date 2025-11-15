@@ -1,6 +1,7 @@
 import React, { useEffect, Suspense, lazy } from 'react';
 import KpiOverviewSection from './sections/KpiOverviewSection';
 import AuditMonitoringSection from './sections/AuditMonitoringSection';
+import DiscountManagementSection from './sections/DiscountManagementSection';
 import { useAdminTelemetry } from './hooks/useAdminTelemetry';
 
 const UserInsightsSection = lazy(() => import('./sections/UserInsightsSection'));
@@ -33,6 +34,7 @@ const AdminDashboardApp: React.FC = () => {
       <Suspense fallback={<div aria-busy="true" className="h-24 rounded-md bg-white/5" />}>
         <FinancialFeatureSection />
       </Suspense>
+      <DiscountManagementSection />
       <AuditMonitoringSection />
     </div>
   );
