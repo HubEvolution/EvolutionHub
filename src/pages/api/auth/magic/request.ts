@@ -8,7 +8,7 @@ import {
 } from '@/lib/api-middleware';
 import { authLimiter, rateLimit } from '@/lib/rate-limiter';
 import { stytchMagicLinkLoginOrCreate, StytchError } from '@/lib/stytch';
-import { logMetricCounter } from '@/lib/security-logger';
+import { logApiError, logMetricCounter } from '@/lib/security-logger';
 import { sanitizeReferralCode } from '@/lib/referrals/utils';
 
 async function sha256(input: string): Promise<Uint8Array> {
@@ -335,7 +335,8 @@ const handler: ApiHandler = async (context: APIContext) => {
         const providerType = typeof e?.providerType === 'string' ? e.providerType : undefined;
         const requestId = typeof e?.requestId === 'string' ? e.requestId : undefined;
         // Minimal structured log for production diagnostics (no sensitive data)
-        console.error('[auth][magic][request] provider_error', {
+        logApiError('/api/auth/magic/request', {
+          reason: 'provider_error',
           status,
           providerType,
           requestId,

@@ -13,7 +13,7 @@ import { standardApiLimiter } from '@/lib/rate-limiter';
 import { createSecureRedirect } from '@/lib/response-helpers';
 import { createAuthService } from '@/lib/services/auth-service-impl';
 // Removed unused ServiceError imports
-import { logSecurityEvent } from '@/lib/security-logger';
+import { logApiError, logSecurityEvent } from '@/lib/security-logger';
 import { getErrorCode } from '@/lib/error-handler';
 
 /**
@@ -83,19 +83,32 @@ const handleLogoutV2 = async (context: APIContext) => {
         context.cookies.delete('session_id', { path: '/' });
       } catch (serviceError) {
         // Bei Fehlern im Service trotzdem Cookie löschen und weiterleiten
-        console.error('Logout service error:', serviceError);
         context.cookies.delete('session_id', { path: '/' });
 
         // Fehler für Logging extrahieren
         const errorCode = getErrorCode(serviceError);
+        const message =
+          serviceError instanceof Error ? serviceError.message : String(serviceError);
+        logApiError(
+          '/api/user/logout-v2',
+          {
+            reason: 'logout_service_error',
+            errorCode,
+            sessionId,
+            error: message,
+          },
+          {
+            ipAddress: context.clientAddress,
+          }
+        );
         logSecurityEvent(
           'AUTH_FAILURE',
           {
             reason: 'logout_error',
             errorCode,
-            sessionId: sessionId,
+            sessionId,
             path: '/api/user/logout-v2',
-            error: serviceError instanceof Error ? serviceError.message : String(serviceError),
+            error: message,
           },
           {
             ipAddress: context.clientAddress,

@@ -84,6 +84,37 @@
       }
     }
   },
+  "discounts": {
+    "heading": "Rabatte & Gutscheine",
+    "create": {
+      "heading": "Neuen Rabattcode anlegen",
+      "codeLabel": "Code",
+      "stripeCouponIdLabel": "Stripe-Coupon-ID",
+      "typeLabel": "Typ",
+      "valueLabel": "Wert",
+      "maxUsesLabel": "Maximale Nutzungen (optional)",
+      "statusLabel": "Status",
+      "submit": "Code speichern"
+    },
+    "filters": {
+      "searchLabel": "Suche (Code oder Stripe-Coupon-ID)",
+      "statusLabel": "Status",
+      "isActiveNowLabel": "Nur aktuell gültige",
+      "hasRemainingUsesLabel": "Nur mit Restnutzungen",
+      "reload": "Liste aktualisieren"
+    },
+    "table": {
+      "code": "Code",
+      "stripeCouponId": "Stripe-Coupon-ID",
+      "type": "Typ",
+      "value": "Wert",
+      "status": "Status",
+      "usage": "Nutzung",
+      "validity": "Gültigkeit",
+      "createdAt": "Erstellt am"
+    },
+    "empty": "Keine Rabattcodes vorhanden."
+  },
   "errors": {
     "userListLoad": "Benutzerliste konnte nicht geladen werden.",
     "userListLoadMore": "Weitere Benutzer konnten nicht geladen werden.",

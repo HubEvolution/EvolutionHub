@@ -298,6 +298,32 @@ export interface AdminRateLimitStateResponse {
   >;
 }
 
+export interface AdminDiscountCode {
+  id: string;
+  code: string;
+  stripeCouponId: string;
+  type: 'percentage' | 'fixed';
+  value: number;
+  maxUses: number | null;
+  usesCount: number;
+  validFrom: number | null;
+  validUntil: number | null;
+  status: 'active' | 'inactive' | 'expired';
+  description: string | null;
+  createdBy: string | null;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface AdminDiscountListResponse {
+  items: AdminDiscountCode[];
+  pagination: {
+    limit: number;
+    cursor: string | null;
+    hasMore: boolean;
+  };
+}
+
 export type AdminTelemetryEvent =
   | 'dashboard_loaded'
   | 'widget_interaction'
@@ -469,6 +495,41 @@ export function fetchAdminRateLimitState(params: { name?: string } = {}, signal?
 
 export function resetAdminRateLimit(body: { name: string; key: string }) {
   return adminFetch<AdminApiSuccess<unknown>>('/api/admin/rate-limits/reset', {
+    method: 'POST',
+    body,
+    requireCsrf: true,
+  });
+}
+
+export function fetchAdminDiscounts(
+  params: {
+    status?: 'active' | 'inactive' | 'expired';
+    search?: string;
+    isActiveNow?: boolean;
+    hasRemainingUses?: boolean;
+    limit?: number;
+    cursor?: string | null;
+  } = {},
+  signal?: AbortSignal
+) {
+  return adminFetch<AdminDiscountListResponse>('/api/admin/discounts/list', {
+    query: params,
+    signal,
+  });
+}
+
+export function adminCreateDiscount(body: {
+  code: string;
+  stripeCouponId: string;
+  type: 'percentage' | 'fixed';
+  value: number;
+  maxUses?: number | null;
+  validFrom?: number | null;
+  validUntil?: number | null;
+  description?: string | null;
+  status?: 'active' | 'inactive' | 'expired';
+}) {
+  return adminFetch<{ discountCode: AdminDiscountCode }>('/api/admin/discounts/create', {
     method: 'POST',
     body,
     requireCsrf: true,

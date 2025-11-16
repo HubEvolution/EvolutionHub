@@ -84,6 +84,37 @@
       }
     }
   },
+  "discounts": {
+    "heading": "Discounts & coupons",
+    "create": {
+      "heading": "Create discount code",
+      "codeLabel": "Code",
+      "stripeCouponIdLabel": "Stripe coupon ID",
+      "typeLabel": "Type",
+      "valueLabel": "Value",
+      "maxUsesLabel": "Max uses (optional)",
+      "statusLabel": "Status",
+      "submit": "Save code"
+    },
+    "filters": {
+      "searchLabel": "Search (code or Stripe coupon ID)",
+      "statusLabel": "Status",
+      "isActiveNowLabel": "Only currently active",
+      "hasRemainingUsesLabel": "Only with remaining uses",
+      "reload": "Reload list"
+    },
+    "table": {
+      "code": "Code",
+      "stripeCouponId": "Stripe coupon ID",
+      "type": "Type",
+      "value": "Value",
+      "status": "Status",
+      "usage": "Usage",
+      "validity": "Validity",
+      "createdAt": "Created at"
+    },
+    "empty": "No discount codes yet."
+  },
   "errors": {
     "userListLoad": "Failed to load user list.",
     "userListLoadMore": "Failed to load more users.",

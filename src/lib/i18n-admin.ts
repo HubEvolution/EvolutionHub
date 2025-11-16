@@ -67,6 +67,37 @@ export interface AdminLocale {
       table: { pack: string; units: string; created: string; expires: string };
     };
   };
+  discounts: {
+    heading: string;
+    create: {
+      heading: string;
+      codeLabel: string;
+      stripeCouponIdLabel: string;
+      typeLabel: string;
+      valueLabel: string;
+      maxUsesLabel: string;
+      statusLabel: string;
+      submit: string;
+    };
+    filters: {
+      searchLabel: string;
+      statusLabel: string;
+      isActiveNowLabel: string;
+      hasRemainingUsesLabel: string;
+      reload: string;
+    };
+    table: {
+      code: string;
+      stripeCouponId: string;
+      type: string;
+      value: string;
+      status: string;
+      usage: string;
+      validity: string;
+      createdAt: string;
+    };
+    empty: string;
+  };
   errors: {
     userListLoad: string;
     userListLoadMore: string;

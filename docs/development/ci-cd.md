@@ -2,7 +2,7 @@
 description: 'CI/CD-Pipeline, Workflows und Qualitäts-Gates für Evolution Hub'
 owner: 'Platform Team'
 priority: 'high'
-lastSync: '2025-11-03'
+lastSync: '2025-11-16'
 codeRefs: '.github/workflows/**, scripts/**, docs/development/ci-cd.md'
 testRefs: 'N/A'
 ---
@@ -256,6 +256,71 @@ Loggt Fehlerdetails bei Deployment-Failure.
 1. **test** (benötigt `unit` + `integration`): Playwright E2E, i18n-Report
 
 **Concurrency:** Cancelation bei neuen Pushes.
+
+---
+
+## Dependency Management & Renovate {#dependency-management-renovate}
+
+Evolution Hub nutzt [Renovate](https://docs.renovatebot.com/) für automatisierte Dependency-Updates.
+
+**Konfiguration**
+
+- Single Source of Truth: `.github/renovate.json`
+- Presets:
+  - `config:recommended` als Basis
+  - `helpers:pinGitHubActionDigests` für gepinnte GitHub Actions Digests
+  - `:maintainLockFilesWeekly` für wöchentliche Lockfile-Maintenance (npm@11 + `package-lock.json`)
+  - `:semanticCommits`, `:semanticCommitTypeAll(chore)`, `:semanticCommitScope(deps)`
+- Manager:
+  - `npm` (Runtime- und Dev-Dependencies aus `package.json`)
+  - `github-actions` (Third-Party-Actions in `.github/workflows/**`)
+- Zeitplan:
+  - `schedule: ["on monday"]` → Update-Welle einmal pro Woche (Montag)
+- Limits:
+  - `prHourlyLimit: 2`
+  - `prConcurrentLimit: 10`
+
+**Gruppierung**
+
+- `dev dependencies`
+  - `matchPackagePatterns`: `^@types/`, `^eslint`, `^prettier`, `^vitest`
+  - `matchUpdateTypes`: `["minor", "patch"]`
+- `astro tooling`
+  - `matchPackagePatterns`: `^@astrojs/`, `^astro$`, `^hono$`, `^wrangler$`
+- `runtime core (stripe/openai/auth/db)`
+  - `matchPackageNames`: `stripe`, `openai`, `jose`, `hono`, `drizzle-orm`, `@cloudflare/workers-types`
+  - `matchUpdateTypes`: `["minor", "patch"]`
+
+**Automerge (Snippets, aktuell deaktiviert)**
+
+Es existieren vorbereitete Snippets für eine spätere Automerge-Aktivierung, sind aber bewusst **nicht** in `.github/renovate.json` konfiguriert:
+
+- Dev-Dependencies – Patch-Automerge (Entwurf):
+
+  ```jsonc
+  {
+    "groupName": "dev dependencies (automerge patch)",
+    "groupSlug": "dev-deps-automerge-patch",
+    "matchPackagePatterns": ["^@types/", "^eslint", "^prettier", "^vitest"],
+    "matchUpdateTypes": ["patch"],
+    "automerge": true,
+    "automergeType": "pr"
+  }
+  ```
+
+- Lockfile-Maintenance – Automerge (Entwurf):
+
+  ```jsonc
+  "lockFileMaintenance": {
+    "enabled": true,
+    "automerge": true,
+    "automergeType": "branch"
+  }
+  ```
+
+**Wichtiger Hinweis:**
+
+Diese Snippets dienen nur als Vorlage. Sie sind aktuell **nicht aktiv** und dürfen erst nach separater Freigabe (Review + Security-Abwägung) in `.github/renovate.json` übernommen werden.
 
 ---
 

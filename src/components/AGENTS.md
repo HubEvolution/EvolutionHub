@@ -20,6 +20,7 @@ Geltung: Astro/React‑Komponenten unter `src/components`.
 - Keine neuen UI‑Libraries ohne Freigabe.
 - Imports am Dateianfang; Alias ausschließlich `@/*` (kein `~/*`).
 - Lint/Format gemäß `.windsurf/rules/tooling-and-style.md` (u. a. eslint‑plugin‑astro, Prettier).
+- Für Feature‑spezifische Komponenten zusätzlich die passenden Cascade‑Rules beachten, z. B.: `.windsurf/rules/pricing.md`, `.windsurf/rules/image-enhancer.md`, `.windsurf/rules/video-enhancer.md`, `.windsurf/rules/transcriptor.md`, `.windsurf/rules/prompt.md`, `.windsurf/rules/scraper.md`, `.windsurf/rules/cookies-and-consent.md`.
 
 ## Tests
 

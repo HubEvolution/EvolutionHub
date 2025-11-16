@@ -112,8 +112,6 @@ Evolution Hub nutzt aktuell drei Hook-Events:
 - `.env`, `.env.*`
 - `wrangler.toml`, `wrangler.ci.toml`
 - `.windsurf/rules/**`
-- `openapi.yaml`
-- `migrations/**`
 
 ### Verhalten
 

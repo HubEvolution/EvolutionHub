@@ -2,6 +2,8 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended",
+    "helpers:pinGitHubActionDigests",
+    ":maintainLockFilesWeekly",
     ":semanticCommits",
     ":semanticCommitTypeAll(chore)",
     ":semanticCommitScope(deps)"
@@ -11,7 +13,7 @@
   "prHourlyLimit": 2,
   "prConcurrentLimit": 10,
   "schedule": ["on monday"],
-  "enabledManagers": ["npm"],
+  "enabledManagers": ["npm", "github-actions"],
   "packageRules": [
     {
       "groupName": "dev dependencies",
@@ -23,6 +25,19 @@
       "groupName": "astro tooling",
       "groupSlug": "astro-tooling",
       "matchPackagePatterns": ["^@astrojs/", "^astro$", "^hono$", "^wrangler$"]
+    },
+    {
+      "groupName": "runtime core (stripe/openai/auth/db)",
+      "groupSlug": "runtime-core",
+      "matchPackageNames": [
+        "stripe",
+        "openai",
+        "jose",
+        "hono",
+        "drizzle-orm",
+        "@cloudflare/workers-types"
+      ],
+      "matchUpdateTypes": ["minor", "patch"]
     },
     {
       "groupName": "pinned major exclusions",

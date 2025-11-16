@@ -21,3 +21,5 @@ export * from './schemas/prompt';
 export * from './schemas/templates';
 export * from './schemas/users';
 export * from './schemas/webscraper';
+
+export * from './schemas/discount';

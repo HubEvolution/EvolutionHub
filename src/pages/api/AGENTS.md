@@ -2,6 +2,12 @@
 
 Geltung: Nur für API‑Routen unterhalb dieses Ordners.
 
+## Cascade-Rules (Baseline)
+
+- Core/Infra: `.windsurf/rules/api-and-security.md`, `.windsurf/rules/auth.md`, `.windsurf/rules/infra.md`, `.windsurf/rules/project-structure.md`.
+- Quality/Tooling: `.windsurf/rules/zod-openapi.md`, `.windsurf/rules/testing-and-ci.md`, `.windsurf/rules/tooling-and-style.md`.
+- Feature/Cross‑Cutting (je nach Route): `.windsurf/rules/pricing.md`, `.windsurf/rules/image-enhancer.md`, `.windsurf/rules/video-enhancer.md`, `.windsurf/rules/transcriptor.md`, `.windsurf/rules/prompt.md`, `.windsurf/rules/scraper.md`, `.windsurf/rules/cookies-and-consent.md`.
+
 ## Handler‑Konventionen
 
 - Ein Route‑Handler pro Datei; extrahiere Geschäftslogik in Services (`src/lib/services/*`) oder Utils.

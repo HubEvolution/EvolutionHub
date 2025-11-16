@@ -5,6 +5,7 @@ import { useAdminTelemetry } from './hooks/useAdminTelemetry';
 
 const UserInsightsSection = lazy(() => import('./sections/UserInsightsSection'));
 const FinancialFeatureSection = lazy(() => import('./sections/FinancialFeatureSection'));
+const DiscountManagementSection = lazy(() => import('./sections/DiscountManagementSection'));
 
 /**
  * Root React island for the admin dashboard.
@@ -32,6 +33,9 @@ const AdminDashboardApp: React.FC = () => {
       </Suspense>
       <Suspense fallback={<div aria-busy="true" className="h-24 rounded-md bg-white/5" />}>
         <FinancialFeatureSection />
+      </Suspense>
+      <Suspense fallback={<div aria-busy="true" className="h-24 rounded-md bg-white/5" />}>
+        <DiscountManagementSection />
       </Suspense>
       <AuditMonitoringSection />
     </div>
