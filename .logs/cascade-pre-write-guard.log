@@ -161,3 +161,7 @@
 2025-11-18T01:56:58.268Z pre_write_code: docs/ops/production-readiness-go-live.md
 2025-11-18T02:04:05.445Z pre_write_code: tests/integration/api/billing/stripe-webhook.test.ts
 2025-11-18T02:07:55.480Z pre_write_code: tests/integration/billing-api.test.ts
+2025-11-18T03:31:07.525Z pre_write_code: tests/integration/api/admin-credits-happy.test.ts
+2025-11-18T03:34:43.429Z pre_write_code: tests/integration/api/admin-credits-happy.test.ts
+2025-11-18T03:43:20.702Z pre_write_code: tests/integration/api/ai-image-usage.test.ts
+2025-11-18T03:46:09.278Z pre_write_code: tests/integration/api/web-eval-usage.test.ts

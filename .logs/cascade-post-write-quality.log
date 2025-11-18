@@ -160,3 +160,7 @@
 2025-11-18T01:57:04.901Z post_write_code: docs/ops/production-readiness-go-live.md [docs]
 2025-11-18T02:04:07.541Z post_write_code: tests/integration/api/billing/stripe-webhook.test.ts [tests]
 2025-11-18T02:07:57.608Z post_write_code: tests/integration/billing-api.test.ts [tests]
+2025-11-18T03:31:09.621Z post_write_code: tests/integration/api/admin-credits-happy.test.ts [tests]
+2025-11-18T03:34:45.561Z post_write_code: tests/integration/api/admin-credits-happy.test.ts [tests]
+2025-11-18T03:43:22.830Z post_write_code: tests/integration/api/ai-image-usage.test.ts [tests]
+2025-11-18T03:46:11.374Z post_write_code: tests/integration/api/web-eval-usage.test.ts [tests]
