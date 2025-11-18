@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
 import { toast } from 'sonner';
+import { getI18n } from '@/utils/i18n';
+import { getLocale } from '@/lib/i18n';
 
 type Mode =
   | 'login'
@@ -43,10 +45,9 @@ export default function AuthStatusNotifier({ mode }: { mode: Mode }) {
     window.addEventListener('notify', notifyHandler as EventListener);
     (window as any).onTurnstileError = function () {
       try {
-        const isGerman = window.location.pathname.startsWith('/de');
-        const message = isGerman
-          ? 'Turnstile konnte nicht geladen werden. Bitte Seite neu laden oder anderes Netzwerk versuchen.'
-          : 'Turnstile failed to load. Please reload the page or try a different network.';
+        const locale = getLocale(window.location.pathname);
+        const t = getI18n(locale);
+        const message = t('auth.toasts.turnstile_load_error');
         window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'error', message } }));
       } catch {}
     };
@@ -54,7 +55,8 @@ export default function AuthStatusNotifier({ mode }: { mode: Mode }) {
       try {
         const url = new URL(window.location.href);
         const params = url.searchParams;
-        const isGerman = window.location.pathname.startsWith('/de');
+        const locale = getLocale(window.location.pathname);
+        const t = getI18n(locale);
         const debug = /(?:^|[?&])debug_auth=1(?:&|$)/.test(url.search);
         const log = (note: string, data?: unknown) => {
           if (!debug) return;
@@ -88,7 +90,7 @@ export default function AuthStatusNotifier({ mode }: { mode: Mode }) {
           const error = params.get('error');
 
           if (loggedOut === 'true') {
-            toast.success(isGerman ? 'Erfolgreich abgemeldet.' : 'You have been logged out.');
+            toast.success(t('auth.toasts.logged_out'));
             log('toast-loggedOut');
             try {
               window.dispatchEvent(
@@ -107,9 +109,7 @@ export default function AuthStatusNotifier({ mode }: { mode: Mode }) {
             }
           }
           if (success) {
-            const msg = isGerman
-              ? 'Aktion erfolgreich abgeschlossen.'
-              : 'Action completed successfully.';
+            const msg = t('auth.toasts.login_success');
             toast.success(msg);
             log('toast-success', { code: success });
             try {
@@ -130,9 +130,7 @@ export default function AuthStatusNotifier({ mode }: { mode: Mode }) {
           }
           if (error) {
             const code = error;
-            const msg = isGerman
-              ? `Anmeldung fehlgeschlagen (${code}).`
-              : `Sign-in failed (${code}).`;
+            const msg = t('auth.toasts.login_error', { code });
             toast.error(msg);
             log('toast-error', { code });
           }
@@ -140,55 +138,43 @@ export default function AuthStatusNotifier({ mode }: { mode: Mode }) {
           const success = params.get('success');
           const error = params.get('error');
           if (success) {
-            toast.success(isGerman ? 'E-Mail wurde versendet.' : 'Email has been sent.');
+            toast.success(t('auth.toasts.password_reset_sent.success'));
             log('toast-success', { mode, code: success });
           }
           if (error) {
             const code = error;
-            toast.error(
-              isGerman ? `Versand fehlgeschlagen (${code}).` : `Sending failed (${code}).`
-            );
+            toast.error(t('auth.toasts.password_reset_sent.error', { code }));
             log('toast-error', { mode, code });
           }
         } else if (mode === 'forgot-password') {
           const success = params.get('success');
           const error = params.get('error');
           if (success) {
-            toast.success(
-              isGerman ? 'E-Mail zum Zurücksetzen wurde gesendet.' : 'Password reset email sent.'
-            );
+            toast.success(t('auth.toasts.forgot_password.success'));
             log('toast-success', { mode, code: success });
           }
           if (error) {
             const code = error;
-            toast.error(
-              isGerman
-                ? `Senden fehlgeschlagen (${code}).`
-                : `Failed to send reset email (${code}).`
-            );
+            toast.error(t('auth.toasts.forgot_password.error', { code }));
             log('toast-error', { mode, code });
           }
         } else if (mode === 'reset-password') {
           const success = params.get('success');
           const error = params.get('error');
           if (success) {
-            toast.success(isGerman ? 'Passwort wurde zurückgesetzt.' : 'Password has been reset.');
+            toast.success(t('auth.toasts.reset_password.success'));
             log('toast-success', { mode, code: success });
           }
           if (error) {
             const code = error;
-            toast.error(
-              isGerman
-                ? `Passwort-Zurücksetzen fehlgeschlagen (${code}).`
-                : `Password reset failed (${code}).`
-            );
+            toast.error(t('auth.toasts.reset_password.error', { code }));
             log('toast-error', { mode, code });
           }
         } else if (mode === 'register') {
           const success = params.get('success');
           const error = params.get('error');
           if (success) {
-            toast.success(isGerman ? 'Registrierung erfolgreich.' : 'Registration successful.');
+            toast.success(t('auth.toasts.register.success'));
             log('toast-success', { mode, code: success });
             try {
               window.dispatchEvent(
@@ -208,11 +194,7 @@ export default function AuthStatusNotifier({ mode }: { mode: Mode }) {
           }
           if (error) {
             const code = error;
-            toast.error(
-              isGerman
-                ? `Registrierung fehlgeschlagen (${code}).`
-                : `Registration failed (${code}).`
-            );
+            toast.error(t('auth.toasts.register.error', { code }));
             log('toast-error', { mode, code });
           }
         }

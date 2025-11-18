@@ -8,9 +8,9 @@ import { contactInfo } from '@/config/contact';
 export const prerender = false;
 
 const publicTurnstileSiteKey =
-  (import.meta.env.PUBLIC_TURNSTILE_SITE_KEY as string | undefined) ??
   ((Astro.locals as unknown as { runtime?: { env?: Record<string, string> } })?.runtime?.env
-    ?.PUBLIC_TURNSTILE_SITE_KEY as string | undefined);
+    ?.PUBLIC_TURNSTILE_SITE_KEY as string | undefined) ??
+  (import.meta.env.PUBLIC_TURNSTILE_SITE_KEY as string | undefined);
 
 const locale = getLocale(Astro.url.pathname);
 const t = getI18n(locale);

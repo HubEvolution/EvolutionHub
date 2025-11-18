@@ -72,7 +72,12 @@
     },
     "credits": {
       "heading": "Credits",
-      "tenthsLabel": "Tenths"
+      "tenthsLabel": "Tenths",
+      "form": {
+        "amountLabel": "Credits (default: 1000)",
+        "grantLabel": "Grant credits",
+        "deductLabel": "Deduct credits"
+      }
     },
     "history": {
       "none": "No credit history.",
@@ -82,6 +87,13 @@
         "created": "Created",
         "expires": "Expires"
       }
+    },
+    "planForm": {
+      "planLabel": "Override plan",
+      "intervalLabel": "Billing interval",
+      "prorationLabel": "Proration",
+      "cancelImmediatelyLabel": "Cancel immediately (instead of at period end)",
+      "submitLabel": "Update plan"
     }
   },
   "discounts": {
@@ -113,7 +125,12 @@
       "validity": "Validity",
       "createdAt": "Created at"
     },
-    "empty": "No discount codes yet."
+    "empty": "No discount codes yet.",
+    "actions": {
+      "createStripeCoupon": "Create Stripe coupon",
+      "confirmCreateStripeCoupon": "Create Stripe coupon in Stripe now?",
+      "copyStripeCouponId": "Copy ID"
+    }
   },
   "errors": {
     "userListLoad": "Failed to load user list.",
@@ -123,6 +140,11 @@
     "userDelete": "Failed to delete user.",
     "userLookup": "Lookup failed.",
     "sessionsLoad": "Failed to load sessions.",
-    "sessionsRevoke": "Failed to revoke sessions."
+    "sessionsRevoke": "Failed to revoke sessions.",
+    "creditsUsage": "Failed to load credits.",
+    "creditsHistory": "Failed to load credit history.",
+    "creditsGrant": "Failed to grant credits.",
+    "creditsDeduct": "Failed to deduct credits.",
+    "setPlan": "Failed to update plan."
   }
 }

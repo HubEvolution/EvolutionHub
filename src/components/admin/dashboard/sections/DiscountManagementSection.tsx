@@ -16,7 +16,18 @@ const DiscountManagementSection: React.FC = () => {
     maxUses: '' as string,
     status: 'active' as 'active' | 'inactive' | 'expired',
   });
-  const { items, loading, error, creating, createError, reload, create } = useAdminDiscounts();
+  const {
+    items,
+    loading,
+    error,
+    creating,
+    createError,
+    reload,
+    create,
+    couponUpdatingId,
+    couponError,
+    createStripeCoupon,
+  } = useAdminDiscounts();
 
   const usageLabel = (maxUses: number | null, usesCount: number) => {
     if (maxUses == null) return `${usesCount} / ∞`;
@@ -254,6 +265,7 @@ const DiscountManagementSection: React.FC = () => {
           </button>
         </div>
         {error && <p className="mt-3 text-sm text-red-300">{error}</p>}
+        {couponError && <p className="mt-2 text-sm text-red-300">{couponError}</p>}
 
         <div className="mt-4 max-h-[360px] overflow-auto rounded-md border border-white/10">
           <table className="min-w-full divide-y divide-white/10 text-sm text-white/80">
@@ -267,6 +279,9 @@ const DiscountManagementSection: React.FC = () => {
                 <th className="px-3 py-2 text-left">{strings.discounts.table.usage}</th>
                 <th className="px-3 py-2 text-left">{strings.discounts.table.validity}</th>
                 <th className="px-3 py-2 text-left">{strings.discounts.table.createdAt}</th>
+                <th className="px-3 py-2 text-left">
+                  {strings.discounts.actions.createStripeCoupon}
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5 bg-white/5">
@@ -296,6 +311,55 @@ const DiscountManagementSection: React.FC = () => {
                       {discount.createdAt
                         ? new Date(discount.createdAt).toLocaleString()
                         : '—'}
+                    </td>
+                    <td className="px-3 py-2 text-xs text-white/60">
+                      {discount.stripeCouponId ? (
+                        <div className="flex items-center gap-2">
+                          <span className="break-all text-[10px] text-white/70">
+                            {discount.stripeCouponId}
+                          </span>
+                          <button
+                            type="button"
+                            className="inline-flex items-center rounded-md border border-white/25 px-2 py-1 text-[10px] text-white/80 hover:bg-white/10"
+                            onClick={async () => {
+                              try {
+                                if (navigator?.clipboard?.writeText) {
+                                  await navigator.clipboard.writeText(discount.stripeCouponId);
+                                }
+                              } catch {
+                                // Copy-Fehler still ignorieren
+                              }
+                            }}
+                          >
+                            {strings.discounts.actions.copyStripeCouponId}
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          className="inline-flex items-center rounded-md border border-emerald-500 px-2 py-1 text-[11px] font-medium text-emerald-200 hover:bg-emerald-600/20 disabled:opacity-50"
+                          disabled={couponUpdatingId === discount.id || loading}
+                          onClick={async () => {
+                            const confirmed = window.confirm(
+                              strings.discounts.actions.confirmCreateStripeCoupon
+                            );
+                            if (!confirmed) return;
+                            try {
+                              await createStripeCoupon(discount.id);
+                              sendEvent('action_performed', {
+                                action: 'create_stripe_coupon',
+                                metadata: { code: discount.code },
+                              });
+                            } catch {
+                              // Fehler werden über couponError angezeigt
+                            }
+                          }}
+                        >
+                          {couponUpdatingId === discount.id
+                            ? strings.common.loading
+                            : strings.discounts.actions.createStripeCoupon}
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))

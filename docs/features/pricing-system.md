@@ -1,8 +1,8 @@
 ---
-description: 'Pricing-System: Stripe-Integration, Architektur und API-Referenz'
+description: 'Pricing-System: Stripe-Integration, Discounts, Architektur und API-Referenz'
 owner: 'Billing Team'
 priority: 'high'
-lastSync: '2025-11-10'
+lastSync: '2025-11-16'
 codeRefs: 'src/pages/api/billing/**, src/components/pricing/**, docs/development/stripe-setup.md'
 feature: 'pricing-system'
 status: 'shipped'
@@ -349,6 +349,16 @@ CREATE TABLE subscriptions (
 - **Speicherung**: KV-basierte persistente Speicherung
 
 - **Verfolgung**: Vollständiges Audit-Trail
+
+### Rabattcodes & Stripe-Coupons
+
+- **Discount Codes** werden in der D1-Tabelle `discount_codes` verwaltet (Felder u. a. `code`, `type`, `value`, `max_uses`, `valid_from`, `valid_until`, `status`, `stripe_coupon_id`).
+
+- Im Checkout-Flow kann optional ein `discountCode` über die Pricing-UI erfasst und an `POST /api/billing/session` übergeben werden. Nur aktive Codes mit verbleibenden Nutzungen und gültigem Zeitfenster werden akzeptiert.
+
+- Wenn ein Discount bereits einen Stripe-Coupon (`stripe_coupon_id`) besitzt, wird dieser bei der Erstellung der Checkout-Session als Coupon in Stripe hinterlegt. Andernfalls kann ein Coupon über den Admin-Flow nachträglich erzeugt werden.
+
+- Die tatsächliche Nutzung (Uses) wird im Stripe-Webhook (`/api/billing/stripe-webhook`) anhand von `metadata.discountCode` idempotent gezählt; beim Erreichen von `max_uses` wird der Code automatisch auf `expired` gesetzt.
 
 ## Testing
 

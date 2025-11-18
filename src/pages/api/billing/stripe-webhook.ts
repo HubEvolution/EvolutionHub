@@ -6,6 +6,7 @@ import { createRateLimiter } from '@/lib/rate-limiter';
 import { createSecureErrorResponse, createSecureJsonResponse } from '@/lib/response-helpers';
 import { addCreditPackTenths, getCreditsBalanceTenths } from '@/lib/kv/usage';
 import { verifyReferral } from '@/lib/services/referral-reward-service';
+import { applyDiscountUsage } from '@/lib/services/discount-service';
 import { logApiError, logSecurityEvent } from '@/lib/security-logger';
 import type { D1Database, KVNamespace } from '@cloudflare/workers-types';
 
@@ -214,6 +215,32 @@ export const POST = withApiMiddleware(
               }
             } catch (_err) {
               // Ignore database lookup failures; continue without resolved user
+            }
+          }
+
+          const discountCodeRaw = meta['discountCode'];
+          const discountCode =
+            typeof discountCodeRaw === 'string' && discountCodeRaw.trim() !== ''
+              ? discountCodeRaw.trim()
+              : null;
+          if (discountCode) {
+            try {
+              await applyDiscountUsage(db, {
+                code: discountCode,
+                now:
+                  typeof session.created === 'number'
+                    ? session.created * 1000
+                    : Date.now(),
+              });
+            } catch (discountErr) {
+              const message =
+                discountErr instanceof Error ? discountErr.message : String(discountErr);
+              logApiError('/api/billing/stripe-webhook', {
+                reason: 'discount_usage_error',
+                stripeEventId: event.id,
+                discountCode,
+                error: message,
+              });
             }
           }
 

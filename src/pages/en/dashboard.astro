@@ -11,7 +11,18 @@ import Card from '@/components/ui/Card';
 import { localizePath } from '@/lib/locale-path';
 import { getI18n } from '@/utils/i18n';
 
-const locals = Astro.locals as { user?: { email?: string; plan?: string } | null };
+type DashboardPlanId = 'free' | 'pro' | 'premium' | 'enterprise';
+
+type DashboardUser = {
+  id: string;
+  name: string;
+  username: string;
+  email: string;
+  image?: string;
+  plan?: DashboardPlanId;
+};
+
+const locals = Astro.locals as { user?: DashboardUser | null };
 if (!locals.user) {
   return Astro.redirect('/en/login');
 }
@@ -179,51 +190,54 @@ const accountI18nSettings = {
   },
 };
 
+const buyCreditsStrings = {
+  button: t('pages.dashboard.billing.creditsBuy.button'),
+  errorPrefix: t('pages.dashboard.billing.creditsBuy.errorPrefix'),
+  errorInvalidResponse: t('pages.dashboard.billing.creditsBuy.errorInvalidResponse'),
+  errorGeneric: t('pages.dashboard.billing.creditsBuy.errorGeneric'),
+};
+
 const dangerStrings = {
-  title: 'Delete account',
-  description:
-    'Deleting your account anonymises data and logs you out everywhere. This action cannot be undone.',
-  button: 'Delete account',
-  close: 'Close',
+  title: t('pages.dashboard.account.danger.title'),
+  description: t('pages.dashboard.account.danger.description'),
+  button: t('pages.dashboard.account.danger.button'),
+  close: t('pages.dashboard.account.danger.close'),
   confirm: {
-    title: 'Confirm deletion',
-    description: 'Are you sure you want to permanently delete your account?',
-    confirmCta: 'Delete now',
-    cancelCta: 'Cancel',
+    title: t('pages.dashboard.account.danger.confirm.title'),
+    description: t('pages.dashboard.account.danger.confirm.description'),
+    confirmCta: t('pages.dashboard.account.danger.confirm.confirmCta'),
+    cancelCta: t('pages.dashboard.account.danger.confirm.cancelCta'),
   },
   subscription: {
-    title: 'Active subscription detected',
-    description:
-      'We found active subscriptions. You can jump to billing or schedule cancellation at the current period end.',
-    periodEnd: 'Renews on {date}',
-    indefinite: 'Renews automatically until cancelled',
-    goToBilling: 'Go to billing',
-    deleteAnyway: 'Delete anyway',
-    back: 'Back',
+    title: t('pages.dashboard.account.danger.subscription.title'),
+    description: t('pages.dashboard.account.danger.subscription.description'),
+    periodEnd: t('pages.dashboard.account.danger.subscription.periodEnd'),
+    indefinite: t('pages.dashboard.account.danger.subscription.indefinite'),
+    goToBilling: t('pages.dashboard.account.danger.subscription.goToBilling'),
+    deleteAnyway: t('pages.dashboard.account.danger.subscription.deleteAnyway'),
+    back: t('pages.dashboard.account.danger.subscription.back'),
   },
   messages: {
-    processing: 'Deleting account…',
-    success: 'Your account was deleted successfully. You will be signed out.',
-    error: 'We couldn’t delete your account. Please try again or contact support.',
+    processing: t('pages.dashboard.account.danger.messages.processing'),
+    success: t('pages.dashboard.account.danger.messages.success'),
+    error: t('pages.dashboard.account.danger.messages.error'),
   },
 };
 
 const profileCopy = {
-  title: 'Public profile',
-  description: 'Control how your identity appears across Evolution Hub workspaces and automations.',
-  nameLabel: 'Name',
-  usernameLabel: 'Username',
-  emailLabel: 'Email',
-  changeEmailHint: 'Email changes require a re-verification workflow handled by support.',
-  changeEmailCta: 'Change email (coming soon)',
-  saveCta: 'Save changes',
-  hybridTitle: 'Passwordless by design',
-  hybridDescription:
-    'Authentication relies on secure magic links and OAuth providers. Nothing to rotate or forget.',
-  supportTitle: 'Need help?',
-  supportDescription:
-    'Review the authentication playbook for session management, recovery, and device trust.',
-  supportCta: 'Open guide',
+  title: t('pages.dashboard.account.profile.title'),
+  description: t('pages.dashboard.account.profile.description'),
+  nameLabel: t('pages.dashboard.account.profile.nameLabel'),
+  usernameLabel: t('pages.dashboard.account.profile.usernameLabel'),
+  emailLabel: t('pages.dashboard.account.profile.emailLabel'),
+  changeEmailHint: t('pages.dashboard.account.profile.changeEmailHint'),
+  changeEmailCta: t('pages.dashboard.account.profile.changeEmailCta'),
+  saveCta: t('pages.dashboard.account.profile.saveCta'),
+  hybridTitle: t('pages.dashboard.account.profile.hybridTitle'),
+  hybridDescription: t('pages.dashboard.account.profile.hybridDescription'),
+  supportTitle: t('pages.dashboard.account.profile.supportTitle'),
+  supportDescription: t('pages.dashboard.account.profile.supportDescription'),
+  supportCta: t('pages.dashboard.account.profile.supportCta'),
   supportHref: localizePath(locale, '/docs/architecture/auth-architecture'),
 };
 
@@ -277,7 +291,7 @@ const manageBillingLink = (() => {
                 </div>
                 <div class="flex flex-col gap-1">
                   <span class="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                    Monthly quota remaining
+                    {t('pages.dashboard.billing.quota.label')}
                   </span>
                   <div class="flex items-baseline gap-2">
                     <span id="quota-remaining" class="text-lg font-bold text-white">
@@ -291,7 +305,7 @@ const manageBillingLink = (() => {
                       }
                     </span>
                     <span id="quota-loading" class="text-[10px] font-semibold text-slate-400">
-                      Updating…
+                      {t('pages.dashboard.billing.quota.loading')}
                     </span>
                   </div>
                 </div>
@@ -309,9 +323,12 @@ const manageBillingLink = (() => {
                   id="buy-credits-btn"
                   type="button"
                   data-login-href="/en/login"
+                  data-error-prefix={buyCreditsStrings.errorPrefix}
+                  data-error-invalid-response={buyCreditsStrings.errorInvalidResponse}
+                  data-error-generic={buyCreditsStrings.errorGeneric}
                   class="inline-flex items-center rounded-md bg-gradient-to-r from-indigo-500 to-fuchsia-500 px-3 py-1.5 text-xs font-bold text-white shadow-sm shadow-indigo-500/30 transition hover:from-indigo-600 hover:to-fuchsia-600 disabled:opacity-60"
                 >
-                  Buy credits
+                  {buyCreditsStrings.button}
                 </button>
               </div>
             </div>
@@ -336,11 +353,11 @@ const manageBillingLink = (() => {
                     <div class="flex items-center justify-between text-xs text-slate-400">
                       <span>
                         <span id="quota-used">{used}</span>/<span id="quota-limit">{limit}</span>{' '}
-                        used
+                        {t('pages.dashboard.billing.quota.usage.suffix')}
                       </span>
                       {daysLeft !== null && (
                         <span>
-                          resets in {daysLeft} day{daysLeft === 1 ? '' : 's'}
+                          {t('pages.dashboard.billing.quota.resets', { count: daysLeft })}
                         </span>
                       )}
                     </div>
@@ -439,6 +456,13 @@ const manageBillingLink = (() => {
       if (!btn || !sel) return;
 
       var loginHref = (btn && btn.getAttribute('data-login-href')) || '/en/login';
+      var errorPrefix =
+        (btn && btn.getAttribute('data-error-prefix')) || 'Checkout failed: ';
+      var errorInvalidResponse =
+        (btn && btn.getAttribute('data-error-invalid-response')) ||
+        'Checkout failed: Invalid response';
+      var errorGeneric =
+        (btn && btn.getAttribute('data-error-generic')) || 'Checkout failed';
 
       function readCookie(name) {
         var m = document.cookie.match(
@@ -504,7 +528,7 @@ const manageBillingLink = (() => {
               var text = await res.text().catch(function () {
                 return '';
               });
-              alert('Checkout failed: ' + (text || res.status));
+              alert(errorPrefix + (text || res.status));
               return;
             }
             var data = await res.json().catch(function () {
@@ -514,11 +538,11 @@ const manageBillingLink = (() => {
             if (nextUrl) {
               window.location.href = nextUrl;
             } else {
-              alert('Checkout failed: Invalid response');
+              alert(errorInvalidResponse);
             }
           } catch (e) {
             console.warn('[credits] checkout error', e);
-            alert('Checkout failed');
+            alert(errorGeneric);
           } finally {
             btn.disabled = false;
           }

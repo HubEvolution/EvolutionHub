@@ -72,7 +72,12 @@
     },
     "credits": {
       "heading": "Credits",
-      "tenthsLabel": "Zehntel"
+      "tenthsLabel": "Zehntel",
+      "form": {
+        "amountLabel": "Credits (Standard: 1000)",
+        "grantLabel": "Credits hinzufügen",
+        "deductLabel": "Credits abziehen"
+      }
     },
     "history": {
       "none": "Keine Credit-Historie vorhanden.",
@@ -82,6 +87,13 @@
         "created": "Erstellt",
         "expires": "Ablauf"
       }
+    },
+    "planForm": {
+      "planLabel": "Plan überschreiben",
+      "intervalLabel": "Abrechnungsintervall",
+      "prorationLabel": "Proration",
+      "cancelImmediatelyLabel": "Sofort kündigen (statt Periodenende)",
+      "submitLabel": "Plan aktualisieren"
     }
   },
   "discounts": {
@@ -113,7 +125,12 @@
       "validity": "Gültigkeit",
       "createdAt": "Erstellt am"
     },
-    "empty": "Keine Rabattcodes vorhanden."
+    "empty": "Keine Rabattcodes vorhanden.",
+    "actions": {
+      "createStripeCoupon": "Stripe-Coupon erzeugen",
+      "confirmCreateStripeCoupon": "Stripe-Coupon jetzt bei Stripe erzeugen?",
+      "copyStripeCouponId": "ID kopieren"
+    }
   },
   "errors": {
     "userListLoad": "Benutzerliste konnte nicht geladen werden.",
@@ -123,6 +140,11 @@
     "userDelete": "Benutzer konnte nicht gelöscht werden.",
     "userLookup": "Lookup fehlgeschlagen.",
     "sessionsLoad": "Sitzungen konnten nicht geladen werden.",
-    "sessionsRevoke": "Sitzungen konnten nicht widerrufen werden."
+    "sessionsRevoke": "Sitzungen konnten nicht widerrufen werden.",
+    "creditsUsage": "Credits konnten nicht geladen werden.",
+    "creditsHistory": "Historie konnte nicht geladen werden.",
+    "creditsGrant": "Credits konnten nicht vergeben werden.",
+    "creditsDeduct": "Credits konnten nicht abgezogen werden.",
+    "setPlan": "Plan konnte nicht aktualisiert werden."
   }
 }

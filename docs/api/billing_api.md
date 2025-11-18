@@ -2,9 +2,9 @@
 description: 'Stripe Billing- und Subscription-API Referenz für Evolution Hub'
 owner: 'Billing Team'
 priority: 'high'
-lastSync: '2025-11-03'
-codeRefs: 'src/pages/api/billing/**, src/lib/services/billing/**, docs/api/billing_api.md'
-testRefs: 'N/A'
+lastSync: '2025-11-16'
+codeRefs: 'src/pages/api/billing/**, src/lib/services/billing/**, src/lib/services/discount-service.ts, docs/api/billing_api.md'
+testRefs: 'tests/integration/billing-api.test.ts'
 ---
 
 <!-- markdownlint-disable MD051 -->
@@ -88,13 +88,16 @@ Erstellt eine Stripe Checkout Session für Pro/Premium/Enterprise-Pläne (monatl
 {
   "plan": "pro" | "premium" | "enterprise",
   "workspaceId": "ws_...",
-  "interval": "monthly" | "annual" ,
+  "interval": "monthly" | "annual",
+  "discountCode": "WELCOME2025", // optional
   "returnTo": "/dashboard?tab=billing" (optional)
 }
 
 ```json
 
 - `interval` standardmäßig `monthly`; gültige Preis-IDs kommen aus `PRICING_TABLE[_ANNUAL]`.
+
+- `discountCode` (optional) referenziert einen aktiven Rabattcode in der D1-Tabelle `discount_codes`. Nur gültige, aktuell aktive Codes mit verbleibenden Nutzungen werden akzeptiert; ungültige oder abgelaufene Codes führen zu `validation_error`.
 
 - `returnTo` und `Referer` werden sanitisiert und als Query-Parameter an `/api/billing/sync` weitergegeben.
 
@@ -269,10 +272,6 @@ Erstellt eine Stripe Checkout Session für Credits-Pakete (100 / 500 / 1500 Imag
 
 > Dieser Endpoint verwendet keinen `success`-Wrapper. Fehlerantworten nutzen `error`-Codes wie `invalid_pack`, `pack_not_configured` oder `stripe_not_configured`.
 
-### POST `/api/billing/stripe-webhook`
-
-Unverändert: siehe OpenAPI. Nutzt `STRIPE_WEBHOOK_SECRET` und `withRedirectMiddleware`. (Details bleiben bestehen.)
-
 ### POST `/api/billing/stripe-webhook` (Server-only)
 
 Verarbeitet Stripe-Webhooks für Subscription-Events.
@@ -287,9 +286,11 @@ Verarbeitet Stripe-Webhooks für Subscription-Events.
 
 - **Error-Handling:** Umfassende Fehlerprotokollierung
 
-#### Webhook-Events
+#### Webhook-Events & Discounts
 
 **Unterstützte Events:**
+
+- `checkout.session.completed` (inkl. Discount-Verarbeitung)
 
 - `customer.subscription.created`
 
@@ -302,6 +303,8 @@ Verarbeitet Stripe-Webhooks für Subscription-Events.
 - `invoice.payment_succeeded`
 
 - `invoice.payment_failed`
+
+Bei `checkout.session.completed` wird `metadata.discountCode` (falls gesetzt) ausgewertet. Für gültige Codes wird in der D1-Tabelle `discount_codes` atomar `uses_count` erhöht und der Status bei Erreichen von `max_uses` auf `expired` gesetzt. Die Verarbeitung ist idempotent; wiederholte Events erhöhen die Nutzung nicht mehrfach.
 
 #### Beispiel-Webhook-Payload
 

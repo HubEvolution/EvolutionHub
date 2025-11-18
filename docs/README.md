@@ -208,9 +208,7 @@ testRefs: 'test-suite-v2/, tests/'
 ## Bekannte Lücken
 
 - TODO: Vollständige Tool-Dokumentation (Webscraper, Voice Visualizer)
-
-- TODO: Produktions-Readiness-Checklisten
-
+- Produktions-Readiness-Checklisten: siehe [Production-Readiness & Go-Live Review](./ops/production-readiness-go-live.md)
 - TODO: Multi-Language-Dokumentation (DE/EN)
 
 ## 📖 Wichtige Root-Dokumente

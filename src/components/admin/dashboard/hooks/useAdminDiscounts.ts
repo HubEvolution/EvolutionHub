@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   adminCreateDiscount,
+  adminCreateStripeCouponForDiscount,
   fetchAdminDiscounts,
   type AdminDiscountCode,
   AdminApiError,
@@ -21,6 +22,8 @@ interface DiscountState {
   error?: string;
   creating: boolean;
   createError?: string;
+  couponUpdatingId?: string | null;
+  couponError?: string;
   pagination?: {
     limit: number;
     cursor: string | null;
@@ -152,6 +155,25 @@ export function useAdminDiscounts(initialFilters: AdminDiscountFilters = {}) {
     []
   );
 
+  const createStripeCoupon = useCallback(async (discountId: string) => {
+    setState((prev) => ({ ...prev, couponUpdatingId: discountId, couponError: undefined }));
+    try {
+      const result = await adminCreateStripeCouponForDiscount(discountId);
+      const updated = result.discountCode;
+      setState((prev) => ({
+        ...prev,
+        couponUpdatingId: null,
+        items: prev.items.map((item) => (item.id === updated.id ? updated : item)),
+      }));
+      return updated;
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Stripe-Coupon konnte nicht erzeugt werden.';
+      setState((prev) => ({ ...prev, couponUpdatingId: null, couponError: message }));
+      throw error;
+    }
+  }, []);
+
   useEffect(() => {
     load().catch(() => undefined);
     return () => {
@@ -172,5 +194,8 @@ export function useAdminDiscounts(initialFilters: AdminDiscountFilters = {}) {
     pagination: state.pagination,
     reload: load,
     create,
+    couponUpdatingId: state.couponUpdatingId,
+    couponError: state.couponError,
+    createStripeCoupon,
   };
 }

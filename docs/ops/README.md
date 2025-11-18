@@ -19,7 +19,10 @@ testRefs: 'test-suite-v2/src/e2e/smoke'
 
 - **[Runbook: Web‑Eval Executor](./web-eval-executor-runbook.md)** — Auth, Secrets, Start/Stop, Prod‑Gating, Rate‑Limits
 
+- **[Production-Readiness & Go-Live Review](./production-readiness-go-live.md)** — Zentrales Go-Live Review & Checkliste (Owner: Project Owner; unterstützt durch Cascade EvolutionHub AI Agent)
+
 - **[Monitoring & Runbook](./monitoring.md)** — Monitoring-Baseline, Healthchecks und Incident-Prozesse
+
 - **[Deployment Guide — Cloudflare Workers](./deployment-guide.md)** — Deploy ausschließlich via Wrangler CLI; GitHub Actions = Pre‑Release Validierung
 
 - **[Runbook: Dashboard System](./dashboard-runbook.md)** — Dashboard APIs, CSRF/Origin, Stripe, R2 proxy policy, verification checklist

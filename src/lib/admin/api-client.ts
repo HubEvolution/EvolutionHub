@@ -277,6 +277,22 @@ export interface AdminCreditsHistoryResponse {
   }>;
 }
 
+export interface AdminCreditsGrantResponse {
+  email: string;
+  userId: string;
+  granted: number;
+  balance: number;
+  packId: string;
+}
+
+export interface AdminCreditsDeductResponse {
+  email: string;
+  userId: string;
+  requested: number;
+  deducted: number;
+  balance: number;
+}
+
 export interface AdminAuditLogsResponse {
   items: Array<{
     id: string;
@@ -382,6 +398,21 @@ export interface AdminUserActionResult {
   auditLogId?: string;
 }
 
+export interface AdminSetPlanRequest {
+  userId?: string;
+  email?: string;
+  plan: 'free' | 'pro' | 'premium' | 'enterprise';
+  interval?: 'monthly' | 'annual';
+  prorationBehavior?: 'create_prorations' | 'none';
+  cancelImmediately?: boolean;
+  reason?: string;
+}
+
+export interface AdminSetPlanResponse {
+  userId: string;
+  plan: 'free' | 'pro' | 'premium' | 'enterprise';
+}
+
 // ----- Public API -------------------------------------------------------
 
 export function fetchAdminMetrics(signal?: AbortSignal) {
@@ -469,6 +500,27 @@ export function fetchAdminCreditsHistory(params: { userId: string }, signal?: Ab
   });
 }
 
+export function adminGrantCredits(body: { email: string; amount?: number | string }) {
+  return adminFetch<AdminCreditsGrantResponse>('/api/admin/credits/grant', {
+    method: 'POST',
+    body,
+    requireCsrf: true,
+  });
+}
+
+export function adminDeductCredits(body: {
+  email: string;
+  amount?: number | string;
+  strict?: boolean;
+  idempotencyKey?: string;
+}) {
+  return adminFetch<AdminCreditsDeductResponse>('/api/admin/credits/deduct', {
+    method: 'POST',
+    body,
+    requireCsrf: true,
+  });
+}
+
 export function fetchAdminAuditLogs(
   params: {
     limit?: number;
@@ -536,11 +588,29 @@ export function adminCreateDiscount(body: {
   });
 }
 
+export function adminCreateStripeCouponForDiscount(discountId: string) {
+  return adminFetch<{ discountCode: AdminDiscountCode }>(
+    `/api/admin/discounts/${encodeURIComponent(discountId)}/create-stripe-coupon`,
+    {
+      method: 'POST',
+      requireCsrf: true,
+    }
+  );
+}
+
 export function postAdminTelemetry(body: AdminTelemetryRequest, signal?: AbortSignal) {
   return adminFetch<AdminTelemetryResponse>('/api/admin/telemetry', {
     method: 'POST',
     body,
     requireCsrf: true,
     signal,
+  });
+}
+
+export function adminSetUserPlan(body: AdminSetPlanRequest) {
+  return adminFetch<AdminSetPlanResponse>('/api/admin/users/set-plan', {
+    method: 'POST',
+    body,
+    requireCsrf: true,
   });
 }

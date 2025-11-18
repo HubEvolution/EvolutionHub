@@ -8,6 +8,7 @@ import {
   type AdminUserListFilters,
 } from '@/components/admin/dashboard/hooks/useAdminUserList';
 import { useAdminStrings } from '@/lib/i18n-admin';
+import { adminSetUserPlan } from '@/lib/admin/api-client';
 
 function makeNumberFormatter(locale: string) {
   return new Intl.NumberFormat(locale);
@@ -21,6 +22,15 @@ const UserInsightsSection: React.FC = () => {
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'' | 'active' | 'banned' | 'deleted'>('');
   const [planFilter, setPlanFilter] = useState<'' | 'free' | 'pro' | 'premium' | 'enterprise'>('');
+  const [creditsAmount, setCreditsAmount] = useState('');
+  const [planValue, setPlanValue] = useState<'free' | 'pro' | 'premium' | 'enterprise'>('free');
+  const [planInterval, setPlanInterval] = useState<'monthly' | 'annual'>('monthly');
+  const [prorationBehavior, setProrationBehavior] = useState<'create_prorations' | 'none'>(
+    'create_prorations'
+  );
+  const [cancelImmediately, setCancelImmediately] = useState(false);
+  const [planActionLoading, setPlanActionLoading] = useState(false);
+  const [planActionError, setPlanActionError] = useState<string | undefined>();
   const { sendEvent } = useAdminTelemetry('user-insights');
   const {
     summary,
@@ -43,6 +53,10 @@ const UserInsightsSection: React.FC = () => {
     historyError,
     loadUsage,
     loadHistory,
+    actionLoading: creditsActionLoading,
+    actionError: creditsActionError,
+    grantCredits,
+    deductCredits,
   } = useAdminCredits();
 
   const userId = summary?.user.id;
@@ -68,6 +82,16 @@ const UserInsightsSection: React.FC = () => {
       plan: planFilter || undefined,
     };
   }, [planFilter, query, statusFilter]);
+
+  useEffect(() => {
+    if (summary?.user.plan) {
+      setPlanValue(summary.user.plan);
+      setPlanInterval('monthly');
+      setProrationBehavior('create_prorations');
+      setCancelImmediately(false);
+      setPlanActionError(undefined);
+    }
+  }, [summary?.user.plan]);
 
   useEffect(() => {
     if (userId) {
@@ -110,6 +134,86 @@ const UserInsightsSection: React.FC = () => {
         action: 'user_lookup_failed',
         metadata: { message: err instanceof Error ? err.message : String(err) },
       });
+    }
+  };
+
+  const handleCreditsAction = async (
+    mode: 'grant' | 'deduct',
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    event.preventDefault();
+    if (!summary?.user.email) {
+      return;
+    }
+
+    const email = summary.user.email;
+    const amount = creditsAmount.trim().length > 0 ? creditsAmount : undefined;
+
+    try {
+      if (mode === 'grant') {
+        await grantCredits(email, amount);
+        sendEvent('action_performed', {
+          action: 'grant_credits',
+          metadata: { email, amount: amount ?? 'default' },
+        });
+      } else {
+        await deductCredits(email, amount);
+        sendEvent('action_performed', {
+          action: 'deduct_credits',
+          metadata: { email, amount: amount ?? 'default' },
+        });
+      }
+
+      if (summary.user.id) {
+        loadUsage(summary.user.id);
+        loadHistory(summary.user.id);
+      }
+    } catch {
+      // Fehler werden bereits im Hook behandelt und über creditsActionError angezeigt
+    }
+  };
+
+  const handleSetPlan = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!summary?.user.id) return;
+
+    const userId = summary.user.id;
+    const email = summary.user.email;
+
+    setPlanActionLoading(true);
+    setPlanActionError(undefined);
+    try {
+      await adminSetUserPlan({
+        userId,
+        email,
+        plan: planValue,
+        interval: planInterval,
+        prorationBehavior,
+        cancelImmediately,
+      });
+
+      sendEvent('action_performed', {
+        action: 'set_plan',
+        metadata: {
+          userId,
+          email,
+          plan: planValue,
+          interval: planInterval,
+          prorationBehavior,
+          cancelImmediately,
+        },
+      });
+
+      const identifier = email || userId;
+      if (identifier) {
+        search(identifier).catch(() => undefined);
+      }
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : strings.errors.setPlan;
+      setPlanActionError(message);
+    } finally {
+      setPlanActionLoading(false);
     }
   };
 
@@ -412,6 +516,75 @@ const UserInsightsSection: React.FC = () => {
               </p>
             </div>
           </div>
+          <form
+            className="mt-4 grid gap-3 border-t border-white/10 pt-3 text-xs text-white/80 md:grid-cols-4"
+            onSubmit={handleSetPlan}
+          >
+            <label className="flex flex-col gap-1">
+              <span className="text-white/60">{strings.insights.planForm.planLabel}</span>
+              <select
+                value={planValue}
+                onChange={(event) =>
+                  setPlanValue(event.target.value as 'free' | 'pro' | 'premium' | 'enterprise')
+                }
+                className="rounded-md border border-white/10 bg-white/5 p-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              >
+                <option value="free">Free</option>
+                <option value="pro">Pro</option>
+                <option value="premium">Premium</option>
+                <option value="enterprise">Enterprise</option>
+              </select>
+            </label>
+            <label className="flex flex-col gap-1">
+              <span className="text-white/60">{strings.insights.planForm.intervalLabel}</span>
+              <select
+                value={planInterval}
+                onChange={(event) =>
+                  setPlanInterval(event.target.value as 'monthly' | 'annual')
+                }
+                className="rounded-md border border-white/10 bg-white/5 p-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              >
+                <option value="monthly">Monthly</option>
+                <option value="annual">Annual</option>
+              </select>
+            </label>
+            <label className="flex flex-col gap-1">
+              <span className="text-white/60">{strings.insights.planForm.prorationLabel}</span>
+              <select
+                value={prorationBehavior}
+                onChange={(event) =>
+                  setProrationBehavior(
+                    event.target.value as 'create_prorations' | 'none'
+                  )
+                }
+                className="rounded-md border border-white/10 bg-white/5 p-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              >
+                <option value="create_prorations">create_prorations</option>
+                <option value="none">none</option>
+              </select>
+            </label>
+            <div className="flex flex-col gap-2">
+              <label className="inline-flex items-center gap-2 text-white/70">
+                <input
+                  type="checkbox"
+                  checked={cancelImmediately}
+                  onChange={(event) => setCancelImmediately(event.target.checked)}
+                  className="h-3 w-3 rounded border-white/20 bg-white/5 text-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+                <span>{strings.insights.planForm.cancelImmediatelyLabel}</span>
+              </label>
+              <button
+                type="submit"
+                className="mt-1 inline-flex items-center justify-center rounded-md bg-emerald-600 px-3 py-1 text-xs font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
+                disabled={planActionLoading}
+              >
+                {strings.insights.planForm.submitLabel}
+              </button>
+              {planActionError && (
+                <p className="text-xs text-red-300">{planActionError}</p>
+              )}
+            </div>
+          </form>
         </Card>
       )}
 
@@ -487,7 +660,7 @@ const UserInsightsSection: React.FC = () => {
           <h3 className="text-sm font-semibold uppercase tracking-wide text-white/60">
             {strings.insights.credits.heading}
           </h3>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {(creditsLoading || historyLoading) && (
               <span className="text-xs text-white/50">{strings.common.updating}</span>
             )}
@@ -507,9 +680,38 @@ const UserInsightsSection: React.FC = () => {
             >
               {strings.common.refreshHistory}
             </button>
+            <label className="ml-2 flex items-center gap-2 text-xs text-white/70">
+              <span>{strings.insights.credits.form.amountLabel}</span>
+              <input
+                type="number"
+                min="1"
+                className="w-24 rounded-md border border-white/10 bg-white/5 p-1 text-xs text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                value={creditsAmount}
+                onChange={(event) => setCreditsAmount(event.target.value)}
+              />
+            </label>
+            <button
+              type="button"
+              className="rounded-md bg-emerald-600 px-3 py-1 text-xs font-semibold text-white hover:bg-emerald-700"
+              disabled={!summary?.user.email || creditsActionLoading}
+              onClick={(event) => handleCreditsAction('grant', event)}
+            >
+              {strings.insights.credits.form.grantLabel}
+            </button>
+            <button
+              type="button"
+              className="rounded-md bg-rose-600 px-3 py-1 text-xs font-semibold text-white hover:bg-rose-700"
+              disabled={!summary?.user.email || creditsActionLoading}
+              onClick={(event) => handleCreditsAction('deduct', event)}
+            >
+              {strings.insights.credits.form.deductLabel}
+            </button>
           </div>
         </div>
         {creditsError && <p className="mt-2 text-sm text-red-300">{creditsError}</p>}
+        {creditsActionError && (
+          <p className="mt-1 text-sm text-red-300">{creditsActionError}</p>
+        )}
         {usage && (
           <div className="mt-3 grid gap-3 md:grid-cols-2">
             <div className="rounded border border-white/10 bg-white/5 p-3">

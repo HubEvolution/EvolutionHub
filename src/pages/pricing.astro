@@ -12,28 +12,22 @@ import Button from '@/components/ui/Button.astro';
 const locale = getLocale(Astro.url.pathname);
 const t = getI18n(locale);
 const ta = getI18nArray(locale);
-const title =
-  locale === 'en'
-    ? 'Plans & pricing: credits, monthly plans & starter packages'
-    : t('pages.pricing.title');
-const description =
-  locale === 'en'
-    ? 'Pay-as-you-go credits or monthly subscriptions. Flexible scaling from hobby to enterprise. Compare plans & features.'
-    : t('pages.pricing.description');
+const title = t('pages.pricing.title');
+const description = t('pages.pricing.description');
 const billingReason = Astro.url.searchParams.get('billing');
 const billingMessage = (() => {
   switch (billingReason) {
     case 'unauthorized':
-      return 'Please sign in to access your billing portal.';
+      return t('pages.pricing.billing_messages.unauthorized');
     case 'stripe_not_configured':
-      return 'Billing portal is not available at the moment.';
+      return t('pages.pricing.billing_messages.stripe_not_configured');
     case 'db_unavailable':
-      return 'We could not reach the billing service. Please try again later.';
+      return t('pages.pricing.billing_messages.db_unavailable');
     case 'no_customer':
-      return 'No Stripe customer is linked to your account yet.';
+      return t('pages.pricing.billing_messages.no_customer');
     case 'portal_unavailable':
     case 'portal_error':
-      return 'We could not open your billing portal. Please try again.';
+      return t('pages.pricing.billing_messages.portal_unavailable');
     default:
       return null;
   }
@@ -58,40 +52,34 @@ const sanitize = (value: string | null | undefined) => {
   return trimmed;
 };
 
-const creditDetailsLabel = sanitize(t('pages.pricing.credits_packs.details.trigger')) || 'Details';
+const creditDetailsLabel = sanitize(t('pages.pricing.credits_packs.details.trigger')) || '';
 
 const creditPacks: CreditPack[] = [
   {
     id: 100,
-    title: t('pages.pricing.credits_packs.cards.100.title') || '100 credits',
-    price: t('pages.pricing.credits_packs.cards.100.price') || '€6.00',
-    description:
-      t('pages.pricing.credits_packs.cards.100.description') ||
-      'Perfect for quick experiments or occasional enhancements.',
+    title: t('pages.pricing.credits_packs.cards.100.title'),
+    price: t('pages.pricing.credits_packs.cards.100.price'),
+    description: t('pages.pricing.credits_packs.cards.100.description'),
     bullets: ta('pages.pricing.credits_packs.cards.100.bullets') || [],
-    cta: t('pages.pricing.credits_packs.cards.100.cta') || 'Buy 100 credits',
+    cta: t('pages.pricing.credits_packs.cards.100.cta'),
     buttonVariant: 'secondary',
   },
   {
     id: 500,
-    title: t('pages.pricing.credits_packs.cards.500.title') || '500 credits',
-    price: t('pages.pricing.credits_packs.cards.500.price') || '€22.00',
-    description:
-      t('pages.pricing.credits_packs.cards.500.description') ||
-      'Great for active creators running weekly jobs.',
+    title: t('pages.pricing.credits_packs.cards.500.title'),
+    price: t('pages.pricing.credits_packs.cards.500.price'),
+    description: t('pages.pricing.credits_packs.cards.500.description'),
     bullets: ta('pages.pricing.credits_packs.cards.500.bullets') || [],
-    cta: t('pages.pricing.credits_packs.cards.500.cta') || 'Buy 500 credits',
+    cta: t('pages.pricing.credits_packs.cards.500.cta'),
     buttonVariant: 'primary',
   },
   {
     id: 1500,
-    title: t('pages.pricing.credits_packs.cards.1500.title') || '1500 credits',
-    price: t('pages.pricing.credits_packs.cards.1500.price') || '€55.00',
-    description:
-      t('pages.pricing.credits_packs.cards.1500.description') ||
-      'Best for production-scale batches and agency workloads.',
+    title: t('pages.pricing.credits_packs.cards.1500.title'),
+    price: t('pages.pricing.credits_packs.cards.1500.price'),
+    description: t('pages.pricing.credits_packs.cards.1500.description'),
     bullets: ta('pages.pricing.credits_packs.cards.1500.bullets') || [],
-    cta: t('pages.pricing.credits_packs.cards.1500.cta') || 'Buy 1500 credits',
+    cta: t('pages.pricing.credits_packs.cards.1500.cta'),
     buttonVariant: 'accent',
   },
 ];
@@ -123,7 +111,7 @@ const retryHref = (() => {
                 href={retryHref}
                 class="inline-flex items-center rounded-md border border-amber-400/40 bg-amber-500/10 px-2.5 py-1 text-xs font-semibold text-amber-900 dark:text-amber-200 hover:bg-amber-500/20"
               >
-                Try again
+                {t('pages.pricing.billing_messages.retry_cta')}
               </a>
             </div>
           </div>
@@ -144,19 +132,19 @@ const retryHref = (() => {
         class="mt-4 flex items-center justify-center gap-6 text-sm text-gray-500 dark:text-gray-400"
       >
         <a href="#plans" class="hover:text-gray-900 dark:hover:text-gray-200"
-          >{t('pages.pricing.sections.plans') || 'Plans'}</a
+          >{t('pages.pricing.sections.plans')}</a
         >
         <span aria-hidden>·</span>
         <a href="#credit-packs" class="hover:text-gray-900 dark:hover:text-gray-200"
-          >{t('pages.pricing.sections.credits_packs') || 'Credit packs'}</a
+          >{t('pages.pricing.sections.credits_packs')}</a
         >
         <span aria-hidden>·</span>
         <a href="#comparison" class="hover:text-gray-900 dark:hover:text-gray-200"
-          >{t('pages.pricing.sections.comparison') || 'Comparison'}</a
+          >{t('pages.pricing.sections.comparison')}</a
         >
         <span aria-hidden>·</span>
         <a href="#faq" class="hover:text-gray-900 dark:hover:text-gray-200"
-          >{t('pages.pricing.sections.faq') || 'FAQ'}</a
+          >{t('pages.pricing.sections.faq')}</a
         >
       </nav>
 
@@ -190,13 +178,10 @@ const retryHref = (() => {
       <section id="credit-packs" class="mt-8" aria-labelledby="credit-packs-heading">
         <div class="mb-6 text-center">
           <h2 id="credit-packs-heading" class="text-2xl font-bold text-gray-900 dark:text-white">
-            {t('pages.pricing.credits_packs.title') || 'Buy extra credits'}
+            {t('pages.pricing.credits_packs.title')}
           </h2>
           <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">
-            {
-              t('pages.pricing.credits_packs.subtitle') ||
-                'One-time packs to top up your monthly quota.'
-            }
+            {t('pages.pricing.credits_packs.subtitle')}
           </p>
         </div>
 
@@ -275,35 +260,26 @@ const retryHref = (() => {
       <section class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4" aria-label="Highlights">
         <Card variant="holo" className="p-4 rounded-2xl">
           <h3 class="font-semibold text-gray-900 dark:text-white">
-            {t('pages.pricing.highlights.tools_title') || 'All 5 tools included'}
+            {t('pages.pricing.highlights.tools_title')}
           </h3>
           <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
-            {
-              t('pages.pricing.highlights.tools_desc') ||
-                'Use Imag‑Enhancer, Video Enhancer, Prompt Enhancer, Voice Transcriptor, Webscraper'
-            }
+            {t('pages.pricing.highlights.tools_desc')}
           </p>
         </Card>
         <Card variant="holo" className="p-4 rounded-2xl">
           <h3 class="font-semibold text-gray-900 dark:text-white">
-            {t('pages.pricing.highlights.commercial_title') || 'Commercial use allowed'}
+            {t('pages.pricing.highlights.commercial_title')}
           </h3>
           <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
-            {
-              t('pages.pricing.highlights.commercial_desc') ||
-                'Pro, Business, and Enterprise include commercial usage rights'
-            }
+            {t('pages.pricing.highlights.commercial_desc')}
           </p>
         </Card>
         <Card variant="holo" className="p-4 rounded-2xl">
           <h3 class="font-semibold text-gray-900 dark:text-white">
-            {t('pages.pricing.highlights.credits_title') || 'Monthly credits + daily burst'}
+            {t('pages.pricing.highlights.credits_title')}
           </h3>
           <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
-            {
-              t('pages.pricing.highlights.credits_desc') ||
-                'Monthly resets with fair daily burst caps'
-            }
+            {t('pages.pricing.highlights.credits_desc')}
           </p>
         </Card>
       </section>

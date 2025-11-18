@@ -1,5 +1,4 @@
 import { loggerFactory } from '@/server/utils/logger-factory';
-import type { LogContext } from '@/config/logging';
 import type { SecurityLogger as CoreSecurityLogger } from '@/types/logger';
 
 /**
@@ -27,7 +26,7 @@ function getSecurityLogger(): CoreSecurityLogger {
   if (!securityLogger) {
     securityLogger = loggerFactory.createSecurityLogger();
   }
-  return securityLogger;
+  return securityLogger as CoreSecurityLogger;
 }
 
 type SecurityEventType =
@@ -43,7 +42,7 @@ type SecurityEventType =
   | 'USER_EVENT' // Allgemeine Benutzer-Events
   | 'METRIC'; // Metrik-Events (gebündelte Telemetrie)          // Allgemeine Benutzer-Events
 
-interface SecurityEvent {
+export interface SecurityEvent {
   type: SecurityEventType;
   userId?: string; // Betroffene User-ID (wenn zutreffend)
   targetResource?: string; // Betroffene Ressource (z.B. '/api/user/profile')

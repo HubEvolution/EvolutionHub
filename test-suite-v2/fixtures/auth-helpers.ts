@@ -6,6 +6,7 @@
 
 import type { Page, BrowserContext } from '@playwright/test';
 import { expect } from '@playwright/test';
+import { createTestMagicLinkForEmail } from './stytch-test-api';
 
 const BASE_URL = process.env.TEST_BASE_URL || process.env.BASE_URL || 'http://127.0.0.1:8787';
 
@@ -208,16 +209,42 @@ export async function completeMagicLinkFlow(
   // Submit magic link request
   await page.click('form[action="/api/auth/magic/request"] button[type="submit"]');
 
-  // For local dev with E2E_FAKE_STYTCH, simulate callback
   const isLocal = !isRemoteTarget();
   const fakeStytchEnabled = process.env.E2E_FAKE_STYTCH === '1';
+  const hasStytchTestCreds =
+    typeof process.env.STYTCH_TEST_PROJECT_ID === 'string' &&
+    process.env.STYTCH_TEST_PROJECT_ID.length > 0 &&
+    typeof process.env.STYTCH_TEST_SECRET === 'string' &&
+    process.env.STYTCH_TEST_SECRET.length > 0;
 
+  // For local dev with E2E_FAKE_STYTCH, simulate callback directly
   if (isLocal && fakeStytchEnabled) {
-    // Navigate to dev bypass callback
     await page.goto(`/api/auth/callback?token=dev-ok&email=${encodeURIComponent(email)}`);
-
-    // Wait for redirect to dashboard
     await page.waitForURL(new RegExp(targetAfterAuth));
+    return;
+  }
+
+  // For remote targets with configured Stytch TEST credentials, obtain a Magic Link via
+  // the provider TEST API and follow it to complete login without relying on email.
+  if (!isLocal && hasStytchTestCreds) {
+    const baseUrl = BASE_URL;
+    const callbackUrl = `${baseUrl.replace(/\/$/, '')}/api/auth/callback`;
+    const magicLinkUrl = await createTestMagicLinkForEmail(email, callbackUrl);
+
+    await page.goto(magicLinkUrl);
+    await page.waitForLoadState('domcontentloaded');
+    // Best-effort assertion: expect to end up on the desired target path.
+    await page.waitForURL(new RegExp(targetAfterAuth));
+    return;
+  }
+
+  // If we reach this point on a remote target without test credentials, fail fast with a
+  // descriptive error so that CI does not silently exercise only the UI portion.
+  if (!isLocal && !hasStytchTestCreds) {
+    throw new Error(
+      'completeMagicLinkFlow: remote target detected but STYTCH_TEST_PROJECT_ID/STYTCH_TEST_SECRET are not configured. ' +
+        'Set these env vars to enable automated Magic Link login against the Stytch TEST project.'
+    );
   }
 }
 

@@ -12,3 +12,23 @@
 2025-11-15T00:28:28.676Z pre_run_command: npm run docs:lint
 2025-11-15T00:28:47.603Z pre_run_command: npm run test:e2e:v1 -- tests/e2e/specs/auth-magic-request.spec.ts
 2025-11-15T00:34:51.507Z pre_run_command: npm run docs:lint
+2025-11-15T23:29:03.492Z pre_run_command: npx wrangler d1 migrations apply evolution-hub-main-dev --local
+2025-11-15T23:29:26.606Z pre_run_command: npx wrangler d1 migrations apply evolution-hub-main --local
+2025-11-15T23:30:36.074Z pre_run_command: sqlite3 .wrangler/d1/miniflare/databases/evolution-hub-main-local.sqlite < migrations/0033_create_discount_codes.sql
+2025-11-15T23:40:03.848Z pre_run_command: npx wrangler d1 execute evolution-hub-main --env production --file=./migrations/0033_create_discount_codes.sql
+2025-11-16T00:41:17.932Z pre_run_command: npx wrangler d1 migrations list evolution-hub-main-local --env testing && npx wrangler d1 migrations apply evolution-hub-main-local --env testing
+2025-11-16T00:51:04.801Z pre_run_command: npx wrangler d1 migrations list evolution-hub-main --env production
+2025-11-16T00:51:56.691Z pre_run_command: npx wrangler d1 migrations list evolution-hub-main --env production --remote
+2025-11-16T00:52:29.080Z pre_run_command: npx wrangler d1 migrations apply evolution-hub-main --env production --remote
+2025-11-16T00:53:03.145Z pre_run_command: npx wrangler d1 execute evolution-hub-main --env production --remote --command "SELECT sql FROM sqlite_master WHERE type='table' AND name IN ('comments','comment_moderation','comment_reports');"
+2025-11-16T00:53:20.162Z pre_run_command: npx wrangler d1 execute evolution-hub-main --env production --remote --command "SELECT sql FROM sqlite_master WHERE type='table' AND name='discount_codes';"
+2025-11-16T01:03:59.564Z pre_run_command: npx wrangler d1 migrations apply evolution-hub-main-local --env staging --remote
+2025-11-16T01:07:31.977Z pre_run_command: npx wrangler d1 migrations apply evolution-hub-main-local --env staging --remote --yes
+2025-11-16T01:14:09.490Z pre_run_command: npm run i18n:audit
+2025-11-16T03:48:36.112Z pre_run_command: npm run openapi:validate
+2025-11-16T03:49:37.809Z pre_run_command: npm run openapi:validate
+2025-11-16T05:47:20.577Z pre_run_command: npx wrangler secret list --env production; npx wrangler secret list --env staging; npx wrangler secret list --env testing; npx wrangler secret list --env development
+2025-11-16T07:17:16.636Z pre_run_command: npm run openapi:validate
+2025-11-16T08:08:54.257Z pre_run_command: npm run typecheck:src
+2025-11-16T19:43:55.441Z pre_run_command: npm run openapi:validate
+2025-11-18T02:08:24.446Z pre_run_command: npm run test:integration -- tests/integration/billing-api.test.ts tests/integration/api/billing/stripe-webhook.test.ts

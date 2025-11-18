@@ -2,7 +2,7 @@
 description: 'API-Architektur, Standards und Übersicht für Evolution Hub'
 owner: 'API Team'
 priority: 'high'
-lastSync: '2025-10-27'
+lastSync: '2025-11-16'
 codeRefs: 'src/pages/api, src/lib/api-middleware.ts'
 testRefs: 'tests/integration/api, test-suite-v2/src/e2e'
 ---
@@ -78,6 +78,8 @@ testRefs: 'tests/integration/api, test-suite-v2/src/e2e'
 - **GET** `/api/billing/sync` - Subscription-Synchronisation
 
 - **POST** `/api/billing/credits` - Credit-Paket-Kauf
+
+- Admin-Discount-Management (Discount-Codes & Stripe-Coupons) über Admin-API, siehe [Admin API](./admin_api.md).
 
 #### Comments System
 

@@ -1,8 +1,8 @@
 ---
-description: 'Stripe-Konfiguration für Billing Phase 2 (Produkte, Webhooks, Env Vars)'
+description: 'Stripe-Konfiguration für Billing Phase 2 (Produkte, Webhooks, Env Vars, Discounts)'
 owner: 'Billing Team'
 priority: 'high'
-lastSync: '2025-11-03'
+lastSync: '2025-11-16'
 codeRefs: 'docs/development/stripe-setup.md, docs/api/billing_api.md, src/pages/api/billing/**'
 testRefs: 'N/A'
 ---
@@ -139,7 +139,7 @@ stripe listen --forward-to http://127.0.0.1:8787/api/billing/stripe-webhook
 - Go to Developers → Webhooks → Add endpoint
 
 - Events to enable:
-  - `checkout.session.completed`
+  - `checkout.session.completed` (inkl. Discount-Auswertung via `metadata.discountCode`)
 
   - `customer.subscription.created`
 
@@ -171,9 +171,9 @@ stripe webhook_endpoints create \
 
 The app exposes `POST /api/billing/session` which creates a Stripe Hosted Checkout session.
 
-- It includes `metadata: { userId, plan, workspaceId }`, `client_reference_id`, and `customer_email`.
+- It includes `metadata: { userId, plan, workspaceId, discountCode? }`, `client_reference_id`, and `customer_email`.
 
-- The webhook syncs `stripe_customers`, `subscriptions`, and updates `users.plan` based on the active subscription.
+- The webhook syncs `stripe_customers`, `subscriptions`, and updates `users.plan` based on the active subscription. Wenn ein `discountCode` gesetzt ist und ein entsprechender aktiver Rabattcode existiert, wird die Nutzung in `discount_codes` gezählt.
 
 ## 5) Testing
 

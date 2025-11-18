@@ -38,5 +38,17 @@
     "preserveSymlinks": true
   },
   "include": ["src", "tests", "scripts"],
-  "exclude": ["node_modules", "test-suite-v2"]
+  "exclude": [
+    "node_modules",
+    "test-suite-v2",
+    "dist",
+    "out",
+    "coverage",
+    "reports",
+    ".backups",
+    ".cache",
+    ".logs",
+    "HAR",
+    "hub-evolution.com-Coverage-*"
+  ]
 }

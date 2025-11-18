@@ -92,6 +92,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiErrorResponse'
+        "403":
+          description: Forbidden (not admin)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /api/admin/users/summary:
     get:
       summary: Get user summary by email or id
@@ -1345,6 +1351,13 @@ paths:
                 returnTo:
                   type: string
                   description: Optional relative path to redirect back after sync
+                discountCode:
+                  type: string
+                  minLength: 1
+                  maxLength: 200
+                  description: >-
+                    Optional discount code. Must refer to an active, valid discount
+                    that is mapped to a Stripe coupon in the backend.
       responses:
         "200":
           description: Checkout session URL
@@ -1664,6 +1677,48 @@ paths:
       description: Only GET is supported for this endpoint.
       x-source: src/pages/api/admin/traffic-24h.ts
       operationId: postAdminTraffic24hNotAllowed
+      responses:
+        "405":
+          description: Method Not Allowed
+          headers:
+            Allow:
+              description: Comma-separated list of allowed methods
+              schema:
+                type: string
+              example: GET
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+  /api/admin/ip-geo:
+    get:
+      summary: Lookup IP location
+      description: Resolves approximate location for a given IP address (or the connecting IP) for admin insights. Requires admin.
+      x-source: src/pages/api/admin/ip-geo.ts
+      operationId: getAdminIpGeo
+      parameters:
+        - name: ip
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Optional IP address; if omitted, the server will use CF-Connecting-IP or X-Forwarded-For.
+      responses:
+        "200":
+          description: Geo lookup result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden (not admin)
+    post:
+      summary: Method Not Allowed
+      description: Only GET is supported for this endpoint.
+      x-source: src/pages/api/admin/ip-geo.ts
+      operationId: postAdminIpGeoNotAllowed
       responses:
         "405":
           description: Method Not Allowed
@@ -2021,6 +2076,75 @@ paths:
       description: Only GET is supported for this endpoint.
       x-source: src/pages/api/admin/backup/stats.ts
       operationId: postAdminBackupStatsNotAllowed
+      responses:
+        "405":
+          description: Method Not Allowed
+          headers:
+            Allow:
+              description: Comma-separated list of allowed methods
+              schema:
+                type: string
+              example: GET
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+  /api/admin/referrals/list:
+    get:
+      summary: List referral reward events
+      description: Lists referral events and summary stats for admins. Requires admin and referral rewards feature flag.
+      x-source: src/pages/api/admin/referrals/list.ts
+      operationId: getAdminReferralsList
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [pending, verified, paid, cancelled, all]
+        - name: ownerUserId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: referralCode
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Referral events list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        "400":
+          description: Validation error
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden (feature disabled or insufficient permissions)
+    post:
+      summary: Method Not Allowed
+      description: Only GET is supported for this endpoint.
+      x-source: src/pages/api/admin/referrals/list.ts
+      operationId: postAdminReferralsListNotAllowed
       responses:
         "405":
           description: Method Not Allowed

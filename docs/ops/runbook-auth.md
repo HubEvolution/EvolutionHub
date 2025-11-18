@@ -2,7 +2,7 @@
 description: Runbook für Auth (Magic Request, Callbacks, Observability, Limits, Cookies)
 owner: Auth Team
 priority: high
-lastSync: '2025-11-15'
+lastSync: '2025-11-16'
 codeRefs: 'src/pages/api/auth/**, src/lib/api-middleware.ts, src/lib/stytch.ts, src/middleware.ts, openapi.yaml'
 testRefs: 'tests/integration/magic-link.test.ts, tests/e2e/specs/auth-deprecated.spec.ts'
 ---
@@ -26,6 +26,15 @@ Betriebshandbuch für Auth in Production/Staging/Testing: Secrets/Flags, Limits,
 - Hinweise:
   - Redirect‑Whitelist in Stytch Live: `https://<domain>/api/auth/callback`
   - Cookies: `__Host-session` (HttpOnly, Secure, SameSite=Strict, Path=/)
+
+### Environment matrix (Auth, DB, Stripe)
+
+| Env        | ENVIRONMENT | Base URL                        | D1 DB name               | Stripe mode | Notes                                   |
+| ---------- | ----------- | -------------------------------- | ------------------------ | ----------- | --------------------------------------- |
+| Local dev  | development | http://127.0.0.1:8787            | evolution-hub-main-dev   | test        | `STYTCH_BYPASS=1`, debug-login allowed  |
+| Testing    | testing     | https://ci.hub-evolution.com     | evolution-hub-main-local | test        | CI/e2e target; no debug-login endpoint |
+| Staging    | staging     | https://staging.hub-evolution.com| evolution-hub-main-local | test        | Near-prod; manual QA, no backdoors     |
+| Production | production  | https://hub-evolution.com        | evolution-hub-main       | live        | Real users & billing                    |
 
 ## Middleware & Sicherheit
 

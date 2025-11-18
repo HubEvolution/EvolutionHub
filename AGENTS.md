@@ -11,6 +11,11 @@
 - Priorität: Tiefer liegende AGENTS.md überschreiben höhere.
 - Zusätzlich zu beachten: Konversation (aktuelle Anweisungen), `mcp_config.json`, `.codex/config.toml`, relevante Projektdokumente (z. B. `docs/api/*`). Direkte Anweisungen des Nutzers haben Vorrang.
 - Rules‑Kaskade: `.windsurf/rules/*` sind projektweite Leitplanken. Feature‑Regeln können Baselines explizit erweitern (Frontmatter `scope`, `extends`).
+- Cascade‑Baselines (aus `.windsurf/rules/_README.md`):
+  - Core/Infra: `.windsurf/rules/api-and-security.md`, `.windsurf/rules/auth.md`, `.windsurf/rules/infra.md`, `.windsurf/rules/project-structure.md`.
+  - Quality/Tooling: `.windsurf/rules/testing-and-ci.md`, `.windsurf/rules/tooling-and-style.md`, `.windsurf/rules/zod-openapi.md`, `.windsurf/rules/docs-documentation.md`, `.windsurf/rules/agentic-workflow.md`.
+  - Feature/Cross‑Cutting: `.windsurf/rules/pricing.md`, `.windsurf/rules/image-enhancer.md`, `.windsurf/rules/video-enhancer.md`, `.windsurf/rules/transcriptor.md`, `.windsurf/rules/prompt.md`, `.windsurf/rules/scraper.md`, `.windsurf/rules/cookies-and-consent.md`, `.windsurf/rules/content.md`.
+- Konfliktauflösung: Bei Widersprüchen gelten `.windsurf/rules/*.md` als normative Basis; AGENTS.md konkretisieren und verfeinern diese Regeln.
 
 ## Allgemeine Prinzipien
 
@@ -35,6 +40,7 @@
 - Validierung: Eingaben über Schemata prüfen (Schema‑first); Typen daraus ableiten.
 - Fehlerbehandlung: Konsistente API‑Fehlerformate gemäß `docs/api/api-guidelines.md` und `docs/api/error-handling.md`.
 - Logging: PII maskieren; strukturiert loggen; `logger-utils.ts` verwenden. Kein unkontrolliertes Debug‑Logging im Hot‑Path (Feature‑Flag nutzen).
+- Entspricht den Baselines aus `.windsurf/rules/tooling-and-style.md`.
 
 ## Security
 
@@ -43,6 +49,7 @@
 - Secrets niemals im Code/Logs; beachte `docs/reference/auth-envs-and-secrets.md`.
 - Für Backups/Exporte: `docs/ops/*` und Admin‑API‑Guidelines befolgen.
 - Cookies/Consent beachten (Analytics/Tracking nur nach Opt‑In): siehe `.windsurf/rules/cookies-and-consent.md`.
+- Ergänzende Security‑/Auth‑Baselines: `.windsurf/rules/api-and-security.md`, `.windsurf/rules/auth.md`, `.windsurf/rules/infra.md`.
 
 ## Tests
 
@@ -51,17 +58,20 @@
 - Performance‑relevantes: bei Hot‑Paths `tests/performance/*` berücksichtigen.
 - Fixtures/Seeds wiederverwenden (`tests/integration/setup/*`, `src/pages/api/test/*`). Keine flakey Tests.
 - Mindestabdeckung: V8 Coverage ≥ 70% für `src/**/*.{ts,tsx}`.
+- Entspricht der Testing‑Baseline aus `.windsurf/rules/testing-and-ci.md` (u. a. `safeParseJson<ApiJson>()`, Coverage‑Gates, CI‑Workflows).
 
 ## i18n & Content
 
 - Keine hardcodierten UI‑Texte; immer i18n‑Keys in `en.json`/`de.json`.
 - Keys konsistent benennen (bestehende Konvention beibehalten). Übersetzungen synchron halten.
+- Ergänzende Content‑Regeln: `.windsurf/rules/content.md` (Collections, Types) und `.windsurf/rules/cookies-and-consent.md` (Consent‑UI).
 
 ## Doku & OpenAPI
 
 - API‑Änderungen synchronisieren: `openapi.yaml` und `docs/api/*` aktualisieren.
 - Runbooks/Ops anpassen, wenn betroffen (`docs/runbooks/*`, `docs/ops/*`).
 - Zod↔OpenAPI: Kein Auto‑Overwrite. Bei `.strict()` → `additionalProperties: false`. Pilot/Diff nutzen (`npm run openapi:zod:pilot|diff`).
+- Ergänzende Rules: `.windsurf/rules/zod-openapi.md` (Hybrid Zod↔OpenAPI) und `.windsurf/rules/docs-documentation.md` (Docs‑Struktur, Frontmatter, Links).
 
 ## Migrations & DB
 
@@ -76,6 +86,15 @@
 ## Feature Flags
 
 - `src/utils/feature-flags.ts` nutzen; Flags default „off“, sichere Fallbacks.
+
+## Feature-spezifische Rules (Auswahl)
+
+- Pricing/Billing: `.windsurf/rules/pricing.md` (Stripe/Webhooks, Plans, Credits).
+- Image‑Enhancer: `.windsurf/rules/image-enhancer.md`.
+- Video‑Enhancer: `.windsurf/rules/video-enhancer.md`.
+- Transcription/Voice: `.windsurf/rules/transcriptor.md`.
+- Prompt/Prompt‑Enhancer/Web‑Eval: `.windsurf/rules/prompt.md`.
+- Scraper/Webscraper: `.windsurf/rules/scraper.md`.
 
 ## Commands & Workflows
 

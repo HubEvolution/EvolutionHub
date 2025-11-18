@@ -5,6 +5,7 @@ import ThemeToggle from './ThemeToggle.astro';
 // Korrigierter Import für getLocale – erwartet einen benannten Export und .js Erweiterung
 import { getLocale } from '@/lib/i18n';
 // Import der dedizierten Scroll-Effect Komponente
+import { getI18n } from '@/utils/i18n';
 import HeaderScroll from './scripts/HeaderScroll.astro';
 import EvolutionHubLogo from 'public/assets/svg/evolutionhub-mark.svg';
 import { localizePath, mapLocaleHref } from '@/lib/locale-path';
@@ -17,6 +18,7 @@ const props = Astro.props as
   | { user?: { name?: string; email?: string; image?: string } }
   | undefined;
 const user = props?.user;
+const t = getI18n(currentLocale);
 
 // Helper für aktive Navigation: vergleicht gegen lokalisierte Hrefs
 function isActiveLocalized(href: string): boolean {
@@ -26,12 +28,12 @@ function isActiveLocalized(href: string): boolean {
   return currentPath.startsWith(localized.endsWith('/') ? localized : `${localized}/`);
 }
 
-// Navigation items with ARIA labels
+// Navigation items with i18n-based labels
 const navItems = [
-  { name: 'Dashboard', href: '/dashboard', 'aria-label': 'Go to Dashboard' },
-  { name: 'Tools', href: '/tools', 'aria-label': 'View available tools' },
-  { name: 'Pricing', href: '/pricing', 'aria-label': 'View pricing plans' },
-  { name: 'Blog', href: '/blog', 'aria-label': 'View blog posts' },
+  { key: 'dashboard', href: '/dashboard' },
+  { key: 'tools', href: '/tools' },
+  { key: 'pricing', href: '/pricing' },
+  { key: 'blog', href: '/blog' },
 ];
 
 // Get current URL and path for active link highlighting
@@ -94,9 +96,9 @@ const localeHref = (target: 'de' | 'en') => mapLocaleHref(target, Astro.url);
                   : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'
               }`}
               aria-current={isActiveLocalized(item.href) ? 'page' : undefined}
-              aria-label={item['aria-label']}
+              aria-label={t(`nav.aria.${item.key}`)}
             >
-              {item.name}
+              {t(`nav.${item.key}`)}
               {isActiveLocalized(item.href) && (
                 <span class="absolute inset-x-1 -bottom-1 h-0.5 bg-accent-gradient rounded-full" />
               )}
@@ -125,7 +127,9 @@ const localeHref = (target: 'de' | 'en') => mapLocaleHref(target, Astro.url);
                   class="h-7 w-7 rounded-full ring-2 ring-emerald-500/20"
                   data-avatar-img
                 />
-                <span class="max-w-[10rem] truncate hidden sm:block">{user.name || 'Account'}</span>
+                <span class="max-w-[10rem] truncate hidden sm:block">
+                  {user.name || t('header.menu.account_fallback')}
+                </span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   class="h-4 w-4 opacity-70"
@@ -149,25 +153,33 @@ const localeHref = (target: 'de' | 'en') => mapLocaleHref(target, Astro.url);
                   class="flex items-center gap-2 px-4 py-2 text-sm text-gray-800 dark:text-slate-100 hover:bg-gray-50 dark:hover:bg-slate-800/60"
                   role="menuitem"
                 >
-                  <span>Profil & Einstellungen</span>
+                  <span>{t('header.menu.profile')}</span>
                 </a>
                 <div class="my-2 h-px bg-gray-100 dark:bg-slate-800" />
-                <div class="px-4 py-2 text-xs text-gray-500 dark:text-slate-400">Plan & Usage</div>
+                <div class="px-4 py-2 text-xs text-gray-500 dark:text-slate-400">
+                  {t('header.menu.plan_usage')}
+                </div>
                 <div class="px-4 pb-2 text-sm">
                   <div class="flex items-center justify-between">
-                    <span class="text-gray-600 dark:text-slate-300">Plan</span>
+                    <span class="text-gray-600 dark:text-slate-300">
+                      {t('header.menu.plan_label')}
+                    </span>
                     <span id="user-plan" class="font-medium text-gray-900 dark:text-white">
                       —
                     </span>
                   </div>
                   <div class="mt-1.5 flex items-center justify-between">
-                    <span class="text-gray-600 dark:text-slate-300">Credits</span>
+                    <span class="text-gray-600 dark:text-slate-300">
+                      {t('header.menu.credits')}
+                    </span>
                     <span id="user-credits" class="font-medium text-gray-900 dark:text-white">
                       —
                     </span>
                   </div>
                   <div class="mt-1.5 flex items-center justify-between">
-                    <span class="text-gray-600 dark:text-slate-300">Monthly quota</span>
+                    <span class="text-gray-600 dark:text-slate-300">
+                      {t('header.menu.monthly_quota')}
+                    </span>
                     <span id="user-quota" class="font-medium text-gray-900 dark:text-white">
                       —
                     </span>
@@ -175,70 +187,12 @@ const localeHref = (target: 'de' | 'en') => mapLocaleHref(target, Astro.url);
                 </div>
 
                 <div class="my-2 h-px bg-gray-100 dark:bg-slate-800" />
-                <div class="px-4 py-2 text-xs text-gray-500 dark:text-slate-400">Darstellung</div>
-                <div class="px-4 pb-2">
-                  <ThemeToggle />
-                </div>
-
-                <div class="my-2 h-px bg-gray-100 dark:bg-slate-800" />
-                <div class="px-4 py-2 text-xs text-gray-500 dark:text-slate-400">Sprache</div>
-                <div class="px-2 pb-2">
-                  <a
-                    href={localeHref('de')}
-                    class={`flex items-center px-3 py-2 text-sm rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 ${
-                      currentLocale === 'de'
-                        ? 'text-emerald-600 dark:text-emerald-400 font-medium'
-                        : 'text-gray-700 dark:text-gray-300'
-                    }`}
-                    data-astro-reload
-                  >
-                    Deutsch
-                    {currentLocale === 'de' && (
-                      <svg
-                        class="ml-auto w-4 h-4 text-emerald-500"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fill-rule="evenodd"
-                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                          clip-rule="evenodd"
-                        />
-                      </svg>
-                    )}
-                  </a>
-                  <a
-                    href={localeHref('en')}
-                    class={`flex items-center px-3 py-2 text-sm rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 ${
-                      currentLocale === 'en'
-                        ? 'text-emerald-600 dark:text-emerald-400 font-medium'
-                        : 'text-gray-700 dark:text-gray-300'
-                    }`}
-                    data-astro-reload
-                  >
-                    English
-                    {currentLocale === 'en' && (
-                      <svg
-                        class="ml-auto w-4 h-4 text-emerald-500"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fill-rule="evenodd"
-                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                          clip-rule="evenodd"
-                        />
-                      </svg>
-                    )}
-                  </a>
-                </div>
-                <div class="my-2 h-px bg-gray-100 dark:bg-slate-800" />
                 <a
                   href="/api/user/logout"
                   class="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
                   role="menuitem"
                 >
-                  Abmelden
+                  {t('auth.logout')}
                 </a>
               </div>
             </div>
@@ -252,8 +206,8 @@ const localeHref = (target: 'de' | 'en') => mapLocaleHref(target, Astro.url);
                 type="button"
                 id="user-menu-button"
                 class="inline-flex items-center gap-2 rounded-full bg-white/60 px-2.5 py-1.5 text-sm font-medium text-gray-800 shadow-sm ring-1 ring-gray-200 backdrop-blur-md transition hover:bg-white/80 dark:bg-slate-800/60 dark:text-slate-100 dark:ring-slate-700"
-                title={currentLocale === 'de' ? 'Anmelden' : 'Login'}
-                aria-label={currentLocale === 'de' ? 'Anmelden' : 'Login'}
+                title={t('auth.login')}
+                aria-label={t('auth.login')}
                 aria-haspopup="true"
                 aria-expanded="false"
                 aria-controls="user-menu-dropdown"
@@ -269,7 +223,7 @@ const localeHref = (target: 'de' | 'en') => mapLocaleHref(target, Astro.url);
                   <path d="M4 16a6 6 0 1112 0H4z" />
                 </svg>
                 <span class="max-w-[10rem] truncate hidden sm:block">
-                  {currentLocale === 'de' ? 'Anmelden' : 'Login'}
+                  {t('auth.login')}
                 </span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -354,7 +308,7 @@ const localeHref = (target: 'de' | 'en') => mapLocaleHref(target, Astro.url);
                   class="flex items-center gap-2 px-4 py-2 text-sm text-emerald-600 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-900/20"
                   role="menuitem"
                 >
-                  {currentLocale === 'de' ? 'Anmelden' : 'Login'}
+                  {t('auth.login')}
                 </a>
               </div>
             </div>
@@ -408,9 +362,9 @@ const localeHref = (target: 'de' | 'en') => mapLocaleHref(target, Astro.url);
                 : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800'
             }`}
             aria-current={isActiveLocalized(item.href) ? 'page' : undefined}
-            aria-label={item['aria-label']}
+            aria-label={t(`nav.aria.${item.key}`)}
           >
-            {item.name}
+            {t(`nav.${item.key}`)}
           </a>
         ))
       }
@@ -422,7 +376,7 @@ const localeHref = (target: 'de' | 'en') => mapLocaleHref(target, Astro.url);
               <a
                 href={localizePath(currentLocale, '/dashboard')}
                 class="flex items-center gap-3"
-                aria-label="Account"
+                aria-label={t('header.menu.profile')}
               >
                 <img
                   src={user.image || '/assets/svg/logo.svg'}
@@ -432,9 +386,11 @@ const localeHref = (target: 'de' | 'en') => mapLocaleHref(target, Astro.url);
                 />
                 <div class="min-w-0">
                   <div class="text-base font-medium text-gray-900 dark:text-white truncate">
-                    {user.name || 'Account'}
+                    {user.name || t('header.menu.account_fallback')}
                   </div>
-                  <div class="text-xs text-gray-500 dark:text-gray-400">Account</div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400">
+                    {t('header.menu.profile')}
+                  </div>
                 </div>
               </a>
             </div>
@@ -442,23 +398,29 @@ const localeHref = (target: 'de' | 'en') => mapLocaleHref(target, Astro.url);
             {/* Mobile: Plan & Usage (lazy-loaded on first menu open) */}
             <div class="px-3 py-2 border-t border-gray-200 dark:border-gray-700">
               <div class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Plan & Usage
+                {t('header.menu.plan_usage')}
               </div>
               <div class="px-1 pb-1 text-base">
                 <div class="flex items-center justify-between">
-                  <span class="text-gray-600 dark:text-slate-300">Plan</span>
+                  <span class="text-gray-600 dark:text-slate-300">
+                    {t('header.menu.plan_label')}
+                  </span>
                   <span id="user-plan-mobile" class="font-medium text-gray-900 dark:text-white">
                     —
                   </span>
                 </div>
                 <div class="mt-1.5 flex items-center justify-between">
-                  <span class="text-gray-600 dark:text-slate-300">Credits</span>
+                  <span class="text-gray-600 dark:text-slate-300">
+                    {t('header.menu.credits')}
+                  </span>
                   <span id="user-credits-mobile" class="font-medium text-gray-900 dark:text-white">
                     —
                   </span>
                 </div>
                 <div class="mt-1.5 flex items-center justify-between">
-                  <span class="text-gray-600 dark:text-slate-300">Monthly quota remaining</span>
+                  <span class="text-gray-600 dark:text-slate-300">
+                    {t('header.menu.monthly_quota_remaining')}
+                  </span>
                   <span id="user-quota-mobile" class="font-medium text-gray-900 dark:text-white">
                     —
                   </span>
@@ -471,9 +433,9 @@ const localeHref = (target: 'de' | 'en') => mapLocaleHref(target, Astro.url);
               <a
                 href="/api/user/logout"
                 class="block px-3 py-2 text-base font-medium rounded-md text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
-                aria-label="Logout"
+                aria-label={t('auth.logout')}
               >
-                Abmelden
+                {t('auth.logout')}
               </a>
             </div>
           </>
@@ -482,13 +444,17 @@ const localeHref = (target: 'de' | 'en') => mapLocaleHref(target, Astro.url);
 
       <div class="px-3 py-2 border-t border-gray-200 dark:border-gray-700 mt-3 pt-3">
         <div class="flex items-center justify-between">
-          <div class="text-sm font-medium text-gray-700 dark:text-gray-300">Theme</div>
+          <div class="text-sm font-medium text-gray-700 dark:text-gray-300">
+            {t('header.menu.theme')}
+          </div>
           <ThemeToggle />
         </div>
       </div>
 
       <div class="px-3 py-2 border-t border-gray-200 dark:border-gray-700">
-        <div class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Language</div>
+        <div class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          {t('header.menu.language')}
+        </div>
         <div class="flex flex-col space-y-1">
           <a
             href={localeHref('de')}
@@ -499,7 +465,7 @@ const localeHref = (target: 'de' | 'en') => mapLocaleHref(target, Astro.url);
             }`}
             data-astro-reload
           >
-            Deutsch
+            {t('nav_language.de')}
           </a>
           <a
             href={localeHref('en')}
@@ -510,7 +476,7 @@ const localeHref = (target: 'de' | 'en') => mapLocaleHref(target, Astro.url);
             }`}
             data-astro-reload
           >
-            English
+            {t('nav_language.en')}
           </a>
         </div>
       </div>

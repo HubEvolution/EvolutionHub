@@ -61,10 +61,25 @@ export interface AdminLocale {
       none: string;
       table: { id: string; expires: string };
     };
-    credits: { heading: string; tenthsLabel: string };
+    credits: {
+      heading: string;
+      tenthsLabel: string;
+      form: {
+        amountLabel: string;
+        grantLabel: string;
+        deductLabel: string;
+      };
+    };
     history: {
       none: string;
       table: { pack: string; units: string; created: string; expires: string };
+    };
+    planForm: {
+      planLabel: string;
+      intervalLabel: string;
+      prorationLabel: string;
+      cancelImmediatelyLabel: string;
+      submitLabel: string;
     };
   };
   discounts: {
@@ -97,6 +112,11 @@ export interface AdminLocale {
       createdAt: string;
     };
     empty: string;
+    actions: {
+      createStripeCoupon: string;
+      confirmCreateStripeCoupon: string;
+      copyStripeCouponId: string;
+    };
   };
   errors: {
     userListLoad: string;
@@ -107,6 +127,11 @@ export interface AdminLocale {
     userLookup: string;
     sessionsLoad: string;
     sessionsRevoke: string;
+    creditsUsage: string;
+    creditsHistory: string;
+    creditsGrant: string;
+    creditsDeduct: string;
+    setPlan: string;
   };
 }
 

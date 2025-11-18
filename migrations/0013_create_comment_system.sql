@@ -3,7 +3,7 @@
 -- Description: Creates tables for comments, moderation, and reporting
 
 -- Comments table
-CREATE TABLE comments (
+CREATE TABLE IF NOT EXISTS comments (
   id TEXT PRIMARY KEY,
   content TEXT NOT NULL,
   author_id INTEGER NOT NULL,
@@ -22,7 +22,7 @@ CREATE TABLE comments (
 );
 
 -- Comment moderation table
-CREATE TABLE comment_moderation (
+CREATE TABLE IF NOT EXISTS comment_moderation (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   comment_id TEXT NOT NULL,
   moderator_id INTEGER,
@@ -34,7 +34,7 @@ CREATE TABLE comment_moderation (
 );
 
 -- Comment reports table
-CREATE TABLE comment_reports (
+CREATE TABLE IF NOT EXISTS comment_reports (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   comment_id TEXT NOT NULL,
   reporter_id INTEGER,
@@ -51,22 +51,22 @@ CREATE TABLE comment_reports (
 );
 
 -- Indexes for better performance
-CREATE INDEX idx_comments_entity ON comments(entity_type, entity_id);
-CREATE INDEX idx_comments_status ON comments(status);
-CREATE INDEX idx_comments_author ON comments(author_id);
-CREATE INDEX idx_comments_parent ON comments(parent_id);
-CREATE INDEX idx_comments_created_at ON comments(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_comments_entity ON comments(entity_type, entity_id);
+CREATE INDEX IF NOT EXISTS idx_comments_status ON comments(status);
+CREATE INDEX IF NOT EXISTS idx_comments_author ON comments(author_id);
+CREATE INDEX IF NOT EXISTS idx_comments_parent ON comments(parent_id);
+CREATE INDEX IF NOT EXISTS idx_comments_created_at ON comments(created_at DESC);
 
-CREATE INDEX idx_comment_moderation_comment ON comment_moderation(comment_id);
-CREATE INDEX idx_comment_moderation_moderator ON comment_moderation(moderator_id);
-CREATE INDEX idx_comment_moderation_created_at ON comment_moderation(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_comment_moderation_comment ON comment_moderation(comment_id);
+CREATE INDEX IF NOT EXISTS idx_comment_moderation_moderator ON comment_moderation(moderator_id);
+CREATE INDEX IF NOT EXISTS idx_comment_moderation_created_at ON comment_moderation(created_at DESC);
 
-CREATE INDEX idx_comment_reports_comment ON comment_reports(comment_id);
-CREATE INDEX idx_comment_reports_status ON comment_reports(status);
-CREATE INDEX idx_comment_reports_created_at ON comment_reports(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_comment_reports_comment ON comment_reports(comment_id);
+CREATE INDEX IF NOT EXISTS idx_comment_reports_status ON comment_reports(status);
+CREATE INDEX IF NOT EXISTS idx_comment_reports_created_at ON comment_reports(created_at DESC);
 
 -- Trigger to update updated_at timestamp
-CREATE TRIGGER update_comments_updated_at
+CREATE TRIGGER IF NOT EXISTS update_comments_updated_at
   AFTER UPDATE ON comments
   FOR EACH ROW
   WHEN NEW.updated_at = OLD.updated_at

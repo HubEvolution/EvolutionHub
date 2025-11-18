@@ -551,6 +551,9 @@ paths:
                     - annual
                   default: monthly
                   example: "annual"
+                discountCode:
+                  type: string
+                  description: Optionaler Rabattcode, der auf die Subscription angewendet wird
       responses:
         '200':
           description: Subscription-Checkout erfolgreich erstellt

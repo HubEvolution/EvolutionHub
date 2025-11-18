@@ -6,9 +6,11 @@ import {
   createMethodNotAllowed,
 } from '@/lib/api-middleware';
 import Stripe from 'stripe';
+import type { D1Database } from '@cloudflare/workers-types';
 import { logUserEvent } from '@/lib/security-logger';
 import { sanitizeReturnTo } from '@/utils/sanitizeReturnTo';
 import { sensitiveActionLimiter } from '@/lib/rate-limiter';
+import { getActiveDiscountForCheckout } from '@/lib/services/discount-service';
 
 /**
  * POST /api/billing/session
@@ -63,6 +65,7 @@ export const POST = withAuthApiMiddleware(
       workspaceId?: string;
       interval?: 'monthly' | 'annual';
       returnTo?: string;
+      discountCode?: string;
     } | null;
     if (!body || !body.plan || !body.workspaceId) {
       return createApiError('validation_error', 'plan and workspaceId are required');
@@ -96,6 +99,30 @@ export const POST = withAuthApiMiddleware(
     if (!user) {
       return createApiError('auth_error', 'Unauthorized');
     }
+
+    const discountCodeRaw = body.discountCode;
+    const discountCode =
+      typeof discountCodeRaw === 'string' && discountCodeRaw.trim() !== ''
+        ? discountCodeRaw.trim()
+        : undefined;
+
+    let discountCouponId: string | undefined;
+    if (discountCode) {
+      const db = (rawEnv.DB as D1Database | undefined) ?? undefined;
+      if (!db) {
+        return createApiError('server_error', 'Discounts feature not available');
+      }
+
+      const activeDiscount = await getActiveDiscountForCheckout(db, {
+        code: discountCode,
+      });
+
+      if (!activeDiscount || !activeDiscount.stripe_coupon_id) {
+        return createApiError('validation_error', 'Invalid discount code');
+      }
+
+      discountCouponId = activeDiscount.stripe_coupon_id;
+    }
     // Do not pin apiVersion here to avoid TS literal mismatches; use package default
     const stripe = new Stripe(stripeSecret);
     const session = await stripe.checkout.sessions.create({
@@ -106,7 +133,13 @@ export const POST = withAuthApiMiddleware(
       line_items: [{ price: priceId, quantity: 1 }],
       customer_email: user!.email,
       client_reference_id: user!.id,
-      metadata: { workspaceId: body.workspaceId, userId: user!.id, plan: body.plan },
+      discounts: discountCouponId ? [{ coupon: discountCouponId }] : undefined,
+      metadata: {
+        workspaceId: body.workspaceId,
+        userId: user!.id,
+        plan: body.plan,
+        ...(discountCode ? { discountCode } : {}),
+      },
     });
 
     return createApiSuccess({ url: session.url });

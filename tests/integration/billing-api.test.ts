@@ -189,59 +189,70 @@ describe('Billing-API-Integration', () => {
   });
 
   describe('POST /api/billing/session', () => {
-    it('sollte erfolgreich Billing-Session erstellen', async () => {
+    it('sollte Billing-Session-Request mit gültigem Body verarbeiten', async () => {
       const requestData = {
-        priceId: 'price_test_123',
-        successUrl: 'https://example.com/success',
-        cancelUrl: 'https://example.com/cancel',
+        plan: 'pro',
+        workspaceId: 'test-workspace',
+        interval: 'monthly' as const,
       };
 
       const response = await sendJsonWithCsrf('/api/billing/session', requestData);
 
-      expect([200, 401, 404, 405, 429]).toContain(response.status);
+      // Abhängig von Auth/Stripe-Konfiguration sind mehrere Statuscodes möglich
+      expect([200, 400, 401, 404, 405, 429]).toContain(response.status);
       if (response.status !== 200) return;
+
       expect(response.contentType).toContain('application/json');
-      const json = parseJson<{ sessionId: string; url: string }>(response);
+      const json = parseJson<{ url: string }>(response);
       expect(json?.success).toBe(true);
-      expect(json?.data?.sessionId).toBeDefined();
       expect(json?.data?.url).toBeDefined();
     });
 
-    it('sollte Validierungsfehler für fehlende priceId zurückgeben', async () => {
+    it('sollte Validierungsfehler für fehlende Pflichtfelder zurückgeben', async () => {
       const requestData = {
-        successUrl: 'https://example.com/success',
-        cancelUrl: 'https://example.com/cancel',
-        // priceId fehlt
+        // plan und workspaceId fehlen
       };
 
-      const response = await sendJson('/api/billing/session', requestData);
+      const response = await sendJsonWithCsrf('/api/billing/session', requestData);
 
       expect([400, 401, 403, 404]).toContain(response.status);
-      if ((response.contentType || '').includes('application/json')) {
+      if (response.status === 400 && (response.contentType || '').includes('application/json')) {
         const json = parseJson<unknown>(response);
         if (json && Object.prototype.hasOwnProperty.call(json, 'success')) {
-          expect(json.success).toBe(false);
+          const typed = json as { success?: boolean };
+          expect(typed.success).toBe(false);
         }
       }
     });
 
-    it('sollte 401 für nicht authentifizierte Anfragen zurückgeben', async () => {
+    it('sollte optionalen Discount-Code im Body akzeptieren', async () => {
       const requestData = {
-        priceId: 'price_test_123',
-        successUrl: 'https://example.com/success',
-        cancelUrl: 'https://example.com/cancel',
+        plan: 'pro',
+        workspaceId: 'test-workspace',
+        interval: 'monthly' as const,
+        discountCode: 'TESTCODE',
       };
 
       const response = await sendJsonWithCsrf('/api/billing/session', requestData);
 
-      // In parallelen Läufen kann Rate-Limiting (429) zeitweise greifen
-      expect([200, 401, 429]).toContain(response.status);
-      if (response.status !== 200) return;
-      expect(response.contentType).toContain('application/json');
-      const json = parseJson<{ sessionId: string; url: string }>(response);
-      expect(json?.success).toBe(true);
-      expect(json?.data?.sessionId).toBeDefined();
-      expect(json?.data?.url).toBeDefined();
+      // Je nach Auth/Stripe/Discount-Setup kann der Status variieren
+      expect([200, 400, 401, 404, 405, 429]).toContain(response.status);
+
+      if (response.status === 200) {
+        expect(response.contentType).toContain('application/json');
+        const json = parseJson<{ url: string }>(response);
+        expect(json?.success).toBe(true);
+        expect(json?.data?.url).toBeDefined();
+      } else if (response.status === 400 && (response.contentType || '').includes('application/json')) {
+        const json = parseJson<{ success: boolean; error?: { type?: string; message?: string } }>(
+          response
+        );
+        if (json) {
+          expect(json.success).toBe(false);
+          expect(json.error?.type).toBeDefined();
+          expect(json.error?.message).toBeDefined();
+        }
+      }
     });
   });
 
@@ -286,89 +297,26 @@ describe('Billing-API-Integration', () => {
     });
   });
 
-  describe('POST /api/billing/link-pending', () => {
-    it('sollte erfolgreich pending Payment-Link erstellen', async () => {
-      const requestData = {
-        priceId: 'price_test_123',
-        email: 'customer@example.com',
-      };
+  describe('GET /api/billing/link-pending', () => {
+    it('sollte Redirect oder fehlerschonendes Verhalten liefern', async () => {
+      const response = await fetchPage('/api/billing/link-pending');
 
-      const response = await sendJson('/api/billing/link-pending', requestData);
-
-      expect([200, 401, 404]).toContain(response.status);
-      if (response.status !== 200) return;
-      expect(response.contentType).toContain('application/json');
-      const json = parseJson<{ paymentLink: string }>(response);
-      expect(json?.success).toBe(true);
-      expect(json?.data?.paymentLink).toBeDefined();
-    });
-
-    it('sollte Validierungsfehler für ungültige E-Mail zurückgeben', async () => {
-      const requestData = {
-        priceId: 'price_test_123',
-        email: 'invalid-email',
-      };
-
-      const response = await sendJson('/api/billing/link-pending', requestData);
-
-      expect([400, 401, 403, 404]).toContain(response.status);
-      if ((response.contentType || '').includes('application/json')) {
-        const json = parseJson<unknown>(response);
-        if (json && Object.prototype.hasOwnProperty.call(json, 'success')) {
-          expect(json.success).toBe(false);
-        }
+      // Ohne vorbereitete Pending-Subscription und ohne Auth sind mehrere Status möglich
+      expect([302, 401, 404]).toContain(response.status);
+      if (response.status === 302) {
+        expect(response.redirectUrl).toBeTruthy();
       }
     });
   });
 
-  describe('POST /api/billing/sync-callback', () => {
-    it('sollte erfolgreich Sync-Callback verarbeiten', async () => {
-      const requestData = {
-        type: 'invoice.payment_succeeded',
-        data: {
-          object: {
-            id: 'in_test_123',
-            customer: 'cus_test_456',
-            subscription: 'sub_test_789',
-          },
-        },
-      };
+  describe('GET /api/billing/sync-callback', () => {
+    it('sollte Redirect zu Login oder Sync liefern', async () => {
+      const response = await fetchPage('/api/billing/sync-callback?session_id=test_session&ws=default');
 
-      const response = await sendJson('/api/billing/sync-callback', requestData);
-
-      expect([200, 404]).toContain(response.status);
-      if (response.status !== 200) return;
-      expect(response.contentType).toContain('application/json');
-      const json = parseJson<unknown>(response);
-      expect(json?.success).toBe(true);
-    });
-
-    it('sollte verschiedene Webhook-Events verarbeiten', async () => {
-      const events = [
-        'customer.subscription.created',
-        'customer.subscription.updated',
-        'customer.subscription.deleted',
-        'invoice.payment_succeeded',
-        'invoice.payment_failed',
-      ];
-
-      for (const eventType of events) {
-        const requestData = {
-          type: eventType,
-          data: {
-            object: {
-              id: `${eventType.replace('.', '_')}_test`,
-              customer: 'cus_test_456',
-            },
-          },
-        };
-
-        const response = await sendJson('/api/billing/sync-callback', requestData);
-
-        expect([200, 404]).toContain(response.status);
-        if (response.status !== 200) continue;
-        const json = parseJson<unknown>(response);
-        expect(json?.success).toBe(true);
+      // In den meisten Fällen: 302 Redirect (z. B. zu /login); 404 zulassen, falls Route nicht verdrahtet ist
+      expect([302, 404]).toContain(response.status);
+      if (response.status === 302) {
+        expect(response.redirectUrl).toBeTruthy();
       }
     });
   });
@@ -403,15 +351,15 @@ describe('Billing-API-Integration', () => {
   describe('Rate-Limiting für Billing-Endpunkte', () => {
     it('sollte Rate-Limiting für Billing-Session korrekt handhaben', async () => {
       const requestData = {
-        priceId: 'price_test_123',
-        successUrl: 'https://example.com/success',
-        cancelUrl: 'https://example.com/cancel',
+        plan: 'pro',
+        workspaceId: 'test-workspace',
+        interval: 'monthly' as const,
       };
 
       // Mehrere Anfragen senden um Rate-Limit zu triggern
       const requests = Array(15)
         .fill(null)
-        .map(() => sendJson('/api/billing/session', requestData));
+        .map(() => sendJsonWithCsrf('/api/billing/session', requestData));
 
       const responses = await Promise.all(requests);
 

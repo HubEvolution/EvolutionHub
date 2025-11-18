@@ -2,6 +2,8 @@
 
 Geltung: Alle Tests in diesem Repository.
 
+Test-Baseline: `.windsurf/rules/testing-and-ci.md` (JSON‑Parsing mit `safeParseJson<ApiJson>()`, Coverage‑Gates, CI‑Workflows).
+
 ## Struktur & Konventionen
 
 - Dateinamen: `*.test.ts[x]` entsprechend bestehender Ordnerstruktur (`tests`, `test-suite-v2`, `tests/src`).

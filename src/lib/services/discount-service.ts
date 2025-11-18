@@ -22,7 +22,7 @@ export interface DbDiscountCode {
 
 export interface CreateDiscountCodeInput {
   code: string;
-  stripeCouponId: string;
+  stripeCouponId?: string;
   type: DiscountCodeType;
   value: number;
   maxUses?: number | null;
@@ -70,6 +70,7 @@ export async function createDiscountCode(
   const validUntil = typeof input.validUntil === 'number' ? input.validUntil : null;
   const description = input.description ?? null;
   const status: DiscountCodeStatus = input.status ?? 'active';
+  const stripeCouponId = typeof input.stripeCouponId === 'string' ? input.stripeCouponId : '';
 
   await db
     .prepare(
@@ -93,7 +94,7 @@ export async function createDiscountCode(
     .bind(
       id,
       input.code,
-      input.stripeCouponId,
+      stripeCouponId,
       input.type,
       input.value,
       maxUses,
@@ -110,7 +111,7 @@ export async function createDiscountCode(
   return {
     id,
     code: input.code,
-    stripe_coupon_id: input.stripeCouponId,
+    stripe_coupon_id: stripeCouponId,
     type: input.type,
     value: input.value,
     max_uses: maxUses,
@@ -167,4 +168,69 @@ export async function listDiscountCodes(
     hasMore,
     nextCursor,
   };
+}
+
+export async function applyDiscountUsage(
+  db: D1Database,
+  params: { code: string; now?: number }
+): Promise<void> {
+  const ts =
+    typeof params.now === 'number' && Number.isFinite(params.now)
+      ? Math.trunc(params.now)
+      : Date.now();
+
+  await db
+    .prepare(
+      `UPDATE discount_codes
+       SET uses_count = uses_count + 1,
+           status = CASE
+                      WHEN max_uses IS NOT NULL AND uses_count + 1 >= max_uses THEN 'expired'
+                      ELSE status
+                    END,
+           updated_at = ?
+       WHERE code = ?
+         AND status = 'active'
+         AND (max_uses IS NULL OR uses_count < max_uses)
+         AND (valid_from IS NULL OR valid_from <= ?)
+         AND (valid_until IS NULL OR valid_until >= ?)`
+    )
+    .bind(ts, params.code, ts, ts)
+    .run();
+}
+
+export async function getActiveDiscountForCheckout(
+  db: D1Database,
+  params: { code: string; now?: number }
+): Promise<DbDiscountCode | null> {
+  const ts =
+    typeof params.now === 'number' && Number.isFinite(params.now)
+      ? Math.trunc(params.now)
+      : Date.now();
+
+  const result = await db
+    .prepare(
+      `SELECT * FROM discount_codes
+       WHERE code = ?
+         AND status = 'active'
+         AND (max_uses IS NULL OR uses_count < max_uses)
+         AND (valid_from IS NULL OR valid_from <= ?)
+         AND (valid_until IS NULL OR valid_until >= ?)
+       LIMIT 1`
+    )
+    .bind(params.code, ts, ts)
+    .first<DbDiscountCode>();
+
+  return result ?? null;
+}
+
+export async function getDiscountCodeById(
+  db: D1Database,
+  id: string
+): Promise<DbDiscountCode | null> {
+  const row = await db
+    .prepare('SELECT * FROM discount_codes WHERE id = ? LIMIT 1')
+    .bind(id)
+    .first<DbDiscountCode>();
+
+  return row ?? null;
 }

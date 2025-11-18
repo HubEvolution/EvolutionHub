@@ -308,9 +308,9 @@ export const authLimiter = createRateLimiter({
   name: 'auth',
 });
 
-// Für sensible Endpunkte wie Passwort-Reset (5 Anfragen pro Stunde)
+// Für sensible Endpunkte wie Passwort-Reset (5 Anfragen pro Stunde; in Dev stark gelockert)
 export const sensitiveActionLimiter = createRateLimiter({
-  maxRequests: 5,
+  maxRequests: import.meta.env.DEV ? 1000 : 5,
   windowMs: 60 * 60 * 1000, // 1 Stunde
   name: 'sensitiveAction',
 });

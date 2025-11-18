@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { getLocale, navigateLocale } from './i18n';
+import { getI18n, getI18nArray } from '@/utils/i18n';
 
 describe('i18n', () => {
   describe('getLocale', () => {
@@ -67,6 +68,79 @@ describe('i18n', () => {
       window.location.pathname = '/en/';
       navigateLocale('de');
       expect(mockAssign).toHaveBeenCalledWith('/');
+    });
+  });
+
+  describe('getI18n', () => {
+    let warnSpy: ReturnType<typeof vi.spyOn>;
+
+    beforeEach(() => {
+      warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      warnSpy.mockRestore();
+    });
+
+    it('returns a translated string for an existing key in the current locale', () => {
+      const t = getI18n('en');
+      const value = t('pages.dashboard.title');
+      expect(typeof value).toBe('string');
+      expect(value).not.toMatch(/fallback_not_found/);
+    });
+
+    it('formats parameters into the translated string', () => {
+      const t = getI18n('en');
+      const msg = t('auth.toasts.login_error', { code: 'TEST_CODE' });
+      expect(msg).toContain('TEST_CODE');
+      expect(msg).not.toMatch(/fallback_not_found/);
+    });
+
+    it('supports pluralization based on the count parameter', () => {
+      const t = getI18n('en');
+      const one = t('pages.dashboard.billing.quota.resets', { count: 1 });
+      const many = t('pages.dashboard.billing.quota.resets', { count: 3 });
+
+      expect(one).toContain('1');
+      expect(many).toContain('3');
+      expect(one).not.toEqual(many);
+    });
+
+    it('returns a fallback_not_found marker when the key is missing in all locales', () => {
+      const t = getI18n('en');
+      const key = 'nonexistent.key.path.for.test';
+      const result = t(key);
+
+      expect(result).toBe(`[en:${key}_fallback_not_found]`);
+      expect(warnSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('getI18nArray', () => {
+    let warnSpy: ReturnType<typeof vi.spyOn>;
+
+    beforeEach(() => {
+      warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      warnSpy.mockRestore();
+    });
+
+    it('returns an array for an existing array key', () => {
+      const getArray = getI18nArray('en');
+      const lines = getArray('pages.home.hero.typewriter_lines');
+
+      expect(Array.isArray(lines)).toBe(true);
+      expect(lines.length).toBeGreaterThan(0);
+    });
+
+    it('returns an empty array and warns when the key is missing', () => {
+      const getArray = getI18nArray('en');
+      const result = getArray('nonexistent.array.key');
+
+      expect(result).toEqual([]);
+      expect(warnSpy).toHaveBeenCalled();
     });
   });
 });

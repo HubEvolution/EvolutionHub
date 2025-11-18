@@ -83,23 +83,3 @@ export const POST = async (context: APIContext) => {
     );
   }
 };
-
-// Method not allowed for other HTTP methods
-export const GET = () => {
-  return new Response(
-    JSON.stringify({
-      success: false,
-      error: {
-        type: 'method_not_allowed',
-        message: 'Use POST to send logs',
-      },
-    }),
-    {
-      status: 405,
-      headers: {
-        'Content-Type': 'application/json',
-        Allow: 'POST',
-      },
-    }
-  );
-};

@@ -63,7 +63,13 @@
     "dashboard": "Dashboard",
     "tools": "Tools",
     "pricing": "Preise",
-    "blog": "Blog"
+    "blog": "Blog",
+    "aria": {
+      "dashboard": "Zum Dashboard wechseln",
+      "tools": "Tools anzeigen",
+      "pricing": "Preise anzeigen",
+      "blog": "Blog anzeigen"
+    }
   },
   "nav_language": {
     "de": "Deutsch",
@@ -75,7 +81,30 @@
     "legal": "Rechtliches",
     "tools": "Tools",
     "cookie_settings": "Cookie-Einstellungen",
+    "links": {
+      "dashboard": "Dashboard",
+      "blog": "Blog",
+      "docs": "Dokumentation",
+      "faq": "FAQ",
+      "contact": "Kontakt",
+      "privacy": "Datenschutzerklärung",
+      "imprint": "Impressum",
+      "terms": "AGB"
+    },
     "copyright": "© 2025 Evolution Hub. Alle Rechte vorbehalten."
+  },
+  "header": {
+    "menu": {
+      "profile": "Profil & Einstellungen",
+      "plan_usage": "Plan & Nutzung",
+      "plan_label": "Plan",
+      "credits": "Credits",
+      "monthly_quota": "Monatliches Kontingent",
+      "monthly_quota_remaining": "Verbleibendes monatliches Kontingent",
+      "theme": "Darstellung",
+      "language": "Sprache",
+      "account_fallback": "Account"
+    }
   },
   "cta": {
     "headline": "Bereit loszulegen?",
@@ -84,10 +113,33 @@
   },
   "auth": {
     "login": "Anmelden",
+    "logout": "Abmelden",
     "magic": {
       "cooldown": "Bitte warte {seconds}s, bevor du es erneut versuchst.",
       "error": "Magischer Link konnte nicht gesendet werden. Bitte erneut versuchen.",
       "success": "Wir haben dir einen magischen Link geschickt. Bitte prüfe dein Postfach."
+    },
+    "toasts": {
+      "turnstile_load_error": "Turnstile konnte nicht geladen werden. Bitte Seite neu laden oder anderes Netzwerk versuchen.",
+      "logged_out": "Erfolgreich abgemeldet.",
+      "login_success": "Aktion erfolgreich abgeschlossen.",
+      "login_error": "Anmeldung fehlgeschlagen ({code}).",
+      "password_reset_sent": {
+        "success": "E-Mail wurde versendet.",
+        "error": "Versand fehlgeschlagen ({code})."
+      },
+      "forgot_password": {
+        "success": "E-Mail zum Zurücksetzen wurde gesendet.",
+        "error": "Senden fehlgeschlagen ({code})."
+      },
+      "reset_password": {
+        "success": "Passwort wurde zurückgesetzt.",
+        "error": "Passwort-Zurücksetzen fehlgeschlagen ({code})."
+      },
+      "register": {
+        "success": "Registrierung erfolgreich.",
+        "error": "Registrierung fehlgeschlagen ({code})."
+      }
     }
   },
   "pages": {
@@ -574,6 +626,14 @@
     "pricing": {
       "title": "Preise – Evolution Hub",
       "description": "Wähle den passenden Plan für deine Bedürfnisse. Kostenlose Testversion verfügbar.",
+      "billing_messages": {
+        "unauthorized": "Bitte melde dich an, um auf dein Abrechnungsportal zuzugreifen.",
+        "stripe_not_configured": "Das Abrechnungsportal ist derzeit nicht verfügbar.",
+        "db_unavailable": "Wir konnten den Billing-Service nicht erreichen. Bitte versuche es später erneut.",
+        "no_customer": "Deinem Konto ist noch kein Stripe-Kunde zugeordnet.",
+        "portal_unavailable": "Wir konnten dein Abrechnungsportal nicht öffnen. Bitte versuche es erneut.",
+        "retry_cta": "Erneut versuchen"
+      },
       "table": {
         "per_month": "/Monat",
         "per_year": "pro Jahr",
@@ -629,6 +689,10 @@
             ],
             "cta": "Kontakt aufnehmen"
           }
+        },
+        "details": {
+          "trigger": "Mehr Details",
+          "close": "Details schließen"
         }
       },
       "comparison": {
@@ -764,6 +828,9 @@
             "bullets": ["1.500 Credits sofort verfügbar", "Im gesamten Workspace teilbar"],
             "cta": "1.500 Credits kaufen"
           }
+        },
+        "details": {
+          "trigger": "Mehr Details"
         }
       },
       "credits_explainer": {
@@ -963,6 +1030,23 @@
           "incomplete_expired": "Unvollständig (abgelaufen)",
           "paused": "Pausiert",
           "unknown": "Unbekannt"
+        },
+        "quota": {
+          "label": "Verbleibendes Monatskontingent",
+          "loading": "Aktualisiere…",
+          "usage": {
+            "suffix": "genutzt"
+          },
+          "resets": {
+            "one": "setzt sich in 1 Tag zurück",
+            "other": "setzt sich in {count} Tagen zurück"
+          }
+        },
+        "creditsBuy": {
+          "button": "Credits kaufen",
+          "errorPrefix": "Checkout fehlgeschlagen: ",
+          "errorInvalidResponse": "Checkout fehlgeschlagen: Ungültige Antwort",
+          "errorGeneric": "Checkout fehlgeschlagen"
         }
       },
       "referrals": {
@@ -1031,6 +1115,49 @@
           "enterprise": "Enterprise"
         },
         "pulse": "Dein Workspace funktioniert vollständig passwortlos – Magic Links kommen direkt in deinem Postfach an und OAuth hält Identitäten verifiziert."
+      },
+      "account": {
+        "danger": {
+          "title": "Konto löschen",
+          "description": "Das Entfernen deines Kontos anonymisiert deine Daten und beendet aktive Sitzungen. Diese Aktion kann nicht rückgängig gemacht werden.",
+          "button": "Konto löschen",
+          "close": "Schließen",
+          "confirm": {
+            "title": "Löschung bestätigen",
+            "description": "Bist du sicher, dass du dein Konto dauerhaft löschen möchtest?",
+            "confirmCta": "Jetzt löschen",
+            "cancelCta": "Abbrechen"
+          },
+          "subscription": {
+            "title": "Aktives Abonnement erkannt",
+            "description": "Wir haben aktive Abonnements gefunden. Du kannst zur Abrechnung wechseln oder die Kündigung automatisch zum aktuellen Laufzeitende einplanen.",
+            "periodEnd": "Verlängert sich am {date}",
+            "indefinite": "Verlängert sich automatisch bis zur Kündigung",
+            "goToBilling": "Zur Abrechnung wechseln",
+            "deleteAnyway": "Trotzdem löschen",
+            "back": "Zurück"
+          },
+          "messages": {
+            "processing": "Konto wird gelöscht…",
+            "success": "Dein Konto wurde gelöscht. Du wirst abgemeldet.",
+            "error": "Das Konto konnte nicht gelöscht werden. Bitte versuche es erneut."
+          }
+        },
+        "profile": {
+          "title": "Öffentliches Profil",
+          "description": "Aktualisiere, wie du in Evolution Hub erscheinst – für Kommentare, Dashboards und Team-Arbeitsbereiche.",
+          "nameLabel": "Name",
+          "usernameLabel": "Benutzername",
+          "emailLabel": "E-Mail",
+          "changeEmailHint": "E-Mail-Änderungen erfordern eine erneute Verifizierung über den Support.",
+          "changeEmailCta": "E-Mail ändern (bald verfügbar)",
+          "saveCta": "Änderungen speichern",
+          "hybridTitle": "Passwortlos per Design",
+          "hybridDescription": "Anmeldung erfolgt über Magic Links und OAuth-Anbieter – keine Passwörter, kein Reset-Stress.",
+          "supportTitle": "Hilfe benötigt?",
+          "supportDescription": "Das Auth-Playbook erklärt Sessions, Gerätevertrauen und Recovery-Schritte im Detail.",
+          "supportCta": "Guide öffnen"
+        }
       },
       "toolShortcuts": {
         "title": "Werkzeuge im Schnellzugriff",

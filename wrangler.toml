@@ -396,7 +396,7 @@ STYTCH_CUSTOM_DOMAIN = "login-test.hub-evolution.com"
 PRICING_TABLE = '{"free":"","pro":"price_1S792lHr57WJCQliypEVllOm","premium":"price_1S793YHr57WJCQli3PHQVl4F","enterprise":"price_1S78fzHr57WJCQliS1xzpjhn"}'
 PRICING_TABLE_ANNUAL = '{"free":"","pro":"price_1S795tHr57WJCQli0xzvzWYh","premium":"price_1S796lHr57WJCQlivfgidNkx","enterprise":""}'
 CREDITS_PRICING_TABLE = '{"200":"price_1S79IaHr57WJCQliDVSRm21g","1000":"price_1S79JXHr57WJCQliJ30yk0rS"}'
-PUBLIC_TURNSTILE_SITE_KEY = "0x4AAAAAAB5-m2IDaeVetM7Q"
+PUBLIC_TURNSTILE_SITE_KEY = "0x4AAAAAACBKqs4imV0FC-yN"
 PROMPT_REWRITE_V1 = "true"
 PROMPT_TEXT_MODEL = "gpt-4o-mini"
 PROMPT_VISION_MODEL = "gpt-4o-mini"
@@ -476,19 +476,15 @@ zone_name = "hub-evolution.com"
 ENVIRONMENT = "staging"
 BASE_URL = "https://staging.hub-evolution.com"
 LEADMAGNET_SOURCE = "r2"
+AUTH_PROVIDER = "stytch"
+STYTCH_CUSTOM_DOMAIN = "login-test.hub-evolution.com"
 PUBLIC_ENABLE_CREDITS_CTA = "1"
 PUBLIC_LANDING_BG_VARIANT = "techcells"
-# Staging pricing (test mode IDs)
-PRICING_TABLE = '{"free":"","pro":"price_1SKj5MHdpdQAtOQBAUpgOHiO","premium":"price_1SKj6wHdpdQAtOQB1ONFWXBD","enterprise":"price_1SKj3DHdpdQAtOQB4kUoLiLA"}'
-PRICING_TABLE_ANNUAL = '{"free":"","pro":"price_1SKj5sHdpdQAtOQBmwk497Se","premium":"price_1SKj7NHdpdQAtOQB4ZYoW84T","enterprise":"price_1SKj3kHdpdQAtOQBrzHdcSZk"}'
-PRICING_LINKS = '{"pro":"https://buy.stripe.com/5kQ6oH7d11nv2vC5pJ1VK06","premium":"https://buy.stripe.com/eVqeVd7d14zH3zG05pJ1VK08"}'
-PRICING_LINKS_ANNUAL = '{"pro":"https://buy.stripe.com/5kQ7sL9l9c296LS4lF1VK01","premium":"https://buy.stripe.com/cNi8wPdBp2rzdag4lF1VK07"}'
-CREDITS_PRICING_TABLE = '{"100":"price_1SKj8rHdpdQAtOQBx9Vz0Cl5","500":"price_1SKjA2HdpdQAtOQBt5vWqIcg","1500":"price_1SKjB6HdpdQAtOQBRkEKdrGy"}'
+# ...
 WORKERS_AI_ENABLED = "1"
-STYTCH_PKCE = "1"
+STYTCH_PKCE = "0"                     # PKCE OFF (anything != "1"/"true" disables it)
 PUBLIC_ENHANCER_MVP_MODE = "1"
 PUBLIC_ENHANCER_LEGACY_MODE = "1"
-
 # Prompt Enhancer (non-secret defaults for staging)
 PROMPT_REWRITE_V1 = "true"
 PROMPT_TEXT_MODEL = "gpt-4o-mini"
@@ -499,4 +495,5 @@ PROMPT_ALLOWED_TYPES = "image/jpeg,image/png,image/webp,application/pdf,text/pla
 PROMPT_OUTPUT_TOKENS_MAX = "400"
 PROMPT_TEMPERATURE = "0.2"
 PROMPT_TOP_P = "0.9"
-PUBLIC_TURNSTILE_SITE_KEY = "0x4AAAAAAB5-m2IDaeVetM7Q"
+PUBLIC_TURNSTILE_SITE_KEY = "0x4AAAAAACBKqs4imV0FC-yN"
+

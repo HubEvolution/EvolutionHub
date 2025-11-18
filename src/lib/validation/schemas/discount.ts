@@ -11,7 +11,7 @@ export const discountCodeResponseSchema = z.object({
     .min(3)
     .max(50)
     .regex(/^[A-Z0-9_-]+$/),
-  stripeCouponId: z.string().min(1),
+  stripeCouponId: z.string(),
   type: discountCodeTypeSchema,
   value: z.number().int().positive(),
   maxUses: z.number().int().positive().nullable(),
@@ -34,7 +34,11 @@ export const createDiscountCodeBodySchema = z
       .min(3)
       .max(50)
       .regex(/^[A-Z0-9_-]+$/),
-    stripeCouponId: z.string().min(1),
+    stripeCouponId: z
+      .string()
+      .trim()
+      .min(1)
+      .optional(),
     type: discountCodeTypeSchema,
     value: z.number().int().positive(),
     maxUses: z.number().int().positive().nullable().optional(),

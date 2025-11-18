@@ -54,9 +54,9 @@ const errorText =
 const cooldownLabel =
   t('pages.auth.magic.cooldown') ?? (locale === 'de' ? 'Erneut senden in {s}s' : 'Resend in {s}s');
 const publicTurnstileSiteKey =
-  (import.meta.env.PUBLIC_TURNSTILE_SITE_KEY as string | undefined) ??
   ((Astro.locals as unknown as { runtime?: { env?: Record<string, string> } })?.runtime?.env
-    ?.PUBLIC_TURNSTILE_SITE_KEY as string | undefined);
+    ?.PUBLIC_TURNSTILE_SITE_KEY as string | undefined) ??
+  (import.meta.env.PUBLIC_TURNSTILE_SITE_KEY as string | undefined);
 ---
 
 <form

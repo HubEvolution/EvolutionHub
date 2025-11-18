@@ -1,8 +1,8 @@
 ---
-description: 'Admin API — Moderation, Status, Users, Plan, Credits (secured)'
+description: 'Admin API — Moderation, Status, Users, Plan, Credits, Discounts (secured)'
 owner: 'API Team'
 priority: 'high'
-lastSync: '2025-11-10'
+lastSync: '2025-11-16'
 codeRefs: 'src/pages/api/admin/**, src/lib/api-middleware.ts'
 testRefs: 'N/A'
 ---
@@ -84,6 +84,120 @@ curl -i -X POST https://hub-evolution.com/api/admin/users/set-plan \
   -H "Cookie: csrf_token=$CSRF; __Host-session=<token>" \
   --data '{"userId":"<user-id>","plan":"free","cancelImmediately":true,"reason":"requested by user"}'
 ```
+
+## Discounts — Admin Discount Codes & Stripe Coupons
+
+### Create Discount Code
+
+POST `/api/admin/discounts/create`
+
+- Body (Zod-validiert, `strict`):
+
+  ```json
+  {
+    "code": "WELCOME2025",
+    "stripeCouponId": "coupon_...", // optional
+    "type": "percentage" | "fixed",
+    "value": 10,
+    "maxUses": 100,          // optional, null = unlimited
+    "validFrom": 1731024000000, // optional (ms)
+    "validUntil": 1733616000000, // optional (ms)
+    "description": "Onboarding discount",
+    "status": "active" | "inactive" | "expired" // optional, default active
+  }
+  ```
+
+- Verhalten:
+
+  - Legt einen Datensatz in `discount_codes` an (`code` unique, `stripe_coupon_id` initial leer oder gemappt).
+
+  - `status` default `active`; `max_uses=null` bedeutet unbegrenzte Nutzung.
+
+- Security:
+
+  - Middleware: `withAuthApiMiddleware` mit `sensitiveActionLimiter` (5/h), CSRF enforced.
+
+  - Role: admin.
+
+- Response:
+
+  ```json
+  {
+    "success": true,
+    "data": {
+      "discountCode": {
+        "id": "disc_...",
+        "code": "WELCOME2025",
+        "stripeCouponId": "", // leer, solange kein Stripe-Coupon erzeugt wurde
+        "type": "percentage",
+        "value": 10,
+        "maxUses": 100,
+        "usesCount": 0,
+        "validFrom": 1731024000000,
+        "validUntil": 1733616000000,
+        "status": "active",
+        "description": "Onboarding discount",
+        "createdBy": "usr_admin",
+        "createdAt": 1731024000000,
+        "updatedAt": 1731024000000
+      }
+    }
+  }
+  ```
+
+### List Discount Codes
+
+GET `/api/admin/discounts/list`
+
+- Query-Parameter (Zod-validiert):
+
+  - `status`: `active|inactive|expired` (optional)
+
+  - `search`: Freitextfilter auf `code` (optional)
+
+  - `isActiveNow`: boolean (optional; berücksichtigt Zeitfenster `valid_from/valid_until`)
+
+  - `hasRemainingUses`: boolean (optional; filtert Codes mit verbleibenden Nutzungen, inkl. unlimited)
+
+  - `limit`: 1..100 (Standard 25)
+
+  - `cursor`: Opaque Cursor (`created_at`-basiert)
+
+- Response (`200`): `{ success, data: { items: DiscountCode[], pagination } }`
+
+- Security: `withAuthApiMiddleware` + `apiRateLimiter` (30/min), Role admin.
+
+### Create Stripe Coupon for Discount
+
+POST `/api/admin/discounts/{id}/create-stripe-coupon`
+
+- Zweck: Erzeugt einen Stripe-Coupon zu einem bestehenden Discount-Code, der noch keine `stripe_coupon_id` besitzt.
+
+- Verhalten:
+
+  - Lädt Discount aus `discount_codes` (per ID). Fehlerfälle: `not_found`, Tabelle fehlt.
+
+  - Validiert Rabattwert:
+    - `type=percentage`: `1..100` Prozent.
+    - `type=fixed`: positiver Betrag in EUR; wird als `amount_off` in Cent an Stripe übergeben.
+
+  - Erzeugt Stripe-Coupon (einmalig, `duration='once'`) über `Stripe.coupons.create(...)`.
+
+  - Persistiert `stripe_coupon_id` im Discount (`stripe_coupon_id` + `updated_at`).
+
+- Security:
+
+  - Middleware: `withAuthApiMiddleware` mit CSRF und `sensitiveActionLimiter`.
+
+  - Role: admin.
+
+- Error-Codes:
+
+  - `validation_error`: z. B. Discount bereits mit `stripe_coupon_id` belegt oder ungültiger Wert.
+
+  - `not_found`: Discount nicht vorhanden oder Tabelle nicht provisioniert.
+
+  - `server_error`: Stripe-Fehler oder DB-Update fehlgeschlagen.
 
 ## Users — Summary Lookup
 

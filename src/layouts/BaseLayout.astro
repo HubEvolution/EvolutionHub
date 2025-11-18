@@ -83,9 +83,9 @@ const siteBase: URL = (import.meta.env.PUBLIC_SITE_URL as string)
   : new URL(Astro.url.origin);
 
 const publicTurnstileSiteKey =
-  (import.meta.env.PUBLIC_TURNSTILE_SITE_KEY as string | undefined) ??
   ((Astro.locals as unknown as { runtime?: { env?: Record<string, string> } })?.runtime?.env
-    ?.PUBLIC_TURNSTILE_SITE_KEY as string | undefined);
+    ?.PUBLIC_TURNSTILE_SITE_KEY as string | undefined) ??
+  (import.meta.env.PUBLIC_TURNSTILE_SITE_KEY as string | undefined);
 
 const localeAlternates = getAlternateUrls(Astro.url.pathname);
 const canonicalPath = locale === 'en' ? localeAlternates.en : localeAlternates.de;

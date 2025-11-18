@@ -90,15 +90,15 @@ export const POST = withAuthApiMiddleware(
 
       const discountCode: DiscountCodeResponse = mapDbDiscountCode(dbDiscount);
       return createApiSuccess({ discountCode });
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
 
-      // Fehlende Tabelle -> Feature (noch) nicht verfügbar
       if (message.includes('no such table: discount_codes')) {
-        return createApiError('not_found', 'Discounts feature not available');
+        // In environments where the discount_codes table is not yet provisioned,
+        // treat this as a soft 404 so tests and admin UI can degrade gracefully.
+        return createApiError('not_found', 'Discount codes table not available');
       }
 
-      // Eindeutiger Code bereits vergeben
       if (message.includes('UNIQUE constraint failed')) {
         return createApiError('validation_error', 'Discount code already exists');
       }

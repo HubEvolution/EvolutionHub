@@ -3,7 +3,13 @@
     "dashboard": "Dashboard",
     "tools": "Tools",
     "pricing": "Pricing",
-    "blog": "Blog"
+    "blog": "Blog",
+    "aria": {
+      "dashboard": "Go to Dashboard",
+      "tools": "View available tools",
+      "pricing": "View pricing plans",
+      "blog": "View blog posts"
+    }
   },
   "nav_language": {
     "de": "Deutsch",
@@ -15,7 +21,30 @@
     "legal": "Legal",
     "tools": "Tools",
     "cookie_settings": "Cookie settings",
+    "links": {
+      "dashboard": "Dashboard",
+      "blog": "Blog",
+      "docs": "Documentation",
+      "faq": "FAQ",
+      "contact": "Contact",
+      "privacy": "Privacy policy",
+      "imprint": "Imprint",
+      "terms": "Terms & Conditions"
+    },
     "copyright": "© 2025 Evolution Hub. All rights reserved."
+  },
+  "header": {
+    "menu": {
+      "profile": "Profile & settings",
+      "plan_usage": "Plan & usage",
+      "plan_label": "Plan",
+      "credits": "Credits",
+      "monthly_quota": "Monthly quota",
+      "monthly_quota_remaining": "Monthly quota remaining",
+      "theme": "Theme",
+      "language": "Language",
+      "account_fallback": "Account"
+    }
   },
   "pages": {
     "docs": {
@@ -822,6 +851,14 @@
     "pricing": {
       "title": "Pricing – Evolution Hub",
       "description": "Choose the plan that fits your needs. Free trial available.",
+      "billing_messages": {
+        "unauthorized": "Please sign in to access your billing portal.",
+        "stripe_not_configured": "The billing portal is currently not available.",
+        "db_unavailable": "We could not reach the billing service. Please try again later.",
+        "no_customer": "No Stripe customer is linked to your account yet.",
+        "portal_unavailable": "We could not open your billing portal. Please try again.",
+        "retry_cta": "Try again"
+      },
       "table": {
         "per_month": "/month",
         "per_year": "per year",
@@ -877,6 +914,10 @@
             ],
             "cta": "Get in touch"
           }
+        },
+        "details": {
+          "trigger": "More details",
+          "close": "Close details"
         }
       },
       "comparison": {
@@ -1015,6 +1056,9 @@
             ],
             "cta": "Buy 1,500 credits"
           }
+        },
+        "details": {
+          "trigger": "More details"
         }
       },
       "credits_explainer": {
@@ -1363,9 +1407,52 @@
         "actionsTitle": "Account actions",
         "avatarAlt": "User avatar"
       },
+      "account": {
+        "danger": {
+          "title": "Delete account",
+          "description": "Deleting your account anonymises data and logs you out everywhere. This action cannot be undone.",
+          "button": "Delete account",
+          "close": "Close",
+          "confirm": {
+            "title": "Confirm deletion",
+            "description": "Are you sure you want to permanently delete your account?",
+            "confirmCta": "Delete now",
+            "cancelCta": "Cancel"
+          },
+          "subscription": {
+            "title": "Active subscription detected",
+            "description": "We found active subscriptions. You can jump to billing or schedule cancellation at the current period end.",
+            "periodEnd": "Renews on {date}",
+            "indefinite": "Renews automatically until cancelled",
+            "goToBilling": "Go to billing",
+            "deleteAnyway": "Delete anyway",
+            "back": "Back"
+          },
+          "messages": {
+            "processing": "Deleting account…",
+            "success": "Your account was deleted successfully. You will be signed out.",
+            "error": "We couldn’t delete your account. Please try again or contact support."
+          }
+        },
+        "profile": {
+          "title": "Public profile",
+          "description": "Control how your identity appears across Evolution Hub workspaces and automations.",
+          "nameLabel": "Name",
+          "usernameLabel": "Username",
+          "emailLabel": "Email",
+          "changeEmailHint": "Email changes require a re-verification workflow handled by support.",
+          "changeEmailCta": "Change email (coming soon)",
+          "saveCta": "Save changes",
+          "hybridTitle": "Passwordless by design",
+          "hybridDescription": "Authentication relies on secure magic links and OAuth providers. Nothing to rotate or forget.",
+          "supportTitle": "Need help?",
+          "supportDescription": "Review the authentication playbook for session management, recovery, and device trust.",
+          "supportCta": "Open guide"
+        }
+      },
       "billing": {
         "title": "Subscription & billing",
-        "currentPlan": "Current plan",
+        "currentPlan": "Subscription",
         "statusLabel": "Status",
         "noSubscription": "No active subscription",
         "renewal": "Renews on",
@@ -1386,6 +1473,23 @@
           "incomplete_expired": "Incomplete expired",
           "paused": "Paused",
           "unknown": "Unknown"
+        },
+        "quota": {
+          "label": "Monthly quota remaining",
+          "loading": "Updating…",
+          "usage": {
+            "suffix": "used"
+          },
+          "resets": {
+            "one": "resets in 1 day",
+            "other": "resets in {count} days"
+          }
+        },
+        "creditsBuy": {
+          "button": "Buy credits",
+          "errorPrefix": "Checkout failed: ",
+          "errorInvalidResponse": "Checkout failed: Invalid response",
+          "errorGeneric": "Checkout failed"
         }
       },
       "referrals": {
@@ -1580,10 +1684,33 @@
   },
   "auth": {
     "login": "Sign in",
+    "logout": "Log out",
     "magic": {
       "success": "Prüfe deine E‑Mails auf den Anmelde‑Link.",
       "error": "Der Link konnte nicht gesendet werden. Bitte versuche es erneut.",
       "cooldown": "Erneut senden in {s}s"
+    },
+    "toasts": {
+      "turnstile_load_error": "Turnstile failed to load. Please reload the page or try a different network.",
+      "logged_out": "You have been logged out.",
+      "login_success": "Action completed successfully.",
+      "login_error": "Sign-in failed ({code}).",
+      "password_reset_sent": {
+        "success": "Email has been sent.",
+        "error": "Sending failed ({code})."
+      },
+      "forgot_password": {
+        "success": "Password reset email sent.",
+        "error": "Failed to send reset email ({code})."
+      },
+      "reset_password": {
+        "success": "Password has been reset.",
+        "error": "Password reset failed ({code})."
+      },
+      "register": {
+        "success": "Registration successful.",
+        "error": "Registration failed ({code})."
+      }
     }
   },
   "comingSoon": {
