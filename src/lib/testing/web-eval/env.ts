@@ -16,6 +16,7 @@ export interface WebEvalEnvBindings {
   WEB_EVAL_EXECUTOR_TOKEN?: string;
   WEB_EVAL_ENABLE_PROD?: string; // '1' to allow creating tasks in production (default off)
   WEB_EVAL_EXEC_ALLOW_PROD?: string; // '1' to allow executor routes in production (default off)
+  WEB_EVAL_FORCE_SSRF_ENFORCE?: string; // '1' to enforce SSRF checks even outside production (testing aid)
   // Browser Rendering (Phase A scaffolding)
   WEB_EVAL_BROWSER_ENABLE?: string; // '1' to enable Cloudflare Browser Rendering runner (staging only by default)
   WEB_EVAL_BROWSER_ALLOW_PROD?: string; // '1' to allow CBR in production; requires x-internal-exec header

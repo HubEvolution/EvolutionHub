@@ -8,8 +8,22 @@ import {
   createMethodNotAllowed,
 } from '@/lib/api-middleware';
 import { logUserEvent } from '@/lib/security-logger';
-import { getCreditsBalanceTenths, monthlyKey, legacyMonthlyKey } from '@/lib/kv/usage';
+import {
+  getCreditsBalanceTenths,
+  monthlyKey,
+  legacyMonthlyKey,
+  toUsageOverview,
+  getUsage,
+  rollingDailyKey,
+  getVideoMonthlyQuotaRemainingTenths,
+  type UsageOverview,
+} from '@/lib/kv/usage';
 import { getEntitlementsFor, type Plan } from '@/config/ai-image/entitlements';
+import { getVideoEntitlementsFor } from '@/config/ai-video/entitlements';
+import { getVoiceEntitlementsFor } from '@/config/voice/entitlements';
+import { getWebscraperEntitlementsFor } from '@/config/webscraper/entitlements';
+import { VoiceTranscribeService } from '@/lib/services/voice-transcribe-service';
+import { WebscraperService } from '@/lib/services/webscraper-service';
 
 interface SubscriptionRow {
   id: string;
@@ -20,6 +34,14 @@ interface SubscriptionRow {
   updated_at: string;
 }
 
+type ToolsUsageOverview = {
+  image?: UsageOverview;
+  video?: UsageOverview;
+  prompt?: UsageOverview;
+  voice?: UsageOverview;
+  webscraper?: UsageOverview;
+};
+
 export const GET = withAuthApiMiddleware(
   async (context: APIContext) => {
     const opStart = Date.now();
@@ -29,6 +51,20 @@ export const GET = withAuthApiMiddleware(
       DB: unknown;
       KV_AI_ENHANCER: unknown;
       USAGE_KV_V2: string;
+      BILLING_USAGE_OVERVIEW_V2: string;
+      KV_AI_VIDEO_USAGE: KVNamespace;
+      KV_PROMPT_ENHANCER: KVNamespace;
+      KV_VOICE_TRANSCRIBE: KVNamespace;
+      KV_WEBSCRAPER: KVNamespace;
+      PROMPT_USER_LIMIT: string;
+      PROMPT_GUEST_LIMIT: string;
+      PUBLIC_PROMPT_ENHANCER_V1: string;
+      KV_AI_VIDEO_MONTHLY: KVNamespace;
+      ENVIRONMENT: string;
+      PUBLIC_WEBSCRAPER_V1: string;
+      WEBSCRAPER_GUEST_LIMIT: string;
+      WEBSCRAPER_USER_LIMIT: string;
+      KV_AI_VIDEO_USAGE_FALLBACK: KVNamespace;
     }>;
 
     if (!user) {
@@ -157,17 +193,155 @@ export const GET = withAuthApiMiddleware(
       } catch {}
     }
 
-    function endOfMonthUtcMs(): number {
-      const d = new Date();
-      const y = d.getUTCFullYear();
-      const m = d.getUTCMonth();
-      const end = new Date(Date.UTC(y, m + 1, 0, 23, 59, 59, 999));
-      return end.getTime();
-    }
-
     const periodEndsAt = result.currentPeriodEnd
       ? result.currentPeriodEnd * 1000
       : endOfMonthUtcMs();
+
+    const requestUrl = new URL(context.request.url);
+    const toolsParam = requestUrl.searchParams.get('tools');
+    const envName = String(env.ENVIRONMENT || '').trim().toLowerCase();
+    const isProductionEnv = envName === 'production';
+    let enableToolsBlock = String(env.BILLING_USAGE_OVERVIEW_V2 || '').trim() === '1';
+    if (!isProductionEnv && toolsParam) {
+      enableToolsBlock = toolsParam === '1';
+    }
+
+    const toolNames: (keyof ToolsUsageOverview)[] = [
+      'image',
+      'video',
+      'prompt',
+      'voice',
+      'webscraper',
+    ];
+    const failTools = new Set<keyof ToolsUsageOverview>();
+    if (!isProductionEnv) {
+      const failParams = requestUrl.searchParams.getAll('failTool');
+      for (const raw of failParams) {
+        if (!raw) continue;
+        const parts = raw.split(',');
+        for (const part of parts) {
+          const normalized = part.trim().toLowerCase();
+          const match = toolNames.find((name) => name === normalized);
+          if (match) {
+            failTools.add(match);
+          }
+        }
+      }
+    }
+    const tools: ToolsUsageOverview = {};
+    const toolTimings: string[] = [];
+
+    if (enableToolsBlock) {
+      const recordToolResult = async (
+        name: keyof ToolsUsageOverview,
+        fn: () => Promise<UsageOverview | null>
+      ) => {
+        const start = Date.now();
+        try {
+          if (failTools.has(name)) {
+            throw new Error(`debug_fail_${name}`);
+          }
+          const value = await fn();
+          if (value) {
+            tools[name] = value;
+          }
+        } catch (error) {
+          logUserEvent(user.id, 'billing_summary_tools_error', {
+            tool: name,
+            error: error instanceof Error ? error.message : String(error),
+            ipAddress: clientAddress,
+          });
+        } finally {
+          toolTimings.push(`tools.${name};dur=${Date.now() - start}`);
+        }
+      };
+
+      await recordToolResult('image', async () => {
+        return toUsageOverview({ used: monthlyUsed, limit: monthlyLimit, resetAt: periodEndsAt });
+      });
+
+      await recordToolResult('video', async () => {
+        const videoEnt = getVideoEntitlementsFor('user', result.plan as Plan);
+        const limitTenths = Math.max(0, videoEnt.monthlyCreditsTenths);
+        const kvVideo = (env.KV_AI_VIDEO_USAGE ?? env.KV_AI_ENHANCER) as KVNamespace | undefined;
+        if (!kvVideo || limitTenths <= 0) return null;
+        const ym = currentYearMonth();
+        const remainingTenths = await getVideoMonthlyQuotaRemainingTenths(
+          kvVideo,
+          user.id,
+          limitTenths,
+          ym
+        );
+        const limit = limitTenths / 10;
+        const remaining = remainingTenths / 10;
+        return toUsageOverview({
+          used: limit - remaining,
+          limit,
+          resetAt: endOfMonthUtcMs(),
+        });
+      });
+
+      await recordToolResult('prompt', async () => {
+        const kvPrompt = env.KV_PROMPT_ENHANCER as KVNamespace | undefined;
+        if (!kvPrompt) return null;
+        const limitUser = parseInt(String(env.PROMPT_USER_LIMIT || '20'), 10);
+        const useV2 = String(env.USAGE_KV_V2 || '').trim() === '1';
+        let used = 0;
+        let resetAt: number | null = null;
+        if (useV2) {
+          const key = rollingDailyKey('prompt', 'user', user.id);
+          const usage = await getUsage(kvPrompt, key);
+          if (usage) {
+            used = usage.count || 0;
+            resetAt = usage.resetAt ? usage.resetAt * 1000 : null;
+          }
+        } else {
+          const key = `prompt:usage:user:${user.id}`;
+          const raw = await kvPrompt.get(key);
+          if (raw) {
+            try {
+              const parsed = JSON.parse(raw) as { count?: number; resetAt?: number };
+              used = typeof parsed.count === 'number' ? parsed.count : 0;
+              resetAt = typeof parsed.resetAt === 'number' ? parsed.resetAt : null;
+            } catch {}
+          }
+        }
+        return toUsageOverview({ used, limit: limitUser, resetAt });
+      });
+
+      await recordToolResult('voice', async () => {
+        const voiceService = new VoiceTranscribeService({
+          KV_VOICE_TRANSCRIBE: env.KV_VOICE_TRANSCRIBE as KVNamespace | undefined,
+          USAGE_KV_V2: env.USAGE_KV_V2,
+          ENVIRONMENT: env.ENVIRONMENT,
+        });
+        const ent = getVoiceEntitlementsFor('user', result.plan as Plan);
+        const usageInfo = await voiceService.getUsage('user', user.id, ent.dailyBurstCap);
+        return toUsageOverview({
+          used: usageInfo.used,
+          limit: usageInfo.limit,
+          resetAt: usageInfo.resetAt,
+        });
+      });
+
+      await recordToolResult('webscraper', async () => {
+        if (env.PUBLIC_WEBSCRAPER_V1 === 'false') return null;
+        const service = new WebscraperService({
+          KV_WEBSCRAPER: env.KV_WEBSCRAPER as KVNamespace | undefined,
+          ENVIRONMENT: env.ENVIRONMENT,
+          PUBLIC_WEBSCRAPER_V1: env.PUBLIC_WEBSCRAPER_V1,
+          WEBSCRAPER_GUEST_LIMIT: env.WEBSCRAPER_GUEST_LIMIT,
+          WEBSCRAPER_USER_LIMIT: env.WEBSCRAPER_USER_LIMIT,
+        });
+        const ent = getWebscraperEntitlementsFor('user', result.plan as Plan);
+        const usageInfo = await service.getUsagePublic('user', user.id, ent.dailyBurstCap);
+        return toUsageOverview({
+          used: usageInfo.used,
+          limit: usageInfo.limit,
+          resetAt: usageInfo.resetAt,
+        });
+      });
+    }
 
     logUserEvent(user.id, 'billing_summary_requested', {
       ipAddress: clientAddress,
@@ -175,16 +349,22 @@ export const GET = withAuthApiMiddleware(
       status: result.status,
     });
 
-    const resp = createApiSuccess({
+    const responsePayload: Record<string, unknown> = {
       ...result,
       monthlyLimit,
       monthlyUsed,
       periodEndsAt,
-    });
+    };
+
+    if (enableToolsBlock && Object.keys(tools).length > 0) {
+      responsePayload.tools = tools;
+    }
+
+    const resp = createApiSuccess(responsePayload);
     try {
       const total = Date.now() - opStart;
-      const timing = `db;dur=${dbDur}, kv;dur=${kvDur}, total;dur=${total}`;
-      resp.headers.set('Server-Timing', timing);
+      const parts = [`db;dur=${dbDur}`, `kv;dur=${kvDur}`, ...toolTimings, `total;dur=${total}`];
+      resp.headers.set('Server-Timing', parts.join(', '));
     } catch {}
     return resp;
   },
@@ -211,3 +391,16 @@ export const OPTIONS = withApiMiddleware(() => createMethodNotAllowed('GET'), {
 export const HEAD = withApiMiddleware(() => createMethodNotAllowed('GET'), {
   disableAutoLogging: true,
 });
+
+function endOfMonthUtcMs(): number {
+  const d = new Date();
+  const y = d.getUTCFullYear();
+  const m = d.getUTCMonth();
+  const end = new Date(Date.UTC(y, m + 1, 0, 23, 59, 59, 999));
+  return end.getTime();
+}
+
+function currentYearMonth(): string {
+  const d = new Date();
+  return `${d.getUTCFullYear()}${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
+}

@@ -227,10 +227,7 @@ export const POST = withApiMiddleware(
             try {
               await applyDiscountUsage(db, {
                 code: discountCode,
-                now:
-                  typeof session.created === 'number'
-                    ? session.created * 1000
-                    : Date.now(),
+                now: typeof session.created === 'number' ? session.created * 1000 : Date.now(),
               });
             } catch (discountErr) {
               const message =

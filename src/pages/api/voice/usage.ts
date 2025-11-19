@@ -9,6 +9,7 @@ import { VoiceTranscribeService } from '@/lib/services/voice-transcribe-service'
 import { VOICE_FREE_LIMIT_GUEST, VOICE_FREE_LIMIT_USER } from '@/config/voice';
 import { getVoiceEntitlementsFor } from '@/config/voice/entitlements';
 import type { Plan } from '@/config/ai-image/entitlements';
+import { toUsageOverview } from '@/lib/kv/usage';
 
 function ensureGuestIdCookie(context: APIContext): string {
   const cookies = context.cookies;
@@ -52,7 +53,12 @@ export const GET = withApiMiddleware(async (context: APIContext) => {
       ownerType === 'user' ? ((locals.user?.plan as Plan | undefined) ?? 'free') : undefined;
     const ent = getVoiceEntitlementsFor(ownerType, plan);
     const limit = ent.dailyBurstCap;
-    const usage = await service.getUsage(ownerType, ownerId, limit);
+    const usageInfo = await service.getUsage(ownerType, ownerId, limit);
+    const usage = toUsageOverview({
+      used: usageInfo.used,
+      limit: usageInfo.limit,
+      resetAt: usageInfo.resetAt,
+    });
     const resp = createApiSuccess({
       ownerType,
       usage,

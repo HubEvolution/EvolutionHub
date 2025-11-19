@@ -8,6 +8,7 @@ import {
 import { AiImageService } from '@/lib/services/ai-image-service';
 import { FREE_LIMIT_GUEST, FREE_LIMIT_USER, type OwnerType, type Plan } from '@/config/ai-image';
 import { getEntitlementsFor } from '@/config/ai-image/entitlements';
+import { toUsageOverview } from '@/lib/kv/usage';
 
 function ensureGuestIdCookie(context: APIContext): string {
   const existing = context.cookies.get('guest_id')?.value;
@@ -49,7 +50,22 @@ export const GET = withApiMiddleware(async (context) => {
         ? (((locals.user as { plan?: Plan } | null)?.plan ?? 'free') as Plan)
         : undefined;
     const ent = getEntitlementsFor(ownerType, plan);
-    const usage = await service.getUsage(ownerType, ownerId, ent.dailyBurstCap);
+    const usageInfo = await service.getUsage(ownerType, ownerId, ent.dailyBurstCap);
+    const monthlyUsageInfo = await service.getMonthlyUsageFor(
+      ownerType,
+      ownerId,
+      ent.monthlyImages
+    );
+    const usage = toUsageOverview({
+      used: usageInfo.used,
+      limit: usageInfo.limit,
+      resetAt: usageInfo.resetAt,
+    });
+    const monthlyUsage = toUsageOverview({
+      used: monthlyUsageInfo.used,
+      limit: monthlyUsageInfo.limit,
+      resetAt: monthlyUsageInfo.resetAt,
+    });
 
     const debugOwnerId = (() => {
       // Avoid leaking IDs; expose only last 4 chars and length
@@ -63,6 +79,7 @@ export const GET = withApiMiddleware(async (context) => {
     const resp = createApiSuccess({
       ownerType,
       usage,
+      monthlyUsage,
       limits: {
         user: FREE_LIMIT_USER,
         guest: FREE_LIMIT_GUEST,

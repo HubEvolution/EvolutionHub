@@ -32,3 +32,17 @@
 2025-11-16T08:08:54.257Z pre_run_command: npm run typecheck:src
 2025-11-16T19:43:55.441Z pre_run_command: npm run openapi:validate
 2025-11-18T02:08:24.446Z pre_run_command: npm run test:integration -- tests/integration/billing-api.test.ts tests/integration/api/billing/stripe-webhook.test.ts
+2025-11-18T06:48:31.736Z pre_run_command: npm run deploy:production
+2025-11-18T06:48:31.983Z pre_run_command: npm run deploy:staging
+2025-11-18T06:48:32.384Z pre_run_command: npm run deploy:testing
+2025-11-18T09:22:38.235Z pre_run_command: curl -i -X POST https://staging.hub-evolution.com/api/billing/stripe-webhook -H "Stripe-Signature: invalid" -H "Content-Type: application/json" -d '{"id":"evt_test_invalid_sig","type":"checkout.session.completed","data":{}}'
+2025-11-18T09:27:02.984Z pre_run_command: stripe trigger payment_intent.succeeded
+2025-11-18T21:38:03.611Z pre_run_command: npx vitest run tests/integration/api/dashboard/billing-summary.tools.test.ts
+2025-11-18T21:44:31.463Z pre_run_command: npx vitest run tests/integration/api/dashboard/billing-summary.tools.test.ts
+2025-11-18T21:45:15.402Z pre_run_command: npx vitest run tests/integration/api/dashboard/billing-summary.tools.test.ts
+2025-11-19T04:23:53.338Z pre_run_command: npm run test:integration
+2025-11-19T04:24:43.617Z pre_run_command: npm run lint
+2025-11-19T04:25:04.267Z pre_run_command: npm run typecheck:src
+2025-11-19T04:25:20.523Z pre_run_command: npm run openapi:validate
+2025-11-19T14:53:21.826Z pre_run_command: npm run lint
+2025-11-19T14:57:32.007Z pre_run_command: npx wrangler tail --env staging --format json

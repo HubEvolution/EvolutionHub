@@ -295,7 +295,7 @@ const profileCopy = {
                   <span class="text-xs font-semibold uppercase tracking-wide text-slate-400">
                     {billingStrings.credits}
                   </span>
-                  <span class="text-lg font-bold text-white">
+                  <span id="dashboard-credits-balance" class="text-lg font-bold text-white">
                     {
                       typeof billingSummary?.creditsRemaining === 'number'
                         ? billingSummary.creditsRemaining
@@ -429,39 +429,47 @@ const profileCopy = {
       </div>
     </div>
   </div>
-</BaseLayout>
+  </BaseLayout>
 
 <script is:inline nonce={Astro.locals.cspNonce}>
-  (function () {
-    try {
-      fetch('/api/dashboard/billing-summary')
-        .then((r) => (r.ok ? r.json() : Promise.reject(r)))
-        .then((json) => {
-          if (!json || typeof json !== 'object' || json === null) return;
-          if (!('data' in json) || !json['data']) return;
-          const data = json['data'];
-          const limit = Number(data.monthlyLimit || 0);
-          const used = Number(data.monthlyUsed || 0);
-          const rem = Math.max(0, limit - used);
-          const progress =
-            limit > 0 ? Math.min(100, Math.max(0, Math.round((used / limit) * 100))) : 0;
-          const elRem = document.getElementById('quota-remaining');
-          if (elRem) elRem.textContent = rem > 0 ? String(rem) : '—';
-          const elUsed = document.getElementById('quota-used');
-          if (elUsed) elUsed.textContent = String(used);
-          const elLimit = document.getElementById('quota-limit');
-          if (elLimit) elLimit.textContent = String(limit);
-          const bar = document.getElementById('quota-progress');
-          if (bar && bar instanceof HTMLElement) bar.style.width = `${progress}%`;
-          const elLoading = document.getElementById('quota-loading');
-          if (elLoading && elLoading instanceof HTMLElement) elLoading.style.display = 'none';
-        })
-        .catch(() => {
-          const elLoading = document.getElementById('quota-loading');
-          if (elLoading && elLoading instanceof HTMLElement) elLoading.style.display = 'none';
-        });
-    } catch {}
-  })();
+  if (typeof window !== 'undefined') {
+    (async () => {
+      try {
+        const res = await fetch('/api/dashboard/billing-summary', { method: 'GET' });
+        if (!res.ok) return;
+        const json = await res.json().catch(() => null);
+        if (!json || !json.success || !json.data) return;
+
+        const data = json.data;
+        const credits =
+          typeof data.creditsRemaining === 'number' ? String(data.creditsRemaining) : '—';
+        const limit = Number(data.monthlyLimit || 0);
+        const used = Number(data.monthlyUsed || 0);
+        const remaining = Math.max(0, limit - used);
+
+        const creditsEl = document.getElementById('dashboard-credits-balance');
+        const quotaRemEl = document.getElementById('quota-remaining');
+        const quotaUsedEl = document.getElementById('quota-used');
+        const quotaLimitEl = document.getElementById('quota-limit');
+        const quotaProgressEl = document.getElementById('quota-progress');
+        const quotaLoadingEl = document.getElementById('quota-loading');
+
+        if (creditsEl) creditsEl.textContent = credits;
+        if (quotaRemEl) quotaRemEl.textContent = remaining > 0 ? String(remaining) : '—';
+        if (quotaUsedEl) quotaUsedEl.textContent = String(used);
+        if (quotaLimitEl) quotaLimitEl.textContent = String(limit);
+
+        if (quotaProgressEl) {
+          const pct = limit > 0 ? Math.min(100, Math.max(0, Math.round((used / limit) * 100))) : 0;
+          quotaProgressEl.style.width = `${pct}%`;
+        }
+
+        if (quotaLoadingEl) quotaLoadingEl.textContent = '';
+      } catch (err) {
+        console.warn('[dashboard] failed to refresh billing summary', err);
+      }
+    })();
+  }
 </script>
 
 <script is:inline nonce={Astro.locals.cspNonce}>

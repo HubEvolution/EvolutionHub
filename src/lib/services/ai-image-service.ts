@@ -477,6 +477,16 @@ export class AiImageService {
     }
   }
 
+  async getMonthlyUsageFor(
+    ownerType: OwnerType,
+    ownerId: string,
+    limit: number
+  ): Promise<UsageInfo> {
+    const now = new Date();
+    const ym = `${now.getUTCFullYear()}${String(now.getUTCMonth() + 1).padStart(2, '0')}`;
+    return this.getMonthlyUsage(ownerType, ownerId, limit, ym);
+  }
+
   public async callCustomAssistant(
     prompt: string,
     assistantId: string

@@ -485,6 +485,13 @@ WORKERS_AI_ENABLED = "1"
 STYTCH_PKCE = "0"                     # PKCE OFF (anything != "1"/"true" disables it)
 PUBLIC_ENHANCER_MVP_MODE = "1"
 PUBLIC_ENHANCER_LEGACY_MODE = "1"
+
+# Stripe pricing (Testmodus: plan -> priceId)
+PRICING_TABLE = '{"free":"","pro":"price_1SKj5MHdpdQAtOQBAUpgOHiO","premium":"price_1SKj6wHdpdQAtOQB1ONFWXBD","enterprise":"price_1SKj3DHdpdQAtOQB4kUoLiLA"}'
+PRICING_TABLE_ANNUAL = '{"free":"","pro":"price_1SKj5sHdpdQAtOQBmwk497Se","premium":"price_1SKj7NHdpdQAtOQB4ZYoW84T","enterprise":"price_1SKj3kHdpdQAtOQBrzHdcSZk"}'
+# Stripe credit packs (Testmodus: pack -> priceId)
+CREDITS_PRICING_TABLE = '{"100":"price_1SKj8rHdpdQAtOQBx9Vz0Cl5","500":"price_1SKjA2HdpdQAtOQBt5vWqIcg","1500":"price_1SKjB6HdpdQAtOQBRkEKdrGy"}'
+
 # Prompt Enhancer (non-secret defaults for staging)
 PROMPT_REWRITE_V1 = "true"
 PROMPT_TEXT_MODEL = "gpt-4o-mini"

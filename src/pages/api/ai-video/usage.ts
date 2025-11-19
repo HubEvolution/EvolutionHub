@@ -8,7 +8,7 @@ import {
 import { voiceTranscribeLimiter } from '@/lib/rate-limiter';
 import { getVideoEntitlementsFor } from '@/config/ai-video/entitlements';
 import type { Plan } from '@/config/ai-image/entitlements';
-import { getUsage as kvGetUsage, rollingDailyKey } from '@/lib/kv/usage';
+import { getUsage as kvGetUsage, rollingDailyKey, toUsageOverview } from '@/lib/kv/usage';
 
 type OwnerType = 'user' | 'guest';
 
@@ -99,7 +99,9 @@ export const GET = withApiMiddleware(
     const remaining = remainingTenths / 10;
     const effectiveResetAt = resetAtMs ?? endOfDayTimestamp();
 
-    const response = createApiSuccess({ limit, remaining, resetAt: effectiveResetAt });
+    const usage = toUsageOverview({ used: limit - remaining, limit, resetAt: effectiveResetAt });
+
+    const response = createApiSuccess({ limit, remaining, resetAt: effectiveResetAt, usage });
 
     try {
       response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');

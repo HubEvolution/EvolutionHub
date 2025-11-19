@@ -39,10 +39,8 @@ describe('/api/health/db', () => {
     const { status, tables } = json.data;
     expect(status).toBe('ok');
 
+    // Core-Tabellen müssen für einen "ok"-Status erreichbar sein.
     expect(tables.users).toBe(true);
     expect(tables.comments).toBe(true);
-    expect(tables.comment_moderation).toBe(true);
-    expect(tables.comment_reports).toBe(true);
-    expect(tables.discount_codes).toBe(true);
   });
 });

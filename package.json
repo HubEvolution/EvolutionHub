@@ -119,7 +119,7 @@
     "@astrojs/react": "^4.3.0",
     "@contentful/rich-text-from-markdown": "^16.1.1",
     "@contentful/rich-text-html-renderer": "^17.1.0",
-    "@genkit-ai/mcp": "^1.23.0",
+    "@genkit-ai/mcp": "^1.24.0",
     "@types/bcrypt": "^6.0.0",
     "@types/redis": "^4.0.11",
     "@types/uuid": "^10.0.0",

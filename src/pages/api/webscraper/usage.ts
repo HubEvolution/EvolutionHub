@@ -10,6 +10,7 @@ import type { KVNamespace } from '@cloudflare/workers-types';
 import type { Plan } from '@/config/ai-image/entitlements';
 import { getWebscraperEntitlementsFor } from '@/config/webscraper/entitlements';
 import { WEBSCRAPER_CONFIG } from '@/config/webscraper';
+import { toUsageOverview } from '@/lib/kv/usage';
 
 function ensureGuestIdCookie(context: APIContext): string {
   const existing = context.cookies.get('guest_id')?.value;
@@ -58,7 +59,12 @@ export const GET = withApiMiddleware(async (context) => {
   const service = new WebscraperService(env);
   try {
     const ent = getWebscraperEntitlementsFor(ownerType, plan);
-    const usage = await service.getUsagePublic(ownerType, ownerId, ent.dailyBurstCap);
+    const usageInfo = await service.getUsagePublic(ownerType, ownerId, ent.dailyBurstCap);
+    const usage = toUsageOverview({
+      used: usageInfo.used,
+      limit: usageInfo.limit,
+      resetAt: usageInfo.resetAt,
+    });
 
     const resp = createApiSuccess({
       ownerType,

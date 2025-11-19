@@ -11,6 +11,10 @@ import { createTaskRecord } from '@/lib/testing/web-eval/storage';
 import { resolveQueueConfig, type WebEvalEnvBindings } from '@/lib/testing/web-eval/env';
 import type { WebEvalTaskCreatePayload, WebEvalTaskRecord } from '@/lib/testing/web-eval';
 import { validateTargetUrl } from '@/lib/testing/web-eval/ssrf';
+import type { Plan } from '@/config/ai-image/entitlements';
+import { getWebEvalEntitlementsFor } from '@/config/web-eval/entitlements';
+import { getUsage as kvGetUsage, incrementDailyRolling, rollingDailyKey } from '@/lib/kv/usage';
+import { loggerFactory } from '@/server/utils/logger-factory';
 
 function ensureGuestIdCookie(context: APIContext): string {
   const cookies = context.cookies;
@@ -27,6 +31,13 @@ function ensureGuestIdCookie(context: APIContext): string {
     });
   }
   return guestId;
+}
+
+function maskOwnerId(ownerId: string | undefined): string {
+  if (!ownerId) return '';
+  const len = ownerId.length;
+  const tail = ownerId.slice(-4);
+  return `…${tail}(${len})`;
 }
 
 async function handler(context: APIContext): Promise<Response> {
@@ -68,6 +79,27 @@ async function handler(context: APIContext): Promise<Response> {
 
   const ownerType = locals.user?.id ? 'user' : 'guest';
   const ownerId = ownerType === 'user' ? String(locals.user!.id) : ensureGuestIdCookie(context);
+  const plan: Plan | undefined = ownerType === 'user' ? ((locals.user?.plan as Plan | undefined) ?? 'free') : undefined;
+  const entitlements = getWebEvalEntitlementsFor(ownerType, plan);
+  const dailyLimit = entitlements.dailyBurstCap;
+  const usageKey = rollingDailyKey('web-eval', ownerType, ownerId);
+  const nowSeconds = Math.floor(Date.now() / 1000);
+  const currentUsage = await kvGetUsage(kv, usageKey);
+  const usedInWindow = currentUsage && currentUsage.resetAt > nowSeconds ? currentUsage.count : 0;
+  if (usedInWindow >= dailyLimit) {
+    try {
+      loggerFactory.createLogger('web-eval-task').info('web_eval_quota_blocked', {
+        ownerType,
+        ownerId: maskOwnerId(ownerId),
+        used: usedInWindow,
+        limit: dailyLimit,
+      });
+    } catch {}
+    return createApiError('validation_error', 'quota_exceeded', {
+      limit: dailyLimit,
+      resetAt: currentUsage?.resetAt ? currentUsage.resetAt * 1000 : null,
+    });
+  }
 
   const payload: WebEvalTaskCreatePayload = {
     ownerType,
@@ -86,6 +118,18 @@ async function handler(context: APIContext): Promise<Response> {
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Failed to create task';
     return createApiError('server_error', message);
+  }
+
+  try {
+    await incrementDailyRolling(kv, 'web-eval', ownerType, ownerId, dailyLimit);
+  } catch (err) {
+    try {
+      loggerFactory.createLogger('web-eval-task').warn('web_eval_usage_increment_failed', {
+        ownerType,
+        ownerId: maskOwnerId(ownerId),
+        error: err instanceof Error ? err.message : String(err),
+      });
+    } catch {}
   }
 
   return createApiSuccess({

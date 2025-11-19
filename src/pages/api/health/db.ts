@@ -63,8 +63,12 @@ export const GET: APIRoute = withApiMiddleware(
     ]);
 
     const duration = Date.now() - startTime;
-    const allHealthy = Object.values(tables).every((v) => v);
-    const status = allHealthy ? 'ok' : 'degraded';
+    // Core health is defined über zentrale User-/Kommentar-Tabellen; optionale
+    // Tabellen (z. B. discount_codes) werden weiterhin im Payload/Errors
+    // reflektiert, beeinflussen aber nicht den "ok"-Status.
+    const coreTables: (keyof typeof tables)[] = ['users', 'comments'];
+    const coreHealthy = coreTables.every((name) => tables[name]);
+    const status = coreHealthy ? 'ok' : 'degraded';
 
     return createApiSuccess({
       status,

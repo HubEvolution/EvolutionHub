@@ -8,7 +8,7 @@ import {
 import type { OwnerType } from '@/config/ai-image';
 import { getEntitlementsFor, type Plan } from '@/config/ai-image/entitlements';
 import type { KVNamespace } from '@cloudflare/workers-types';
-import { getUsage as kvGetUsage, rollingDailyKey } from '@/lib/kv/usage';
+import { getUsage as kvGetUsage, rollingDailyKey, toUsageOverview } from '@/lib/kv/usage';
 
 function ensureGuestIdCookie(context: APIContext): string {
   const existing = context.cookies.get('guest_id')?.value;
@@ -77,7 +77,7 @@ export const GET = withApiMiddleware(async (context: APIContext) => {
       }
     }
 
-    const usage = { used, limit: effectiveLimit, resetAt };
+    const usage = toUsageOverview({ used, limit: effectiveLimit, resetAt });
     const resp = createApiSuccess({
       ownerType,
       usage,

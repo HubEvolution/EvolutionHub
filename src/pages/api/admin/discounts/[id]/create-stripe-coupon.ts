@@ -126,7 +126,7 @@ export const POST = withAuthApiMiddleware(
     try {
       const created = await stripe.coupons.create(couponParams);
       couponId = created.id;
-    } catch (err) {
+    } catch (_err) {
       return createApiError('server_error', 'Failed to create Stripe coupon');
     }
 
