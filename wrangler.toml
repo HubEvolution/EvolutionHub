@@ -481,6 +481,7 @@ STYTCH_CUSTOM_DOMAIN = "login-test.hub-evolution.com"
 PUBLIC_ENABLE_CREDITS_CTA = "1"
 PUBLIC_LANDING_BG_VARIANT = "techcells"
 # ...
+USAGE_KV_V2 = "1"
 WORKERS_AI_ENABLED = "1"
 STYTCH_PKCE = "0"                     # PKCE OFF (anything != "1"/"true" disables it)
 PUBLIC_ENHANCER_MVP_MODE = "1"

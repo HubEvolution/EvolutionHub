@@ -222,3 +222,6 @@
 2025-11-19T14:54:22.172Z post_write_code: docs/ops/production-readiness-go-live.md [docs]
 2025-11-19T15:15:18.048Z post_write_code: docs/ops/production-readiness-go-live.md [docs]
 2025-11-19T15:28:40.624Z post_write_code: docs/ops/production-readiness-go-live.md [docs]
+2025-11-19T22:03:00.788Z post_write_code: src/components/tools/video-enhancer/useVideoUsage.ts [src]
+2025-11-19T22:03:12.562Z post_write_code: src/components/tools/video-enhancer/VideoEnhancerIsland.tsx [src]
+2025-11-19T22:06:39.611Z post_write_code: docs/ops/production-readiness-go-live.md [docs]

@@ -271,7 +271,7 @@ Ziel: Sicherstellen, dass die in den Entitlement-Configs hinterlegten Limits in 
 
 #### Ist-Stand (Kurz)
 
-- Upload mit MIME/Size/Duration-Guards; Jobs + Polling; Credits in tenths; R2-Archivierung.
+- Upload mit MIME/Size/Duration-Guards; Jobs + Polling; Credits in tenths; R2-Archivierung. Monatliche Video-Quota ist zusätzlich direkt im Video-Enhancer-UI als "Usage: X/Y credits this month" sichtbar (Nutzung von `/api/ai-video/usage`).
 
 #### P1 – Vor Go-Live
 

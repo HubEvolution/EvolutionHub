@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Button from '@/components/ui/Button';
 import { ensureCsrfToken } from '@/lib/security/csrf';
+import { useVideoUsage } from './useVideoUsage';
 
 type Tier = '720p' | '1080p';
 
@@ -46,6 +47,8 @@ export default function VideoEnhancerIsland() {
   const [etaPct, setEtaPct] = useState<number>(0);
   const [etaRemainingMs, setEtaRemainingMs] = useState<number | null>(null);
   const etaTimerRef = useRef<number | null>(null);
+
+  const { usage, refresh: refreshUsage } = useVideoUsage();
 
   const canStart = useMemo(
     () => !!file && !!tier && !busy && typeof durationMs === 'number',
@@ -139,6 +142,7 @@ export default function VideoEnhancerIsland() {
         return;
       }
       if (data.data.charge) setCharge(data.data.charge);
+      void refreshUsage();
       setJobId(data.data.jobId);
       if (typeof durationMs === 'number') {
         const sec = Math.max(0, Math.ceil(durationMs / 1000));
@@ -161,8 +165,9 @@ export default function VideoEnhancerIsland() {
       setBusy(false);
       setError('Start failed');
       setStep('error');
+      setEtaRemainingMs(null);
     }
-  }, [uploadKey, tier, durationMs]);
+  }, [uploadKey, tier, durationMs, refreshUsage]);
 
   useEffect(() => {
     const run = async (id: string) => {
@@ -352,6 +357,11 @@ export default function VideoEnhancerIsland() {
         </div>
         {typeof durationMs === 'number' && (
           <p className="text-xs text-gray-500">Duration: {Math.ceil(durationMs / 1000)}s</p>
+        )}
+        {usage && (
+          <p className="text-xs text-gray-500">
+            Usage: {usage.used}/{usage.limit} credits this month
+          </p>
         )}
         {busy && step === 'running' && etaTargetMs && (
           <div className="space-y-1">
