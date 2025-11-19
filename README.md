@@ -110,6 +110,7 @@ Live-Tools: [hub-evolution.com/tools](https://hub-evolution.com/tools)
 | `npm run test:integration`            | Vitest Integration (API/Services).             |
 | `npm run test:e2e`                    | Playwright E2E gegen Worker-Dev.               |
 | `npm run openapi:validate`            | OpenAPI-Schema prüfen.                         |
+| `npm run agent:check`                 | GitHub Agent Installation prüfen.              |
 | `npm run health-check -- --url <URL>` | Health-Endpunkt skriptgesteuert testen.        |
 
 ## ⚙️ Konfiguration & Bindings
