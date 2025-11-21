@@ -6,7 +6,7 @@ import {
   createApiSuccess,
   createMethodNotAllowed,
 } from '@/lib/api-middleware';
-import { sensitiveActionLimiter } from '@/lib/rate-limiter';
+import { adminSensitiveLimiter } from '@/lib/rate-limiter';
 import { addCreditPackTenths, getCreditsBalanceTenths } from '@/lib/kv/usage';
 import { requireAdmin } from '@/lib/auth-helpers';
 import type { AdminBindings } from '@/lib/types/admin';
@@ -120,7 +120,7 @@ export const POST = withAuthApiMiddleware(
   },
   {
     enforceCsrfToken: true,
-    rateLimiter: sensitiveActionLimiter,
+    rateLimiter: adminSensitiveLimiter,
     logMetadata: { action: 'admin_credit_grant' },
   }
 );

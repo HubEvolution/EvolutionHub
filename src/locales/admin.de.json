@@ -145,6 +145,8 @@
     "creditsHistory": "Historie konnte nicht geladen werden.",
     "creditsGrant": "Credits konnten nicht vergeben werden.",
     "creditsDeduct": "Credits konnten nicht abgezogen werden.",
-    "setPlan": "Plan konnte nicht aktualisiert werden."
+    "setPlan": "Plan konnte nicht aktualisiert werden.",
+    "rateLimit": "Rate-Limit erreicht. Bitte später erneut versuchen.",
+    "rateLimitWithRetryAfter": "Rate-Limit erreicht. Bitte in ca. {minutes} Minuten erneut versuchen."
   }
 }

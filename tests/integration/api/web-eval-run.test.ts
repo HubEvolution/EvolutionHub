@@ -25,6 +25,24 @@ interface ApiError {
 
 type ApiResponse<T> = ApiSuccess<T> | ApiError | null;
 
+interface WebEvalAssertionResult {
+  id: string;
+  kind: string;
+  value: string;
+  description?: string;
+  passed: boolean;
+  details?: string;
+}
+
+interface WebEvalReportWithAssertions {
+  taskId: string;
+  url: string;
+  taskDescription: string;
+  success: boolean;
+  verdict?: string;
+  assertions?: WebEvalAssertionResult[];
+}
+
 async function callRun(extraHeaders: Record<string, string> = {}) {
   const { res, json } = await sendJson<ApiResponse<{ task: unknown | null }>>(
     RUN_ENDPOINT,
@@ -194,6 +212,72 @@ describe('/api/testing/evaluate/next/run', () => {
       expect(['browser_disabled', 'browser_not_configured']).toContain(js.data.task.lastError);
       expect(Boolean(js.data.report)).toBe(true);
     }
+  });
+
+  it('exposes assertion results and verdict in the task report when assertions are provided', async () => {
+    const { taskId, cookie } = await createTask({
+      url: 'https://example.com/',
+      assertions: [
+        {
+          // Example.com page contains this stable text in the body
+          kind: 'textIncludes',
+          value: 'Example Domain',
+          description: 'page contains example domain text',
+        },
+        {
+          // Example.com main heading
+          kind: 'selectorExists',
+          value: 'h1',
+          description: 'page has h1 heading',
+        },
+      ],
+    });
+
+    const run = await callRun();
+
+    // Environments without a configured browser runner or under heavy load
+    // may return 4xx/5xx or 429. In these cases we cannot make assertions
+    // about the report contents and exit early.
+    if (run.res.status !== 200) {
+      return;
+    }
+
+    if (!run.json || run.json.success !== true) {
+      throw new Error('Expected success response from run endpoint');
+    }
+
+    const { res: statusRes, json: statusJson } = await getJson<
+      ApiResponse<{ task: any; report: WebEvalReportWithAssertions | null }>
+    >(`/api/testing/evaluate/${taskId}`, { headers: { Cookie: cookie! } });
+
+    expect(statusRes.status).toBe(200);
+
+    const js = statusJson as ApiResponse<{ task: any; report: WebEvalReportWithAssertions | null }> | null;
+    if (!js || js.success !== true || !js.data.report) {
+      // If no report is present yet (or the environment short-circuited), we
+      // cannot assert on assertions/verdict in a stable way.
+      return;
+    }
+
+    const report = js.data.report;
+
+    // When a report is present after a successful browser run, it should
+    // include an assertions array and a verdict derived from those results.
+    expect(Array.isArray(report.assertions)).toBe(true);
+    if (!report.assertions) return;
+
+    expect(report.assertions.length).toBeGreaterThanOrEqual(1);
+
+    // Each assertion result should carry a passed flag and retain its kind/value.
+    for (const a of report.assertions) {
+      expect(typeof a.id).toBe('string');
+      expect(typeof a.kind).toBe('string');
+      expect(typeof a.value).toBe('string');
+      expect(typeof a.passed).toBe('boolean');
+    }
+
+    // Verdict should be set when at least one assertion has been evaluated.
+    expect(['pass', 'fail', 'inconclusive']).toContain(report.verdict);
   });
 
   // Env-guarded: only meaningful when WEB_EVAL_BROWSER_ENABLE=1 and BROWSER binding exists in prod

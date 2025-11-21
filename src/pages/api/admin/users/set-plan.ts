@@ -6,7 +6,7 @@ import {
   createApiSuccess,
   createMethodNotAllowed,
 } from '@/lib/api-middleware';
-import { sensitiveActionLimiter } from '@/lib/rate-limiter';
+import { adminSensitiveLimiter } from '@/lib/rate-limiter';
 import { requireAdmin } from '@/lib/auth-helpers';
 import type { AdminBindings } from '@/lib/types/admin';
 import { formatZodError } from '@/lib/validation';
@@ -79,6 +79,10 @@ export const POST = withAuthApiMiddleware(
     const envRaw = (context.locals.runtime?.env ?? {}) as Record<string, unknown>;
     const stripeSecret =
       typeof envRaw.STRIPE_SECRET === 'string' ? (envRaw.STRIPE_SECRET as string) : '';
+    const envName =
+      typeof envRaw.ENVIRONMENT === 'string'
+        ? (envRaw.ENVIRONMENT as string).trim().toLowerCase()
+        : '';
 
     const targetPlan = body.plan;
     const interval = body.interval === 'annual' ? 'annual' : 'monthly';
@@ -139,7 +143,15 @@ export const POST = withAuthApiMiddleware(
               .bind(subRow.id)
               .run();
           }
-        } catch {
+        } catch (err) {
+          const rawMessage = err instanceof Error ? err.message : String(err);
+          if (envName && envName !== 'production') {
+            return createApiError('server_error', 'Failed to update subscription in Stripe', {
+              details: {
+                stripeMessage: rawMessage.slice(0, 200),
+              },
+            });
+          }
           return createApiError('server_error', 'Failed to update subscription in Stripe');
         }
       }
@@ -234,8 +246,16 @@ export const POST = withAuthApiMiddleware(
             )
             .run();
         }
-      } catch {
-        return createApiError('server_error', 'Failed to apply plan in Stripe');
+      } catch (err) {
+        const rawMessage = err instanceof Error ? err.message : String(err);
+        if (envName && envName !== 'production') {
+          return createApiError('server_error', 'Failed to update subscription in Stripe', {
+            details: {
+              stripeMessage: rawMessage.slice(0, 200),
+            },
+          });
+        }
+        return createApiError('server_error', 'Failed to update subscription in Stripe');
       }
     }
 
@@ -269,7 +289,7 @@ export const POST = withAuthApiMiddleware(
   },
   {
     enforceCsrfToken: true,
-    rateLimiter: sensitiveActionLimiter,
+    rateLimiter: adminSensitiveLimiter,
     logMetadata: { action: 'admin_set_plan' },
   }
 );

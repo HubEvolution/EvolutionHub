@@ -132,6 +132,8 @@ export interface AdminLocale {
     creditsGrant: string;
     creditsDeduct: string;
     setPlan: string;
+    rateLimit: string;
+    rateLimitWithRetryAfter: string; // expects {minutes}
   };
 }
 

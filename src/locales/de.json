@@ -242,6 +242,23 @@
         }
       }
     },
+    "dashboard": {
+      "title": "Dashboard",
+      "tools_overview": {
+        "title": "Tool-Kontingente & Nutzung",
+        "subtitle": "Planbasierte Limits für alle Tools",
+        "columns": {
+          "tool": "Tool",
+          "usage": "Nutzung",
+          "remaining": "Verbleibend",
+          "period": "Zeitraum"
+        },
+        "period": {
+          "daily": "pro Tag",
+          "monthly": "pro Monat"
+        }
+      }
+    },
     "home": {
       "title": "Willkommen bei Evolution Hub",
       "features": {

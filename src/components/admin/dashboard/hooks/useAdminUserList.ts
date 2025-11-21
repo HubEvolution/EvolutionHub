@@ -37,7 +37,7 @@ const initialState: UserListState = {
 
 function cleanFilters(filters: AdminUserListFilters): AdminUserListFilters {
   const cleaned: AdminUserListFilters = {
-    limit: filters.limit ?? 20,
+    limit: filters.limit ?? 10,
     cursor: filters.cursor,
   };
   if (filters.search) cleaned.search = filters.search.trim();
@@ -73,80 +73,83 @@ export function useAdminUserList(initialFilters: AdminUserListFilters = {}) {
   const retryTimeoutRef = useRef<number | null>(null);
   const strings = getAdminStrings();
 
-  const refresh = useCallback(async (filters?: AdminUserListFilters) => {
-    const appliedFilters = cleanFilters(filters ?? filtersRef.current ?? {});
-    const applied = {
-      search: appliedFilters.search ?? undefined,
-      status: appliedFilters.status ?? undefined,
-      plan: appliedFilters.plan ?? undefined,
-      limit: 20,
-      cursor: undefined,
-    } satisfies Parameters<typeof fetchAdminUsersList>[0];
-    filtersRef.current = applied;
-    setState((prev) => ({
-      ...prev,
-      loading: true,
-      error: undefined,
-      actionError: undefined,
-    }));
-    try {
-      if (retryTimeoutRef.current) {
-        clearTimeout(retryTimeoutRef.current);
-        retryTimeoutRef.current = null;
-      }
-      controllerRef.current?.abort();
-      const controller = new AbortController();
-      controllerRef.current = controller;
-      const data = await fetchAdminUsersList(applied, controller.signal);
+  const refresh = useCallback(
+    async (filters?: AdminUserListFilters) => {
+      const appliedFilters = cleanFilters(filters ?? filtersRef.current ?? {});
+      const applied = {
+        search: appliedFilters.search ?? undefined,
+        status: appliedFilters.status ?? undefined,
+        plan: appliedFilters.plan ?? undefined,
+        limit: 10,
+        cursor: undefined,
+      } satisfies Parameters<typeof fetchAdminUsersList>[0];
+      filtersRef.current = applied;
       setState((prev) => ({
         ...prev,
-        items: data.items ?? [],
-        nextCursor: data.nextCursor,
-        loading: false,
-        loadingMore: false,
+        loading: true,
+        error: undefined,
+        actionError: undefined,
       }));
-      return data;
-    } catch (error) {
-      if ((error as DOMException)?.name === 'AbortError') return undefined;
-      if (error instanceof AdminApiError && error.status === 429 && error.retryAfterSec) {
+      try {
         if (retryTimeoutRef.current) {
           clearTimeout(retryTimeoutRef.current);
           retryTimeoutRef.current = null;
         }
-        const ms = Math.max(0, Math.floor(error.retryAfterSec * 1000));
-        const timeoutId = window.setTimeout(() => {
-          const next = new AbortController();
-          controllerRef.current = next;
-          fetchAdminUsersList(applied, next.signal)
-            .then((data) => {
-              setState((prev) => ({
-                ...prev,
-                items: data.items ?? [],
-                nextCursor: data.nextCursor,
-                loading: false,
-                loadingMore: false,
-              }));
-            })
-            .catch((e) => {
-              if ((e as DOMException)?.name === 'AbortError') return;
-              const msg =
-                e instanceof Error ? e.message : 'Benutzerliste konnte nicht geladen werden.';
-              setState((prev) => ({ ...prev, loading: false, loadingMore: false, error: msg }));
-            });
-        }, ms);
-        retryTimeoutRef.current = timeoutId as unknown as number;
-        return undefined;
+        controllerRef.current?.abort();
+        const controller = new AbortController();
+        controllerRef.current = controller;
+        const data = await fetchAdminUsersList(applied, controller.signal);
+        setState((prev) => ({
+          ...prev,
+          items: data.items ?? [],
+          nextCursor: data.nextCursor,
+          loading: false,
+          loadingMore: false,
+        }));
+        return data;
+      } catch (error) {
+        if ((error as DOMException)?.name === 'AbortError') return undefined;
+        if (error instanceof AdminApiError && error.status === 429 && error.retryAfterSec) {
+          if (retryTimeoutRef.current) {
+            clearTimeout(retryTimeoutRef.current);
+            retryTimeoutRef.current = null;
+          }
+          const ms = Math.max(0, Math.floor(error.retryAfterSec * 1000));
+          const timeoutId = window.setTimeout(() => {
+            const next = new AbortController();
+            controllerRef.current = next;
+            fetchAdminUsersList(applied, next.signal)
+              .then((data) => {
+                setState((prev) => ({
+                  ...prev,
+                  items: data.items ?? [],
+                  nextCursor: data.nextCursor,
+                  loading: false,
+                  loadingMore: false,
+                }));
+              })
+              .catch((e) => {
+                if ((e as DOMException)?.name === 'AbortError') return;
+                const msg =
+                  e instanceof Error ? e.message : 'Benutzerliste konnte nicht geladen werden.';
+                setState((prev) => ({ ...prev, loading: false, loadingMore: false, error: msg }));
+              });
+          }, ms);
+          retryTimeoutRef.current = timeoutId as unknown as number;
+          return undefined;
+        }
+        const message = error instanceof Error ? error.message : strings.errors.userListLoad;
+        setState((prev) => ({
+          ...prev,
+          loading: false,
+          loadingMore: false,
+          error: message,
+        }));
+        throw error;
       }
-      const message = error instanceof Error ? error.message : strings.errors.userListLoad;
-      setState((prev) => ({
-        ...prev,
-        loading: false,
-        loadingMore: false,
-        error: message,
-      }));
-      throw error;
-    }
-  }, [strings.errors.userListLoad]);
+    },
+    [strings.errors.userListLoad]
+  );
 
   const loadMore = useCallback(async () => {
     if (!state.nextCursor) return null;
@@ -170,7 +173,7 @@ export function useAdminUserList(initialFilters: AdminUserListFilters = {}) {
           status: current.status ?? undefined,
           plan: current.plan ?? undefined,
           cursor: state.nextCursor,
-          limit: 20,
+          limit: 10,
         },
         controller.signal
       );

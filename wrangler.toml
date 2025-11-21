@@ -19,6 +19,10 @@ enabled = false
 binding = "AI"
 remote = true
 
+# Cloudflare Browser Rendering binding
+[browser]
+binding = "BROWSER"
+
 # D1 Datenbank-Binding
 [[d1_databases]]
 binding = "DB" # Dies muss mit dem Code übereinstimmen (z.B. context.locals.runtime.env.DB)
@@ -36,6 +40,7 @@ name = "evolution-hub"
 
 [env.development.vars]
 ENVIRONMENT = "development"
+BILLING_USAGE_OVERVIEW_V2 = "1"
 BASE_URL = "http://127.0.0.1:8787"
 APP_ORIGIN = "http://127.0.0.1:8787"
 EMAIL_FROM = "noreply@hub-evolution.com"
@@ -251,6 +256,11 @@ bucket_name = "evolution-hub-voice-local"
 preview_bucket_name = "evolution-hub-voice-local"
 
 [[env.staging.kv_namespaces]]
+binding = "KV_WEB_EVAL"
+id = "1e8d8a110f6a4ff48c5b13a9d081d523"
+preview_id = "b430adb2093e439cb764444d88d3ad0e"
+
+[[env.staging.kv_namespaces]]
 binding = "SESSION"
 id = "bc180c72cdbe4701a221ab8002f2de72"
 preview_id = "79810af7adff409a9a7fed6cb849b845"
@@ -275,6 +285,7 @@ id = "a63a1fd516d942e9a892f226f2cc11c6"
 # Produktionsumgebung: Variablen nur bei --env production aktiv
 [env.production.vars]
 ENVIRONMENT = "production"
+BILLING_USAGE_OVERVIEW_V2 = "1"
 PUBLIC_SITE_URL="https://hub-evolution.com"
 PUBLIC_GA_MEASUREMENT_ID = "G-EPWPQG7FNL"
 PUBLIC_ENHANCER_MVP_MODE = "1"
@@ -468,12 +479,17 @@ preview_id = "a63a1fd516d942e9a892f226f2cc11c6"
 
 # Staging-Umgebung
 [env.staging]
+
+[env.staging.browser]
+binding = "BROWSER"
+
 [[env.staging.routes]]
 pattern = "staging.hub-evolution.com/*"
 zone_name = "hub-evolution.com"
 
 [env.staging.vars]
 ENVIRONMENT = "staging"
+BILLING_USAGE_OVERVIEW_V2 = "1"
 BASE_URL = "https://staging.hub-evolution.com"
 LEADMAGNET_SOURCE = "r2"
 AUTH_PROVIDER = "stytch"
@@ -486,6 +502,11 @@ WORKERS_AI_ENABLED = "1"
 STYTCH_PKCE = "0"                     # PKCE OFF (anything != "1"/"true" disables it)
 PUBLIC_ENHANCER_MVP_MODE = "1"
 PUBLIC_ENHANCER_LEGACY_MODE = "1"
+
+# Enable Cloudflare Browser Rendering runner in staging (Web-Eval)
+WEB_EVAL_BROWSER_ENABLE = "1"
+# Do not treat staging as production for browser runs
+WEB_EVAL_BROWSER_ALLOW_PROD = "0"
 
 # Stripe pricing (Testmodus: plan -> priceId)
 PRICING_TABLE = '{"free":"","pro":"price_1SKj5MHdpdQAtOQBAUpgOHiO","premium":"price_1SKj6wHdpdQAtOQB1ONFWXBD","enterprise":"price_1SKj3DHdpdQAtOQB4kUoLiLA"}'

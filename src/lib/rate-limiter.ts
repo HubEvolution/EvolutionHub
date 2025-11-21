@@ -315,6 +315,14 @@ export const sensitiveActionLimiter = createRateLimiter({
   name: 'sensitiveAction',
 });
 
+// Für Admin-spezifische sensible Aktionen (z. B. Plan-/Credits-Anpassungen im Admin-Dashboard)
+// etwas großzügiger als sensitiveAction, aber weiterhin stundenbasiert begrenzt.
+export const adminSensitiveLimiter = createRateLimiter({
+  maxRequests: import.meta.env.DEV ? 1000 : 20,
+  windowMs: 60 * 60 * 1000, // 1 Stunde
+  name: 'adminSensitive',
+});
+
 // Für allgemeine API-Endpunkte (30 Anfragen pro Minute in Prod; erhöht in Dev für Tests)
 export const apiRateLimiter = createRateLimiter({
   maxRequests: import.meta.env.DEV ? 1000 : 30,

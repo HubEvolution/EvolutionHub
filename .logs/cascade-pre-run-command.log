@@ -46,3 +46,16 @@
 2025-11-19T04:25:20.523Z pre_run_command: npm run openapi:validate
 2025-11-19T14:53:21.826Z pre_run_command: npm run lint
 2025-11-19T14:57:32.007Z pre_run_command: npx wrangler tail --env staging --format json
+2025-11-20T01:02:09.222Z pre_run_command: npx wrangler kv namespace list
+2025-11-20T01:06:28.707Z pre_run_command: npm run deploy:staging
+2025-11-20T02:02:53.071Z pre_run_command: stripe listen --forward-to https://staging.hub-evolution.com/api/billing/stripe-webhook
+2025-11-20T02:03:00.557Z pre_run_command: stripe trigger checkout.session.completed
+2025-11-20T02:10:05.382Z pre_run_command: stripe trigger checkout.session.completed
+2025-11-20T02:10:37.073Z pre_run_command: stripe listen --forward-to https://staging.hub-evolution.com/api/billing/stripe-webhook
+2025-11-20T02:10:37.826Z pre_run_command: stripe trigger checkout.session.completed
+2025-11-20T02:11:30.912Z pre_run_command: stripe events retrieve evt_1SVNKZHdpdQAtOQBIHA8VFSV > webhook-event.json
+2025-11-20T02:11:45.231Z pre_run_command: curl -i -X POST https://staging.hub-evolution.com/api/billing/stripe-webhook -H "Content-Type: application/json" -H "Stripe-Signature: invalid-signature" --data @webhook-event.json
+2025-11-20T09:24:53.779Z pre_run_command: npm run lint
+2025-11-20T09:25:38.063Z pre_run_command: npm run typecheck:src
+2025-11-20T09:35:16.642Z pre_run_command: npm run typecheck:src
+2025-11-20T09:50:26.045Z pre_run_command: npm run typecheck:src

@@ -5,7 +5,7 @@ import {
   createApiError,
   createMethodNotAllowed,
 } from '@/lib/api-middleware';
-import { formatZodError, webEvalTaskRequestSchema } from '@/lib/validation';
+import { z, formatZodError, webEvalTaskRequestSchema } from '@/lib/validation';
 import { webEvalTaskLimiter } from '@/lib/rate-limiter';
 import { createTaskRecord } from '@/lib/testing/web-eval/storage';
 import { resolveQueueConfig, type WebEvalEnvBindings } from '@/lib/testing/web-eval/env';
@@ -15,6 +15,22 @@ import type { Plan } from '@/config/ai-image/entitlements';
 import { getWebEvalEntitlementsFor } from '@/config/web-eval/entitlements';
 import { getUsage as kvGetUsage, incrementDailyRolling, rollingDailyKey } from '@/lib/kv/usage';
 import { loggerFactory } from '@/server/utils/logger-factory';
+
+const webEvalAssertionKindSchema = z.enum(['textIncludes', 'selectorExists']);
+
+const webEvalAssertionDefinitionInputSchema = z
+  .object({
+    id: z.string().trim().min(1).optional(),
+    kind: webEvalAssertionKindSchema,
+    value: z.string().trim().min(1),
+    description: z.string().trim().min(1).optional(),
+  })
+  .strict();
+
+const webEvalAssertionsRequestSchema = z
+  .array(webEvalAssertionDefinitionInputSchema)
+  .max(20)
+  .optional();
 
 function ensureGuestIdCookie(context: APIContext): string {
   const cookies = context.cookies;
@@ -59,10 +75,20 @@ async function handler(context: APIContext): Promise<Response> {
     return createApiError('validation_error', 'Invalid JSON body');
   }
 
-  const parsed = webEvalTaskRequestSchema.safeParse(bodyUnknown);
+  const rawBody = bodyUnknown as Record<string, unknown>;
+  const { assertions: rawAssertions, ...rest } = rawBody;
+
+  const parsed = webEvalTaskRequestSchema.safeParse(rest);
   if (!parsed.success) {
     return createApiError('validation_error', 'Invalid request parameters', {
       details: formatZodError(parsed.error),
+    });
+  }
+
+  const parsedAssertions = webEvalAssertionsRequestSchema.safeParse(rawAssertions);
+  if (!parsedAssertions.success) {
+    return createApiError('validation_error', 'Invalid request parameters', {
+      details: formatZodError(parsedAssertions.error),
     });
   }
 
@@ -79,7 +105,8 @@ async function handler(context: APIContext): Promise<Response> {
 
   const ownerType = locals.user?.id ? 'user' : 'guest';
   const ownerId = ownerType === 'user' ? String(locals.user!.id) : ensureGuestIdCookie(context);
-  const plan: Plan | undefined = ownerType === 'user' ? ((locals.user?.plan as Plan | undefined) ?? 'free') : undefined;
+  const plan: Plan | undefined =
+    ownerType === 'user' ? ((locals.user?.plan as Plan | undefined) ?? 'free') : undefined;
   const entitlements = getWebEvalEntitlementsFor(ownerType, plan);
   const dailyLimit = entitlements.dailyBurstCap;
   const usageKey = rollingDailyKey('web-eval', ownerType, ownerId);
@@ -101,6 +128,20 @@ async function handler(context: APIContext): Promise<Response> {
     });
   }
 
+  const assertions = parsedAssertions.data && parsedAssertions.data.length > 0
+    ? parsedAssertions.data.map((a, idx) => {
+        const id = a.id && a.id.trim().length > 0
+          ? a.id.trim()
+          : (crypto.randomUUID?.() ?? `assert-${Date.now().toString(36)}-${idx}`);
+        return {
+          id,
+          kind: a.kind,
+          value: a.value.trim(),
+          description: a.description?.trim() || undefined,
+        };
+      })
+    : undefined;
+
   const payload: WebEvalTaskCreatePayload = {
     ownerType,
     ownerId,
@@ -108,6 +149,7 @@ async function handler(context: APIContext): Promise<Response> {
     task: parsed.data.task.trim(),
     headless: parsed.data.headless ?? true,
     timeoutMs: parsed.data.timeoutMs ?? 30_000,
+    assertions,
   };
 
   const config = resolveQueueConfig(env);

@@ -13,4 +13,8 @@ export type {
   WebEvalReportEnvelope,
   WebEvalKvNamespace,
   WebEvalQueueConfig,
+  WebEvalAssertionKind,
+  WebEvalAssertionDefinition,
+  WebEvalAssertionResult,
+  WebEvalVerdict,
 } from './types';

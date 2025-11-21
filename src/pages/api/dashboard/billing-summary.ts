@@ -199,12 +199,16 @@ export const GET = withAuthApiMiddleware(
 
     const requestUrl = new URL(context.request.url);
     const toolsParam = requestUrl.searchParams.get('tools');
-    const envName = String(env.ENVIRONMENT || '').trim().toLowerCase();
+    const debugToolsParam = requestUrl.searchParams.get('debugTools');
+    const envName = String(env.ENVIRONMENT || '')
+      .trim()
+      .toLowerCase();
     const isProductionEnv = envName === 'production';
     let enableToolsBlock = String(env.BILLING_USAGE_OVERVIEW_V2 || '').trim() === '1';
     if (!isProductionEnv && toolsParam) {
       enableToolsBlock = toolsParam === '1';
     }
+    const enableToolsDebug = !isProductionEnv && debugToolsParam === '1';
 
     const toolNames: (keyof ToolsUsageOverview)[] = [
       'image',
@@ -358,6 +362,16 @@ export const GET = withAuthApiMiddleware(
 
     if (enableToolsBlock && Object.keys(tools).length > 0) {
       responsePayload.tools = tools;
+    }
+
+    if (enableToolsDebug) {
+      const toolKeys = Object.keys(tools);
+      responsePayload.toolsDebug = {
+        envName,
+        enableToolsBlock,
+        toolsCount: toolKeys.length,
+        toolsPresent: toolKeys,
+      };
     }
 
     const resp = createApiSuccess(responsePayload);

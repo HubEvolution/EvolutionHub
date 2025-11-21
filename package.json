@@ -117,6 +117,7 @@
   "dependencies": {
     "@astrojs/check": "^0.9.4",
     "@astrojs/react": "^4.3.0",
+    "@cloudflare/puppeteer": "^1.0.4",
     "@contentful/rich-text-from-markdown": "^16.1.1",
     "@contentful/rich-text-html-renderer": "^17.1.0",
     "@genkit-ai/mcp": "^1.24.0",

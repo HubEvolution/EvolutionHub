@@ -487,6 +487,23 @@
         }
       }
     },
+    "dashboard": {
+      "title": "Dashboard",
+      "tools_overview": {
+        "title": "Tool limits & usage",
+        "subtitle": "Per-plan quotas across all tools",
+        "columns": {
+          "tool": "Tool",
+          "usage": "Used / limit",
+          "remaining": "Remaining",
+          "period": "Period"
+        },
+        "period": {
+          "daily": "per day",
+          "monthly": "per month"
+        }
+      }
+    },
     "home": {
       "title": "Welcome to Evolution Hub",
       "features": {

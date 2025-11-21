@@ -9,6 +9,7 @@ export interface WebEvalTaskInput {
   task: string;
   headless: boolean;
   timeoutMs: number;
+  assertions?: WebEvalAssertionDefinition[];
 }
 
 export interface WebEvalTaskRecord extends WebEvalTaskInput {
@@ -47,6 +48,22 @@ export interface WebEvalNetworkRequest {
   durationMs?: number;
 }
 
+export type WebEvalAssertionKind = 'textIncludes' | 'selectorExists';
+
+export interface WebEvalAssertionDefinition {
+  id: string;
+  kind: WebEvalAssertionKind;
+  value: string;
+  description?: string;
+}
+
+export interface WebEvalAssertionResult extends WebEvalAssertionDefinition {
+  passed: boolean;
+  details?: string;
+}
+
+export type WebEvalVerdict = 'pass' | 'fail' | 'inconclusive';
+
 export interface WebEvalReport {
   taskId: string;
   url: string;
@@ -59,6 +76,8 @@ export interface WebEvalReport {
   durationMs: number;
   startedAt: string;
   finishedAt: string;
+  verdict?: WebEvalVerdict;
+  assertions?: WebEvalAssertionResult[];
 }
 
 export interface WebEvalTaskCreatePayload extends WebEvalTaskInput {

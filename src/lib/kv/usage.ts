@@ -27,9 +27,7 @@ export function toUsageOverview(args: {
   const safeUsed = Number.isFinite(args.used) ? Math.max(0, Number(args.used)) : 0;
   const safeLimit = Number.isFinite(args.limit) ? Math.max(0, Number(args.limit)) : 0;
   const remaining = Math.max(0, safeLimit - safeUsed);
-  const resetAt = Number.isFinite(args.resetAt as number)
-    ? Number(args.resetAt)
-    : null;
+  const resetAt = Number.isFinite(args.resetAt as number) ? Number(args.resetAt) : null;
   return {
     used: safeUsed,
     limit: safeLimit,

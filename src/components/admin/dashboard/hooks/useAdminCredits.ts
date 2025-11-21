@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import {
+  AdminApiError,
   adminDeductCredits,
   adminGrantCredits,
   fetchAdminCreditsHistory,
@@ -16,8 +17,8 @@ interface CreditsState {
   historyLoading: boolean;
   error?: string;
   historyError?: string;
-   actionLoading: boolean;
-   actionError?: string;
+  actionLoading: boolean;
+  actionError?: string;
 }
 
 export function useAdminCredits() {
@@ -29,39 +30,61 @@ export function useAdminCredits() {
     actionLoading: false,
   });
 
-  const loadUsage = useCallback(async (userId: string) => {
-    if (!userId) {
-      setState((prev) => ({ ...prev, error: 'Benutzer-ID erforderlich.' }));
-      return;
-    }
+  const resolveErrorMessage = useCallback(
+    (error: unknown, defaultMessage: string): string => {
+      if (error instanceof AdminApiError && error.status === 429) {
+        const sec = error.retryAfterSec;
+        if (typeof sec === 'number' && Number.isFinite(sec) && sec > 0) {
+          const minutes = Math.max(1, Math.ceil(sec / 60));
+          return strings.errors.rateLimitWithRetryAfter.replace(
+            '{minutes}',
+            String(minutes)
+          );
+        }
+        return strings.errors.rateLimit;
+      }
+      return error instanceof Error ? error.message : defaultMessage;
+    },
+    [strings.errors.rateLimit, strings.errors.rateLimitWithRetryAfter]
+  );
 
-    setState((prev) => ({ ...prev, loading: true, error: undefined }));
-    try {
-      const usage = await fetchAdminCreditsUsage({ userId });
-      setState((prev) => ({ ...prev, usage, loading: false }));
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : strings.errors.creditsUsage;
-      setState((prev) => ({ ...prev, loading: false, error: message }));
-    }
-  }, [strings.errors.creditsUsage]);
+  const loadUsage = useCallback(
+    async (userId: string) => {
+      if (!userId) {
+        setState((prev) => ({ ...prev, error: 'Benutzer-ID erforderlich.' }));
+        return;
+      }
 
-  const loadHistory = useCallback(async (userId: string) => {
-    if (!userId) {
-      setState((prev) => ({ ...prev, historyError: 'Benutzer-ID erforderlich.' }));
-      return;
-    }
+      setState((prev) => ({ ...prev, loading: true, error: undefined }));
+      try {
+        const usage = await fetchAdminCreditsUsage({ userId });
+        setState((prev) => ({ ...prev, usage, loading: false }));
+      } catch (error) {
+        const message = resolveErrorMessage(error, strings.errors.creditsUsage);
+        setState((prev) => ({ ...prev, loading: false, error: message }));
+      }
+    },
+    [resolveErrorMessage, strings.errors.creditsUsage]
+  );
 
-    setState((prev) => ({ ...prev, historyLoading: true, historyError: undefined }));
-    try {
-      const history = await fetchAdminCreditsHistory({ userId });
-      setState((prev) => ({ ...prev, history: history.items ?? [], historyLoading: false }));
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : strings.errors.creditsHistory;
-      setState((prev) => ({ ...prev, historyLoading: false, historyError: message }));
-    }
-  }, [strings.errors.creditsHistory]);
+  const loadHistory = useCallback(
+    async (userId: string) => {
+      if (!userId) {
+        setState((prev) => ({ ...prev, historyError: 'Benutzer-ID erforderlich.' }));
+        return;
+      }
+
+      setState((prev) => ({ ...prev, historyLoading: true, historyError: undefined }));
+      try {
+        const history = await fetchAdminCreditsHistory({ userId });
+        setState((prev) => ({ ...prev, history: history.items ?? [], historyLoading: false }));
+      } catch (error) {
+        const message = resolveErrorMessage(error, strings.errors.creditsHistory);
+        setState((prev) => ({ ...prev, historyLoading: false, historyError: message }));
+      }
+    },
+    [resolveErrorMessage, strings.errors.creditsHistory]
+  );
 
   const grantCredits = useCallback(
     async (email: string, amountRaw: string | undefined) => {
@@ -77,13 +100,12 @@ export function useAdminCredits() {
         await adminGrantCredits({ email: emailTrimmed, amount });
         setState((prev) => ({ ...prev, actionLoading: false }));
       } catch (error) {
-        const message =
-          error instanceof Error ? error.message : strings.errors.creditsGrant;
+        const message = resolveErrorMessage(error, strings.errors.creditsGrant);
         setState((prev) => ({ ...prev, actionLoading: false, actionError: message }));
         throw error;
       }
     },
-    [strings.errors.creditsGrant]
+    [resolveErrorMessage, strings.errors.creditsGrant]
   );
 
   const deductCredits = useCallback(
@@ -100,13 +122,12 @@ export function useAdminCredits() {
         await adminDeductCredits({ email: emailTrimmed, amount });
         setState((prev) => ({ ...prev, actionLoading: false }));
       } catch (error) {
-        const message =
-          error instanceof Error ? error.message : strings.errors.creditsDeduct;
+        const message = resolveErrorMessage(error, strings.errors.creditsDeduct);
         setState((prev) => ({ ...prev, actionLoading: false, actionError: message }));
         throw error;
       }
     },
-    [strings.errors.creditsDeduct]
+    [resolveErrorMessage, strings.errors.creditsDeduct]
   );
 
   return {

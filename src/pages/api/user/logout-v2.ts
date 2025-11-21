@@ -87,8 +87,7 @@ const handleLogoutV2 = async (context: APIContext) => {
 
         // Fehler für Logging extrahieren
         const errorCode = getErrorCode(serviceError);
-        const message =
-          serviceError instanceof Error ? serviceError.message : String(serviceError);
+        const message = serviceError instanceof Error ? serviceError.message : String(serviceError);
         logApiError(
           '/api/user/logout-v2',
           {

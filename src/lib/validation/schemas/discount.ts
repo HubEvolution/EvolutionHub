@@ -34,11 +34,7 @@ export const createDiscountCodeBodySchema = z
       .min(3)
       .max(50)
       .regex(/^[A-Z0-9_-]+$/),
-    stripeCouponId: z
-      .string()
-      .trim()
-      .min(1)
-      .optional(),
+    stripeCouponId: z.string().trim().min(1).optional(),
     type: discountCodeTypeSchema,
     value: z.number().int().positive(),
     maxUses: z.number().int().positive().nullable().optional(),
@@ -54,42 +50,32 @@ export type CreateDiscountCodeBody = z.infer<typeof createDiscountCodeBodySchema
 export const listDiscountCodesQuerySchema = z
   .object({
     status: discountCodeStatusSchema.optional(),
-    search: z
-      .string()
-      .trim()
-      .min(1)
-      .max(100)
-      .optional(),
-    isActiveNow: z
-      .preprocess((value) => {
-        if (value === undefined || value === null || value === '') return undefined;
-        if (typeof value === 'boolean') return value;
-        if (typeof value === 'string') {
-          const normalized = value.trim().toLowerCase();
-          if (normalized === 'true' || normalized === '1') return true;
-          if (normalized === 'false' || normalized === '0') return false;
-        }
-        return value;
-      }, z.boolean().optional()),
-    hasRemainingUses: z
-      .preprocess((value) => {
-        if (value === undefined || value === null || value === '') return undefined;
-        if (typeof value === 'boolean') return value;
-        if (typeof value === 'string') {
-          const normalized = value.trim().toLowerCase();
-          if (normalized === 'true' || normalized === '1') return true;
-          if (normalized === 'false' || normalized === '0') return false;
-        }
-        return value;
-      }, z.boolean().optional()),
-    limit: z.preprocess(
-      (value) => {
-        if (value == null || value === '') return undefined;
-        const numeric = Number(value);
-        return Number.isFinite(numeric) ? numeric : value;
-      },
-      z.number().int().min(1).max(100).optional()
-    ),
+    search: z.string().trim().min(1).max(100).optional(),
+    isActiveNow: z.preprocess((value) => {
+      if (value === undefined || value === null || value === '') return undefined;
+      if (typeof value === 'boolean') return value;
+      if (typeof value === 'string') {
+        const normalized = value.trim().toLowerCase();
+        if (normalized === 'true' || normalized === '1') return true;
+        if (normalized === 'false' || normalized === '0') return false;
+      }
+      return value;
+    }, z.boolean().optional()),
+    hasRemainingUses: z.preprocess((value) => {
+      if (value === undefined || value === null || value === '') return undefined;
+      if (typeof value === 'boolean') return value;
+      if (typeof value === 'string') {
+        const normalized = value.trim().toLowerCase();
+        if (normalized === 'true' || normalized === '1') return true;
+        if (normalized === 'false' || normalized === '0') return false;
+      }
+      return value;
+    }, z.boolean().optional()),
+    limit: z.preprocess((value) => {
+      if (value == null || value === '') return undefined;
+      const numeric = Number(value);
+      return Number.isFinite(numeric) ? numeric : value;
+    }, z.number().int().min(1).max(100).optional()),
     cursor: z.string().trim().min(1).optional(),
   })
   .transform((value) => ({
@@ -107,9 +93,7 @@ export const createDiscountCodeResponseDataSchema = z.object({
   discountCode: discountCodeResponseSchema,
 });
 
-export type CreateDiscountCodeResponseData = z.infer<
-  typeof createDiscountCodeResponseDataSchema
->;
+export type CreateDiscountCodeResponseData = z.infer<typeof createDiscountCodeResponseDataSchema>;
 
 export const listDiscountCodesResponseDataSchema = z.object({
   items: z.array(discountCodeResponseSchema),
@@ -120,6 +104,4 @@ export const listDiscountCodesResponseDataSchema = z.object({
   }),
 });
 
-export type ListDiscountCodesResponseData = z.infer<
-  typeof listDiscountCodesResponseDataSchema
->;
+export type ListDiscountCodesResponseData = z.infer<typeof listDiscountCodesResponseDataSchema>;

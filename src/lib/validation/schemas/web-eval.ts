@@ -1,14 +1,5 @@
 import { z } from '@/lib/validation';
 
-export const webEvalTaskRequestSchema = z
-  .object({
-    url: z.string().url('Invalid URL format').max(2048),
-    task: z.string().trim().min(5, 'Task must be at least 5 characters').max(500),
-    headless: z.boolean().optional(),
-    timeoutMs: z.number().int().min(1_000).max(300_000).optional(),
-  })
-  .strict();
-
 export const webEvalTaskIdParamSchema = z
   .object({
     id: z.string().trim().min(1, 'Task ID is required').max(128),
@@ -41,6 +32,45 @@ const webEvalNetworkRequestSchema = z
   })
   .strict();
 
+const webEvalAssertionKindSchema = z.enum(['textIncludes', 'selectorExists']);
+
+const webEvalAssertionDefinitionInputSchema = z
+  .object({
+    id: z.string().trim().min(1).optional(),
+    kind: webEvalAssertionKindSchema,
+    value: z.string().trim().min(1),
+    description: z.string().trim().min(1).optional(),
+  })
+  .strict();
+
+const webEvalAssertionDefinitionSchema = z
+  .object({
+    id: z.string().trim().min(1),
+    kind: webEvalAssertionKindSchema,
+    value: z.string().trim().min(1),
+    description: z.string().trim().min(1).optional(),
+  })
+  .strict();
+
+const webEvalAssertionResultSchema = webEvalAssertionDefinitionSchema
+  .extend({
+    passed: z.boolean(),
+    details: z.string().optional(),
+  })
+  .strict();
+
+const webEvalVerdictSchema = z.enum(['pass', 'fail', 'inconclusive']);
+
+export const webEvalTaskRequestSchema = z
+  .object({
+    url: z.string().url('Invalid URL format').max(2048),
+    task: z.string().trim().min(5, 'Task must be at least 5 characters').max(500),
+    headless: z.boolean().optional(),
+    timeoutMs: z.number().int().min(1_000).max(300_000).optional(),
+    assertions: z.array(webEvalAssertionDefinitionInputSchema).max(20).optional(),
+  })
+  .strict();
+
 export const webEvalReportSchema = z
   .object({
     taskId: z.string().trim().min(1),
@@ -54,6 +84,8 @@ export const webEvalReportSchema = z
     durationMs: z.number().int().min(0),
     startedAt: z.string().trim().min(1),
     finishedAt: z.string().trim().min(1),
+    verdict: webEvalVerdictSchema.optional(),
+    assertions: z.array(webEvalAssertionResultSchema).optional(),
   })
   .strict();
 
@@ -73,3 +105,6 @@ export type WebEvalReportInput = z.input<typeof webEvalReportSchema>;
 export type WebEvalReportPayload = z.infer<typeof webEvalReportSchema>;
 export type WebEvalCompletionInput = z.input<typeof webEvalCompletionSchema>;
 export type WebEvalCompletionPayload = z.infer<typeof webEvalCompletionSchema>;
+export type WebEvalAssertionDefinitionInput = z.input<typeof webEvalAssertionDefinitionInputSchema>;
+export type WebEvalAssertionResultInput = z.input<typeof webEvalAssertionResultSchema>;
+export type WebEvalAssertionResultPayload = z.infer<typeof webEvalAssertionResultSchema>;

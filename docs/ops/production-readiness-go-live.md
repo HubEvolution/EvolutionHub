@@ -2,7 +2,7 @@
 description: 'Production-Readiness & Go-Live Review für Evolution Hub'
 owner: 'Project Owner & Cascade EvolutionHub AI Agent'
 priority: 'high'
-lastSync: '2025-11-19'
+lastSync: '2025-11-21'
 codeRefs: 'src/pages/api/**, src/lib/**, src/config/**, src/middleware.ts, wrangler.toml, openapi.yaml'
 testRefs: 'tests/**, test-suite-v2/**'
 ---
@@ -72,9 +72,9 @@ Owner dieses Dokuments und aller Abschnitte ist der Project Owner; der Cascade E
 
 ##### Rolle von `/api/billing/sync`
 
-- Der Stripe-Webhooks-Handler (`/api/billing/stripe-webhook`) bleibt die **Source of Truth** für Subscription-Status und `users.plan` (asynchrone Events wie `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`).
-- `/api/billing/sync` ist ein **authentifizierter GET-Endpoint**, der von der Stripe-Checkout-Success-URL für den aktuell eingeloggten User aufgerufen wird. Er holt die entsprechende Checkout-Session inkl. `subscription`, upsertet `stripe_customers`/`subscriptions` und wendet die gleiche Status-Policy wie der Webhook auf `users.plan` an (`active/trialing/past_due` → Plan, `canceled/unpaid/incomplete_expired` → `free`).
-- Zweck von `billing/sync` ist ein **user-initiierter Repair-/Realtime-Sync** direkt nach dem Checkout (z. B. falls Webhook verzögert ist); langfristig bleibt der Webhook für alle weiteren Statuswechsel maßgeblich. Ein direkter Aufruf ohne gültige Session-Referenz (`client_reference_id`/`metadata.userId`) wird verweigert.
+- Der Stripe-Webhooks-Handler (`/api/billing/stripe-webhook`) bleibt die **Source of Truth** für Subscription-Status und `users.plan` (asynchrone Events wie `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`) sowie für Credit-Packs (idempotente Anwendung auf `KV_AI_ENHANCER`).
+- `/api/billing/sync` ist ein **authentifizierter GET-Endpoint**, der von den Stripe-Checkout-Success-URLs für den aktuell eingeloggten User aufgerufen wird. Für Subscriptions holt er die entsprechende Checkout-Session inkl. `subscription`, upsertet `stripe_customers`/`subscriptions` und wendet die gleiche Status-Policy wie der Webhook auf `users.plan` an (`active/trialing/past_due` → Plan, `canceled/unpaid/incomplete_expired` → `free`). Für Credit-Packs (`mode='payment'`, `metadata.purpose='credits'`) legt er das Pack idempotent in `KV_AI_ENHANCER` ab (inkl. Legacy-Credits-Key) und leitet dann auf Dashboard/`return_to` zurück.
+- Zweck von `billing/sync` ist ein **user-initiierter Repair-/Realtime-Sync** direkt nach dem Checkout (Subscriptions und Credit-Packs, z. B. falls Webhook verzögert ist); langfristig bleibt der Webhook für alle weiteren Statuswechsel maßgeblich. Ein direkter Aufruf ohne gültige Session-Referenz (`client_reference_id`/`metadata.userId`) wird verweigert.
 
 #### P1 – Vor Go-Live
 
@@ -82,22 +82,25 @@ Owner dieses Dokuments und aller Abschnitte ist der Project Owner; der Cascade E
   - [x] In Staging/Testing: `PRICING_TABLE` / `PRICING_TABLE_ANNUAL` / `CREDITS_PRICING_TABLE` mit Stripe Price IDs im Dashboard abgleichen (Plan → Price ID).
   - [x] Pro relevanter Plan-/Credit-Variante mindestens einen Test-Checkout durchführen (Stripe Testmode), Buchung im Dashboard und Response der Session-/Webhook-APIs prüfen.
   - [x] Bestätigen, dass nach erfolgreichem Checkout `users.plan` bzw. Credits über `/api/billing/sync` / Webhook konsistent gesetzt werden (ggf. via Admin-UI/DB-Inspect dokumentieren).
-- [ ] Webhook-Signatur-Key korrekt gesetzt; Negativ-Tests (falsche Signatur → `forbidden`):
+- [x] Webhook-Signatur-Key korrekt gesetzt; Negativ-Tests (falsche Signatur → `forbidden`):
   - [x] Sicherstellen, dass `STRIPE_WEBHOOK_SECRET` in Staging/Testing gesetzt ist und `wrangler.toml`/CI darauf referenzieren.
-  - [ ] Mit Stripe CLI/Test MCP Server oder Test-Webhook einen gültigen Event gegen `/api/billing/stripe-webhook` senden → 2xx-Response, erwartete Logs, einmalige Verarbeitung (Idempotenz).
-  - [ ] Negativ-Test mit absichtlich falscher Signatur ausführen → `forbidden`/4xx, keine Änderung an `users.plan`/Credits; Ergebnis und Timestamp kurz dokumentieren.
-- [ ] Happy-Path: Upgrade/Downgrade/Cancel, Credit-Buy, Refund-Flow manuell in Staging geprüft:
+  - [x] Mit Stripe CLI/Test MCP Server oder Test-Webhook einen gültigen Event gegen `/api/billing/stripe-webhook` senden → 2xx-Response, erwartete Logs, einmalige Verarbeitung (Idempotenz).
+  - [x] Negativ-Test mit absichtlich falscher Signatur ausführen → `forbidden`/4xx, keine Änderung an `users.plan`/Credits; Ergebnis und Timestamp kurz dokumentieren.
+- [x] Happy-Path: Upgrade/Downgrade/Cancel, Credit-Buy, Refund-Flow manuell in Staging geprüft:
   - [x] Für einen dedizierten Staging-Testuser: Upgrade (z. B. free → pro/premium) über Pricing-UI ausführen und verifizieren, dass `users.plan` und Entitlements (z. B. `/api/ai-image/usage`) den neuen Plan widerspiegeln.
-  - [ ] Downgrade (z. B. pro → free) mit `cancel_at_period_end` oder sofortigem Cancel testen und sicherstellen, dass Plan-/Entitlements nach Ablauf/Cancel korrekt zurückfallen.
-  - [ ] Mindestens einen Credit-Buy-Flow (Pack-Kauf) durchspielen und danach die Credits in einem Tool (z. B. AI Image/Web‑Eval) teilweise verbrauchen; Verbrauch gegen KV/Usage-APIs gegenprüfen.
-  - [ ] Für einen Test-Checkout (Subscription oder Credits) einen Refund im Stripe-Dashboard auslösen und verifizieren, wie sich Plan/Balance verhält; Ergebnis und Besonderheiten kurz im Runbook/Go-Live-Dok notieren.
+  - [x] Downgrade (z. B. pro → free) mit `cancel_at_period_end` oder sofortigem Cancel testen und sicherstellen, dass Plan-/Entitlements nach Ablauf/Cancel korrekt zurückfallen.
+  - [x] Mindestens einen Credit-Buy-Flow (Pack-Kauf) durchspielen und danach die Credits in einem Tool (z. B. AI Image/Web‑Eval) teilweise verbrauchen; Verbrauch gegen KV/Usage-APIs gegenprüfen.
+  - [x] Für einen Test-Checkout (Subscription oder Credits) einen Refund im Stripe-Dashboard auslösen und verifizieren, wie sich Plan/Balance verhält; Ergebnis und Besonderheiten kurz im Runbook/Go-Live-Dok notieren.
 
 **Staging-Validierung (Stand 2025-11-18):**
 
 - Für einen Staging-Testuser wurde ein Upgrade auf **Premium (jährlich)** erfolgreich über die Pricing-UI durchgeführt; Subscription/Plan in `billing-summary` und im Stripe-Testmodus (Price-ID `price_1SKj7NHdpdQAtOQB4ZYoW84T`) sind konsistent.
-- Credit-Packs wurden in Staging erfolgreich gekauft (u. a. 100 und 1600 Credits); Credits werden nach Webhook-Verarbeitung konsistent in Header-Dropdown und Dashboard-Credits-Karte angezeigt (beide speisen sich aus `/api/dashboard/billing-summary` inkl. Client-Refresh).
+- Credit-Packs wurden in Staging erfolgreich gekauft (u. a. 100 und 1600 Credits); seit 2025‑11‑20 werden Credit-Packs beim Rücksprung aus dem Stripe-Checkout zusätzlich synchron über `/api/billing/sync` auf `KV_AI_ENHANCER` angewendet. Credits sind dadurch direkt nach dem Redirect im Header-Dropdown und in der Dashboard-Credits-Karte sichtbar (ein Reload ist nicht mehr erforderlich); beide Anzeigen speisen sich weiterhin aus `/api/dashboard/billing-summary`.
 - Cancel des Abos über den Dashboard-Button schlägt aktuell mit `403` fehl (fehlender CSRF-Header) und ist als **P2-Bug** einzuplanen; Cancel über das Stripe Billing Portal funktioniert, setzt `cancel_at_period_end=true` und leitet korrekt zurück auf das Dashboard (Status "Cancellation scheduled"), womit der funktionale Cancel-Flow für Staging verifiziert ist.
-- Für einen der jüngsten Test-Checkouts (Stripe Testmode) wurde ein vollständiger Refund im Stripe-Dashboard bzw. via Stripe-Test-MCP ausgelöst (`status=succeeded`); das konkrete Verhalten in der App (Plan/Credits nach Refund) ist noch zu beobachten und im Nachgang kurz zu dokumentieren.
+- Für einen Test-Checkout (Subscription, Stripe Testmode) wurde ein vollständiger Refund im Stripe-Dashboard ausgelöst (`status=succeeded`); das Abo bleibt bis zum Ende des aktuellen Abrechnungszeitraums aktiv (`cancel_at_period_end=true`), der Plan-Downgrade auf `free` erfolgt weiterhin erst mit terminalem Subscriptions-Status über den Webhook.
+- Für einen Credit-Pack-Checkout (z. B. 100 AI Credits) wurde ein vollständiger Refund im Stripe-Dashboard ausgelöst (`status=succeeded`); Credits werden in v1 **nicht** automatisch reduziert oder zurückgebucht. Credits werden ausschließlich bei erfolgreichen Checkout-Events (`checkout.session.completed` → Webhook/`/api/billing/sync`) gutgeschrieben; Refunds sind rein finanziell und erfordern bei Bedarf eine manuelle Korrektur über die Admin-Credits-APIs.
+
+> TODO / P2: Automatische Rückbuchung von Credits bei Stripe-Refunds (Credit-Packs) implementieren (z. B. über `charge.refunded`/`payment_intent`-Events im Webhook) und Idempotenz/Logging analog zu `stripe_credits_pack_applied(_sync)` sicherstellen. Bis dahin bleibt die manuelle Korrektur über Admin-Credits-APIs der definierte Support-Pfad.
 
 #### Credits, Quota & Usage (Ist-Stand)
 
@@ -167,6 +170,8 @@ Owner dieses Dokuments und aller Abschnitte ist der Project Owner; der Cascade E
 
 - [ ] Erweiterte E2E-Suite für Billing (Upgrade/Downgrade/Plan-Change inkl. Admin-Override-Flows).
 - [ ] Zusätzliche Monitoring-Metriken: Stripe-Event-Rate, Webhook-Fehlerquote.
+
+_2025-11-20 – Staging-Validierung Admin-Set-Plan (Stripe Testkonto): Über das Admin-Dashboard wurde für den Staging-User `test@hub-evolution.com` erfolgreich ein Planwechsel **free → premium → enterprise** durchgeführt. Die in `.env.staging` konfigurierten `PRICING_TABLE`/`PRICING_TABLE_ANNUAL`-Price-IDs wurden mit dem Stripe-Testkonto abgeglichen (MCP-gestützt) und stimmen; Stripe-Fehler traten nur auf, solange der Customer noch keine Standard-Zahlungsmethode hatte (`This customer has no attached payment source...`). Nach Hinzufügen einer Testkarte (Visa 4242…) als Default Payment Method wurden Abos korrekt angelegt und in D1 (`subscriptions`, `users.plan`) synchronisiert. Stripe-Fehler werden in Non-Prod über `error.details.stripeMessage` redaktiert ausgespielt, bleiben in Prod generisch._
 
 ---
 
@@ -327,6 +332,8 @@ Ziel: Sicherstellen, dass die in den Entitlement-Configs hinterlegten Limits in 
 
 - Task-Create-API mit Zod-Validierung, Prod-Gating (`WEB_EVAL_ENABLE_PROD`), SSRF-Guard, Rate-Limit, Usage-Endpoint.
 
+_2025-11-20 – Web‑Eval‑Usage & Staging‑Storage geklärt: In Staging ist `KV_WEB_EVAL` als Binding konfiguriert (`env.staging.kv_namespaces`), `GET /api/testing/evaluate/usage` liefert `usage.used/limit/resetAt`, und die Web‑Eval‑Tool‑UI zeigt „Usage X/Y“ sowie „Web‑Eval daily limit resets at <Datum/Uhrzeit>“. Ein Executor/Runner ist in Staging derzeit nicht angebunden, d. h. Tasks bleiben im Status `pending`; für die Validierung von Quoten, Usage‑Anzeige und Storage ist dieser Zustand bewusst akzeptiert und im Web‑Eval‑Executor‑Runbook dokumentiert._
+
 #### P1 – Vor Go-Live
 
 - [ ] Entitlement-Enforce bei Task-Erstellung verifiziert (oder ergänzt), d. h. Tasks werden nicht nur durch `webEvalTaskLimiter`, sondern auch owner-basiert begrenzt.
@@ -429,10 +436,15 @@ Ziel: Sicherstellen, dass die in den Entitlement-Configs hinterlegten Limits in 
 - **Verifikation**
   - Integrationstests: Zugriffe auf `/api/admin/**` als Nicht-Admin → `auth_error`/`forbidden`; als Admin → erfolgreiche Responses mit erwarteten Side-Effects (z. B. Credits erhöhen/senken).
   - Stichprobenhafte Kontrolle der Audit-Logs (z. B. via D1-Abfragen) für kritische Admin-Aktionen.
+  - _2025-11-20 – Staging – Admin-Billing-Smoketest_: Unter `tests/integration/api/admin-billing-smoke.test.ts` existiert ein opt-in Smoke-Test, der gegen `https://staging.hub-evolution.com` mit einer gültigen Admin-Session die zentralen Admin-Billing-Flows prüft (User-Summary, Credits-Usage/History, Admin-Credits-Grant/Deduct inkl. Fehlerpfad `insufficient_credits`, Admin-Set-Plan `pro` ↔ `free`). Der Test ist so aufgebaut, dass er bei fehlender Admin-Session oder erwartbaren Rate-Limits (429 vom `sensitiveActionLimiter`) nicht fehlschlägt, sondern den Lauf als „Env nicht konfiguriert“ markiert; mit gültiger Admin-Session wird der vollständige Happy-Path durchlaufen und dient als wiederholbarer Staging-Smoketest vor Go-Live.
 
 #### P2 – Kurz nach Go-Live
 
 - [ ] Sicherstellen, dass alle relevanten Admin-Aktionen (Plan-Änderung, Ban/Unban/Delete, Credits, Discounts) Audit-Logs mit sinnvollen `eventType`, `resource`, `action` erzeugen.
+
+_2025-11-20 – Staging-Validierung Admin-Dashboard & Rate-Limits: Die Admin-Flows „Credits grant/deduct" und „Plan überschreiben" wurden in Staging mit einem echten Stripe-Testkunden geprüft; alle mutierenden Admin-APIs nutzen `withAuthApiMiddleware` mit CSRF (`enforceCsrfToken: true`) und den `adminSensitiveLimiter` (20/h pro `ip:user`). Zusätzlich greifen globale `apiRateLimiter`-Limits (30/min) für Lese-Endpunkte wie `users/summary` sowie ein separater Limiter auf `admin/telemetry`. 429-Responses aus diesen Limitern liefern ein standardisiertes JSON (`error: 'Rate limit exceeded', retryAfter: <sekunden>`); die Admin-UI toleriert diese für Telemetry bereits und bleibt funktional. Für Prod bleibt Telemetry optional, die Rate-Limits sind konservativ genug für normale Admin-Nutzung._
+
+_2025-11-21 – Admin-Rate-Limits-Reset & UI-Handling: Für `/api/admin/users/set-plan` und `/api/admin/credits/{grant,deduct}` wird der `adminSensitiveLimiter` als dedizierter Limiter für sensible Admin-Aktionen genutzt (20/h in Prod, 1000/h in Dev), während Lese-Endpunkte wie `users/summary`, `credits/usage|history` weiterhin dem globalen `apiRateLimiter` (30/min) unterliegen. 429-Responses dieser Admin-Routen enthalten neben dem HTTP-Header `Retry-After` ein JSON-Feld `retryAfter` (Sekunden bis zum Reset); die Admin-UI wertet dieses Feld aus und zeigt bei Rate-Limit-Treffern lokalisierte Hinweise an (inkl. auf Minuten gerundeter Wartezeit). Für den technischen Reset von Limits existiert ein zusätzlicher Smoke-Test `tests/integration/api/admin-rate-limits-reset-smoke.test.ts`, der – analog zum Admin-Billing-Smoke – mit einer vorkonfigurierten Admin-Session (`ADMIN_TEST_COOKIE`, `ADMIN_TEST_CSRF`) gegen Staging läuft und den Happy Path von `POST /api/admin/rate-limits/reset` verifiziert, ohne bei fehlender Session hart zu fehlschlagen._
 
 ---
 

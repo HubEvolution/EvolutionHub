@@ -2,7 +2,7 @@
 description: Web-Eval Executor – Header/Secret/How-to-run (incl. CBR runner)
 owner: platform
 priority: P2
-lastSync: 2025-11-12
+lastSync: 2025-11-21
 codeRefs:
   - src/pages/api/testing/evaluate/next.ts
   - src/pages/api/testing/evaluate/next/run.ts
@@ -53,6 +53,11 @@ testRefs:
   - In `deploy.yml` ist ein optionaler Smoke enthalten, der den Executor ~25s laufen lässt.
   - Aktivierung: `RUN_EXECUTOR_SMOKE=1` als Job‑Env setzen und `WEB_EVAL_EXECUTOR_TOKEN` als Secret hinterlegen.
   - Ziel‑URL: `https://staging.hub-evolution.com` (voreingestellt)
+
+- **Staging-Notizen (Usage & Storage)**
+  - In **Staging** ist `KV_WEB_EVAL` als Binding konfiguriert (siehe `wrangler.toml`, Abschnitt `env.staging.kv_namespaces`).
+  - `GET /api/testing/evaluate/usage` funktioniert in Staging; das Web‑Eval‑Tool zeigt die Usage‑Anzeige (`Usage: X/Y`) sowie den täglichen Reset‑Zeitpunkt als Text *"Web‑Eval daily limit resets at <Datum/Uhrzeit>"*.
+  - Solange kein Executor oder CBR‑Runner gegen Staging läuft, verbleiben Tasks im Status `pending`. Für die Validierung von Quoten, Usage‑Anzeige und Storage ist dieser Zustand akzeptiert und im Go‑Live‑Dokument (`docs/ops/production-readiness-go-live.md`) als solcher festgehalten.
 
 - **Troubleshooting**
   - 403 + Log `web_eval_executor_token_invalid` und `hasProvidedToken: false` → Header fehlt/ist falsch geschrieben (verwende exakt `x-executor-token`).
@@ -117,10 +122,35 @@ testRefs:
   - `BROWSER` (Cloudflare Browser Rendering binding)
   - Wenn Flag an, aber `BROWSER` fehlt → `browser_not_configured` (Task `failed` + Report).
 
-- **Fehlerformen & Reports (Phase B)**
+- **Fehlerformen & Reports (implementierter Runner)**
   - `browser_disabled` wenn Flag aus.
   - `browser_not_configured` wenn Flag an, aber Binding fehlt.
-  - `browser_runner_not_implemented` solange der eigentliche Runner noch nicht integriert ist.
+  - `disabled_in_production` wenn Prod‑Gate greift (kein `x-internal-exec: 1` oder `WEB_EVAL_BROWSER_ALLOW_PROD != "1"`).
+  - `browser_backend_unavailable` wenn der Browser‑Dienst selbst nicht erreichbar ist (z. B. Cloudflare‑Fehler `/v1/acquire`).
+  - `page_health_check_failed` wenn die Navigation zwar läuft, aber der Health‑Check (HTTP < 400, Titel vorhanden, keine same‑origin `console.error`) scheitert.
+
+- **Tuning‑Hebel (Health‑Check & Zeitlimits)**
+  - `timeoutMs` im Request steuert das Navigation‑Timeout (Default 30 s).
+  - Same‑origin `console.error` wird aktuell als fatal gewertet; striktere/lockerere Regeln können bei Bedarf im internen Runner angepasst werden.
+  - Erfolgskriterien (Status < 400, nicht‑leerere `title`, keine fatalen Console‑Errors) sind konservativ gewählt, um „funktionierende“ Seiten zu erzwingen.
+
+- **How‑To: Staging‑Smoke über Web‑UI + CBR‑Runner**
+  - UI aufrufen: `https://staging.hub-evolution.com/tools/web-eval/app`.
+  - Formular ausfüllen, z. B.:
+    - URL: `https://staging.hub-evolution.com/`
+    - Task: `open page and assert content`
+    - `headless` aktiviert lassen (aktuell rein semantisch; der interne Runner erzeugt keine Screenshots/Videos).
+    - `timeoutMs`: z. B. `15000`.
+  - Task absenden → UI zeigt neue Task mit Status `pending`.
+  - Internen CBR‑Runner manuell triggern (bis Cron/Worker aktiv ist):
+
+    ```bash
+    curl -i -X POST "https://staging.hub-evolution.com/api/testing/evaluate/next/run" \
+      -H "Origin: https://staging.hub-evolution.com"
+    ```
+
+  - Die älteste `pending`‑Task wird verarbeitet; UI pollt `/api/testing/evaluate/:id` im Hintergrund und aktualisiert den Status auf `completed` oder `failed`.
+  - Im Report‑Panel der UI sind Schritte (`goto`), Console‑Logs und Network‑Requests sichtbar; der Runner speichert aktuell **keine Screenshots/Videos**, unabhängig vom `headless`‑Flag.
 
 - **Tests**
   - Siehe `tests/integration/api/web-eval-run.test.ts`:

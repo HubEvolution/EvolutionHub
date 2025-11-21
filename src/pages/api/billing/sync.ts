@@ -2,8 +2,11 @@ import type { APIContext } from 'astro';
 import { withAuthApiMiddleware, createMethodNotAllowed } from '@/lib/api-middleware';
 import { createSecureErrorResponse, createSecureRedirect } from '@/lib/response-helpers';
 import Stripe from 'stripe';
+import type { KVNamespace } from '@cloudflare/workers-types';
 import { sanitizeReturnTo } from '@/utils/sanitizeReturnTo';
 import type { Plan } from '@/config/ai-image/entitlements';
+import { addCreditPackTenths, getCreditsBalanceTenths } from '@/lib/kv/usage';
+import { logSecurityEvent } from '@/lib/security-logger';
 
 function parsePricingTable(raw: unknown): Record<string, string> {
   try {
@@ -88,6 +91,59 @@ export const GET = withAuthApiMiddleware(
       return createSecureRedirect(
         `${baseUrl}/dashboard?ws=${encodeURIComponent(ws)}&billing=forbidden`
       );
+    }
+
+    const metadata = (session.metadata || {}) as Record<string, unknown>;
+    const mode = session.mode as string | undefined;
+    const purpose = metadata['purpose'] as string | undefined;
+
+    const kv = (rawEnv as { KV_AI_ENHANCER?: KVNamespace }).KV_AI_ENHANCER as
+      | KVNamespace
+      | undefined;
+
+    // Credit-pack checkouts (one-time payments) — apply credits immediately.
+    // Webhook remains SoT; addCreditPackTenths is idempotent on packId so
+    // sync + webhook will not double-apply packs.
+    if (mode === 'payment' && purpose === 'credits') {
+      if (kv) {
+        const rawPack = metadata['pack'] as string | undefined;
+        const units = rawPack ? Number(rawPack) : 0;
+        if (Number.isFinite(units) && units > 0) {
+          const packId = session.id || `sess_${Date.now()}`;
+          try {
+            await addCreditPackTenths(
+              kv,
+              user.id,
+              packId,
+              units * 10,
+              typeof session.created === 'number' ? session.created * 1000 : Date.now()
+            );
+            const totalTenths = await getCreditsBalanceTenths(kv, user.id);
+            const legacyKey = `ai:credits:user:${user.id}`;
+            const legacyInt = Math.floor(totalTenths / 10);
+            await kv.put(legacyKey, String(legacyInt));
+            try {
+              logSecurityEvent('USER_EVENT', {
+                eventType: 'stripe_credits_pack_applied_sync',
+                userId: user.id,
+                packId,
+                units,
+                totalCredits: legacyInt,
+              });
+            } catch {
+              // ignore logging failures to avoid breaking sync
+            }
+          } catch {
+            // ignore credit-application failures; webhook will eventually sync
+          }
+        }
+      }
+
+      const creditsReturnTo = sanitizeReturnTo(returnToRaw);
+      if (creditsReturnTo) {
+        return createSecureRedirect(`${baseUrl}${creditsReturnTo}`);
+      }
+      return createSecureRedirect(`${baseUrl}/dashboard?ws=${encodeURIComponent(ws)}`);
     }
 
     const customerId = (session.customer as string) || '';

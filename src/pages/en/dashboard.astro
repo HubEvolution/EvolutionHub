@@ -2,6 +2,7 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { type BillingSummary } from '@/components/dashboard/BillingCard';
 import BillingCard from '@/components/dashboard/BillingCard';
+import ToolsUsageOverviewCard from '@/components/dashboard/ToolsUsageOverviewCard';
 import ReferralCard, { type ReferralSummary } from '@/components/dashboard/ReferralCard';
 import UserProfile from '@/components/dashboard/UserProfile.astro';
 import AccountSettingsSection from '@/components/dashboard/AccountSettingsSection.astro';
@@ -33,6 +34,14 @@ const t = getI18n(locale);
 
 const origin = new URL(Astro.request.url).origin;
 const cookieHeader = Astro.request.headers.get('cookie') ?? '';
+
+const safeT = (key: string, fallback: string): string => {
+  const raw = t(key);
+  if (raw.startsWith('[') && raw.endsWith('_fallback_not_found]')) {
+    return fallback;
+  }
+  return raw;
+};
 
 async function fetchApi<T>(path: string, timeoutMs = 1200): Promise<T | null> {
   const ac = new AbortController();
@@ -273,7 +282,7 @@ const manageBillingLink = (() => {
           <UserProfile user={{ ...user, plan: billingSummary?.plan ?? user.plan }} />
         </div>
 
-        <div class="xl:col-span-4">
+        <div class="xl:col-span-4 space-y-4">
           <Card as="div" className="group p-4">
             <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-6">
@@ -366,6 +375,33 @@ const manageBillingLink = (() => {
               })()
             }
           </Card>
+          <ToolsUsageOverviewCard
+            client:load
+            strings={{
+              title: safeT('pages.dashboard.tools_overview.title', 'Tool limits & usage'),
+              subtitle: safeT(
+                'pages.dashboard.tools_overview.subtitle',
+                'Per-plan quotas across all tools'
+              ),
+              columns: {
+                tool: safeT('pages.dashboard.tools_overview.columns.tool', 'Tool'),
+                usage: safeT('pages.dashboard.tools_overview.columns.usage', 'Used / limit'),
+                remaining: safeT('pages.dashboard.tools_overview.columns.remaining', 'Remaining'),
+                period: safeT('pages.dashboard.tools_overview.columns.period', 'Period'),
+              },
+              periods: {
+                monthly: safeT('pages.dashboard.tools_overview.period.monthly', 'per month'),
+                daily: safeT('pages.dashboard.tools_overview.period.daily', 'per day'),
+              },
+              toolNames: {
+                image: t('pages.tools.items.Imag-Enhancer.name'),
+                video: t('pages.tools.items.video-enhancer.name'),
+                prompt: t('pages.tools.items.prompt-enhancer.name'),
+                voice: t('pages.tools.items.voice-visualizer.name'),
+                webscraper: t('pages.tools.items.webscraper.name'),
+              },
+            }}
+          />
         </div>
 
         <div class="xl:col-span-4">
@@ -415,7 +451,7 @@ const manageBillingLink = (() => {
       </div>
     </div>
   </div>
-  </BaseLayout>
+</BaseLayout>
 
 <script is:inline nonce={Astro.locals.cspNonce}>
   if (typeof window !== 'undefined') {
@@ -497,13 +533,11 @@ const manageBillingLink = (() => {
       if (!btn || !sel) return;
 
       var loginHref = (btn && btn.getAttribute('data-login-href')) || '/en/login';
-      var errorPrefix =
-        (btn && btn.getAttribute('data-error-prefix')) || 'Checkout failed: ';
+      var errorPrefix = (btn && btn.getAttribute('data-error-prefix')) || 'Checkout failed: ';
       var errorInvalidResponse =
         (btn && btn.getAttribute('data-error-invalid-response')) ||
         'Checkout failed: Invalid response';
-      var errorGeneric =
-        (btn && btn.getAttribute('data-error-generic')) || 'Checkout failed';
+      var errorGeneric = (btn && btn.getAttribute('data-error-generic')) || 'Checkout failed';
 
       function readCookie(name) {
         var m = document.cookie.match(

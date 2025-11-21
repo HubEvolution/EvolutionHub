@@ -16,8 +16,9 @@ const dbHealthLimiter = createRateLimiter({
 
 function getEnv(context: APIContext): { DB?: D1Database; ENVIRONMENT?: string } {
   try {
-    return ((context.locals as unknown as { runtime?: { env?: { DB?: D1Database; ENVIRONMENT?: string } } })
-      ?.runtime?.env || {}) as { DB?: D1Database; ENVIRONMENT?: string };
+    return ((
+      context.locals as unknown as { runtime?: { env?: { DB?: D1Database; ENVIRONMENT?: string } } }
+    )?.runtime?.env || {}) as { DB?: D1Database; ENVIRONMENT?: string };
   } catch {
     return {} as { DB?: D1Database; ENVIRONMENT?: string };
   }

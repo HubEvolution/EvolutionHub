@@ -54,9 +54,10 @@ export function useVideoUsage(): UseVideoUsageResult {
       }
 
       if (!res.ok || !data || !data.success || !data.data) {
-        const message = data && 'error' in data && data.error?.message
-          ? data.error.message
-          : `Failed to load usage (${res.status})`;
+        const message =
+          data && 'error' in data && data.error?.message
+            ? data.error.message
+            : `Failed to load usage (${res.status})`;
         setError(message);
         return;
       }

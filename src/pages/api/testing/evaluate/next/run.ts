@@ -19,6 +19,7 @@ import type {
   WebEvalTaskRecord,
   WebEvalReport,
 } from '@/lib/testing/web-eval';
+import { runTaskWithBrowserRendering } from '@/lib/testing/web-eval/browser-runner';
 import { loggerFactory } from '@/server/utils/logger-factory';
 import { validateTargetUrl } from '@/lib/testing/web-eval/ssrf';
 import { isBrowserAllowedInProd } from '@/lib/testing/web-eval/provider';
@@ -377,7 +378,9 @@ async function handler(context: APIContext): Promise<Response> {
     }
   }
 
-  // For Phase B MVP: if BROWSER binding exists but runner not yet implemented, mark as not_configured
+  // Ensure BROWSER binding exists before attempting a run; env-level gating
+  // above has already handled the cases where the feature is disabled or not
+  // configured.
   if (!env.BROWSER) {
     const startedAt = new Date();
     const finishedAt = new Date();
@@ -405,31 +408,28 @@ async function handler(context: APIContext): Promise<Response> {
     return createApiError('forbidden', 'browser_not_configured');
   }
 
-  // Placeholder: runner implementation will navigate and generate report in Phase B finalization
-  const startedAt = new Date();
+  // Execute the actual browser run via Cloudflare Browser Rendering.
+  const runResult = await runTaskWithBrowserRendering(claimed, env);
   const finishedAt = new Date();
   const report: WebEvalReport = {
-    taskId: claimed.id,
-    url: claimed.url,
-    taskDescription: claimed.task,
-    success: false,
-    steps: [{ action: 'runBrowser', timestamp: nowIso() }],
-    consoleLogs: [],
-    networkRequests: [],
-    errors: ['browser_runner_not_implemented'],
-    durationMs: Math.max(0, finishedAt.getTime() - startedAt.getTime()),
-    startedAt: startedAt.toISOString(),
-    finishedAt: finishedAt.toISOString(),
+    ...runResult.report,
+    durationMs: Math.max(0, finishedAt.getTime() - new Date(runResult.report.startedAt).getTime()),
   };
   await storeReport(kv, claimed.id, report, config);
-  const failed: WebEvalTaskRecord = {
+  const nextTask: WebEvalTaskRecord = {
     ...claimed,
-    status: 'failed',
+    status: runResult.status,
     attemptCount: (claimed.attemptCount || 0) + 1,
-    lastError: 'browser_runner_not_implemented',
+    lastError: runResult.lastError,
   };
-  await updateTask(kv, failed, config);
-  return createApiError('server_error', 'browser_runner_not_implemented');
+  await updateTask(kv, nextTask, config);
+
+  return createApiSuccess({
+    task: {
+      id: nextTask.id,
+      status: nextTask.status,
+    },
+  });
 }
 
 export const POST = withApiMiddleware(handler, {

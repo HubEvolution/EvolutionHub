@@ -68,16 +68,20 @@ export const POST = withAuthApiMiddleware(
     });
 
     const stripe = new Stripe(stripeSecret);
-    let successUrl = `${baseUrl}/dashboard?ws=${body.workspaceId || 'default'}&credits=1`;
+    const workspaceId = body.workspaceId || 'default';
+    let returnTo = `/dashboard?ws=${workspaceId}&credits=1`;
     try {
       if (safeReturnTo) {
         const u = new URL(`${baseUrl}${safeReturnTo}`);
         u.searchParams.set('credits', '1');
-        successUrl = u.toString();
+        returnTo = `${u.pathname}${u.search}`;
       }
     } catch {
-      // ignore malformed returnTo; fallback to dashboard successUrl
+      // ignore malformed returnTo; fallback to default dashboard path
     }
+    const successUrl = `${baseUrl}/api/billing/sync-callback?cs={CHECKOUT_SESSION_ID}&ws=${encodeURIComponent(
+      workspaceId
+    )}&return_to=${encodeURIComponent(returnTo)}`;
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       success_url: successUrl,

@@ -307,8 +307,7 @@ export const POST = withApiMiddleware(
                 });
               }
             } catch (rewardErr) {
-              const message =
-                rewardErr instanceof Error ? rewardErr.message : String(rewardErr);
+              const message = rewardErr instanceof Error ? rewardErr.message : String(rewardErr);
               logApiError('/api/billing/stripe-webhook', {
                 reason: 'referral_reward_error',
                 subscriptionId,
@@ -407,8 +406,7 @@ export const POST = withApiMiddleware(
                 });
               }
             } catch (rewardErr) {
-              const message =
-                rewardErr instanceof Error ? rewardErr.message : String(rewardErr);
+              const message = rewardErr instanceof Error ? rewardErr.message : String(rewardErr);
               logApiError('/api/billing/stripe-webhook', {
                 reason: 'referral_reward_error',
                 subscriptionId: sub.id,

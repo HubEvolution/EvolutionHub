@@ -45,6 +45,7 @@ interface Strings {
   usage: string;
   myTasks: string;
   reportTitle: string;
+  resetLabel: string;
   toasts: {
     invalidUrl: string;
     invalidTask: string;
@@ -324,7 +325,7 @@ export default function WebEvalIsland({ strings }: Props) {
             </div>
             {usage.resetAt && (
               <div className="text-sm text-gray-500 dark:text-gray-400">
-                Reset: {new Date(usage.resetAt).toLocaleTimeString()}
+                {strings.resetLabel} {new Date(usage.resetAt).toLocaleString()}
               </div>
             )}
           </div>

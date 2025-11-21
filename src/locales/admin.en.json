@@ -145,6 +145,8 @@
     "creditsHistory": "Failed to load credit history.",
     "creditsGrant": "Failed to grant credits.",
     "creditsDeduct": "Failed to deduct credits.",
-    "setPlan": "Failed to update plan."
+    "setPlan": "Failed to update plan.",
+    "rateLimit": "Rate limit reached. Please try again later.",
+    "rateLimitWithRetryAfter": "Rate limit reached. Please try again in about {minutes} minutes."
   }
 }

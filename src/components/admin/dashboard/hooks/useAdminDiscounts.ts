@@ -57,72 +57,69 @@ export function useAdminDiscounts(initialFilters: AdminDiscountFilters = {}) {
   const controllerRef = useRef<AbortController | null>(null);
   const retryTimeoutRef = useRef<number | null>(null);
 
-  const load = useCallback(
-    async (filters?: AdminDiscountFilters) => {
-      const applied = cleanFilters(filters ?? filtersRef.current ?? {});
-      filtersRef.current = applied;
-      setState((prev) => ({ ...prev, loading: true, error: undefined }));
-      try {
-        if (retryTimeoutRef.current) {
-          clearTimeout(retryTimeoutRef.current);
-          retryTimeoutRef.current = null;
-        }
-        controllerRef.current?.abort();
-        const controller = new AbortController();
-        controllerRef.current = controller;
-        const data = await fetchAdminDiscounts(
-          {
-            search: applied.search ?? undefined,
-            status: applied.status ?? undefined,
-            isActiveNow: applied.isActiveNow,
-            hasRemainingUses: applied.hasRemainingUses,
-            limit: applied.limit,
-            cursor: applied.cursor,
-          },
-          controller.signal
-        );
-        setState((prev) => ({
-          ...prev,
-          items: data.items ?? [],
-          pagination: data.pagination,
-          loading: false,
-        }));
-        return data;
-      } catch (error) {
-        if ((error as DOMException)?.name === 'AbortError') return undefined;
-        if (error instanceof AdminApiError && error.status === 429 && error.retryAfterSec) {
-          const ms = Math.max(0, Math.floor(error.retryAfterSec * 1000));
-          const snapshotFilters = applied;
-          const timeoutId = window.setTimeout(() => {
-            const next = new AbortController();
-            controllerRef.current = next;
-            fetchAdminDiscounts(snapshotFilters, next.signal)
-              .then((data) => {
-                setState((prev) => ({
-                  ...prev,
-                  items: data.items ?? [],
-                  pagination: data.pagination,
-                  loading: false,
-                }));
-              })
-              .catch((e) => {
-                if ((e as DOMException)?.name === 'AbortError') return;
-                const message =
-                  e instanceof Error ? e.message : 'Rabattliste konnte nicht geladen werden.';
-                setState((prev) => ({ ...prev, loading: false, error: message }));
-              });
-          }, ms);
-          retryTimeoutRef.current = timeoutId as unknown as number;
-          return undefined;
-        }
-        const message =
-          error instanceof Error ? error.message : 'Rabattliste konnte nicht geladen werden.';
-        setState((prev) => ({ ...prev, loading: false, error: message }));
+  const load = useCallback(async (filters?: AdminDiscountFilters) => {
+    const applied = cleanFilters(filters ?? filtersRef.current ?? {});
+    filtersRef.current = applied;
+    setState((prev) => ({ ...prev, loading: true, error: undefined }));
+    try {
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current);
+        retryTimeoutRef.current = null;
+      }
+      controllerRef.current?.abort();
+      const controller = new AbortController();
+      controllerRef.current = controller;
+      const data = await fetchAdminDiscounts(
+        {
+          search: applied.search ?? undefined,
+          status: applied.status ?? undefined,
+          isActiveNow: applied.isActiveNow,
+          hasRemainingUses: applied.hasRemainingUses,
+          limit: applied.limit,
+          cursor: applied.cursor,
+        },
+        controller.signal
+      );
+      setState((prev) => ({
+        ...prev,
+        items: data.items ?? [],
+        pagination: data.pagination,
+        loading: false,
+      }));
+      return data;
+    } catch (error) {
+      if ((error as DOMException)?.name === 'AbortError') return undefined;
+      if (error instanceof AdminApiError && error.status === 429 && error.retryAfterSec) {
+        const ms = Math.max(0, Math.floor(error.retryAfterSec * 1000));
+        const snapshotFilters = applied;
+        const timeoutId = window.setTimeout(() => {
+          const next = new AbortController();
+          controllerRef.current = next;
+          fetchAdminDiscounts(snapshotFilters, next.signal)
+            .then((data) => {
+              setState((prev) => ({
+                ...prev,
+                items: data.items ?? [],
+                pagination: data.pagination,
+                loading: false,
+              }));
+            })
+            .catch((e) => {
+              if ((e as DOMException)?.name === 'AbortError') return;
+              const message =
+                e instanceof Error ? e.message : 'Rabattliste konnte nicht geladen werden.';
+              setState((prev) => ({ ...prev, loading: false, error: message }));
+            });
+        }, ms);
+        retryTimeoutRef.current = timeoutId as unknown as number;
         return undefined;
       }
-    },
-    []
-  );
+      const message =
+        error instanceof Error ? error.message : 'Rabattliste konnte nicht geladen werden.';
+      setState((prev) => ({ ...prev, loading: false, error: message }));
+      return undefined;
+    }
+  }, []);
 
   const create = useCallback(
     async (payload: {
@@ -147,7 +144,8 @@ export function useAdminDiscounts(initialFilters: AdminDiscountFilters = {}) {
         }));
         return discount;
       } catch (error) {
-        const message = error instanceof Error ? error.message : 'Rabattcode konnte nicht erstellt werden.';
+        const message =
+          error instanceof Error ? error.message : 'Rabattcode konnte nicht erstellt werden.';
         setState((prev) => ({ ...prev, creating: false, createError: message }));
         throw error;
       }

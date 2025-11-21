@@ -151,7 +151,10 @@ export async function listDiscountCodes(
   sql += ' ORDER BY created_at DESC LIMIT ?';
   bindings.push(params.limit + 1);
 
-  const result = await db.prepare(sql).bind(...bindings).all<DbDiscountCode>();
+  const result = await db
+    .prepare(sql)
+    .bind(...bindings)
+    .all<DbDiscountCode>();
   const rows = result.results ?? [];
 
   const hasMore = rows.length > params.limit;

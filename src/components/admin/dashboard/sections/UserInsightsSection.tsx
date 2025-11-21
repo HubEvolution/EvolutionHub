@@ -8,7 +8,7 @@ import {
   type AdminUserListFilters,
 } from '@/components/admin/dashboard/hooks/useAdminUserList';
 import { useAdminStrings } from '@/lib/i18n-admin';
-import { adminSetUserPlan } from '@/lib/admin/api-client';
+import { AdminApiError, adminSetUserPlan } from '@/lib/admin/api-client';
 
 function makeNumberFormatter(locale: string) {
   return new Intl.NumberFormat(locale);
@@ -185,7 +185,6 @@ const UserInsightsSection: React.FC = () => {
     try {
       await adminSetUserPlan({
         userId,
-        email,
         plan: planValue,
         interval: planInterval,
         prorationBehavior,
@@ -209,9 +208,21 @@ const UserInsightsSection: React.FC = () => {
         search(identifier).catch(() => undefined);
       }
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : strings.errors.setPlan;
-      setPlanActionError(message);
+      if (error instanceof AdminApiError && error.status === 429) {
+        const sec = error.retryAfterSec;
+        if (typeof sec === 'number' && Number.isFinite(sec) && sec > 0) {
+          const minutes = Math.max(1, Math.ceil(sec / 60));
+          setPlanActionError(
+            strings.errors.rateLimitWithRetryAfter.replace('{minutes}', String(minutes))
+          );
+        } else {
+          setPlanActionError(strings.errors.rateLimit);
+        }
+      } else {
+        const message =
+          error instanceof Error ? error.message : strings.errors.setPlan;
+        setPlanActionError(message);
+      }
     } finally {
       setPlanActionLoading(false);
     }
@@ -229,90 +240,94 @@ const UserInsightsSection: React.FC = () => {
         {loading && <span className="text-sm text-white/60">{strings.common.loading}</span>}
       </div>
 
-      <Card className="p-4" variant="default">
-        <form className="flex flex-wrap items-end gap-3" onSubmit={handleSearch}>
-          <label className="flex-1 min-w-[200px] text-sm text-white/70">
-            {strings.insights.searchLabel}
-            <input
-              type="text"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              className="mt-1 w-full rounded-md border border-white/10 bg-white/5 p-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              placeholder={strings.insights.searchPlaceholder}
-            />
-          </label>
-          <label className="min-w-[140px] text-sm text-white/70">
-            {strings.insights.status}
-            <select
-              value={statusFilter}
-              onChange={(event) => setStatusFilter(event.target.value as typeof statusFilter)}
-              className="mt-1 w-full rounded-md border border-white/10 bg-white/5 p-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-            >
-              <option value="">{strings.common.all}</option>
-              <option value="active">{strings.insights.statusOptions.active}</option>
-              <option value="banned">{strings.insights.statusOptions.banned}</option>
-              <option value="deleted">{strings.insights.statusOptions.deleted}</option>
-            </select>
-          </label>
-          <label className="min-w-[140px] text-sm text-white/70">
-            {strings.insights.plan}
-            <select
-              value={planFilter}
-              onChange={(event) => setPlanFilter(event.target.value as typeof planFilter)}
-              className="mt-1 w-full rounded-md border border-white/10 bg-white/5 p-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-            >
-              <option value="">{strings.common.all}</option>
-              <option value="free">Free</option>
-              <option value="pro">Pro</option>
-              <option value="premium">Premium</option>
-              <option value="enterprise">Enterprise</option>
-            </select>
-          </label>
-          <button
-            type="submit"
-            className="inline-flex items-center rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
-            disabled={listLoading}
-          >
-            {strings.common.search}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setQuery('');
-              setStatusFilter('');
-              setPlanFilter('');
-              refreshUserList({}).catch(() => undefined);
-            }}
-            className="rounded-md border border-white/10 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
-          >
-            {strings.common.reset}
-          </button>
-        </form>
-        {error && <p className="mt-3 text-sm text-red-300">{error}</p>}
-        {listError && <p className="mt-3 text-sm text-red-300">{listError}</p>}
-        {listActionError && <p className="mt-3 text-sm text-red-300">{listActionError}</p>}
-      </Card>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <div className="space-y-4">
+          <Card className="p-4" variant="default">
+            <form className="flex flex-wrap items-end gap-3" onSubmit={handleSearch}>
+              <label className="flex-1 min-w-[200px] text-sm text-white/70">
+                {strings.insights.searchLabel}
+                <input
+                  type="text"
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  className="mt-1 w-full rounded-md border border-white/10 bg-white/5 p-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  placeholder={strings.insights.searchPlaceholder}
+                />
+              </label>
+              <label className="min-w-[140px] text-sm text-white/70">
+                {strings.insights.status}
+                <select
+                  value={statusFilter}
+                  onChange={(event) =>
+                    setStatusFilter(event.target.value as typeof statusFilter)
+                  }
+                  className="mt-1 w-full rounded-md border border-white/10 bg-white/5 p-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                >
+                  <option value="">{strings.common.all}</option>
+                  <option value="active">{strings.insights.statusOptions.active}</option>
+                  <option value="banned">{strings.insights.statusOptions.banned}</option>
+                  <option value="deleted">{strings.insights.statusOptions.deleted}</option>
+                </select>
+              </label>
+              <label className="min-w-[140px] text-sm text-white/70">
+                {strings.insights.plan}
+                <select
+                  value={planFilter}
+                  onChange={(event) => setPlanFilter(event.target.value as typeof planFilter)}
+                  className="mt-1 w-full rounded-md border border-white/10 bg-white/5 p-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                >
+                  <option value="">{strings.common.all}</option>
+                  <option value="free">Free</option>
+                  <option value="pro">Pro</option>
+                  <option value="premium">Premium</option>
+                  <option value="enterprise">Enterprise</option>
+                </select>
+              </label>
+              <button
+                type="submit"
+                className="inline-flex items-center rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+                disabled={listLoading}
+              >
+                {strings.common.search}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setQuery('');
+                  setStatusFilter('');
+                  setPlanFilter('');
+                  refreshUserList({}).catch(() => undefined);
+                }}
+                className="rounded-md border border-white/10 px-3 py-2 text-sm text-white/80 hover:bg-white/5"
+              >
+                {strings.common.reset}
+              </button>
+            </form>
+            {error && <p className="mt-3 text-sm text-red-300">{error}</p>}
+            {listError && <p className="mt-3 text-sm text-red-300">{listError}</p>}
+            {listActionError && <p className="mt-3 text-sm text-red-300">{listActionError}</p>}
+          </Card>
 
-      <Card className="p-4" variant="default">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold uppercase tracking-wide text-white/60">
-            {strings.insights.listHeading}
-          </h3>
-          <div className="flex items-center gap-2">
-            {(listLoading || listLoadingMore) && (
-              <span className="text-xs text-white/50">{strings.common.loading}</span>
-            )}
-            <button
-              type="button"
-              onClick={() => refreshUserList(appliedFilters).catch(() => undefined)}
-              className="rounded-md border border-white/10 px-3 py-1 text-xs text-white/80 hover:bg-white/10"
-              disabled={listLoading}
-            >
-              {strings.insights.listReload}
-            </button>
-          </div>
-        </div>
-        <div className="mt-3 overflow-x-auto max-h-[480px] overflow-y-auto rounded-md border border-white/10">
+          <Card className="p-4" variant="default">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-white/60">
+                {strings.insights.listHeading}
+              </h3>
+              <div className="flex items-center gap-2">
+                {(listLoading || listLoadingMore) && (
+                  <span className="text-xs text-white/50">{strings.common.loading}</span>
+                )}
+                <button
+                  type="button"
+                  onClick={() => refreshUserList(appliedFilters).catch(() => undefined)}
+                  className="rounded-md border border-white/10 px-3 py-1 text-xs text-white/80 hover:bg-white/10"
+                  disabled={listLoading}
+                >
+                  {strings.insights.listReload}
+                </button>
+              </div>
+            </div>
+            <div className="mt-3 overflow-x-auto max-h-[360px] overflow-y-auto rounded-md border border-white/10">
           <table className="min-w-full divide-y divide-white/10 text-sm text-white/80">
             <thead className="bg-white/5 text-xs uppercase tracking-wide text-white/60">
               <tr>
@@ -475,10 +490,12 @@ const UserInsightsSection: React.FC = () => {
           </div>
         )}
       </Card>
+        </div>
 
-      {summary && (
-        <Card className="p-4" variant="default">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="space-y-4">
+          {summary && (
+            <Card className="p-4" variant="default">
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <div>
               <p className="text-xs uppercase text-white/50">{strings.insights.summary.user}</p>
               <p className="text-sm text-white/80">{summary.user.name || '—'}</p>
@@ -586,10 +603,10 @@ const UserInsightsSection: React.FC = () => {
             </div>
           </form>
         </Card>
-      )}
+          )}
 
-      <Card className="p-4" variant="default">
-        <div className="flex items-center justify-between">
+          <Card className="p-4" variant="default">
+            <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold uppercase tracking-wide text-white/60">
             {strings.insights.sessions.heading}
           </h3>
@@ -655,8 +672,8 @@ const UserInsightsSection: React.FC = () => {
         </div>
       </Card>
 
-      <Card className="p-4" variant="default">
-        <div className="flex items-center justify-between">
+          <Card className="p-4" variant="default">
+            <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold uppercase tracking-wide text-white/60">
             {strings.insights.credits.heading}
           </h3>
@@ -763,8 +780,12 @@ const UserInsightsSection: React.FC = () => {
           </table>
         </div>
       </Card>
-    </section>
-  );
-};
+    </div>
+    <div className="lg:col-span-1">
+    </div>
+          </div>
+        </section>
+      );
+    };
 
-export default UserInsightsSection;
+    export default UserInsightsSection;
