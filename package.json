@@ -22,6 +22,7 @@
     "onboarding": "tsx ./scripts/onboarding.ts",
     "validate:env": "tsx ./scripts/validate-env.ts",
     "secrets:check": "tsx ./scripts/check-wrangler-secrets.ts",
+    "agent:check": "tsx ./scripts/check-github-agent.ts",
     "build": "astro build",
     "build:types": "tsc --emitDeclarationOnly --declarationDir .types --project tsconfig.json",
     "build:worker": "ASTRO_DEPLOY_TARGET=worker astro build && node -e \"const fs=require('fs'); fs.mkdirSync('dist',{recursive:true}); fs.writeFileSync('dist/.assetsignore','_worker.js\\n'); if (fs.existsSync('dist/_worker.js/assets')) { fs.mkdirSync('dist/assets',{recursive:true}); fs.cpSync('dist/_worker.js/assets','dist/assets',{recursive:true}); }\"",
