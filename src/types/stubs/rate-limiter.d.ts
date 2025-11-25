@@ -12,3 +12,7 @@ export function rateLimit(
     retry?: { attempts?: number; baseDelayMs?: number };
   }
 ): Promise<void>;
+
+declare module '@/lib/rate-limiter' {
+  export const adminSensitiveLimiter: any;
+}

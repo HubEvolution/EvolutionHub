@@ -492,6 +492,17 @@ paths:
           description: Forbidden (CSRF/Origin or not admin)
         "404":
           description: User not found
+        "429":
+          description: Rate limited
+          headers:
+            Retry-After:
+              description: Seconds to wait before retrying
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /api/admin/credits/deduct:
     post:
       summary: Deduct credits from a user
@@ -541,6 +552,152 @@ paths:
           description: User not found
         "422":
           description: Validation error (e.g., insufficient_credits in strict mode)
+        "429":
+          description: Rate limited
+          headers:
+            Retry-After:
+              description: Seconds to wait before retrying
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+  /api/admin/web-eval/tasks:
+    get:
+      summary: List Web-Eval tasks (admin)
+      description: Returns paginated Web-Eval tasks with basic status and ownership information. Requires admin.
+      x-source: src/pages/api/admin/web-eval/tasks/index.ts
+      operationId: getAdminWebEvalTasks
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [pending, processing, completed, failed, aborted]
+        - name: ownerType
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [user, guest, system]
+        - name: ownerId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 25
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Opaque cursor for pagination (from previous response data.nextCursor)
+      responses:
+        "200":
+          description: Task list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminWebEvalTaskListSuccess'
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden (not admin)
+        "429":
+          description: Rate limited
+    post:
+      summary: Method Not Allowed
+      description: Only GET is supported for this endpoint.
+      x-source: src/pages/api/admin/web-eval/tasks/index.ts
+      operationId: postAdminWebEvalTasksNotAllowed
+      responses:
+        "405":
+          description: Method Not Allowed
+          headers:
+            Allow:
+              description: Comma-separated list of allowed methods
+              schema:
+                type: string
+              example: GET
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+
+  /api/admin/web-eval/tasks/{id}:
+    get:
+      summary: Get Web-Eval task detail (admin)
+      description: Returns a Web-Eval task with report and live envelope. Requires admin.
+      x-source: src/pages/api/admin/web-eval/tasks/[id].ts
+      operationId: getAdminWebEvalTaskDetail
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Task detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminWebEvalTaskDetailSuccess'
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden (not admin)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "404":
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "429":
+          description: Rate limited
+    post:
+      summary: Method Not Allowed
+      description: Only GET is supported for this endpoint.
+      x-source: src/pages/api/admin/web-eval/tasks/[id].ts
+      operationId: postAdminWebEvalTaskDetailNotAllowed
+      responses:
+        "405":
+          description: Method Not Allowed
+          headers:
+            Allow:
+              description: Comma-separated list of allowed methods
+              schema:
+                type: string
+              example: GET
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
 
   /api/admin/users/set-plan:
     post:
@@ -595,6 +752,17 @@ paths:
                 $ref: '#/components/schemas/ApiErrorResponse'
         "422":
           description: Validation error (invalid body)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "429":
+          description: Rate limited
+          headers:
+            Retry-After:
+              description: Seconds to wait before retrying
+              schema:
+                type: string
           content:
             application/json:
               schema:
@@ -2598,6 +2766,17 @@ paths:
           description: Unauthorized
         "403":
           description: Forbidden (not admin)
+        "429":
+          description: Rate limited
+          headers:
+            Retry-After:
+              description: Seconds to wait before retrying
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
     post:
       summary: Method Not Allowed
       description: Only GET is supported for this endpoint.
@@ -2654,6 +2833,17 @@ paths:
           description: Unauthorized
         "403":
           description: Forbidden (CSRF/Origin or not admin)
+        "429":
+          description: Rate limited
+          headers:
+            Retry-After:
+              description: Seconds to wait before retrying
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /api/debug/logs-stream:
     get:
       summary: Stream logs (SSE)
@@ -3250,6 +3440,7 @@ paths:
       description: |
         Returns current 24h usage and effective plan-based limit for the current owner (user or guest with guest_id cookie).
         Note: usage.limit is authoritative; static limits are legacy/debug only.
+        Zusätzlich wird – sofern KV aktiv ist – `monthlyUsage` auf Basis der Webscraper-Entitlements (`monthlyRuns`) bereitgestellt.
       x-source: src/pages/api/webscraper/usage.ts
       operationId: getWebscraperUsage
       responses:
@@ -3337,7 +3528,7 @@ paths:
       description: |
         Liefert den aktuellen Usage-Stand und Limits (24h Fenster) für den aktuellen Besitzer (User oder Gast mit `guest_id`-Cookie).
         Hinweis: usage.limit ist plan-bereinigt und maßgeblich für die Anzeige und Validierungen.
-        Die Felder limits.user/guest sind statische Defaults (legacy/debug) und können vom effektiven Limit abweichen.
+        Zusätzlich wird `monthlyUsage` zurückgegeben, das die planbasierte Monatsquota (`monthlyImages`) widerspiegelt.
       x-source: src/pages/api/ai-image/usage.ts
       operationId: getAiImageUsage
       responses:
@@ -3581,6 +3772,7 @@ paths:
       description: |
         Liefert den aktuellen Usage-Stand und Limits (24h Fenster) für den aktuellen Besitzer (User oder Gast mit `guest_id`-Cookie).
         Hinweis: usage.limit ist maßgeblich für UI und Validierungen. `data.plan` kann optional enthalten sein.
+        Wenn KV verfügbar ist, wird zusätzlich `monthlyUsage` geliefert, basierend auf den planbasierten Voice-Entitlements (`monthlyRuns`).
       x-source: src/pages/api/voice/usage.ts
       operationId: getVoiceUsage
       responses:
@@ -3812,8 +4004,9 @@ paths:
     get:
       summary: Prompt-Nutzung/Limits abrufen
       description: |
-        Liefert den aktuellen Usage-Stand und Limits (24h Fenster) für den aktuellen Besitzer (User oder Gast mit `guest_id`-Cookie).
-        Hinweis: usage.limit ist maßgeblich für UI und Validierungen; limits.* sind statische Quoten.
+        Liefert den aktuellen Usage-Stand für den Prompt Enhancer (rolling 24h Fenster) und die effektiven Limits für den aktuellen Besitzer (User oder Gast mit `guest_id`-Cookie).
+        Hinweis: usage.limit ist maßgeblich; statische Limits in `limits.user/guest` dienen ausschließlich Debug/Legacy.
+        Zusätzlich werden `dailyUsage` und `monthlyUsage` basierend auf den Prompt-Entitlements (`dailyBurstCap`, `monthlyRuns`) zurückgegeben, sodass der Prompt Enhancer als "Free Tool" mit planbasierten Quoten ausgewiesen werden kann.
       x-source: src/pages/api/prompt/usage.ts
       operationId: getPromptUsage
       responses:
@@ -3974,6 +4167,133 @@ components:
       required:
         - status
         - report
+    WebEvalLiveEnvelope:
+      type: object
+      additionalProperties: false
+      properties:
+        taskId:
+          type: string
+        status:
+          type: string
+          enum: [pending, processing, completed, failed, aborted]
+        steps:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              action: { type: string }
+              timestamp: { type: string }
+              selectorUsed: { type: string }
+              screenshotKey: { type: string }
+            required: [action, timestamp]
+        errors:
+          type: array
+          items:
+            type: string
+        logs:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              level:
+                type: string
+                enum: [log, error, warn, info, debug]
+              message: { type: string }
+              timestamp: { type: string }
+            required: [level, message, timestamp]
+        updatedAt:
+          type: string
+      required:
+        - taskId
+        - status
+        - steps
+        - errors
+        - updatedAt
+    AdminWebEvalTaskSummary:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        url:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum: [pending, processing, completed, failed, aborted]
+        ownerType:
+          type: string
+          enum: [user, guest, system]
+        ownerId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        attemptCount:
+          type: integer
+          minimum: 0
+        lastError:
+          type: string
+          nullable: true
+      required:
+        - id
+        - url
+        - description
+        - status
+        - ownerType
+        - ownerId
+        - createdAt
+        - updatedAt
+        - attemptCount
+    AdminWebEvalTaskListSuccess:
+      type: object
+      additionalProperties: false
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          type: object
+          additionalProperties: false
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/AdminWebEvalTaskSummary'
+            nextCursor:
+              type: string
+              nullable: true
+      required:
+        - success
+        - data
+    AdminWebEvalTaskDetailSuccess:
+      type: object
+      additionalProperties: false
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          type: object
+          additionalProperties: false
+          properties:
+            task:
+              $ref: '#/components/schemas/AdminWebEvalTaskSummary'
+            report:
+              $ref: '#/components/schemas/WebEvalReport'
+              nullable: true
+            live:
+              $ref: '#/components/schemas/WebEvalLiveEnvelope'
+              nullable: true
+      required:
+        - success
+        - data
     ApiError:
       type: object
       additionalProperties: false

@@ -34,12 +34,20 @@ test.describe('A11y (axe) smoke', () => {
           resultTypes: ['violations'],
         });
       });
-      const violations = (results?.violations || []) as Array<{ id: string; impact?: string; help?: string; nodes?: Array<{ target?: string[] }> }>;
-      const seriousOrWorse = violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
+      const violations = (results?.violations || []) as Array<{
+        id: string;
+        impact?: string;
+        help?: string;
+        nodes?: Array<{ target?: string[] }>;
+      }>;
+      const seriousOrWorse = violations.filter(
+        (v) => v.impact === 'serious' || v.impact === 'critical'
+      );
       if (seriousOrWorse.length > 0) {
         console.warn(`[axe][${route}] ${seriousOrWorse.length} serious/critical issue(s)`);
         for (const v of seriousOrWorse.slice(0, 5)) {
-          const sel = v.nodes && v.nodes[0] && Array.isArray(v.nodes[0].target) ? v.nodes[0].target[0] : '';
+          const sel =
+            v.nodes && v.nodes[0] && Array.isArray(v.nodes[0].target) ? v.nodes[0].target[0] : '';
           console.warn(`- rule=${v.id} impact=${v.impact} sel=${sel} help=${v.help || ''}`);
         }
       }

@@ -2,7 +2,7 @@
 description: 'Production-Readiness & Go-Live Review für Evolution Hub'
 owner: 'Project Owner & Cascade EvolutionHub AI Agent'
 priority: 'high'
-lastSync: '2025-11-21'
+lastSync: '2025-11-22'
 codeRefs: 'src/pages/api/**, src/lib/**, src/config/**, src/middleware.ts, wrangler.toml, openapi.yaml'
 testRefs: 'tests/**, test-suite-v2/**'
 ---
@@ -109,6 +109,7 @@ Owner dieses Dokuments und aller Abschnitte ist der Project Owner; der Cascade E
   - AI Video: `monthlyCreditsTenths` je Plan (Video-Quota in "Credits", Quelle: `src/config/ai-video/entitlements.ts`).
   - Voice: `dailyBurstCap` (Quelle: `src/config/voice/entitlements.ts`).
   - Webscraper: eigene planbasierte Quoten/Usage-Endpoints (ohne globalen Credits-Fallback in v1).
+  - Prompt: `dailyBurstCap` + `monthlyRuns` je Plan (Prompt Enhancer als "Free Tool" mit großzügigen Quoten; Quelle: `src/config/prompt/entitlements.ts`).
 
 - **Globaler AI-Credits-Bucket**
   - Credits werden als "tenths" in `KV_AI_ENHANCER` geführt (`getCreditsBalanceTenths`, `consumeCreditsTenths`).
@@ -124,7 +125,9 @@ Owner dieses Dokuments und aller Abschnitte ist der Project Owner; der Cascade E
   - **Tool-spezifische Usage**
     - AI Image: `/api/ai-image/usage` liefert tägliche Usage + (seit v1.7) `monthlyUsage` aus KV.
     - AI Video: `/api/ai-video/usage` liefert `limit` + `remaining` (planbasierte Video-Quota).
-    - Prompt, Voice, Webscraper: je ein eigener `/api/*/usage`-Endpoint, der planbasierte Quoten/Usage zurückgibt.
+    - Prompt: `/api/prompt/usage` liefert `usage` (rolling 24h), `dailyUsage`, `monthlyUsage` und `entitlements` (Prompt-Quoten pro Plan, inkl. "Free Tool" für free-User).
+    - Voice: `/api/voice/usage` liefert tägliche `usage` und – sofern KV aktiv ist – `monthlyUsage` basierend auf den Voice-Entitlements.
+    - Webscraper: `/api/webscraper/usage` liefert tägliche `usage` plus optionale `monthlyUsage` auf Basis der Webscraper-Entitlements.
 
 > Hinweis: Header/Dashboard zeigen aktuell die **Image-Monatsquota** und globalen Credits; detaillierte Quoten für Video/Prompt/Voice/Webscraper erscheinen auf den jeweiligen Tool-Seiten. Credits werden nur von Image/Video (und Admin-Flows) genutzt, nicht von allen Tools.
 
@@ -268,7 +271,7 @@ Ziel: Sicherstellen, dass die in den Entitlement-Configs hinterlegten Limits in 
 
 #### P2 – Kurz nach Go-Live
 
-- [ ] UI-Gating gemäß Entitlements (`supportsScale`, `supportsFaceEnhance`) vollständig konsistent.
+- [x] UI-Gating gemäß Entitlements (`supportsScale`, `supportsFaceEnhance`) vollständig konsistent.
 
 ---
 
@@ -307,8 +310,8 @@ Ziel: Sicherstellen, dass die in den Entitlement-Configs hinterlegten Limits in 
 
 #### P1 – Vor Go-Live
 
-- [ ] Integrationstests für Quoten & Feature-Flags (`PROMPT_REWRITE_V1`, `PUBLIC_PROMPT_ENHANCER_V1`).
-- [ ] OpenAPI-Abgleich (Felder, Fehlerformen, usage/limits) abgeschlossen.
+- [x] Integrationstests für Quoten & Feature-Flags (`PROMPT_REWRITE_V1`, `PUBLIC_PROMPT_ENHANCER_V1`).
+- [x] OpenAPI-Abgleich (Felder, Fehlerformen, usage/limits) abgeschlossen.
 
 ##### Implementierung & Verifikation
 
@@ -331,8 +334,9 @@ Ziel: Sicherstellen, dass die in den Entitlement-Configs hinterlegten Limits in 
 #### Ist-Stand (Kurz)
 
 - Task-Create-API mit Zod-Validierung, Prod-Gating (`WEB_EVAL_ENABLE_PROD`), SSRF-Guard, Rate-Limit, Usage-Endpoint.
+- Optionales Auto-Assertions-MVP: Über `WEB_EVAL_AUTO_ASSERTIONS_ENABLE` können einfache serverseitige Assertions aus der Aufgabenbeschreibung erzeugt werden, wenn der Request keine Assertions enthält; manuelle Assertions (inkl. explizit leerer Liste) überschreiben Auto-Assertions vollständig.
 
-_2025-11-20 – Web‑Eval‑Usage & Staging‑Storage geklärt: In Staging ist `KV_WEB_EVAL` als Binding konfiguriert (`env.staging.kv_namespaces`), `GET /api/testing/evaluate/usage` liefert `usage.used/limit/resetAt`, und die Web‑Eval‑Tool‑UI zeigt „Usage X/Y“ sowie „Web‑Eval daily limit resets at <Datum/Uhrzeit>“. Ein Executor/Runner ist in Staging derzeit nicht angebunden, d. h. Tasks bleiben im Status `pending`; für die Validierung von Quoten, Usage‑Anzeige und Storage ist dieser Zustand bewusst akzeptiert und im Web‑Eval‑Executor‑Runbook dokumentiert._
+_2025-11-22 – Web‑Eval‑Usage, Staging‑Storage & Cron‑Executor (Variante A) geklärt: In Staging ist `KV_WEB_EVAL` als Binding konfiguriert (`env.staging.kv_namespaces`), `GET /api/testing/evaluate/usage` liefert `usage.used/limit/resetAt`, und die Web‑Eval‑Tool‑UI zeigt „Usage X/Y“ sowie „Web‑Eval daily limit resets at <Datum/Uhrzeit>“. Der Cron‑Worker `evolution-hub-cron` kann Web‑Eval‑Tasks über `POST /__cron/run/webeval?host=staging.hub-evolution.com` claimen und via CBR‑Runner ausführen; der Executor ist jedoch über `WEB_EVAL_EXEC_ENABLE`/`WEB_EVAL_EXEC_HOSTS`/`WEB_EVAL_EXEC_MAX_RUNS_PER_TICK` vollständig gegated und wird in Staging ausschließlich für manuelle Smokes verwendet (kein dauerhafter Cron `"*/5 * * * *"`). Bleibt das Gate geschlossen, verbleiben Tasks weiterhin im Status `pending`, was für reine Quota-/Usage‑Validierung akzeptiert ist und im Web‑Eval‑Executor‑Runbook dokumentiert wird._
 
 #### P1 – Vor Go-Live
 
@@ -360,18 +364,56 @@ _2025-11-20 – Web‑Eval‑Usage & Staging‑Storage geklärt: In Staging ist 
 
 - [ ] Monitoring-Dashboards für Web‑Eval-Fehlerquote + Timeouts.
 
----
+#### P3 – Live Run & Task-Lifecycle (Konzept)
 
-### 3.7 Webscraper
+Folgende Ausbaustufen sind als **Konzept** für ein späteres Web‑Eval-Upgrade vorgesehen und dienen hier als Anker für weitere ADRs/Tasks:
 
-#### Ist-Stand (Kurz)
+- **Phase 1 – Live Steps View (Near-Real-Time)**
 
-- Starke SSRF-Guards (Schemes, Ports, IP-Literals, geblockte Domains, Self-Scrape-Block); Robots.txt-Respekt; rolling Usage.
+  - CBR-Runner schreibt während der Ausführung **inkrementell** Steps/Logs in KV (append-only Log pro `taskId`).
+  - Neuer Endpoint (z. B. `GET /api/testing/evaluate/:id/live` oder SSE/Poll-Variante) liefert den jeweils aktuellen Zwischenstand der Steps, solange `status === 'processing'`.
+  - Die Web‑Eval‑UI zeigt für laufende Tasks einen "Live"-Block, der sich alle 1–2 Sekunden aktualisiert (Polling) und neue Steps unten anhängt; nach Abschluss wird automatisch auf den finalen Report umgeschaltet.
+  - Keine Screenshots in Phase 1; Fokus liegt auf textuellen Steps/Console/Network-Ausschnitten.
 
-#### P1 – Vor Go-Live
+- **Phase 2 – Screenshots/DOM-Snapshots**
 
-- [ ] Integrationstests für Robots.txt-Verhalten (Disallow/Allow, keine/kaputte robots.txt).
-- [ ] Klar definierte Fehlertypen (`robots_txt_blocked`, `validation_error`, `forbidden`) in OpenAPI dokumentiert.
+  - Optionaler Screenshot-/Snapshot-Pfad im CBR-Runner (z. B. `screenshotKey` je Step), abgelegt in R2 (`ai-web-eval/screenshots/...`).
+  - Live-Endpoint liefert zusätzlich Referenzen auf vorhandene Screenshots; UI zeigt für ausgewählte Steps eine kleine Vorschau oder einen modalen Viewer.
+  - Performance- und Kostenaspekte (Anzahl Screenshots, Auflösung, Retention) werden separat in einem ADR festgelegt.
+
+- **Phase 3 – Session-Replay / Vollständige Live-Ansicht (Optional)**
+
+  - Längerfristige Option: Separater Replay-Mode, der die Sequenz aus Steps + Screenshots (oder DOM-Snapshots) als "Video"/Timeline abspielt.
+  - Echte Remote-Control-/Mirror-Funktion (à la operative.sh) wäre eine eigene Initiative und wird **nicht** für v1 vorausgesetzt; hier nur als potenzielles P3-Thema vermerkt.
+
+- **Task-Lifecycle & UI-Löschregeln (My Tasks)**
+
+  - **Lokales Entfernen (Soft-Delete)**
+    - Die Web‑Eval‑UI behandelt Entfernen von Tasks aus "My Tasks" als **rein lokales** Verhalten (Browser-Storage); Backend-/KV-Daten bleiben erhalten.
+    - Zielzustand: Nur Tasks im terminalen Zustand (`completed`, `failed`, ggf. `aborted`) dürfen aus der UI entfernt werden; `pending`/`processing`-Tasks bleiben sichtbar, bis sie abgeschlossen oder explizit abgebrochen wurden.
+  - **Abbrechen von `pending`/`processing`-Tasks**
+    - Geplantes Verhalten: Ein expliziter "Abort"-"Cancel"-Button pro laufender Task mit zusätzlicher Bestätigung (Modal/Dialog).
+    - Backend setzt den Task-Zustand auf einen terminalen Status (z. B. `aborted` oder `failed` mit entsprechendem Fehlergrund) und sorgt dafür, dass Executor/CBR-Runner die Task nicht weiter verarbeiten.
+    - Die UI zeigt abgebrochene Tasks weiterhin mit ihrem finalen Status an; erst danach kann ein lokales Entfernen aus "My Tasks" erfolgen.
+  - **Admin-Restore gelöschter Tasks**
+    - Admin-Dashboard erhält perspektivisch eine Übersicht über Web‑Eval‑Tasks (z. B. letzte N Tasks pro User inkl. Status/Owner).
+    - Geplante Funktion: Admin kann Tasks, die Nutzer lokal aus "My Tasks" ausgeblendet haben, wieder **sichtbar** machen (z. B. über einen Server-seitigen Task-Index oder einen Link, den der User anklickt, wodurch die Task-ID erneut im lokalen Storage landet).
+    - Wichtig: Restore ändert keine inhaltlichen Daten des Reports, sondern nur die Sichtbarkeit in der User-UI; Audit-/Security-Aspekte (wer hat was wann restored) werden in einem separaten ADR festgehalten.
+
+  - **Konzeptionelle P3-APIs (noch nicht implementiert)**
+    - **User-Abort-Endpoint** (Idee): `POST /api/testing/evaluate/{id}/abort` mit Owner-Gating, der `pending`/`processing`-Tasks in einen terminalen Zustand überführt (z. B. `aborted` mit `lastError='aborted_by_user'`) und vom Executor/CBR-Runner ignorieren lässt.
+    - **Admin-Tasks-View** (Idee): `GET /api/admin/web-eval/tasks` (+ Detail-Endpoint `GET /api/admin/web-eval/tasks/{id}`) für eine paginierte Liste von Tasks pro User/Gast inkl. Status/Metadaten, ausschließlich für Admins.
+    - **Restore-Link-Mechanismus** (Idee): Admin erzeugt für einen Task einen Link auf die Tool-UI, z. B. `https://<host>/tools/web-eval/app?restoreTaskId=<id>`; die UI prüft Ownership via `GET /api/testing/evaluate/{id}` und fügt die Task-ID bei Erfolg wieder lokal in die `My Tasks`-Liste ein.
+    - Diese Punkte sind bewusst als **konzeptionelle P3-Ziele** formuliert; Implementierung, Zod-/OpenAPI-Schemas und konkrete UI/Endpoint-Details werden in separaten ADRs/Tasks spezifiziert.
+
+  #### Ist-Stand (Webscraper-Kurz)
+
+  - Starke SSRF-Guards (Schemes, Ports, IP-Literals, geblockte Domains, Self-Scrape-Block); Robots.txt-Respekt; rolling Usage.
+
+  #### P1 – Vor Go-Live (Webscraper)
+
+- [x] Unit-Tests für Robots.txt-Verhalten (Allow/Disallow, keine/kaputte robots.txt) umgesetzt (`tests/unit/services/webscraper-service.test.ts`).
+- [x] Fehlertypen (`robots_txt_blocked`, `validation_error`, `forbidden`, `server_error`) im Code konsistent und für OpenAPI spezifiziert (Webscraper-Abschnitt in `openapi.yaml` anpassen).
 
 ##### Implementierung & Verifikation
 
@@ -383,7 +425,7 @@ _2025-11-20 – Web‑Eval‑Usage & Staging‑Storage geklärt: In Staging ist 
   - Integrationstests gegen Test-Domains mit unterschiedlichen Robots-Konfigurationen (Allow/Disallow/kein File/kaputte Datei).
   - `npm run openapi:validate` und manuelle Doku-Sichtung für die Webscraper-Sektion.
 
-#### P2 – Kurz nach Go-Live
+#### P2 – Kurz nach Go-Live (Webscraper)
 
 - [ ] Evaluieren, ob zusätzliche DNS-/Redirect-basierte SSRF-Checks notwendig sind (oder Cloudflare-Sicherheitslage ausreichend ist) und Entscheidung dokumentieren.
 
@@ -412,7 +454,7 @@ _2025-11-20 – Web‑Eval‑Usage & Staging‑Storage geklärt: In Staging ist 
 
 #### P3 – Später
 
-- [ ] Optional: MIME-Sniffing zusätzlich zu `file.type` einführen.
+- [x] MIME-Sniffing zusätzlich zu `file.type` eingeführt (`VOICE_MIME_SNIFF_ENABLE`; Hard-Sniffing bei aktivem Flag, Fehlerform `validation_error` mit `reason`, `sniffed` und `claimedType`).
 
 ---
 
@@ -424,8 +466,8 @@ _2025-11-20 – Web‑Eval‑Usage & Staging‑Storage geklärt: In Staging ist 
 
 #### P1 – Vor Go-Live
 
-- [ ] Querschnitts-Review: Alle mutierenden Admin-APIs (`POST/PUT/PATCH/DELETE`) nutzen `withAuthApiMiddleware` **mit** CSRF (`enforceCsrfToken: true`).
-- [ ] Integrationstests: Nicht-Admin-User erhalten `auth_error`/`forbidden` für `/api/admin/**`.
+- [x] Querschnitts-Review: Alle mutierenden Admin-APIs (`POST/PUT/PATCH/DELETE`) nutzen `withAuthApiMiddleware` **mit** CSRF (`enforceCsrfToken: true`).
+- [x] Integrationstests: Nicht-Admin-User erhalten `auth_error`/`forbidden` für `/api/admin/**`.
 
 ##### Implementierung & Verifikation
 

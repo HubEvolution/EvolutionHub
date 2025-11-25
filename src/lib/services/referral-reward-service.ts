@@ -1,4 +1,4 @@
-import type { D1Database } from '@cloudflare/workers-types';
+import type { D1Database, KVNamespace } from '@cloudflare/workers-types';
 import { addCreditPackTenths, getCreditsBalanceTenths } from '@/lib/kv/usage';
 
 export type VerifyReferralOutcomeType =

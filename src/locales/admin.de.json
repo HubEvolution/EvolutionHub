@@ -132,6 +132,63 @@
       "copyStripeCouponId": "ID kopieren"
     }
   },
+  "tools": {
+    "heading": "Admin-Tools & Bereiche",
+    "webEval": {
+      "title": "Web-Eval Tasks",
+      "description": "Admin-Übersicht für laufende und abgeschlossene Web-Eval-Runs.",
+      "cta": "Web-Eval öffnen"
+    },
+    "kpi": {
+      "title": "Kennzahlen & Traffic",
+      "description": "Übersicht über aktive Sessions, Nutzerzahlen und Traffic-Entwicklung.",
+      "cta": "Zu Kennzahlen"
+    },
+    "insights": {
+      "title": "User Insights & Pläne",
+      "description": "Benutzer suchen, Status/Pläne anpassen und Sessions/Credits verwalten.",
+      "cta": "Zu User Insights"
+    },
+    "discounts": {
+      "title": "Rabatte & Gutscheine",
+      "description": "Admin-Verwaltung für Rabattcodes und Stripe-Coupons.",
+      "cta": "Zu Rabatten"
+    },
+    "audit": {
+      "title": "Audit & Monitoring",
+      "description": "Audit-Logs und Telemetrie-Ereignisse im Überblick.",
+      "cta": "Zu Audit & Monitoring"
+    }
+  },
+  "webEvalAdmin": {
+    "heading": "Web-Eval Tasks (Admin)",
+    "filters": {
+      "statusLabel": "Status",
+      "ownerTypeLabel": "Owner-Typ",
+      "ownerIdLabel": "Owner-ID",
+      "limitLabel": "Limit",
+      "applyButton": "Filter anwenden",
+      "resetButton": "Zurücksetzen"
+    },
+    "table": {
+      "heading": "Tasks",
+      "id": "Task-ID",
+      "status": "Status",
+      "ownerType": "Owner-Typ",
+      "ownerId": "Owner-ID",
+      "url": "URL",
+      "createdAt": "Erstellt am",
+      "lastError": "Letzter Fehler",
+      "loadMore": "Mehr Tasks laden"
+    },
+    "detail": {
+      "heading": "Task-Details",
+      "empty": "Kein Task ausgewählt.",
+      "openInTool": "Im Web-Eval-Tool öffnen",
+      "reportPresent": "Report vorhanden",
+      "livePresent": "Live-Snapshot vorhanden"
+    }
+  },
   "errors": {
     "userListLoad": "Benutzerliste konnte nicht geladen werden.",
     "userListLoadMore": "Weitere Benutzer konnten nicht geladen werden.",

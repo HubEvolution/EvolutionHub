@@ -4,11 +4,8 @@ import { toast } from 'sonner';
 import { ensureCsrfToken } from '@/lib/security/csrf';
 import { WebscraperForm } from './WebscraperForm';
 import { WebscraperResults } from './WebscraperResults';
-import {
-  containerCls,
-  usageBarBgCls,
-  usageBarFillCls,
-} from '@/components/tools/shared/islandStyles';
+import { containerCls } from '@/components/tools/shared/islandStyles';
+import ToolUsageBadge from '@/components/tools/shared/ToolUsageBadge';
 import type { ScrapingResult, UsageInfo } from '@/types/webscraper';
 
 interface WebscraperStrings {
@@ -43,6 +40,7 @@ export default function WebscraperIsland({ strings, showHeader = false }: Webscr
   const [result, setResult] = useState<ScrapingResult | null>(null);
   const [usage, setUsage] = useState<UsageInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [ownerType, setOwnerType] = useState<'user' | 'guest' | null>(null);
 
   // API response helpers
   type ApiError = { success: false; error: { type: string; message: string; details?: unknown } };
@@ -57,7 +55,16 @@ export default function WebscraperIsland({ strings, showHeader = false }: Webscr
           | ApiSuccess<{ ownerType: string; usage: UsageInfo }>
           | ApiError;
         if (!cancelled && resp.ok && 'success' in data && data.success) {
-          setUsage((data as ApiSuccess<{ ownerType: string; usage: UsageInfo }>).data.usage);
+          const payload = (
+            data as ApiSuccess<{
+              ownerType: string;
+              usage: UsageInfo;
+            }>
+          ).data;
+          setUsage(payload.usage);
+          setOwnerType(
+            payload.ownerType === 'user' || payload.ownerType === 'guest' ? payload.ownerType : null
+          );
         }
       } catch {
         // swallow usage errors; UI can still function without initial usage
@@ -180,53 +187,31 @@ export default function WebscraperIsland({ strings, showHeader = false }: Webscr
 
         {/* Usage Info */}
         {usage && (
-          <div className="mt-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2">
-                  <svg
-                    className="w-5 h-5 text-gray-500 dark:text-gray-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                    />
-                  </svg>
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {strings.usage}:
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                      {usage.used}
-                    </span>
-                    <span className="text-sm text-gray-500 dark:text-gray-400">
-                      / {usage.limit}
-                    </span>
-                  </div>
-                </div>
-              </div>
-              {usage.resetAt && (
-                <div className="text-sm text-gray-500 dark:text-gray-400">
-                  Reset: {new Date(usage.resetAt).toLocaleTimeString()}
-                </div>
-              )}
-            </div>
-            {/* Progress Bar */}
-            {(() => {
-              const percent = Math.min((usage.used / usage.limit) * 100, 100);
-              return (
-                <div className={`mt-3 ${usageBarBgCls}`}>
-                  <div className={usageBarFillCls(percent)} style={{ width: `${percent}%` }} />
-                </div>
-              );
-            })()}
+          <div className="mt-6 flex justify-start">
+            <ToolUsageBadge
+              label={strings.usage}
+              loadingLabel={strings.processing}
+              usage={usage}
+              ownerType={ownerType}
+              planId={null}
+              layout="card"
+              size="sm"
+              align="left"
+              showIcon
+              showResetHint={false}
+              showOwnerHint={false}
+              showPercent
+              detailsTitle={strings.usage}
+              detailsItems={[
+                {
+                  id: 'daily',
+                  label: strings.usage,
+                  used: usage.used,
+                  limit: usage.limit,
+                  resetAt: usage.resetAt,
+                },
+              ]}
+            />
           </div>
         )}
       </div>

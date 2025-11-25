@@ -11,6 +11,10 @@ export interface ImagEnhancerMVPStrings {
   processing: string;
   model: string;
   usage: string;
+  monthlyUsage: string;
+  creditsBalance: string;
+  usageDetailsTitle: string;
+  resetLabel: string;
   result: string;
   original: string;
   allowedTypes: string;

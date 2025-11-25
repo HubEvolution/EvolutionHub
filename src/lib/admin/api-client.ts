@@ -8,6 +8,7 @@
  */
 
 import type { AdminUserLifecycleRequest, AdminUserListQuery } from '@/lib/validation/schemas/admin';
+import type { WebEvalReport } from '@/lib/testing/web-eval';
 
 export type AdminApiSuccess<T> = { success: true; data: T };
 export type AdminApiErrorBody = {
@@ -340,6 +341,50 @@ export interface AdminDiscountListResponse {
   };
 }
 
+export interface AdminWebEvalTaskSummary {
+  id: string;
+  url: string;
+  description: string;
+  status: 'pending' | 'processing' | 'completed' | 'failed' | 'aborted';
+  ownerType: 'user' | 'guest' | 'system';
+  ownerId: string;
+  createdAt: string;
+  updatedAt: string;
+  attemptCount: number;
+  lastError: string | null;
+}
+
+export interface AdminWebEvalTaskListResponse {
+  items: AdminWebEvalTaskSummary[];
+  nextCursor: string | null;
+}
+
+export interface AdminWebEvalLiveEnvelope {
+  taskId: string;
+  status: AdminWebEvalTaskSummary['status'];
+  steps: Array<{
+    action: string;
+    timestamp: string;
+    selectorUsed?: string;
+    screenshotKey?: string;
+    phase?: 'nav' | 'assertions' | 'cleanup';
+  }>;
+  errors: string[];
+  logs?: Array<{
+    level: 'log' | 'error' | 'warn' | 'info' | 'debug';
+    message: string;
+    timestamp: string;
+  }>;
+  updatedAt: string;
+  screenshotBase64?: string;
+}
+
+export interface AdminWebEvalTaskDetailResponse {
+  task: AdminWebEvalTaskSummary;
+  report: WebEvalReport | null;
+  live: AdminWebEvalLiveEnvelope | null;
+}
+
 export type AdminTelemetryEvent =
   | 'dashboard_loaded'
   | 'widget_interaction'
@@ -613,4 +658,29 @@ export function adminSetUserPlan(body: AdminSetPlanRequest) {
     body,
     requireCsrf: true,
   });
+}
+
+export function fetchAdminWebEvalTasks(
+  params: {
+    status?: AdminWebEvalTaskSummary['status'];
+    ownerType?: 'user' | 'guest' | 'system';
+    ownerId?: string;
+    limit?: number;
+    cursor?: string | null;
+  } = {},
+  signal?: AbortSignal
+) {
+  return adminFetch<AdminWebEvalTaskListResponse>('/api/admin/web-eval/tasks', {
+    query: params,
+    signal,
+  });
+}
+
+export function fetchAdminWebEvalTaskDetail(id: string, signal?: AbortSignal) {
+  return adminFetch<AdminWebEvalTaskDetailResponse>(
+    `/api/admin/web-eval/tasks/${encodeURIComponent(id)}`,
+    {
+      signal,
+    }
+  );
 }

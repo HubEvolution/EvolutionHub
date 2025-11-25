@@ -11,6 +11,10 @@ describe('EnhancerActionsMVP', () => {
     processing: 'Processing…',
     model: 'Model',
     usage: 'Usage',
+    monthlyUsage: 'Monthly usage',
+    creditsBalance: 'Credits balance',
+    usageDetailsTitle: 'Usage & credits',
+    resetLabel: 'Resets at',
     result: 'Result',
     original: 'Original',
     allowedTypes: 'Allowed: JPG, PNG, WEBP',
@@ -62,6 +66,11 @@ describe('EnhancerActionsMVP', () => {
     onEnhance: vi.fn(),
     usage: mockUsage,
     quotaExceeded: false,
+    ownerType: 'user',
+    plan: 'free',
+    planLabel: 'Free',
+    monthlyUsage: mockUsage,
+    creditsBalanceTenths: 250,
   };
 
   beforeEach(() => {

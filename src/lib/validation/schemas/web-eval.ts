@@ -12,6 +12,7 @@ const webEvalStepSchema = z
     timestamp: z.string().trim().min(1),
     selectorUsed: z.string().trim().min(1).optional(),
     screenshotKey: z.string().trim().min(1).optional(),
+    phase: z.enum(['nav', 'assertions', 'cleanup']).optional(),
   })
   .strict();
 
@@ -86,6 +87,7 @@ export const webEvalReportSchema = z
     finishedAt: z.string().trim().min(1),
     verdict: webEvalVerdictSchema.optional(),
     assertions: z.array(webEvalAssertionResultSchema).optional(),
+    screenshotBase64: z.string().trim().min(1).optional(),
   })
   .strict();
 

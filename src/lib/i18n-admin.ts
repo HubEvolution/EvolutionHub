@@ -118,6 +118,63 @@ export interface AdminLocale {
       copyStripeCouponId: string;
     };
   };
+  tools: {
+    heading: string;
+    webEval: {
+      title: string;
+      description: string;
+      cta: string;
+    };
+    kpi: {
+      title: string;
+      description: string;
+      cta: string;
+    };
+    insights: {
+      title: string;
+      description: string;
+      cta: string;
+    };
+    discounts: {
+      title: string;
+      description: string;
+      cta: string;
+    };
+    audit: {
+      title: string;
+      description: string;
+      cta: string;
+    };
+  };
+  webEvalAdmin: {
+    heading: string;
+    filters: {
+      statusLabel: string;
+      ownerTypeLabel: string;
+      ownerIdLabel: string;
+      limitLabel: string;
+      applyButton: string;
+      resetButton: string;
+    };
+    table: {
+      heading: string;
+      id: string;
+      status: string;
+      ownerType: string;
+      ownerId: string;
+      url: string;
+      createdAt: string;
+      lastError: string;
+      loadMore: string;
+    };
+    detail: {
+      heading: string;
+      empty: string;
+      openInTool: string;
+      reportPresent: string;
+      livePresent: string;
+    };
+  };
   errors: {
     userListLoad: string;
     userListLoadMore: string;

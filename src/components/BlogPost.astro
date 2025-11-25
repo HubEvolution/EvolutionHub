@@ -52,8 +52,6 @@ const {
   category,
   tags,
   author,
-  // CTA-Konfiguration aus dem Frontmatter
-  ctas = [],
 } = post.data;
 
 const hasImage = Boolean(image && typeof (image as { src?: unknown })?.src === 'string');
@@ -117,8 +115,9 @@ interface CTAConfig {
   position?: 'top' | 'middle' | 'bottom';
 }
 
-// CTA-Konfiguration verarbeiten
-const ctaList: CTAConfig[] = Array.isArray(ctas) ? (ctas as CTAConfig[]) : [];
+// CTA-Konfiguration verarbeiten (optional aus Frontmatter lesen)
+const rawCtas = (post.data as unknown as { ctas?: unknown }).ctas;
+const ctaList: CTAConfig[] = Array.isArray(rawCtas) ? (rawCtas as CTAConfig[]) : [];
 const topCTA = ctaList.find((cta) => cta.position === 'top') || topCTAConfig;
 const bottomCTA = ctaList.find((cta) => cta.position === 'bottom') || bottomCTAConfig;
 

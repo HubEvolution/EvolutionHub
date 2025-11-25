@@ -4,9 +4,11 @@ import { getUsage } from '../api';
 
 interface UseUsageResult {
   usage: UsageInfo | null;
+  monthlyUsage: UsageInfo | null;
   ownerType: OwnerType | null;
   plan: Plan | null;
   entitlements: PlanEntitlements | null;
+  creditsBalanceTenths: number | null;
   loading: boolean;
   error: string | null;
   refresh: () => Promise<void>;
@@ -17,6 +19,8 @@ export function useUsage(): UseUsageResult {
   const [ownerType, setOwnerType] = useState<OwnerType | null>(null);
   const [plan, setPlan] = useState<Plan | null>(null);
   const [entitlements, setEntitlements] = useState<PlanEntitlements | null>(null);
+  const [monthlyUsage, setMonthlyUsage] = useState<UsageInfo | null>(null);
+  const [creditsBalanceTenths, setCreditsBalanceTenths] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,14 +40,19 @@ export function useUsage(): UseUsageResult {
       setError(null);
       const data = await getUsage(isDebug);
       if ('success' in data && data.success) {
-        setUsage(data.data.usage);
-        setOwnerType(data.data.ownerType);
-        setPlan((data.data as UsageResponseData).plan ?? null);
+        const payload = data.data as UsageResponseData;
+        setUsage(payload.usage);
+        setOwnerType(payload.ownerType);
+        setPlan(payload.plan ?? null);
+        setMonthlyUsage(payload.monthlyUsage ?? null);
         try {
-          setEntitlements((data.data as UsageResponseData).entitlements || null);
+          setEntitlements(payload.entitlements || null);
         } catch {
           setEntitlements(null);
         }
+        setCreditsBalanceTenths(
+          typeof payload.creditsBalanceTenths === 'number' ? payload.creditsBalanceTenths : null
+        );
       } else {
         setError(data.error?.message || 'Failed to load usage');
       }
@@ -95,5 +104,15 @@ export function useUsage(): UseUsageResult {
     };
   }, [refresh]);
 
-  return { usage, ownerType, plan, entitlements, loading, error, refresh };
+  return {
+    usage,
+    monthlyUsage,
+    ownerType,
+    plan,
+    entitlements,
+    creditsBalanceTenths,
+    loading,
+    error,
+    refresh,
+  };
 }

@@ -11,6 +11,10 @@ describe('useUploadMVP', () => {
     processing: 'Processing…',
     model: 'Model',
     usage: 'Usage',
+    monthlyUsage: 'Monthly usage',
+    creditsBalance: 'Credits balance',
+    usageDetailsTitle: 'Usage & credits',
+    resetLabel: 'Resets at',
     result: 'Result',
     original: 'Original',
     allowedTypes: 'Allowed: JPG, PNG, WEBP',
@@ -26,6 +30,14 @@ describe('useUploadMVP', () => {
       fileTooLargePrefix: 'File is too large. Max:',
       processingFailed: 'Processing failed. Please try again.',
       successEnhanced: 'Image enhanced successfully!',
+    },
+    ui: {
+      fullscreen: 'Enter fullscreen',
+      exitFullscreen: 'Exit fullscreen',
+      changeModel: 'Change model',
+      done: 'Done',
+      startOver: 'Start over',
+      upgrade: 'Upgrade',
     },
   };
 

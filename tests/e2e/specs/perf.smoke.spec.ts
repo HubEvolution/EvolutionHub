@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 // Budgets (mobile smoke): adjust if you see consistent false positives in CI
 const BUDGETS = {
   LCP_MS: 2500,
-  CLS: 0.10,
+  CLS: 0.1,
   TBT_MS: 300,
 };
 
@@ -21,7 +21,9 @@ async function measureWebVitals(page: import('@playwright/test').Page) {
     let tbt = 0;
     let fcpTime = 0;
     try {
-      const fcp = performance.getEntriesByName('first-contentful-paint')[0] as PerformanceEntry | undefined;
+      const fcp = performance.getEntriesByName('first-contentful-paint')[0] as
+        | PerformanceEntry
+        | undefined;
       fcpTime = fcp ? fcp.startTime : 0;
     } catch {}
 
@@ -85,7 +87,9 @@ test.describe('Performance (web-vitals) smoke', () => {
 
       await page.goto(route, { waitUntil: 'load' });
       // Wait until web-vitals is available (best-effort)
-      await page.waitForFunction(() => (window as any).webVitals, { timeout: 2000 }).catch(() => {});
+      await page
+        .waitForFunction(() => (window as any).webVitals, { timeout: 2000 })
+        .catch(() => {});
       const { LCP, CLS, TBT } = await measureWebVitals(page);
 
       // Only enforce budgets if metrics were collected

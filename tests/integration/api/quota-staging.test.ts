@@ -119,9 +119,8 @@ describe('Staging quota sanity checks (HTTP-only)', () => {
 
   describe('Webscraper usage', () => {
     it('returns a sane usage overview when accessible', async () => {
-      const { res, json } = await getJson<ApiResponse<WebscraperUsageData>>(
-        '/api/webscraper/usage'
-      );
+      const { res, json } =
+        await getJson<ApiResponse<WebscraperUsageData>>('/api/webscraper/usage');
       if (!expectAuthOrSkip(res)) return;
 
       expect(json?.success).toBe(true);

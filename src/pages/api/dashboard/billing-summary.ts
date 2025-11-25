@@ -22,6 +22,7 @@ import { getEntitlementsFor, type Plan } from '@/config/ai-image/entitlements';
 import { getVideoEntitlementsFor } from '@/config/ai-video/entitlements';
 import { getVoiceEntitlementsFor } from '@/config/voice/entitlements';
 import { getWebscraperEntitlementsFor } from '@/config/webscraper/entitlements';
+import { getWebEvalEntitlementsFor } from '@/config/web-eval/entitlements';
 import { VoiceTranscribeService } from '@/lib/services/voice-transcribe-service';
 import { WebscraperService } from '@/lib/services/webscraper-service';
 
@@ -40,6 +41,7 @@ type ToolsUsageOverview = {
   prompt?: UsageOverview;
   voice?: UsageOverview;
   webscraper?: UsageOverview;
+  webEval?: UsageOverview;
 };
 
 export const GET = withAuthApiMiddleware(
@@ -56,6 +58,7 @@ export const GET = withAuthApiMiddleware(
       KV_PROMPT_ENHANCER: KVNamespace;
       KV_VOICE_TRANSCRIBE: KVNamespace;
       KV_WEBSCRAPER: KVNamespace;
+      KV_WEB_EVAL: KVNamespace;
       PROMPT_USER_LIMIT: string;
       PROMPT_GUEST_LIMIT: string;
       PUBLIC_PROMPT_ENHANCER_V1: string;
@@ -216,6 +219,7 @@ export const GET = withAuthApiMiddleware(
       'prompt',
       'voice',
       'webscraper',
+      'webEval',
     ];
     const failTools = new Set<keyof ToolsUsageOverview>();
     if (!isProductionEnv) {
@@ -326,6 +330,23 @@ export const GET = withAuthApiMiddleware(
           limit: usageInfo.limit,
           resetAt: usageInfo.resetAt,
         });
+      });
+
+      await recordToolResult('webEval', async () => {
+        const kvWebEval = env.KV_WEB_EVAL as KVNamespace | undefined;
+        if (!kvWebEval) return null;
+
+        const ent = getWebEvalEntitlementsFor('user', result.plan as Plan);
+        const limit = ent.dailyBurstCap;
+        if (limit <= 0) return null;
+
+        const key = rollingDailyKey('web-eval', 'user', user.id);
+        const usage = await getUsage(kvWebEval, key);
+
+        const used = usage?.count || 0;
+        const resetAt = usage?.resetAt ? usage.resetAt * 1000 : null;
+
+        return toUsageOverview({ used, limit, resetAt });
       });
 
       await recordToolResult('webscraper', async () => {

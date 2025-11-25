@@ -46,11 +46,7 @@ function isDevCommand(cmd) {
     return true;
   }
 
-  const devPrefixes = [
-    'npm run dev:worker',
-    'npm run dev:open',
-    'npm run dev:pages-fallback',
-  ];
+  const devPrefixes = ['npm run dev:worker', 'npm run dev:open', 'npm run dev:pages-fallback'];
 
   return devPrefixes.some((prefix) => normalized.startsWith(prefix));
 }

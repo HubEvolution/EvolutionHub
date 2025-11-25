@@ -2,7 +2,10 @@ import React, { useMemo, useState } from 'react';
 import Card from '@/components/ui/Card';
 import { useAdminStrings } from '@/lib/i18n-admin';
 import { useAdminTelemetry } from '@/components/admin/dashboard/hooks/useAdminTelemetry';
-import { useAdminDiscounts, type AdminDiscountFilters } from '@/components/admin/dashboard/hooks/useAdminDiscounts';
+import {
+  useAdminDiscounts,
+  type AdminDiscountFilters,
+} from '@/components/admin/dashboard/hooks/useAdminDiscounts';
 
 const DiscountManagementSection: React.FC = () => {
   const strings = useAdminStrings();
@@ -95,10 +98,7 @@ const DiscountManagementSection: React.FC = () => {
   return (
     <section aria-labelledby="admin-discounts" className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2
-          id="admin-discounts"
-          className="text-xl font-semibold text-gray-900 dark:text-white"
-        >
+        <h2 id="admin-discounts" className="text-xl font-semibold text-gray-900 dark:text-white">
           {strings.discounts.heading}
         </h2>
         {(loading || creating) && (
@@ -295,9 +295,7 @@ const DiscountManagementSection: React.FC = () => {
                 items.map((discount) => (
                   <tr key={discount.id}>
                     <td className="px-3 py-2 text-xs text-white/80">{discount.code}</td>
-                    <td className="px-3 py-2 text-xs text-white/60">
-                      {discount.stripeCouponId}
-                    </td>
+                    <td className="px-3 py-2 text-xs text-white/60">{discount.stripeCouponId}</td>
                     <td className="px-3 py-2 text-xs text-white/60">{discount.type}</td>
                     <td className="px-3 py-2 text-xs text-white/60">{discount.value}</td>
                     <td className="px-3 py-2 text-xs text-white/60">{discount.status}</td>
@@ -308,9 +306,7 @@ const DiscountManagementSection: React.FC = () => {
                       {validityLabel(discount.validFrom, discount.validUntil)}
                     </td>
                     <td className="px-3 py-2 text-xs text-white/60">
-                      {discount.createdAt
-                        ? new Date(discount.createdAt).toLocaleString()
-                        : '—'}
+                      {discount.createdAt ? new Date(discount.createdAt).toLocaleString() : '—'}
                     </td>
                     <td className="px-3 py-2 text-xs text-white/60">
                       {discount.stripeCouponId ? (

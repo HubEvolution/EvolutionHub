@@ -6,10 +6,12 @@ import type {
   WebEvalStatus,
   WebEvalTaskCreatePayload,
   WebEvalTaskRecord,
+  WebEvalLiveEnvelope,
 } from './types';
 
 const TASK_KEY_PREFIX = 'web-eval:task:';
 const REPORT_KEY_PREFIX = 'web-eval:report:';
+const LIVE_KEY_PREFIX = 'web-eval:live:';
 
 function nowIso(): string {
   return new Date().toISOString();
@@ -30,6 +32,10 @@ export function buildTaskKey(id: string): string {
 
 export function buildReportKey(id: string): string {
   return `${REPORT_KEY_PREFIX}${id}`;
+}
+
+export function buildLiveKey(id: string): string {
+  return `${LIVE_KEY_PREFIX}${id}`;
 }
 
 function serialize<T>(value: T): string {
@@ -56,6 +62,16 @@ function deserializeReport(raw: string | null): WebEvalReportEnvelope | null {
   }
 }
 
+function deserializeLive(raw: string | null): WebEvalLiveEnvelope | null {
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw) as WebEvalLiveEnvelope;
+    return parsed && typeof parsed.taskId === 'string' ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function createTaskRecord(
   kv: WebEvalKvNamespace,
   payload: WebEvalTaskCreatePayload,
@@ -71,6 +87,7 @@ export async function createTaskRecord(
     task: payload.task,
     headless: payload.headless,
     timeoutMs: payload.timeoutMs,
+    assertions: payload.assertions,
     status: 'pending',
     createdAt: timestamp,
     updatedAt: timestamp,
@@ -149,4 +166,60 @@ export async function getReport(
 ): Promise<WebEvalReportEnvelope | null> {
   const raw = await kv.get(buildReportKey(taskId));
   return deserializeReport(raw);
+}
+
+export async function storeLiveEnvelope(
+  kv: WebEvalKvNamespace,
+  envelope: WebEvalLiveEnvelope,
+  config: WebEvalQueueConfig
+): Promise<void> {
+  await kv.put(buildLiveKey(envelope.taskId), serialize(envelope), {
+    expirationTtl: config.reportTtlSeconds,
+  });
+}
+
+export async function getLiveEnvelope(
+  kv: WebEvalKvNamespace,
+  taskId: string
+): Promise<WebEvalLiveEnvelope | null> {
+  const raw = await kv.get(buildLiveKey(taskId));
+  return deserializeLive(raw);
+}
+
+export interface WebEvalTaskPage {
+  items: WebEvalTaskRecord[];
+  nextCursor?: string;
+}
+
+export async function listTasksPage(
+  kv: WebEvalKvNamespace,
+  limit: number,
+  cursor?: string
+): Promise<WebEvalTaskPage> {
+  const effectiveLimit = Math.max(1, Math.min(limit, 50));
+  const rawResult = await kv.list({ prefix: TASK_KEY_PREFIX, limit: effectiveLimit + 1, cursor });
+  const result = rawResult as {
+    keys: Array<{ name: string }>;
+    list_complete?: boolean;
+    cursor?: string;
+  };
+  const items: WebEvalTaskRecord[] = [];
+
+  for (let i = 0; i < result.keys.length && i < effectiveLimit; i++) {
+    const entry = result.keys[i];
+    const raw = await kv.get(entry.name);
+    const task = deserializeTask(raw);
+    if (task) {
+      items.push(task);
+    }
+  }
+
+  const hasMore =
+    result.keys.length > effectiveLimit &&
+    result.list_complete === false &&
+    typeof result.cursor === 'string';
+  return {
+    items,
+    nextCursor: hasMore ? result.cursor : undefined,
+  };
 }

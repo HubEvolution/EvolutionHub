@@ -242,23 +242,6 @@
         }
       }
     },
-    "dashboard": {
-      "title": "Dashboard",
-      "tools_overview": {
-        "title": "Tool-Kontingente & Nutzung",
-        "subtitle": "Planbasierte Limits für alle Tools",
-        "columns": {
-          "tool": "Tool",
-          "usage": "Nutzung",
-          "remaining": "Verbleibend",
-          "period": "Zeitraum"
-        },
-        "period": {
-          "daily": "pro Tag",
-          "monthly": "pro Monat"
-        }
-      }
-    },
     "home": {
       "title": "Willkommen bei Evolution Hub",
       "features": {
@@ -997,6 +980,20 @@
     },
     "dashboard": {
       "title": "Dashboard",
+      "tools_overview": {
+        "title": "Tool-Kontingente & Nutzung",
+        "subtitle": "Planbasierte Limits für alle Tools",
+        "columns": {
+          "tool": "Tool",
+          "usage": "Nutzung",
+          "remaining": "Verbleibend",
+          "period": "Zeitraum"
+        },
+        "period": {
+          "daily": "pro Tag",
+          "monthly": "pro Monat"
+        }
+      },
       "stats": {
         "projects": "Projekte",
         "tasks": "Aufgaben",
@@ -1546,7 +1543,11 @@
             "enhance": "Verbessern",
             "processing": "Wird verarbeitet...",
             "model": "Modell",
-            "usage": "Nutzung",
+            "usage": "Tageslimit",
+            "monthlyUsage": "Monatliches Limit",
+            "creditsBalance": "Credits-Guthaben",
+            "usageDetailsTitle": "Nutzung & Credits",
+            "resetLabel": "Reset am",
             "result": "Ergebnis",
             "original": "Original",
             "allowedTypes": "Erlaubt: JPG, PNG, WEBP",

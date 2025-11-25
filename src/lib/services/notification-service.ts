@@ -198,7 +198,7 @@ export class NotificationService {
     // Exclude expired notifications
     const now = Math.floor(Date.now() / 1000);
     whereConditions.push(
-      or(sql`${notifications.expiresAt} IS NULL`, gte(notifications.expiresAt, now))
+      sql`${notifications.expiresAt} IS NULL OR ${notifications.expiresAt} >= ${now}`
     );
 
     const baseWhere = and(...whereConditions);
@@ -217,7 +217,7 @@ export class NotificationService {
         and(
           eq(notifications.userId, userId),
           eq(notifications.isRead, false),
-          or(sql`${notifications.expiresAt} IS NULL`, gte(notifications.expiresAt, now))
+          sql`${notifications.expiresAt} IS NULL OR ${notifications.expiresAt} >= ${now}`
         )
       );
 
@@ -618,7 +618,7 @@ export class NotificationService {
       to: r.to,
       templateId: r.templateId,
       variables: r.variables,
-      status: r.status,
+      status: (r.status ?? 'pending') as import('../types/notifications').EmailQueueStatus,
       priority: Number(r.priority ?? 0),
       scheduledFor: Math.floor(
         ((r.scheduledFor as Date).getTime?.() ?? new Date(r.scheduledFor).getTime()) / 1000
@@ -650,26 +650,28 @@ export class NotificationService {
       .orderBy(desc(emailQueue.priority), emailQueue.createdAt)
       .limit(limit);
 
-    return results.map((e: typeof emailQueue.$inferSelect) => ({
-      id: e.id,
-      to: e.to,
-      templateId: e.templateId,
-      variables: e.variables,
-      status: e.status,
-      priority: Number(e.priority ?? 0),
-      scheduledFor: Math.floor(
-        ((e.scheduledFor as Date).getTime?.() ?? new Date(e.scheduledFor).getTime()) / 1000
-      ),
-      attempts: Number(e.attempts ?? 0),
-      maxAttempts: Number(e.maxAttempts ?? 0),
-      lastError: e.lastError || undefined,
-      sentAt: e.sentAt
-        ? Math.floor(((e.sentAt as Date).getTime?.() ?? new Date(e.sentAt).getTime()) / 1000)
-        : undefined,
-      createdAt: Math.floor(
-        ((e.createdAt as Date).getTime?.() ?? new Date(e.createdAt).getTime()) / 1000
-      ),
-    }));
+    return results.map((e: typeof emailQueue.$inferSelect) => {
+      return {
+        id: e.id,
+        to: e.to,
+        templateId: e.templateId,
+        variables: e.variables,
+        status: (e.status ?? 'pending') as import('../types/notifications').EmailQueueStatus,
+        priority: Number(e.priority ?? 0),
+        scheduledFor: Math.floor(
+          ((e.scheduledFor as Date).getTime?.() ?? new Date(e.scheduledFor).getTime()) / 1000
+        ),
+        attempts: Number(e.attempts ?? 0),
+        maxAttempts: Number(e.maxAttempts ?? 0),
+        lastError: e.lastError || undefined,
+        sentAt: e.sentAt
+          ? Math.floor(((e.sentAt as Date).getTime?.() ?? new Date(e.sentAt).getTime()) / 1000)
+          : undefined,
+        createdAt: Math.floor(
+          ((e.createdAt as Date).getTime?.() ?? new Date(e.createdAt).getTime()) / 1000
+        ),
+      } as EmailQueueItem;
+    });
   }
 
   /**
@@ -707,7 +709,7 @@ export class NotificationService {
   async getNotificationStats(userId?: string): Promise<NotificationStats> {
     const baseWhere = userId ? eq(notifications.userId, userId) : undefined;
 
-    let statsQuery = this.db
+    const baseStatsQuery = this.db
       .select({
         type: notifications.type,
         priority: notifications.priority,
@@ -715,10 +717,12 @@ export class NotificationService {
         count: count(),
       })
       .from(notifications);
-    if (baseWhere) {
-      statsQuery = statsQuery.where(baseWhere);
-    }
-    const stats = await statsQuery.groupBy(
+
+    const filteredStatsQuery = baseWhere
+      ? baseStatsQuery.where(baseWhere)
+      : baseStatsQuery;
+
+    const stats = await filteredStatsQuery.groupBy(
       notifications.type,
       notifications.priority,
       notifications.isRead

@@ -44,6 +44,13 @@ interface PuppeteerPageLike {
     options: { waitUntil: 'domcontentloaded'; timeout: number }
   ): Promise<PuppeteerResponseLike | null>;
   title(): Promise<string>;
+  setUserAgent(userAgent: string): Promise<void>;
+  setViewport(options: {
+    width: number;
+    height: number;
+    deviceScaleFactor?: number;
+  }): Promise<void>;
+  screenshot(options: { encoding: 'base64'; fullPage?: boolean }): Promise<string>;
   close(): Promise<void>;
   content(): Promise<string>;
   $(selector: string): Promise<unknown | null>;
@@ -58,9 +65,21 @@ function nowIso(): string {
   return new Date().toISOString();
 }
 
+export interface BrowserRunLiveSnapshot {
+  taskId: string;
+  steps: WebEvalStep[];
+  errors: string[];
+  logs: WebEvalConsoleLog[];
+}
+
+export type BrowserRunLiveUpdateCallback = (
+  snapshot: BrowserRunLiveSnapshot
+) => Promise<void> | void;
+
 export async function runTaskWithBrowserRendering(
   task: WebEvalTaskRecord,
-  env: WebEvalEnvBindings
+  env: WebEvalEnvBindings,
+  onLiveUpdate?: BrowserRunLiveUpdateCallback
 ): Promise<BrowserRunResult> {
   const startedAt = new Date();
   const consoleLogs: WebEvalConsoleLog[] = [];
@@ -74,6 +93,26 @@ export async function runTaskWithBrowserRendering(
   let sameOriginConsoleError = false;
   let verdict: WebEvalVerdict | undefined;
   let assertionResults: WebEvalAssertionResult[] | undefined;
+  let screenshotBase64: string | undefined;
+
+  const emitLiveUpdate =
+    typeof onLiveUpdate === 'function'
+      ? async () => {
+          try {
+            const liveLogs = consoleLogs.filter((e) => e.level === 'warn' || e.level === 'error');
+            const MAX_LIVE_LOGS = 20;
+            const slicedLogs = liveLogs.slice(-MAX_LIVE_LOGS);
+            await onLiveUpdate({
+              taskId: task.id,
+              steps: [...steps],
+              errors: [...errors],
+              logs: slicedLogs,
+            });
+          } catch {
+            // ignore live update failures
+          }
+        }
+      : undefined;
 
   try {
     const taskOrigin = (() => {
@@ -91,6 +130,21 @@ export async function runTaskWithBrowserRendering(
     browser = launched as unknown as PuppeteerBrowserLike;
 
     page = await browser.newPage();
+
+    if (task.headless === false) {
+      try {
+        await page.setUserAgent(
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        );
+        await page.setViewport({
+          width: 1366,
+          height: 768,
+          deviceScaleFactor: 1,
+        });
+      } catch {
+        // ignore profile configuration failures
+      }
+    }
 
     page.on('console', (msg: PuppeteerConsoleMessageLike) => {
       const levelRaw = msg.type();
@@ -144,7 +198,10 @@ export async function runTaskWithBrowserRendering(
       }
     });
 
-    steps.push({ action: 'goto', timestamp: nowIso() });
+    steps.push({ action: 'goto', timestamp: nowIso(), phase: 'nav' });
+    if (emitLiveUpdate) {
+      await emitLiveUpdate();
+    }
     const timeout = task.timeoutMs ?? 30_000;
     const response = await page.goto(task.url, {
       waitUntil: 'domcontentloaded',
@@ -163,6 +220,10 @@ export async function runTaskWithBrowserRendering(
 
     const taskAssertions = (task as { assertions?: WebEvalAssertionDefinition[] }).assertions;
     if (Array.isArray(taskAssertions) && taskAssertions.length > 0 && success) {
+      steps.push({ action: 'assertions', timestamp: nowIso(), phase: 'assertions' });
+      if (emitLiveUpdate) {
+        await emitLiveUpdate();
+      }
       const results: WebEvalAssertionResult[] = [];
       const html = await page.content();
 
@@ -201,7 +262,22 @@ export async function runTaskWithBrowserRendering(
       }
     }
 
+    steps.push({ action: 'cleanup', timestamp: nowIso(), phase: 'cleanup' });
     const finishedAt = new Date();
+    if (emitLiveUpdate) {
+      await emitLiveUpdate();
+    }
+
+    // Best-effort screenshot capture for the final state of the page.
+    // This is optional and should never break the run if it fails.
+    if (!screenshotBase64 && page) {
+      try {
+        screenshotBase64 = await page.screenshot({ encoding: 'base64', fullPage: true });
+      } catch {
+        // ignore screenshot failures
+      }
+    }
+
     const report: WebEvalReport = {
       taskId: task.id,
       url: task.url,
@@ -216,6 +292,7 @@ export async function runTaskWithBrowserRendering(
       finishedAt: finishedAt.toISOString(),
       verdict,
       assertions: assertionResults,
+      screenshotBase64,
     };
 
     return {
@@ -232,6 +309,15 @@ export async function runTaskWithBrowserRendering(
         : rawMessage;
     errors.push(normalizedMessage);
 
+    // Attempt to capture a screenshot even on failure, if possible.
+    if (!screenshotBase64 && page) {
+      try {
+        screenshotBase64 = await page.screenshot({ encoding: 'base64', fullPage: true });
+      } catch {
+        // ignore screenshot failures
+      }
+    }
+
     const report: WebEvalReport = {
       taskId: task.id,
       url: task.url,
@@ -244,6 +330,7 @@ export async function runTaskWithBrowserRendering(
       durationMs: Math.max(0, finishedAt.getTime() - startedAt.getTime()),
       startedAt: startedAt.toISOString(),
       finishedAt: finishedAt.toISOString(),
+      screenshotBase64,
     };
 
     return {

@@ -59,3 +59,246 @@
 2025-11-20T09:25:38.063Z pre_run_command: npm run typecheck:src
 2025-11-20T09:35:16.642Z pre_run_command: npm run typecheck:src
 2025-11-20T09:50:26.045Z pre_run_command: npm run typecheck:src
+2025-11-21T23:44:03.666Z pre_run_command: npm run deploy:staging
+2025-11-22T00:10:29.612Z pre_run_command: npm run openapi:validate -- --version
+2025-11-22T00:13:51.864Z pre_run_command: npm run openapi:validate
+2025-11-22T00:15:53.721Z pre_run_command: cat package.json
+2025-11-22T00:16:31.840Z pre_run_command: npm run lint
+2025-11-22T00:17:31.986Z pre_run_command: npm run typecheck:src
+2025-11-22T00:19:00.929Z pre_run_command: npm run typecheck:src
+2025-11-22T00:24:09.996Z pre_run_command: npm run typecheck:src
+2025-11-22T00:27:52.726Z pre_run_command: npm run typecheck:src
+2025-11-22T00:28:34.202Z pre_run_command: npm run test:integration -- tests/integration/api/admin-billing-smoke.test.ts tests/integration/api/admin-rate-limits.test.ts tests/integration/api/admin-rate-limits-reset-smoke.test.ts tests/integration/api/admin-credits.test.ts
+2025-11-22T00:29:31.534Z pre_run_command: npm run astro:check:ui
+2025-11-22T00:29:31.899Z pre_run_command: npm run openapi:validate
+2025-11-22T00:40:07.619Z pre_run_command: npm run typecheck:src
+2025-11-22T00:40:27.107Z pre_run_command: npm run test:integration -- tests/integration/api/dashboard/billing-summary.tools.test.ts
+2025-11-22T00:43:25.817Z pre_run_command: npm run lint
+2025-11-22T01:02:06.469Z pre_run_command: npm run lint
+2025-11-22T04:05:20.440Z pre_run_command: npx wrangler deploy
+2025-11-22T10:09:42.066Z pre_run_command: npm run deploy:staging
+2025-11-22T22:29:08.532Z pre_run_command: npm run lint
+2025-11-23T00:42:35.381Z pre_run_command: npm run lint && npm run typecheck:src
+2025-11-23T01:29:21.091Z pre_run_command: npm run docs:lint
+2025-11-23T01:29:54.834Z pre_run_command: npm run docs:lint
+2025-11-23T06:54:43.172Z pre_run_command: npm run lint
+2025-11-23T06:55:47.682Z pre_run_command: npm run typecheck:src
+2025-11-23T06:56:49.741Z pre_run_command: npm run test:e2e -- test-suite-v2/src/e2e/admin-dashboard-smoke.spec.ts
+2025-11-23T06:57:48.842Z pre_run_command: npm run build:worker:staging
+2025-11-23T06:58:34.571Z pre_run_command: npm run deploy:staging
+2025-11-23T07:10:27.222Z pre_run_command: npx wrangler kv namespace list
+2025-11-23T07:13:54.481Z pre_run_command: npm run test:e2e -- test-suite-v2/src/e2e/admin-dashboard-smoke.spec.ts
+2025-11-23T14:07:57.603Z pre_run_command: npm run lint
+2025-11-23T14:08:36.141Z pre_run_command: npm run typecheck:src
+2025-11-23T14:10:18.391Z pre_run_command: npm run typecheck:src
+2025-11-23T14:28:26.224Z pre_run_command: npm run typecheck:src
+2025-11-24T22:08:45.898Z pre_run_command: npm run typecheck:src
+2025-11-24T22:09:06.612Z pre_run_command: npm run lint
+2025-11-24T23:27:25.426Z pre_run_command: npm run lint -- --max-warnings=0 src/components/tools/voice-visualizer/VoiceVisualizerIsland.tsx
+2025-11-24T23:34:26.776Z pre_run_command: npm run typecheck:src && npm run astro:check:ui && npm run lint
+2025-11-24T23:35:42.727Z pre_run_command: npm run typecheck:src && npm run astro:check:ui && npm run lint
+2025-11-25T01:10:28.996Z pre_run_command: npm run astro:check:ui
+2025-11-25T01:10:29.933Z pre_run_command: npm run lint
+2025-11-25T01:16:25.367Z pre_run_command: mkdir -p reports && rm -f reports/code-hygiene-last.log && { npm run format && npx eslint 'src/**/*.{ts,astro}' --fix --cache --cache-location .cache/eslint && npm run lint:md:fix && npm run docs:toc; } 2>&1 | tee -a reports/code-hygiene-last.log
+2025-11-25T01:16:47.957Z pre_run_command: run-s -c --print-label "format:check" "lint -- --max-warnings=0" "typecheck:src" 2>&1 | tee -a reports/code-hygiene-last.log
+2025-11-25T01:16:48.849Z pre_run_command: run-s -c --print-label "test:unit:run" "test:integration:run" 2>&1 | tee -a reports/code-hygiene-last.log && run-p -c --print-label "openapi:validate" "docs:lint" "lint:md" "docs:links" "docs:inventory" "i18n:audit" "security:scan" 2>&1 | tee -a reports/code-hygiene-last.log
+2025-11-25T01:18:37.368Z pre_run_command: npm run astro:check:ui
+2025-11-25T01:18:37.369Z pre_run_command: npm run typecheck:src
+2025-11-25T01:18:37.751Z pre_run_command: npm run lint
+2025-11-25T01:49:49.768Z pre_run_command: rm src/lib/services/comment-service-extended.ts
+2025-11-25T01:52:21.222Z pre_run_command: npm run typecheck:src
+2025-11-25T01:52:21.738Z pre_run_command: npm run astro:check:ui
+2025-11-25T02:09:35.507Z pre_run_command: npm run typecheck:src
+2025-11-25T02:09:36.399Z pre_run_command: npm run astro:check:ui
+2025-11-25T02:22:11.877Z pre_run_command: node -e "const fs=require('fs'); try { JSON.parse(fs.readFileSync('src/locales/en.json','utf8')); console.log('en.json OK'); } catch (e) { console.error('en.json ERROR:', e.message); }"
+2025-11-25T02:23:38.604Z pre_run_command: node -e "const fs=require('fs'); const txt=fs.readFileSync('src/locales/en.json','utf8'); console.log('length', txt.length); const pos=69746; console.log('snippet', JSON.stringify(txt.slice(pos-40,pos+40)));"
+2025-11-25T02:47:12.164Z pre_run_command: node -e "const fs=require('fs'); try { JSON.parse(fs.readFileSync('src/locales/en.json','utf8')); console.log('en.json OK'); } catch (e) { console.error('en.json ERROR:', e.message); }"
+2025-11-25T02:49:13.064Z pre_run_command: node -e "const fs=require('fs'); const t=fs.readFileSync('src/locales/en.json','utf8'); const pos=69746; try { JSON.parse(t.slice(0,pos)); console.log('prefix OK'); } catch(e) { console.error('prefix ERROR:', e.message); }"
+2025-11-25T02:52:20.683Z pre_run_command: node -e "const fs=require('fs'); const t=fs.readFileSync('src/locales/en.json','utf8'); console.log('tail', JSON.stringify(t.slice(-60)));"
+2025-11-25T02:58:50.005Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && node -e "try { JSON.parse(require('fs').readFileSync('src/locales/en.json', 'utf8')); console.log('JSON is valid'); } catch(e) { console.log('JSON Error:', e.message); console.log('At position:', e.toString().match(/position (\d+)/)?.[1]); }"
+2025-11-25T02:58:53.734Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && hexdump -C src/locales/en.json | tail -5
+2025-11-25T02:58:56.101Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && python3 -m json.tool src/locales/en.json > /dev/null && echo "JSON valid" || echo "JSON invalid"
+2025-11-25T02:59:05.168Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && head -c 69746 src/locales/en.json | tail -c 10
+2025-11-25T02:59:11.018Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && head -c 69750 src/locales/en.json | tail -c 10
+2025-11-25T02:59:12.900Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && sed -n '1674p' src/locales/en.json | hexdump -C
+2025-11-25T02:59:15.159Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && awk 'BEGIN{count=0} {for(i=1;i<=length($0);i++){c=substr($0,i,1); if(c=="{")count++; else if(c=="}")count--}} END{print "Unmatched braces:", count}' src/locales/en.json
+2025-11-25T02:59:26.541Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && sed -n '1673,1675p' src/locales/en.json
+2025-11-25T02:59:31.999Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && python3 -m json.tool src/locales/en.json > /dev/null && echo "JSON valid" || echo "JSON invalid"
+2025-11-25T02:59:34.708Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && awk 'BEGIN{count=0} {for(i=1;i<=length($0);i++){c=substr($0,i,1); if(c=="{")count++; else if(c=="}")count--}} END{print "Unmatched braces:", count}' src/locales/en.json
+2025-11-25T02:59:43.481Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && grep -n "dashboard" src/locales/en.json | tail -3
+2025-11-25T02:59:50.674Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && python3 -m json.tool src/locales/en.json > /dev/null && echo "JSON valid" || echo "JSON invalid"
+2025-11-25T02:59:56.824Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && python3 -m json.tool src/locales/en.json > /dev/null && echo "JSON valid" || echo "JSON invalid"
+2025-11-25T02:59:59.598Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && awk 'BEGIN{count=0} {for(i=1;i<=length($0);i++){c=substr($0,i,1); if(c=="{")count++; else if(c=="}")count--}} END{print "Unmatched braces:", count}' src/locales/en.json
+2025-11-25T03:00:07.523Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && grep -n "^{" src/locales/en.json
+2025-11-25T03:00:24.173Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && sed -n '1673,1675p' src/locales/en.json | cat -n
+2025-11-25T03:00:26.429Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && python3 -c "import json; json.load(open('src/locales/en.json')); print('JSON is valid')"
+2025-11-25T03:00:28.161Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && head -c 69746 src/locales/en.json | wc -c
+2025-11-25T03:00:30.124Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && head -c 69750 src/locales/en.json | tail -c 10
+2025-11-25T03:00:36.191Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && head -n 1673 src/locales/en.json > temp.json && echo '  },' >> temp.json && tail -n +1675 src/locales/en.json >> temp.json && python3 -c "import json; json.load(open('temp.json')); print('Fixed JSON is valid')" && mv temp.json src/locales/en.json
+2025-11-25T03:00:38.301Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && sed -n '1674p' src/locales/en.json | od -c
+2025-11-25T03:00:40.156Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && cp src/locales/en.json src/locales/en.json.backup
+2025-11-25T03:00:50.407Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && grep -n '"common"' src/locales/de.json
+2025-11-25T03:00:54.422Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && grep -n '"common"' src/locales/en.json
+2025-11-25T03:01:05.329Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && python3 -c "import json; json.load(open('src/locales/en.json')); print('JSON is valid')"
+2025-11-25T03:01:08.547Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && awk 'BEGIN{count=0} {for(i=1;i<=length($0);i++){c=substr($0,i,1); if(c=="{")count++; else if(c=="}")count--; print NR":"count}}' src/locales/en.json | tail -10
+2025-11-25T03:01:11.461Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && grep -B5 -A5 '"dashboard":' src/locales/en.json
+2025-11-25T03:01:15.957Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && awk '/^[[:space:]]*"pages":/{print NR; found=1} found && /dashboard/{print NR; exit}' src/locales/en.json
+2025-11-25T03:01:20.994Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && awk '/^  "pages":/{found=1} found && /^[[:space:]]*}[[:space:]]*,?[[:space:]]*$/ {if (found) print NR ":"$0; exit}' src/locales/en.json
+2025-11-25T03:01:25.046Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && awk 'BEGIN{pages=0} /"pages":/{pages=1; depth=1} pages && /\{/{depth++} pages && /\}/{depth--; if(depth==0){print NR":"$0; exit}}' src/locales/en.json
+2025-11-25T03:01:29.338Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && python3 -c "import json; json.load(open('src/locales/en.json')); print('JSON is valid')"
+2025-11-25T03:01:33.551Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && node -e "
+try {
+  const fs = require('fs');
+  const content = fs.readFileSync('src/locales/en.json', 'utf8');
+  const lines = content.split('\n');
+  let currentLine = 0;
+  let currentChar = 0;
+  let bracketCount = 0;
+  let braceCount = 0;
+  let inString = false;
+  let escapeNext = false;
+  
+  for (let i = 0; i < content.length; i++) {
+    const char = content[i];
+    currentChar++;
+    
+    if (char === '\n') {
+      currentLine++;
+      currentChar = 0;
+    }
+    
+    if (escapeNext) {
+      escapeNext = false;
+      continue;
+    }
+    
+    if (char === '\\') {
+      escapeNext = true;
+      continue;
+    }
+    
+    if (char === '\"') {
+      inString = !inString;
+      continue;
+    }
+    
+    if (inString) continue;
+    
+    if (char === '[') bracketCount++;
+    if (char === ']') bracketCount--;
+    if (char === '{') braceCount++;
+    if (char === '}') {
+      braceCount--;
+      if (braceCount < 0) {
+        console.log('Unmatched closing brace at line', currentLine + 1, 'char', currentChar);
+        process.exit(1);
+      }
+    }
+  }
+  
+  console.log('Bracket count:', bracketCount);
+  console.log('Brace count:', braceCount);
+  console.log('In string:', inString);
+} catch(e) {
+  console.log('Error:', e.message);
+}
+"
+2025-11-25T03:01:37.161Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && node -e "
+try {
+  const fs = require('fs');
+  const content = fs.readFileSync('src/locales/en.json', 'utf8');
+  const lines = content.split('\n');
+  let currentLine = 0;
+  let currentChar = 0;
+  let bracketCount = 0;
+  let braceCount = 0;
+  let inString = false;
+  let escapeNext = false;
+  
+  for (let i = 0; i < content.length; i++) {
+    const char = content[i];
+    currentChar++;
+    
+    if (char === '\n') {
+      currentLine++;
+      currentChar = 0;
+    }
+    
+    if (escapeNext) {
+      escapeNext = false;
+      continue;
+    }
+    
+    if (char === '\\\\') {
+      escapeNext = true;
+      continue;
+    }
+    
+    if (char === '\"') {
+      inString = !inString;
+      continue;
+    }
+    
+    if (inString) continue;
+    
+    if (char === '[') bracketCount++;
+    if (char === ']') bracketCount--;
+    if (char === '{') braceCount++;
+    if (char === '}') {
+      braceCount--;
+      if (braceCount < 0) {
+        console.log('Unmatched closing brace at line', currentLine + 1, 'char', currentChar);
+        process.exit(1);
+      }
+    }
+  }
+  
+  console.log('Bracket count:', bracketCount);
+  console.log('Brace count:', braceCount);
+  console.log('In string:', inString);
+} catch(e) {
+  console.log('Error:', e.message);
+}
+"
+2025-11-25T03:01:47.887Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && sed -n '1675,1900p' src/locales/en.json | awk 'BEGIN{count=0} {for(i=1;i<=length($0);i++){c=substr($0,i,1); if(c=="{")count++; else if(c=="}")count--}} END{print "Common object brace balance:", count}'
+2025-11-25T03:01:55.593Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && python3 -c "
+import json
+try:
+    with open('src/locales/en.json', 'r') as f:
+        content = f.read()
+    
+    # Try to find the exact position of the error
+    lines = content.split('\n')
+    for i, line in enumerate(lines):
+        try:
+            json.loads(line)
+        except:
+            pass
+    
+    # Try parsing progressively
+    for i in range(1, len(content) + 1):
+        try:
+            json.loads(content[:i])
+        except json.JSONDecodeError as e:
+            if 'Extra data' in str(e):
+                print(f'Extra data at position {i}')
+                # Show context around position i
+                start = max(0, i - 50)
+                end = min(len(content), i + 50)
+                context = content[start:end]
+                print(f'Context: {repr(context)}')
+                break
+except Exception as e:
+    print(f'Error: {e}')
+"
+2025-11-25T03:02:09.429Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && sed -n '1670,1676p' src/locales/en.json
+2025-11-25T03:02:11.431Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && cp src/locales/en.json src/locales/en.json.problem
+2025-11-25T03:02:13.517Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && head -n 50 src/locales/en.json > temp_start.json
+2025-11-25T03:02:20.801Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && head -n 1674 src/locales/en.json > temp_clean.json && echo '  },' >> temp_clean.json && tail -n +1901 src/locales/en.json >> temp_clean.json
+2025-11-25T03:02:26.007Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && python3 -c "import json; json.load(open('temp_clean.json')); print('Clean JSON is valid')"
+2025-11-25T03:02:28.981Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && sed -n '1448,1673p' src/locales/en.json | awk 'BEGIN{count=0} {for(i=1;i<=length($0);i++){c=substr($0,i,1); if(c=="{")count++; else if(c=="}")count--}} END{print "Dashboard object brace balance:", count}'
+2025-11-25T03:02:35.293Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && cp src/locales/de.json src/locales/en_new.json
+2025-11-25T03:02:37.693Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && mv src/locales/en_new.json src/locales/en.json
+2025-11-25T03:02:39.566Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && python3 -c "import json; json.load(open('src/locales/en.json')); print('JSON is now valid')"
+2025-11-25T03:08:17.597Z pre_run_command: npm run openapi:validate
+2025-11-25T03:10:00.533Z pre_run_command: npm run lint:md

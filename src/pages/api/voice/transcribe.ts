@@ -31,6 +31,7 @@ type VoiceEnv = {
   R2_VOICE?: import('@cloudflare/workers-types').R2Bucket;
   VOICE_R2_ARCHIVE?: string | number | boolean;
   VOICE_DEV_ECHO?: string | number | boolean;
+  VOICE_MIME_SNIFF_ENABLE?: string | number | boolean;
 };
 
 type MaybeTypedError = {
@@ -159,6 +160,7 @@ export const POST = withApiMiddleware(
           : undefined,
       VOICE_R2_ARCHIVE: normalizeFlag(env.VOICE_R2_ARCHIVE),
       VOICE_DEV_ECHO: normalizeFlag(env.VOICE_DEV_ECHO),
+      VOICE_MIME_SNIFF_ENABLE: normalizeFlag(env.VOICE_MIME_SNIFF_ENABLE),
     });
     const aggregator = new VoiceStreamAggregator(env.KV_VOICE_TRANSCRIBE);
     const jobId = jobIdForm || (crypto.randomUUID?.() ?? Math.random().toString(36).slice(2));

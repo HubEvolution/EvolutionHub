@@ -21,6 +21,7 @@ export interface WebEvalEnvBindings {
   WEB_EVAL_BROWSER_ENABLE?: string; // '1' to enable Cloudflare Browser Rendering runner (staging only by default)
   WEB_EVAL_BROWSER_ALLOW_PROD?: string; // '1' to allow CBR in production; requires x-internal-exec header
   WEB_EVAL_ALLOWED_ORIGINS?: string; // optional, comma-separated allowlist for SSRF target origins
+  WEB_EVAL_AUTO_ASSERTIONS_ENABLE?: string; // '1' or 'true' to enable server-side auto-assertions for Web-Eval
   BROWSER?: unknown; // Cloudflare Browser Rendering binding (optional)
   ENVIRONMENT?: string; // 'development' | 'staging' | 'production' | 'testing'
 }

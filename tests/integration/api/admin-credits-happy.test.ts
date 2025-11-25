@@ -123,10 +123,7 @@ describe('Admin Credits — grant → usage → history (opt-in happy path)', ()
     expect(Array.isArray(historyData.items)).toBe(true);
     expect(historyData.items.length).toBeGreaterThan(0);
 
-    const totalTenthsFromHistory = historyData.items.reduce(
-      (sum, p) => sum + p.unitsTenths,
-      0
-    );
+    const totalTenthsFromHistory = historyData.items.reduce((sum, p) => sum + p.unitsTenths, 0);
 
     expect(totalTenthsFromHistory).toBeGreaterThanOrEqual(usageData.tenths);
     expect(historyData.items.some((p) => p.id === grantData.packId)).toBe(true);

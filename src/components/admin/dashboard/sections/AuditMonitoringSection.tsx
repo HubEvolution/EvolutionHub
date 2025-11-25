@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Card from '@/components/ui/Card';
 import { useAdminAuditLogs } from '@/components/admin/dashboard/hooks/useAdminAuditLogs';
 import { useAdminTelemetry } from '@/components/admin/dashboard/hooks/useAdminTelemetry';
+import type { AdminAuditLogsResponse } from '@/lib/admin/api-client';
 
 const eventTypeLabels: Record<string, string> = {
   API_ACCESS: 'API Access',
@@ -13,6 +14,9 @@ const AuditMonitoringSection: React.FC = () => {
   const [eventType, setEventType] = useState<string | undefined>(undefined);
   const { items, loading, error, reload } = useAdminAuditLogs({ eventType });
   const { sendEvent } = useAdminTelemetry('audit-monitoring');
+  const [selectedEntry, setSelectedEntry] = useState<
+    AdminAuditLogsResponse['items'][number] | null
+  >(null);
 
   const handleReload = () => {
     reload({ eventType });
@@ -75,7 +79,12 @@ const AuditMonitoringSection: React.FC = () => {
               </div>
             ) : (
               items.map((entry) => (
-                <div key={entry.id} className="rounded border border-white/10 bg-white/5 px-3 py-2">
+                <button
+                  key={entry.id}
+                  type="button"
+                  onClick={() => setSelectedEntry(entry)}
+                  className="w-full text-left rounded border border-white/10 bg-white/5 px-3 py-2 hover:border-emerald-500/80 hover:bg-white/10"
+                >
                   <div className="flex items-center justify-between text-xs uppercase text-white/50">
                     <span>{eventTypeLabels[entry.eventType] ?? entry.eventType}</span>
                     <span>{new Date(entry.createdAt).toLocaleString('de-DE')}</span>
@@ -84,8 +93,33 @@ const AuditMonitoringSection: React.FC = () => {
                     {entry.resource ? `${entry.resource} • ` : ''}
                     {entry.action ?? '—'}
                   </div>
-                </div>
+                </button>
               ))
+            )}
+            {selectedEntry && (
+              <div className="mt-4 rounded border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/80">
+                <div className="mb-2 text-[11px] font-semibold uppercase text-white/60">
+                  Details
+                </div>
+                <dl className="space-y-1">
+                  <div className="flex justify-between gap-2">
+                    <dt className="text-white/50">Event-Typ</dt>
+                    <dd>{eventTypeLabels[selectedEntry.eventType] ?? selectedEntry.eventType}</dd>
+                  </div>
+                  <div className="flex justify-between gap-2">
+                    <dt className="text-white/50">Zeitpunkt</dt>
+                    <dd>{new Date(selectedEntry.createdAt).toLocaleString('de-DE')}</dd>
+                  </div>
+                  <div className="flex justify-between gap-2">
+                    <dt className="text-white/50">Resource</dt>
+                    <dd>{selectedEntry.resource || '—'}</dd>
+                  </div>
+                  <div className="flex justify-between gap-2">
+                    <dt className="text-white/50">Action</dt>
+                    <dd>{selectedEntry.action || '—'}</dd>
+                  </div>
+                </dl>
+              </div>
             )}
           </div>
         </Card>

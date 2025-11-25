@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import type { EnhanceArgs } from './hooks/useEnhance';
 import { useEnhance } from './hooks/useEnhance';
 import { useRateLimit } from './hooks/useRateLimit';
@@ -19,6 +19,8 @@ import {
   emitPromptEnhancerFailed,
 } from '@/lib/client/telemetry';
 import { clientLogger } from '@/lib/client-logger';
+import ToolUsageBadge from '@/components/tools/shared/ToolUsageBadge';
+import { useUsage } from './hooks/useUsage';
 
 interface EnhancerFormProps {
   initialMode?: 'creative' | 'professional' | 'concise';
@@ -45,6 +47,7 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
 
   const { enhance } = useEnhance();
   const { retryActive, handle429Response } = useRateLimit();
+  const { usage, monthlyUsage, creditsBalanceTenths, ownerType, plan } = useUsage();
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const copyTimerRef = useRef<number | null>(null);
@@ -53,6 +56,37 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
 
   const locale = getLocale(typeof window !== 'undefined' ? window.location.pathname : '/');
   const t = getI18n(locale);
+
+  const planLabel = useMemo(() => {
+    if (ownerType === 'guest' || ownerType === null) return 'Guest';
+    if (ownerType === 'user') {
+      if (plan === 'free' || !plan) return 'Starter';
+      return plan.charAt(0).toUpperCase() + plan.slice(1);
+    }
+    return '';
+  }, [ownerType, plan]);
+
+  const planId = useMemo(
+    () =>
+      ownerType === 'user' && plan
+        ? plan === 'free'
+          ? 'starter'
+          : (plan as 'pro' | 'premium' | 'enterprise')
+        : null,
+    [ownerType, plan]
+  );
+
+  const monthlyLabel = useMemo(
+    () =>
+      t('header.menu.monthly_quota') ||
+      (locale.startsWith('de') ? 'Monthly quota' : 'Monthly quota'),
+    [locale, t]
+  );
+
+  const creditsLabel = useMemo(
+    () => t('header.menu.credits') || (locale.startsWith('de') ? 'Credits' : 'Credits'),
+    [locale, t]
+  );
 
   useEffect(() => {
     setHydrated(true);
@@ -611,6 +645,62 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
             ? t('pages.tools.prompt-enhancer.form.enhancing')
             : t('pages.tools.prompt-enhancer.form.enhanceButton')}
         </Button>
+
+        {usage && (
+          <div className="mt-4 flex justify-center">
+            <ToolUsageBadge
+              label={t('pages.tools.prompt-enhancer.usage.title')}
+              loadingLabel={t('common.loading')}
+              usage={usage}
+              ownerType={ownerType}
+              planId={planId}
+              planLabel={planLabel}
+              layout="card"
+              size="md"
+              align="center"
+              showIcon
+              showResetHint={false}
+              showOwnerHint={false}
+              showPercent
+              detailsTitle={t('pages.tools.prompt-enhancer.usage.title')}
+              resetLabel={t('pages.tools.items.Imag-Enhancer.app.resetLabel')}
+              headerCredits={
+                creditsBalanceTenths != null ? Math.round(creditsBalanceTenths) / 10 : null
+              }
+              detailsItems={[
+                {
+                  id: 'daily',
+                  label: t('pages.tools.prompt-enhancer.usage.title'),
+                  used: usage.used,
+                  limit: usage.limit,
+                  resetAt: usage.resetAt,
+                },
+                ...(monthlyUsage
+                  ? [
+                      {
+                        id: 'monthly',
+                        label: monthlyLabel,
+                        used: monthlyUsage.used,
+                        limit: monthlyUsage.limit,
+                        resetAt: monthlyUsage.resetAt,
+                      },
+                    ]
+                  : []),
+                ...(creditsBalanceTenths != null
+                  ? [
+                      {
+                        id: 'credits',
+                        label: creditsLabel,
+                        used: Math.round(creditsBalanceTenths) / 10,
+                        limit: null,
+                        kind: 'credits' as const,
+                      },
+                    ]
+                  : []),
+              ]}
+            />
+          </div>
+        )}
       </form>
 
       {outputText && (

@@ -1,6 +1,6 @@
 import type { KVNamespace } from '@cloudflare/workers-types';
 
-export type WebEvalStatus = 'pending' | 'processing' | 'completed' | 'failed';
+export type WebEvalStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'aborted';
 
 export type WebEvalOwnerType = 'user' | 'guest' | 'system';
 
@@ -29,6 +29,7 @@ export interface WebEvalStep {
   timestamp: string;
   selectorUsed?: string;
   screenshotKey?: string;
+  phase?: 'nav' | 'assertions' | 'cleanup';
 }
 
 export type WebEvalConsoleLevel = 'log' | 'error' | 'warn' | 'info' | 'debug';
@@ -78,6 +79,7 @@ export interface WebEvalReport {
   finishedAt: string;
   verdict?: WebEvalVerdict;
   assertions?: WebEvalAssertionResult[];
+  screenshotBase64?: string;
 }
 
 export interface WebEvalTaskCreatePayload extends WebEvalTaskInput {
@@ -88,6 +90,16 @@ export interface WebEvalTaskCreatePayload extends WebEvalTaskInput {
 export interface WebEvalReportEnvelope {
   report: WebEvalReport;
   storedAt: string;
+}
+
+export interface WebEvalLiveEnvelope {
+  taskId: string;
+  status: WebEvalStatus;
+  steps: WebEvalStep[];
+  errors: string[];
+  logs?: WebEvalConsoleLog[];
+  updatedAt: string;
+  screenshotBase64?: string;
 }
 
 export type WebEvalKvNamespace = Pick<KVNamespace, 'get' | 'put' | 'delete' | 'list'>;

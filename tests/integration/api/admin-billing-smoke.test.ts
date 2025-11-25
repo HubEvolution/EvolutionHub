@@ -97,9 +97,7 @@ describe('Admin Billing Smoke (plans & credits)', () => {
 
     // Sanity-Check: wir erwarten typischerweise eine Staging-URL
     if (!baseUrl.includes('staging.hub-evolution.com')) {
-      console.warn(
-        `Warning: TEST_URL does not look like staging. Current TEST_URL=${baseUrl}`
-      );
+      console.warn(`Warning: TEST_URL does not look like staging. Current TEST_URL=${baseUrl}`);
     }
 
     const adminHeaders = buildAdminHeaders(cookie, csrf);
@@ -125,11 +123,12 @@ describe('Admin Billing Smoke (plans & credits)', () => {
     const userId = summary.user.id;
 
     // 2) Credits-Usage & History prüfen
-    const { res: usageRes, json: usageJson } = await getJson<
-      ApiJson<AdminCreditsUsageData>
-    >(`/api/admin/credits/usage?userId=${encodeURIComponent(userId)}`, {
-      headers: adminHeaders,
-    });
+    const { res: usageRes, json: usageJson } = await getJson<ApiJson<AdminCreditsUsageData>>(
+      `/api/admin/credits/usage?userId=${encodeURIComponent(userId)}`,
+      {
+        headers: adminHeaders,
+      }
+    );
 
     expect(usageRes.status).toBe(200);
     expect(usageJson && usageJson.success).toBe(true);
@@ -167,9 +166,7 @@ describe('Admin Billing Smoke (plans & credits)', () => {
 
     // 4) Credits deduct (normaler Pfad)
     const deductAmount = 5;
-    const { res: deductRes, json: deductJson } = await sendJson<
-      ApiJson<AdminCreditsDeductData>
-    >(
+    const { res: deductRes, json: deductJson } = await sendJson<ApiJson<AdminCreditsDeductData>>(
       '/api/admin/credits/deduct',
       { email: userEmail, amount: deductAmount },
       { headers: adminHeaders }
@@ -206,9 +203,7 @@ describe('Admin Billing Smoke (plans & credits)', () => {
     // 6) Plan-Set (Upgrade & zurück auf free) – nur als Orchestrierungs-Smoke
     // Hinweis: dies erzeugt/ändert Stripe-Subscriptions im Testmodus.
 
-    const { res: setPlanProRes, json: setPlanProJson } = await sendJson<
-      ApiJson<AdminSetPlanData>
-    >(
+    const { res: setPlanProRes, json: setPlanProJson } = await sendJson<ApiJson<AdminSetPlanData>>(
       '/api/admin/users/set-plan',
       {
         email: userEmail,

@@ -29,12 +29,12 @@ Betriebshandbuch für Auth in Production/Staging/Testing: Secrets/Flags, Limits,
 
 ### Environment matrix (Auth, DB, Stripe)
 
-| Env        | ENVIRONMENT | Base URL                        | D1 DB name               | Stripe mode | Notes                                   |
-| ---------- | ----------- | -------------------------------- | ------------------------ | ----------- | --------------------------------------- |
-| Local dev  | development | http://127.0.0.1:8787            | evolution-hub-main-dev   | test        | `STYTCH_BYPASS=1`, debug-login allowed  |
-| Testing    | testing     | https://ci.hub-evolution.com     | evolution-hub-main-local | test        | CI/e2e target; no debug-login endpoint |
-| Staging    | staging     | https://staging.hub-evolution.com| evolution-hub-main-local | test        | Near-prod; manual QA, no backdoors     |
-| Production | production  | https://hub-evolution.com        | evolution-hub-main       | live        | Real users & billing                    |
+| Env        | ENVIRONMENT | Base URL                                     | D1 DB name               | Stripe mode | Notes                                   |
+| ---------- | ----------- | -------------------------------------------- | ------------------------ | ----------- | --------------------------------------- |
+| Local dev  | development | [http://127.0.0.1:8787](http://127.0.0.1:8787)                   | evolution-hub-main-dev   | test        | `STYTCH_BYPASS=1`, debug-login allowed  |
+| Testing    | testing     | [https://ci.hub-evolution.com](https://ci.hub-evolution.com)     | evolution-hub-main-local | test        | CI/e2e target; no debug-login endpoint |
+| Staging    | staging     | [https://staging.hub-evolution.com](https://staging.hub-evolution.com) | evolution-hub-main-local | test        | Near-prod; manual QA, no backdoors     |
+| Production | production  | [https://hub-evolution.com](https://hub-evolution.com)           | evolution-hub-main       | live        | Real users & billing                    |
 
 ## Middleware & Sicherheit
 

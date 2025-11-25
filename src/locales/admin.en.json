@@ -132,6 +132,63 @@
       "copyStripeCouponId": "Copy ID"
     }
   },
+  "tools": {
+    "heading": "Admin tools & areas",
+    "webEval": {
+      "title": "Web-Eval tasks",
+      "description": "Admin overview for running and completed Web-Eval runs.",
+      "cta": "Open Web-Eval"
+    },
+    "kpi": {
+      "title": "Metrics & traffic",
+      "description": "Overview of active sessions, user counts and traffic trends.",
+      "cta": "Go to metrics"
+    },
+    "insights": {
+      "title": "User insights & plans",
+      "description": "Search users, manage status/plans and handle sessions/credits.",
+      "cta": "Go to User Insights"
+    },
+    "discounts": {
+      "title": "Discounts & coupons",
+      "description": "Admin management for discount codes and Stripe coupons.",
+      "cta": "Go to discounts"
+    },
+    "audit": {
+      "title": "Audit & monitoring",
+      "description": "Overview of audit logs and telemetry events.",
+      "cta": "Go to audit & monitoring"
+    }
+  },
+  "webEvalAdmin": {
+    "heading": "Web-Eval tasks (admin)",
+    "filters": {
+      "statusLabel": "Status",
+      "ownerTypeLabel": "Owner type",
+      "ownerIdLabel": "Owner ID",
+      "limitLabel": "Limit",
+      "applyButton": "Apply filters",
+      "resetButton": "Reset"
+    },
+    "table": {
+      "heading": "Tasks",
+      "id": "Task ID",
+      "status": "Status",
+      "ownerType": "Owner type",
+      "ownerId": "Owner ID",
+      "url": "URL",
+      "createdAt": "Created at",
+      "lastError": "Last error",
+      "loadMore": "Load more tasks"
+    },
+    "detail": {
+      "heading": "Task details",
+      "empty": "No task selected.",
+      "openInTool": "Open in Web-Eval tool",
+      "reportPresent": "Report available",
+      "livePresent": "Live snapshot available"
+    }
+  },
   "errors": {
     "userListLoad": "Failed to load user list.",
     "userListLoadMore": "Failed to load more users.",

@@ -125,9 +125,10 @@ describe('Admin Discounts API — create & list', () => {
     if (listRes.status !== 200 || !listJson) return;
 
     expect(listJson.success).toBe(true);
-    const listData = listJson.data as
-      | { items?: DiscountCodeJson[]; pagination?: { limit: number; cursor: string | null } }
-      | null;
+    const listData = listJson.data as {
+      items?: DiscountCodeJson[];
+      pagination?: { limit: number; cursor: string | null };
+    } | null;
     expect(Array.isArray(listData?.items)).toBe(true);
     const codes = (listData?.items ?? []).map((d) => d.code);
     expect(codes).toContain(code);

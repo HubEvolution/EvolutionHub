@@ -95,6 +95,7 @@ declare namespace App {
         VOICE_STREAM_POLL?: string;
         VOICE_R2_ARCHIVE?: string;
         VOICE_DEV_ECHO?: string;
+        VOICE_MIME_SNIFF_ENABLE?: string;
         // Stripe
         STRIPE_SECRET?: string;
         STRIPE_WEBHOOK_SECRET?: string;

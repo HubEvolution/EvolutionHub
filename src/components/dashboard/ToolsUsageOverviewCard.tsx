@@ -3,7 +3,7 @@ import Card from '@/components/ui/Card';
 import type { UsageOverview } from '@/lib/kv/usage';
 import type { BillingSummary } from '@/components/dashboard/BillingCard';
 
-type ToolKey = 'image' | 'video' | 'prompt' | 'voice' | 'webscraper';
+type ToolKey = 'image' | 'video' | 'prompt' | 'voice' | 'webscraper' | 'webEval';
 
 type ToolsUsageOverview = Partial<Record<ToolKey, UsageOverview>>;
 
@@ -80,7 +80,7 @@ function assertApiResult<T>(value: unknown): asserts value is ApiResult<T> {
   throw new Error('API response has invalid success flag');
 }
 
-const toolOrder: ToolKey[] = ['image', 'video', 'prompt', 'voice', 'webscraper'];
+const toolOrder: ToolKey[] = ['image', 'video', 'prompt', 'voice', 'webscraper', 'webEval'];
 
 interface Props {
   strings: ToolsOverviewStrings;
@@ -127,9 +127,7 @@ export default function ToolsUsageOverviewCard({ strings }: Props) {
           }
 
           resolvedTools =
-            Object.keys(fromTopLevel).length > 0
-              ? (fromTopLevel as ToolsUsageOverview)
-              : null;
+            Object.keys(fromTopLevel).length > 0 ? (fromTopLevel as ToolsUsageOverview) : null;
         }
 
         if (!cancelled) {
@@ -169,12 +167,10 @@ export default function ToolsUsageOverviewCard({ strings }: Props) {
           <span className="text-[11px] font-medium text-slate-400">{strings.subtitle}</span>
         </div>
 
-        <div className="grid grid-cols-4 gap-2 text-[11px] text-slate-400">
+        <div className="grid grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-2 text-[11px] text-slate-400">
           <span className="font-semibold uppercase tracking-wide">{strings.columns.tool}</span>
           <span className="font-semibold uppercase tracking-wide">{strings.columns.usage}</span>
-          <span className="font-semibold uppercase tracking-wide">
-            {strings.columns.remaining}
-          </span>
+          <span className="font-semibold uppercase tracking-wide">{strings.columns.remaining}</span>
           <span className="font-semibold uppercase tracking-wide">{strings.columns.period}</span>
         </div>
 
@@ -187,7 +183,11 @@ export default function ToolsUsageOverviewCard({ strings }: Props) {
               key === 'image' || key === 'video' ? strings.periods.monthly : strings.periods.daily;
 
             return (
-              <div key={key} className="grid grid-cols-4 items-baseline gap-2" data-tool={key}>
+              <div
+                key={key}
+                className="grid grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] items-baseline gap-2"
+                data-tool={key}
+              >
                 <div className="truncate text-xs font-medium text-slate-200" title={toolLabel}>
                   {toolLabel}
                 </div>

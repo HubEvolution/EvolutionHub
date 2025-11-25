@@ -9,7 +9,7 @@ import {
   incrementMonthlyNoTtl,
   legacyMonthlyKey,
 } from './usage';
-import { createKVNamespaceMock } from '../../tests/utils/kv-mock';
+import { createKVNamespaceMock } from '../../../tests/utils/kv-mock';
 
 function utcEndOfDaySeconds(d = new Date()): number {
   const eod = new Date(

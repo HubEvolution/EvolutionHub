@@ -2,7 +2,7 @@
 description: Web-Eval Executor – Header/Secret/How-to-run (incl. CBR runner)
 owner: platform
 priority: P2
-lastSync: 2025-11-12
+lastSync: 2025-11-23
 codeRefs:
   - src/pages/api/testing/evaluate/next.ts
   - src/pages/api/testing/evaluate/next/run.ts

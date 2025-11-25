@@ -188,6 +188,34 @@ describe('WebscraperService', () => {
         'robots.txt disallows scraping this URL'
       );
     });
+
+    it('should allow scraping when robots.txt fetch fails (network error)', async () => {
+      const input = { url: 'https://example.com/path' };
+
+      mockKV.get.mockResolvedValue(null);
+      mockKV.put.mockResolvedValue(undefined);
+
+      // First fetch: robots.txt → network error
+      (global.fetch as any)
+        .mockRejectedValueOnce(new Error('Network error'))
+        // Second fetch: actual page
+        .mockResolvedValueOnce({
+          ok: true,
+          headers: {
+            get: (key: string) => {
+              if (key === 'content-type') return 'text/html';
+              if (key === 'content-length') return '1000';
+              return null;
+            },
+          },
+          text: async () => '<html><head><title>Test</title></head><body><p>Test</p></body></html>',
+        });
+
+      const result = await service.scrape(input, 'guest', 'guest-123');
+
+      expect(result).toBeDefined();
+      expect(result.result.robotsTxtAllowed).toBe(true);
+    });
   });
 
   describe('Content Parsing', () => {
@@ -230,6 +258,7 @@ describe('WebscraperService', () => {
       expect(result.result.description).toBe('Test Description');
       expect(result.result.text).toContain('First paragraph');
       expect(result.result.text).toContain('Second paragraph');
+      expect(result.result.robotsTxtAllowed).toBe(true);
     });
 
     it('should extract links', async () => {
@@ -266,6 +295,7 @@ describe('WebscraperService', () => {
 
       expect(result.result.links).toContain('https://example.com/page1');
       expect(result.result.links).toContain('https://example.com/page2');
+      expect(result.result.robotsTxtAllowed).toBe(true);
     });
   });
 });

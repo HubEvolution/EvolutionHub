@@ -4,6 +4,9 @@ import { getUsage } from '../api';
 
 interface UseUsageResult {
   usage: UsageInfo | null;
+  dailyUsage: UsageInfo | null;
+  monthlyUsage: UsageInfo | null;
+  creditsBalanceTenths: number | null;
   ownerType: OwnerType | null;
   plan: Plan | null;
   entitlements: PlanEntitlements | null;
@@ -14,6 +17,9 @@ interface UseUsageResult {
 
 export function useUsage(): UseUsageResult {
   const [usage, setUsage] = useState<UsageInfo | null>(null);
+  const [dailyUsage, setDailyUsage] = useState<UsageInfo | null>(null);
+  const [monthlyUsage, setMonthlyUsage] = useState<UsageInfo | null>(null);
+  const [creditsBalanceTenths, setCreditsBalanceTenths] = useState<number | null>(null);
   const [ownerType, setOwnerType] = useState<OwnerType | null>(null);
   const [plan, setPlan] = useState<Plan | null>(null);
   const [entitlements, setEntitlements] = useState<PlanEntitlements | null>(null);
@@ -36,11 +42,50 @@ export function useUsage(): UseUsageResult {
       setError(null);
       const data = await getUsage(isDebug);
       if ('success' in data && data.success) {
-        setUsage(data.data.usage);
-        setOwnerType(data.data.ownerType);
-        setPlan((data.data as UsageResponseData).plan ?? null);
+        const resp = data.data as UsageResponseData;
+
+        // Prefer extended dailyUsage (entitlement-based) when available; fall back to legacy usage
+        const baseDaily = resp.dailyUsage
+          ? {
+              used: resp.dailyUsage.used,
+              limit: resp.dailyUsage.limit,
+              resetAt: resp.dailyUsage.resetAt,
+            }
+          : {
+              used: resp.usage.used,
+              limit: resp.usage.limit,
+              resetAt: resp.usage.resetAt,
+            };
+
+        setUsage(baseDaily);
+        setDailyUsage(
+          resp.dailyUsage
+            ? {
+                used: resp.dailyUsage.used,
+                limit: resp.dailyUsage.limit,
+                resetAt: resp.dailyUsage.resetAt,
+              }
+            : null
+        );
+
+        setMonthlyUsage(
+          resp.monthlyUsage
+            ? {
+                used: resp.monthlyUsage.used,
+                limit: resp.monthlyUsage.limit,
+                resetAt: resp.monthlyUsage.resetAt,
+              }
+            : null
+        );
+
+        setCreditsBalanceTenths(
+          typeof resp.creditsBalanceTenths === 'number' ? resp.creditsBalanceTenths : null
+        );
+
+        setOwnerType(resp.ownerType);
+        setPlan(resp.plan ?? null);
         try {
-          setEntitlements((data.data as UsageResponseData).entitlements || null);
+          setEntitlements(resp.entitlements || null);
         } catch {
           setEntitlements(null);
         }
@@ -95,5 +140,16 @@ export function useUsage(): UseUsageResult {
     };
   }, [refresh]);
 
-  return { usage, ownerType, plan, entitlements, loading, error, refresh };
+  return {
+    usage,
+    dailyUsage,
+    monthlyUsage,
+    creditsBalanceTenths,
+    ownerType,
+    plan,
+    entitlements,
+    loading,
+    error,
+    refresh,
+  };
 }

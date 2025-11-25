@@ -1,6 +1,7 @@
 import React from 'react';
-import { StatusUsagePill } from './StatusUsagePill';
 import Button from '@/components/ui/Button';
+import ToolUsageBadge from '@/components/tools/shared/ToolUsageBadge';
+import type { Plan } from './types';
 
 interface Props {
   helpLabel: string;
@@ -13,6 +14,7 @@ interface Props {
   fullscreenLabel: string;
   exitFullscreenLabel: string;
   onToggleFullscreen: () => void;
+  plan: Plan | null;
   planLabel: string;
   usageLabel: string;
   loadingLabel: string;
@@ -27,6 +29,13 @@ interface Props {
 }
 
 export function HeaderBar(props: Props) {
+  const planId =
+    props.ownerType === 'user' && props.plan
+      ? props.plan === 'free'
+        ? 'starter'
+        : (props.plan as 'pro' | 'premium' | 'enterprise')
+      : null;
+
   return (
     <>
       <Button
@@ -61,27 +70,21 @@ export function HeaderBar(props: Props) {
       >
         {props.isFullscreen ? props.exitFullscreenLabel : props.fullscreenLabel}
       </Button>
-      {props.planLabel && (
-        <StatusUsagePill
-          label={props.usageLabel}
-          loadingLabel={props.loadingLabel}
-          usage={props.usage}
-          ownerType={props.ownerType}
-          percent={props.percent}
-          critical={props.critical}
-          planLabel={props.planLabel}
-        />
-      )}
-      {!props.planLabel && (
-        <StatusUsagePill
-          label={props.usageLabel}
-          loadingLabel={props.loadingLabel}
-          usage={props.usage}
-          ownerType={props.ownerType}
-          percent={props.percent}
-          critical={props.critical}
-        />
-      )}
+      <ToolUsageBadge
+        label={props.usageLabel}
+        loadingLabel={props.loadingLabel}
+        usage={props.usage}
+        ownerType={props.ownerType}
+        planId={planId}
+        planLabel={props.planLabel}
+        layout="pill"
+        size="sm"
+        showIcon
+        showResetHint={false}
+        showOwnerHint
+        showPercent={false}
+        severity={props.critical ? 'critical' : undefined}
+      />
       {props.showUpgradeCta && (
         <a
           href={props.pricingHref}

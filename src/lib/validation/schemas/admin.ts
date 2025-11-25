@@ -46,3 +46,25 @@ export const adminUserLifecycleRequestSchema = z.object({
 });
 
 export type AdminUserLifecycleRequest = z.infer<typeof adminUserLifecycleRequestSchema>;
+
+export const adminWebEvalTasksQuerySchema = z
+  .object({
+    status: z.enum(['pending', 'processing', 'completed', 'failed', 'aborted']).optional(),
+    ownerType: z.enum(['user', 'guest', 'system']).optional(),
+    ownerId: z.string().trim().min(1).max(128).optional(),
+    limit: z.preprocess((value) => {
+      if (value == null || value === '') return undefined;
+      const numeric = Number(value);
+      return Number.isFinite(numeric) ? numeric : value;
+    }, z.number().int().min(1).max(50).optional()),
+    cursor: z.string().trim().min(1).optional(),
+  })
+  .transform((value) => ({
+    status: value.status,
+    ownerType: value.ownerType,
+    ownerId: value.ownerId,
+    limit: value.limit ?? 25,
+    cursor: value.cursor,
+  }));
+
+export type AdminWebEvalTasksQuery = z.infer<typeof adminWebEvalTasksQuerySchema>;

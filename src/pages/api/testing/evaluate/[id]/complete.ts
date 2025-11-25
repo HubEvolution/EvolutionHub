@@ -63,7 +63,7 @@ async function handler(context: APIContext): Promise<Response> {
     return createApiError('not_found', 'Task not found');
   }
 
-  if (task.status === 'completed' || task.status === 'failed') {
+  if (task.status === 'completed' || task.status === 'failed' || task.status === 'aborted') {
     return createApiError('forbidden', 'Task already finalized');
   }
 

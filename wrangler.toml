@@ -55,6 +55,8 @@ PROMPT_REWRITE_V1 = "true"
 AUTH_CSRF_RELAXED = "1"
 PUBLIC_ENHANCER_MVP_MODE = "0"
 PUBLIC_ENHANCER_LEGACY_MODE = "1"
+ENABLE_REFERRAL_REWARDS = "1"
+REFERRAL_REWARD_TENTHS = "500"
 
 [env.production.ai]
 binding = "AI"
@@ -284,6 +286,9 @@ id = "a63a1fd516d942e9a892f226f2cc11c6"
 
 # Produktionsumgebung: Variablen nur bei --env production aktiv
 [env.production.vars]
+# Web-Eval TTL (Sekunden) – 7 Tage
+WEB_EVAL_TASK_TTL_SECONDS = "604800"
+WEB_EVAL_REPORT_TTL_SECONDS = "604800"
 ENVIRONMENT = "production"
 BILLING_USAGE_OVERVIEW_V2 = "1"
 PUBLIC_SITE_URL="https://hub-evolution.com"
@@ -350,7 +355,7 @@ CF_ACCESS_JWKS_URL = ""          # leer lassen; wird aus Team-Domain abgeleitet
 pattern = "hub-evolution.com/*"
 zone_name = "hub-evolution.com"
 [[env.production.routes]]
-pattern = "www.hub-evolution.com/*" 
+pattern = "www.hub-evolution.com/*"
 zone_name = "hub-evolution.com"
 
 [[env.production.r2_buckets]]
@@ -398,6 +403,7 @@ database_id = "cadc96d1-712a-4873-8f3d-da87a936f3be"
 [[env.testing.routes]]
 pattern = "ci.hub-evolution.com/*"
 zone_name = "hub-evolution.com"
+
 [env.testing.vars]
 ENVIRONMENT = "testing"
 BASE_URL = "https://ci.hub-evolution.com"
@@ -417,8 +423,8 @@ PROMPT_ALLOWED_TYPES = "image/jpeg,image/png,image/webp,application/pdf,text/pla
 PROMPT_OUTPUT_TOKENS_MAX = "400"
 PROMPT_TEMPERATURE = "0.2"
 PROMPT_TOP_P = "0.9"
- VOICE_STREAM_SSE = "1"
- VOICE_STREAM_POLL = "1"
+VOICE_STREAM_SSE = "1"
+VOICE_STREAM_POLL = "1"
 WORKERS_AI_ENABLED = "1"
 # Allow Workers AI only for specific free models in testing; keep Replicate disabled (no token).
 TESTING_WORKERS_AI_ALLOW = "1"
@@ -491,17 +497,25 @@ zone_name = "hub-evolution.com"
 ENVIRONMENT = "staging"
 BILLING_USAGE_OVERVIEW_V2 = "1"
 BASE_URL = "https://staging.hub-evolution.com"
+
+# Web-Eval TTL (Sekunden) – 7 Tage
+WEB_EVAL_TASK_TTL_SECONDS = "604800"
+WEB_EVAL_REPORT_TTL_SECONDS = "604800"
+
 LEADMAGNET_SOURCE = "r2"
 AUTH_PROVIDER = "stytch"
 STYTCH_CUSTOM_DOMAIN = "login-test.hub-evolution.com"
 PUBLIC_ENABLE_CREDITS_CTA = "1"
 PUBLIC_LANDING_BG_VARIANT = "techcells"
+
 # ...
 USAGE_KV_V2 = "1"
 WORKERS_AI_ENABLED = "1"
 STYTCH_PKCE = "0"                     # PKCE OFF (anything != "1"/"true" disables it)
 PUBLIC_ENHANCER_MVP_MODE = "1"
 PUBLIC_ENHANCER_LEGACY_MODE = "1"
+ENABLE_REFERRAL_REWARDS = "1"
+REFERRAL_REWARD_TENTHS = "500"
 
 # Enable Cloudflare Browser Rendering runner in staging (Web-Eval)
 WEB_EVAL_BROWSER_ENABLE = "1"
@@ -525,4 +539,3 @@ PROMPT_OUTPUT_TOKENS_MAX = "400"
 PROMPT_TEMPERATURE = "0.2"
 PROMPT_TOP_P = "0.9"
 PUBLIC_TURNSTILE_SITE_KEY = "0x4AAAAAACBKqs4imV0FC-yN"
-

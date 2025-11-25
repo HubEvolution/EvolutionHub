@@ -10,7 +10,12 @@ import type { KVNamespace } from '@cloudflare/workers-types';
 import type { Plan } from '@/config/ai-image/entitlements';
 import { getWebscraperEntitlementsFor } from '@/config/webscraper/entitlements';
 import { WEBSCRAPER_CONFIG } from '@/config/webscraper';
-import { toUsageOverview } from '@/lib/kv/usage';
+import {
+  toUsageOverview,
+  monthlyKey,
+  getUsage as kvGetUsage,
+  getCreditsBalanceTenths,
+} from '@/lib/kv/usage';
 
 function ensureGuestIdCookie(context: APIContext): string {
   const existing = context.cookies.get('guest_id')?.value;
@@ -50,6 +55,7 @@ export const GET = withApiMiddleware(async (context) => {
       typeof rawEnv.WEBSCRAPER_GUEST_LIMIT === 'string' ? rawEnv.WEBSCRAPER_GUEST_LIMIT : undefined,
     WEBSCRAPER_USER_LIMIT:
       typeof rawEnv.WEBSCRAPER_USER_LIMIT === 'string' ? rawEnv.WEBSCRAPER_USER_LIMIT : undefined,
+    KV_AI_ENHANCER: rawEnv.KV_AI_ENHANCER as KVNamespace | undefined,
   };
 
   if (env.PUBLIC_WEBSCRAPER_V1 === 'false') {
@@ -66,9 +72,38 @@ export const GET = withApiMiddleware(async (context) => {
       resetAt: usageInfo.resetAt,
     });
 
+    // Monthly usage via KV helper and entitlements.monthlyRuns
+    let monthlyUsage: ReturnType<typeof toUsageOverview> | null = null;
+    if (env.KV_WEBSCRAPER) {
+      try {
+        const mKey = monthlyKey('webscraper', ownerType, ownerId);
+        const monthlyCounter = await kvGetUsage(env.KV_WEBSCRAPER, mKey);
+        const monthlyUsed = monthlyCounter?.count || 0;
+        monthlyUsage = toUsageOverview({
+          used: monthlyUsed,
+          limit: ent.monthlyRuns,
+          resetAt: null,
+        });
+      } catch {
+        monthlyUsage = null;
+      }
+    }
+
+    // Optional credits balance for display
+    let creditsBalanceTenths: number | null = null;
+    if (ownerType === 'user' && env.KV_AI_ENHANCER) {
+      try {
+        creditsBalanceTenths = await getCreditsBalanceTenths(env.KV_AI_ENHANCER, ownerId);
+      } catch {
+        creditsBalanceTenths = null;
+      }
+    }
+
     const resp = createApiSuccess({
       ownerType,
       usage,
+      dailyUsage: usage,
+      monthlyUsage,
       limits: {
         user: WEBSCRAPER_CONFIG.userLimit,
         guest: WEBSCRAPER_CONFIG.guestLimit,
@@ -76,6 +111,7 @@ export const GET = withApiMiddleware(async (context) => {
       // optionally provide plan and entitlements for clients that show them
       plan,
       entitlements: ent,
+      creditsBalanceTenths,
     });
     try {
       resp.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');

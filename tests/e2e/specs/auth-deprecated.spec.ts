@@ -14,14 +14,18 @@ test.describe('Legacy Auth 410 stubs', () => {
     expect(res.status()).toBe(410);
   });
 
-  test('POST /api/auth/login → 410 has security headers (saubere Variante)', async ({ request }) => {
+  test('POST /api/auth/login → 410 has security headers (saubere Variante)', async ({
+    request,
+  }) => {
     const res = await request.post('/api/auth/login');
     expect(res.status()).toBe(410);
     const headers = res.headers();
     // Security headers baseline via middleware
     expect((headers['x-frame-options'] || '').toUpperCase()).toBe('DENY');
     expect((headers['x-content-type-options'] || '').toLowerCase()).toBe('nosniff');
-    expect((headers['referrer-policy'] || '').toLowerCase()).toBe('strict-origin-when-cross-origin');
+    expect((headers['referrer-policy'] || '').toLowerCase()).toBe(
+      'strict-origin-when-cross-origin'
+    );
   });
 
   test('GET /api/auth/logout → 410', async ({ request }) => {

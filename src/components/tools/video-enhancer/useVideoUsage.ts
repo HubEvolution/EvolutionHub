@@ -7,14 +7,22 @@ interface UsageOverview {
   resetAt: number | null;
 }
 
+interface VideoUsageData {
+  ownerType: 'user' | 'guest';
+  limit: number;
+  remaining: number;
+  resetAt: number;
+  usage: UsageOverview;
+  plan?: string;
+  entitlements: {
+    monthlyCreditsTenths: number;
+  };
+  creditsBalanceTenths?: number | null;
+}
+
 interface UsageResponseSuccess {
   success: true;
-  data: {
-    limit: number;
-    remaining: number;
-    resetAt: number;
-    usage: UsageOverview;
-  };
+  data: VideoUsageData;
 }
 
 interface UsageResponseError {
@@ -26,6 +34,9 @@ type UsageResponse = UsageResponseSuccess | UsageResponseError;
 
 interface UseVideoUsageResult {
   usage: UsageOverview | null;
+  ownerType: 'user' | 'guest' | null;
+  plan: string | null;
+  creditsBalanceTenths: number | null;
   loading: boolean;
   error: string | null;
   refresh: () => Promise<void>;
@@ -33,6 +44,9 @@ interface UseVideoUsageResult {
 
 export function useVideoUsage(): UseVideoUsageResult {
   const [usage, setUsage] = useState<UsageOverview | null>(null);
+  const [ownerType, setOwnerType] = useState<'user' | 'guest' | null>(null);
+  const [plan, setPlan] = useState<string | null>(null);
+  const [creditsBalanceTenths, setCreditsBalanceTenths] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -62,14 +76,21 @@ export function useVideoUsage(): UseVideoUsageResult {
         return;
       }
 
+      const payload = data.data;
+
       const overview: UsageOverview = {
-        used: data.data.usage.used,
-        limit: data.data.usage.limit,
-        remaining: data.data.remaining,
-        resetAt: data.data.usage.resetAt,
+        used: payload.usage.used,
+        limit: payload.usage.limit,
+        remaining: payload.remaining,
+        resetAt: payload.usage.resetAt,
       };
 
       setUsage(overview);
+      setOwnerType(payload.ownerType ?? null);
+      setPlan(payload.plan ?? null);
+      setCreditsBalanceTenths(
+        typeof payload.creditsBalanceTenths === 'number' ? payload.creditsBalanceTenths : null
+      );
     } catch {
       setError('Failed to load usage');
     } finally {
@@ -117,5 +138,5 @@ export function useVideoUsage(): UseVideoUsageResult {
     };
   }, [refresh]);
 
-  return { usage, loading, error, refresh };
+  return { usage, ownerType, plan, creditsBalanceTenths, loading, error, refresh };
 }

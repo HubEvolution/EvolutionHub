@@ -9,7 +9,12 @@ import { VoiceTranscribeService } from '@/lib/services/voice-transcribe-service'
 import { VOICE_FREE_LIMIT_GUEST, VOICE_FREE_LIMIT_USER } from '@/config/voice';
 import { getVoiceEntitlementsFor } from '@/config/voice/entitlements';
 import type { Plan } from '@/config/ai-image/entitlements';
-import { toUsageOverview } from '@/lib/kv/usage';
+import {
+  toUsageOverview,
+  monthlyKey,
+  getUsage as kvGetUsage,
+  getCreditsBalanceTenths,
+} from '@/lib/kv/usage';
 
 function ensureGuestIdCookie(context: APIContext): string {
   const cookies = context.cookies;
@@ -30,6 +35,7 @@ function ensureGuestIdCookie(context: APIContext): string {
 
 type VoiceEnv = {
   KV_VOICE_TRANSCRIBE?: import('@cloudflare/workers-types').KVNamespace;
+  KV_AI_ENHANCER?: import('@cloudflare/workers-types').KVNamespace;
   OPENAI_API_KEY?: string;
   WHISPER_MODEL?: string;
   ENVIRONMENT?: string;
@@ -59,12 +65,44 @@ export const GET = withApiMiddleware(async (context: APIContext) => {
       limit: usageInfo.limit,
       resetAt: usageInfo.resetAt,
     });
+
+    // Monthly usage via KV helper and entitlements.monthlyRuns
+    let monthlyUsage: ReturnType<typeof toUsageOverview> | null = null;
+    if (env.KV_VOICE_TRANSCRIBE) {
+      try {
+        const mKey = monthlyKey('voice', ownerType, ownerId);
+        const monthlyCounter = await kvGetUsage(env.KV_VOICE_TRANSCRIBE, mKey);
+        const monthlyUsed = monthlyCounter?.count || 0;
+        monthlyUsage = toUsageOverview({
+          used: monthlyUsed,
+          limit: ent.monthlyRuns,
+          resetAt: null,
+        });
+      } catch {
+        monthlyUsage = null;
+      }
+    }
+
+    // Optional credits balance for display
+    let creditsBalanceTenths: number | null = null;
+    if (ownerType === 'user' && env.KV_AI_ENHANCER) {
+      try {
+        creditsBalanceTenths = await getCreditsBalanceTenths(env.KV_AI_ENHANCER, ownerId);
+      } catch {
+        creditsBalanceTenths = null;
+      }
+    }
+
     const resp = createApiSuccess({
       ownerType,
       usage,
+      // Explicit dailyUsage for unified HUDs (same as usage overview)
+      dailyUsage: usage,
+      monthlyUsage,
       limits: { user: VOICE_FREE_LIMIT_USER, guest: VOICE_FREE_LIMIT_GUEST },
-      plan: locals.user?.plan || 'free',
+      plan: ownerType === 'user' ? (plan ?? 'free') : undefined,
       entitlements: ent,
+      creditsBalanceTenths,
     });
     try {
       resp.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');

@@ -67,14 +67,6 @@ interface PricingDetailsProviderProps extends PropsWithChildren {
   locale: Locale;
 }
 
-const TOOL_SUMMARY_BULLETS = [
-  'Imag Enhancer – upscale and denoise photos with AI clarity',
-  'Video Enhancer – sharpen clips and boost resolution up to 4K',
-  'Prompt Enhancer – craft production-ready prompts in seconds',
-  'Voice Visualizer – capture audio and get instant transcripts',
-  'Webscraper – extract clean text with SSRF guardrails',
-];
-
 const FALLBACK_PLAN_LABELS: Record<
   PricingPlanId,
   {
@@ -90,7 +82,14 @@ const FALLBACK_PLAN_LABELS: Record<
   starter: {
     title: 'Starter',
     subtitle: 'Perfect to get started',
-    bullets: ['Credits: 30/month (burst: 3/day)', ...TOOL_SUMMARY_BULLETS, 'Commercial use: No'],
+    bullets: [
+      'Prompt Enhancer: up to 100 prompts/day, 2,000/month (Free Tool included)',
+      'Web Eval & Webscraper: up to 5–20 runs/day for quick checks',
+      'Image Enhancer: up to 3 images/day, 30/month',
+      'Voice Transcriptor: ~5 minutes/day for short recordings',
+      'Video Enhancer: pay-as-you-go with optional credit packs',
+      'Commercial use: No',
+    ],
     price: 'Free',
     pricePeriod: 'per month',
     monthlyBadge: 'Monthly billing',
@@ -99,7 +98,14 @@ const FALLBACK_PLAN_LABELS: Record<
   pro: {
     title: 'Pro',
     subtitle: 'For creators and indie teams',
-    bullets: ['Credits: 300/month (burst: 30/day)', ...TOOL_SUMMARY_BULLETS, 'Commercial use: Yes'],
+    bullets: [
+      'Prompt Enhancer: up to 500 prompts/day, 15,000/month',
+      'Web Eval & Webscraper: up to 50–100 runs/day for deeper analysis',
+      'Image Enhancer: up to 30 images/day, 300/month',
+      'Voice Transcriptor: ~10+ minutes/day for voice notes and calls',
+      'Video Enhancer: 100 credits/month included for upscales',
+      'Commercial use: Yes',
+    ],
     price: '€12.00',
     pricePeriod: 'per month',
     monthlyBadge: 'Monthly billing',
@@ -109,8 +115,11 @@ const FALLBACK_PLAN_LABELS: Record<
     title: 'Business',
     subtitle: 'For power users',
     bullets: [
-      'Credits: 1,000/month (burst: 100/day)',
-      ...TOOL_SUMMARY_BULLETS,
+      'Prompt Enhancer: up to 2,000 prompts/day, 60,000/month',
+      'Web Eval & Webscraper: up to 100–300 runs/day across projects',
+      'Image Enhancer: up to 100 images/day, 1,000/month',
+      'Voice Transcriptor: ~20+ minutes/day for meetings and sessions',
+      'Video Enhancer: 100 credits/month included for frequent upscales',
       'Commercial use: Yes',
     ],
     price: '€28.00',
@@ -122,8 +131,11 @@ const FALLBACK_PLAN_LABELS: Record<
     title: 'Enterprise',
     subtitle: 'For organizations',
     bullets: [
-      'Credits: 4,000+/month (burst: 400/day)',
-      ...TOOL_SUMMARY_BULLETS,
+      'Prompt Enhancer: up to 10,000 prompts/day, 1,000,000/month',
+      'Web Eval & Webscraper: up to 400+ runs/day for teams and fleets',
+      'Image Enhancer: up to 400 images/day, 4,000/month',
+      'Voice Transcriptor: extended daily recording time for teams',
+      'Video Enhancer: 500+ credits/month included, custom scaling',
       'Custom limits & billing',
       'Dedicated success contact',
     ],

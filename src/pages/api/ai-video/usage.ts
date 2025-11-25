@@ -8,7 +8,12 @@ import {
 import { voiceTranscribeLimiter } from '@/lib/rate-limiter';
 import { getVideoEntitlementsFor } from '@/config/ai-video/entitlements';
 import type { Plan } from '@/config/ai-image/entitlements';
-import { getUsage as kvGetUsage, rollingDailyKey, toUsageOverview } from '@/lib/kv/usage';
+import {
+  getUsage as kvGetUsage,
+  rollingDailyKey,
+  toUsageOverview,
+  getCreditsBalanceTenths,
+} from '@/lib/kv/usage';
 
 type OwnerType = 'user' | 'guest';
 
@@ -101,7 +106,30 @@ export const GET = withApiMiddleware(
 
     const usage = toUsageOverview({ used: limit - remaining, limit, resetAt: effectiveResetAt });
 
-    const response = createApiSuccess({ limit, remaining, resetAt: effectiveResetAt, usage });
+    // Optional credits balance for display in HUD
+    let creditsBalanceTenths: number | null = null;
+    try {
+      const env = locals.runtime?.env ?? {};
+      const kvCredits = (env.KV_AI_ENHANCER ?? env.KV_AI_VIDEO_USAGE) as
+        | import('@cloudflare/workers-types').KVNamespace
+        | undefined;
+      if (ownerType === 'user' && kvCredits) {
+        creditsBalanceTenths = await getCreditsBalanceTenths(kvCredits, ownerId);
+      }
+    } catch {
+      creditsBalanceTenths = null;
+    }
+
+    const response = createApiSuccess({
+      ownerType,
+      limit,
+      remaining,
+      resetAt: effectiveResetAt,
+      usage,
+      plan: ownerType === 'user' ? (plan ?? 'free') : undefined,
+      entitlements,
+      creditsBalanceTenths,
+    });
 
     try {
       response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');

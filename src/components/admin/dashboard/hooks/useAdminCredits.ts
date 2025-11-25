@@ -36,10 +36,7 @@ export function useAdminCredits() {
         const sec = error.retryAfterSec;
         if (typeof sec === 'number' && Number.isFinite(sec) && sec > 0) {
           const minutes = Math.max(1, Math.ceil(sec / 60));
-          return strings.errors.rateLimitWithRetryAfter.replace(
-            '{minutes}',
-            String(minutes)
-          );
+          return strings.errors.rateLimitWithRetryAfter.replace('{minutes}', String(minutes));
         }
         return strings.errors.rateLimit;
       }

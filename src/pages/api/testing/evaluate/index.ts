@@ -9,11 +9,17 @@ import { z, formatZodError, webEvalTaskRequestSchema } from '@/lib/validation';
 import { webEvalTaskLimiter } from '@/lib/rate-limiter';
 import { createTaskRecord } from '@/lib/testing/web-eval/storage';
 import { resolveQueueConfig, type WebEvalEnvBindings } from '@/lib/testing/web-eval/env';
+import { generateAutoAssertions } from '@/lib/testing/web-eval/auto-assertions';
 import type { WebEvalTaskCreatePayload, WebEvalTaskRecord } from '@/lib/testing/web-eval';
 import { validateTargetUrl } from '@/lib/testing/web-eval/ssrf';
 import type { Plan } from '@/config/ai-image/entitlements';
 import { getWebEvalEntitlementsFor } from '@/config/web-eval/entitlements';
-import { getUsage as kvGetUsage, incrementDailyRolling, rollingDailyKey } from '@/lib/kv/usage';
+import {
+  getUsage as kvGetUsage,
+  incrementDailyRolling,
+  incrementMonthly,
+  rollingDailyKey,
+} from '@/lib/kv/usage';
 import { loggerFactory } from '@/server/utils/logger-factory';
 
 const webEvalAssertionKindSchema = z.enum(['textIncludes', 'selectorExists']);
@@ -85,7 +91,26 @@ async function handler(context: APIContext): Promise<Response> {
     });
   }
 
-  const parsedAssertions = webEvalAssertionsRequestSchema.safeParse(rawAssertions);
+  const autoAssertionsEnabledFlag = env.WEB_EVAL_AUTO_ASSERTIONS_ENABLE;
+  const autoAssertionsEnabled =
+    autoAssertionsEnabledFlag === '1' ||
+    (typeof autoAssertionsEnabledFlag === 'string' &&
+      autoAssertionsEnabledFlag.toLowerCase() === 'true');
+
+  let rawAssertionsCandidate: unknown = rawAssertions;
+
+  if (autoAssertionsEnabled && typeof rawAssertions === 'undefined') {
+    const autoAssertions = generateAutoAssertions({
+      url: parsed.data.url,
+      description: parsed.data.task,
+    });
+
+    if (autoAssertions.length > 0) {
+      rawAssertionsCandidate = autoAssertions;
+    }
+  }
+
+  const parsedAssertions = webEvalAssertionsRequestSchema.safeParse(rawAssertionsCandidate);
   if (!parsedAssertions.success) {
     return createApiError('validation_error', 'Invalid request parameters', {
       details: formatZodError(parsedAssertions.error),
@@ -108,6 +133,37 @@ async function handler(context: APIContext): Promise<Response> {
   const plan: Plan | undefined =
     ownerType === 'user' ? ((locals.user?.plan as Plan | undefined) ?? 'free') : undefined;
   const entitlements = getWebEvalEntitlementsFor(ownerType, plan);
+  const monthlyLimit = entitlements.monthlyRuns;
+
+  if (monthlyLimit > 0) {
+    try {
+      const monthlyResult = await incrementMonthly(
+        kv,
+        'web-eval',
+        ownerType,
+        ownerId,
+        monthlyLimit
+      );
+      if (!monthlyResult.allowed) {
+        return createApiError('validation_error', 'quota_exceeded', {
+          limit: monthlyLimit,
+          resetAt: monthlyResult.usage.resetAt * 1000,
+          scope: 'monthly',
+        });
+      }
+    } catch (err) {
+      try {
+        loggerFactory
+          .createLogger('web-eval-task')
+          .warn('web_eval_monthly_quota_increment_failed', {
+            ownerType,
+            ownerId: maskOwnerId(ownerId),
+            error: err instanceof Error ? err.message : String(err),
+          });
+      } catch {}
+    }
+  }
+
   const dailyLimit = entitlements.dailyBurstCap;
   const usageKey = rollingDailyKey('web-eval', ownerType, ownerId);
   const nowSeconds = Math.floor(Date.now() / 1000);
@@ -128,19 +184,21 @@ async function handler(context: APIContext): Promise<Response> {
     });
   }
 
-  const assertions = parsedAssertions.data && parsedAssertions.data.length > 0
-    ? parsedAssertions.data.map((a, idx) => {
-        const id = a.id && a.id.trim().length > 0
-          ? a.id.trim()
-          : (crypto.randomUUID?.() ?? `assert-${Date.now().toString(36)}-${idx}`);
-        return {
-          id,
-          kind: a.kind,
-          value: a.value.trim(),
-          description: a.description?.trim() || undefined,
-        };
-      })
-    : undefined;
+  const assertions =
+    parsedAssertions.data && parsedAssertions.data.length > 0
+      ? parsedAssertions.data.map((a, idx) => {
+          const id =
+            a.id && a.id.trim().length > 0
+              ? a.id.trim()
+              : (crypto.randomUUID?.() ?? `assert-${Date.now().toString(36)}-${idx}`);
+          return {
+            id,
+            kind: a.kind,
+            value: a.value.trim(),
+            description: a.description?.trim() || undefined,
+          };
+        })
+      : undefined;
 
   const payload: WebEvalTaskCreatePayload = {
     ownerType,

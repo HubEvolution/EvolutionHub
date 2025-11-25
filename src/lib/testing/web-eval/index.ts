@@ -11,6 +11,7 @@ export type {
   WebEvalNetworkRequest,
   WebEvalReport,
   WebEvalReportEnvelope,
+  WebEvalLiveEnvelope,
   WebEvalKvNamespace,
   WebEvalQueueConfig,
   WebEvalAssertionKind,

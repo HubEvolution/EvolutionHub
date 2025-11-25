@@ -296,7 +296,7 @@ const profileCopy = {
           <UserProfile user={{ ...user, plan: billingSummary?.plan ?? user.plan }} />
         </div>
 
-        <div class="xl:col-span-4 space-y-4">
+        <div class="xl:col-span-4 space-y-6">
           <Card as="div" className="group p-4">
             <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-6">
@@ -389,42 +389,56 @@ const profileCopy = {
               })()
             }
           </Card>
-          <ToolsUsageOverviewCard
-            client:load
-            strings={{
-              title: safeT(
-                'pages.dashboard.tools_overview.title',
-                locale === 'de' ? 'Tool-Kontingente & Nutzung' : 'Tool limits & usage'
-              ),
-              subtitle: safeT(
-                'pages.dashboard.tools_overview.subtitle',
-                locale === 'de' ? 'Planbasierte Limits für alle Tools' : 'Per-plan quotas across all tools'
-              ),
-              columns: {
-                tool: safeT('pages.dashboard.tools_overview.columns.tool', 'Tool'),
-                usage: safeT('pages.dashboard.tools_overview.columns.usage', locale === 'de' ? 'Nutzung' : 'Used / limit'),
-                remaining: safeT('pages.dashboard.tools_overview.columns.remaining', locale === 'de' ? 'Verbleibend' : 'Remaining'),
-                period: safeT('pages.dashboard.tools_overview.columns.period', locale === 'de' ? 'Zeitraum' : 'Period'),
-              },
-              periods: {
-                monthly: safeT(
-                  'pages.dashboard.tools_overview.period.monthly',
-                  locale === 'de' ? 'pro Monat' : 'per month'
+          <div class="pt-3">
+            <ToolsUsageOverviewCard
+              client:load
+              strings={{
+                title: safeT(
+                  'pages.dashboard.tools_overview.title',
+                  locale === 'de' ? 'Tool-Kontingente & Nutzung' : 'Tool limits & usage'
                 ),
-                daily: safeT(
-                  'pages.dashboard.tools_overview.period.daily',
-                  locale === 'de' ? 'pro Tag' : 'per day'
+                subtitle: safeT(
+                  'pages.dashboard.tools_overview.subtitle',
+                  locale === 'de'
+                    ? 'Planbasierte Limits für alle Tools'
+                    : 'Per-plan quotas across all tools'
                 ),
-              },
-              toolNames: {
-                image: t('pages.tools.items.Imag-Enhancer.name'),
-                video: t('pages.tools.items.video-enhancer.name'),
-                prompt: t('pages.tools.items.prompt-enhancer.name'),
-                voice: t('pages.tools.items.voice-visualizer.name'),
-                webscraper: t('pages.tools.items.webscraper.name'),
-              },
-            }}
-          />
+                columns: {
+                  tool: safeT('pages.dashboard.tools_overview.columns.tool', 'Tool'),
+                  usage: safeT(
+                    'pages.dashboard.tools_overview.columns.usage',
+                    locale === 'de' ? 'Nutzung' : 'Used / limit'
+                  ),
+                  remaining: safeT(
+                    'pages.dashboard.tools_overview.columns.remaining',
+                    locale === 'de' ? 'Verbleibend' : 'Remaining'
+                  ),
+                  period: safeT(
+                    'pages.dashboard.tools_overview.columns.period',
+                    locale === 'de' ? 'Zeitraum' : 'Period'
+                  ),
+                },
+                periods: {
+                  monthly: safeT(
+                    'pages.dashboard.tools_overview.period.monthly',
+                    locale === 'de' ? 'pro Monat' : 'per month'
+                  ),
+                  daily: safeT(
+                    'pages.dashboard.tools_overview.period.daily',
+                    locale === 'de' ? 'pro Tag' : 'per day'
+                  ),
+                },
+                toolNames: {
+                  image: t('pages.tools.items.Imag-Enhancer.name'),
+                  video: t('pages.tools.items.video-enhancer.name'),
+                  prompt: t('pages.tools.items.prompt-enhancer.name'),
+                  voice: t('pages.tools.items.voice-visualizer.name'),
+                  webscraper: t('pages.tools.items.webscraper.name'),
+                  webEval: t('pages.tools.items.web-eval.name'),
+                },
+              }}
+            />
+          </div>
         </div>
 
         <div class="xl:col-span-4">

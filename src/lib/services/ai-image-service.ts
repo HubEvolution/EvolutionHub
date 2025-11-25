@@ -538,7 +538,7 @@ export class AiImageService {
       let status = runStatusValue;
       while (status !== 'completed' && status !== 'failed' && status !== 'cancelled') {
         await new Promise((resolve) => setTimeout(resolve, 50));
-        const runStatus = await openai.beta.threads.runs.retrieve(threadId, runId);
+        const runStatus = await openai.beta.threads.runs.retrieve(runId, { thread_id: threadId });
         const stat = (runStatus as unknown as { status?: unknown })?.status;
         status = typeof stat === 'string' ? stat : '';
       }

@@ -1132,6 +1132,7 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
                     fullscreenLabel={fullscreenLabel}
                     exitFullscreenLabel={exitFullscreenLabel}
                     onToggleFullscreen={() => setIsFullscreen((v) => !v)}
+                    plan={plan ?? null}
                     planLabel={planLabel}
                     usageLabel={strings.usage}
                     loadingLabel={strings.loading}

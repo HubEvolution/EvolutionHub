@@ -75,7 +75,14 @@ export default function ImagEnhancerMVP(props: ImagEnhancerMVPProps): React.Reac
 
   // Custom hooks
   const { enhance } = useEnhanceMVP();
-  const { usage, refresh: refreshUsage } = useUsage();
+  const {
+    usage,
+    monthlyUsage,
+    ownerType,
+    plan,
+    creditsBalanceTenths,
+    refresh: refreshUsage,
+  } = useUsage();
 
   const uploadHandlers = useUploadMVP({
     strings,
@@ -238,6 +245,15 @@ export default function ImagEnhancerMVP(props: ImagEnhancerMVPProps): React.Reac
   const quotaExceeded = Boolean(usage && usage.used >= usage.limit);
   const canSubmit = Boolean(file && model && !loading && !quotaExceeded);
 
+  const planLabel = useMemo(() => {
+    if (ownerType === 'guest' || ownerType === null) return 'Guest';
+    if (ownerType === 'user') {
+      if (plan === 'free' || !plan) return 'Starter';
+      return plan.charAt(0).toUpperCase() + plan.slice(1);
+    }
+    return '';
+  }, [ownerType, plan]);
+
   return (
     <div className="w-full max-w-4xl mx-auto p-4 space-y-6">
       {/* Upload Area */}
@@ -301,6 +317,11 @@ export default function ImagEnhancerMVP(props: ImagEnhancerMVPProps): React.Reac
           onEnhance={handleEnhance}
           usage={usage}
           quotaExceeded={quotaExceeded}
+          ownerType={ownerType}
+          plan={plan ?? null}
+          planLabel={planLabel}
+          monthlyUsage={monthlyUsage}
+          creditsBalanceTenths={creditsBalanceTenths}
         />
       )}
 
@@ -311,6 +332,11 @@ export default function ImagEnhancerMVP(props: ImagEnhancerMVPProps): React.Reac
           resultUrl={resultUrl}
           strings={strings}
           usage={usage}
+          ownerType={ownerType}
+          plan={plan ?? null}
+          planLabel={planLabel}
+          monthlyUsage={monthlyUsage}
+          creditsBalanceTenths={creditsBalanceTenths}
           onDownload={handleDownload}
           onStartOver={handleStartOver}
           loading={loading}

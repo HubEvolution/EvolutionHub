@@ -21,6 +21,11 @@ export interface Env {
   HC_PRICING?: string;
   HC_AUTH?: string;
   HC_DOCS?: string;
+  // Optional: Web-Eval executor gating & health
+  WEB_EVAL_EXEC_ENABLE?: string;
+  WEB_EVAL_EXEC_HOSTS?: string;
+  WEB_EVAL_EXEC_MAX_RUNS_PER_TICK?: string;
+  HC_WEB_EVAL?: string;
 }
 
 function nowIso() {
@@ -158,6 +163,124 @@ async function runProdAuthHealthAll(env: Env, onlyHost?: string) {
   }
 }
 
+function isWebEvalExecEnabledFor(env: Env, host: string): boolean {
+  const gate = String(env.WEB_EVAL_EXEC_ENABLE || '').toLowerCase();
+  if (!(gate === '1' || gate === 'true')) return false;
+
+  const rawHosts = env.WEB_EVAL_EXEC_HOSTS || '[]';
+  let allowedHosts: string[] = [];
+  try {
+    const parsed = JSON.parse(rawHosts);
+    if (Array.isArray(parsed)) {
+      allowedHosts = parsed.filter((v) => typeof v === 'string');
+    }
+  } catch {
+    // ignore JSON parse errors and treat as disabled
+  }
+
+  if (!allowedHosts.length) return false;
+  return allowedHosts.includes(host);
+}
+
+function getWebEvalMaxRunsPerTick(env: Env): number {
+  const raw = env.WEB_EVAL_EXEC_MAX_RUNS_PER_TICK || '';
+  const n = Number.parseInt(raw, 10);
+  if (Number.isFinite(n) && n > 0 && n <= 20) return n;
+  return 3;
+}
+
+async function runWebEvalExecFor(env: Env, baseUrl: string, host: string) {
+  if (!isWebEvalExecEnabledFor(env, host)) {
+    return;
+  }
+
+  const maxRuns = getWebEvalMaxRunsPerTick(env);
+  let runs = 0;
+  let lastStatus = 0;
+  let ok = true;
+  let lastError: string | null = null;
+
+  for (let i = 0; i < maxRuns; i++) {
+    let res: Response;
+    try {
+      res = await fetch(`${baseUrl}/api/testing/evaluate/next/run`, {
+        method: 'POST',
+        headers: {
+          'User-Agent': 'evolution-hub-cron',
+          Origin: baseUrl,
+          'x-internal-exec': '1',
+        },
+      });
+    } catch (e) {
+      ok = false;
+      lastError = `fetch_error:${String(e)}`;
+      break;
+    }
+
+    lastStatus = res.status;
+    let json: any = null;
+    try {
+      json = await res.json();
+    } catch {
+      // tolerate empty/invalid JSON, will be handled below
+    }
+
+    if (res.status === 200) {
+      runs += 1;
+      if (!json || json.success !== true) {
+        ok = false;
+        lastError = 'unexpected_response';
+        break;
+      }
+      const task = json.data && 'task' in json.data ? json.data.task : null;
+      // Wenn keine weitere Task vorhanden ist, Queue leer → abbrechen
+      if (!task) {
+        break;
+      }
+      // Andernfalls nächste Iteration (bis maxRuns erreicht ist)
+      continue;
+    }
+
+    if (res.status === 429) {
+      ok = false;
+      lastError = 'rate_limited';
+      break;
+    }
+
+    if (res.status === 403) {
+      ok = false;
+      lastError = 'forbidden';
+      break;
+    }
+
+    ok = false;
+    lastError = `http_${res.status}`;
+    break;
+  }
+
+  const payload = {
+    kind: 'web-eval-exec',
+    ok,
+    runs,
+    lastStatus,
+    lastError,
+    at: nowIso(),
+    host,
+  };
+  try {
+    await putStatusKV(env, `webeval:last:${host}`, payload);
+  } catch {
+    // Status-Logging darf den Executor nicht hart brechen
+  }
+}
+
+async function runWebEvalExecAll(env: Env, onlyHost?: string) {
+  const targets = parseTargets(env).filter((t) => (!onlyHost ? true : t.host === onlyHost));
+  for (const t of targets) {
+    await runWebEvalExecFor(env, t.url, t.host);
+  }
+}
+
 async function runDocsInventory(env: Env) {
   const start = Date.now();
   const owner = 'HubEvolution';
@@ -248,6 +371,26 @@ export default {
             }
           );
         }
+        if (target === 'webeval') {
+          await hcPing(env.HC_WEB_EVAL, '/start');
+          try {
+            if (hostFilter) {
+              await runWebEvalExecAll(env, hostFilter);
+            } else {
+              await runWebEvalExecAll(env);
+            }
+            await hcPing(env.HC_WEB_EVAL);
+          } catch (e) {
+            await hcPing(env.HC_WEB_EVAL, '/fail');
+            throw e;
+          }
+          return new Response(
+            JSON.stringify({ ok: true, ran: 'webeval', host: hostFilter || 'all' }),
+            {
+              headers: { 'Content-Type': 'application/json' },
+            }
+          );
+        }
         if (target === 'docs') {
           await hcPing(env.HC_DOCS, '/start');
           try {
@@ -327,6 +470,20 @@ export default {
             await hcPing(env.HC_DOCS);
           } catch (e) {
             await hcPing(env.HC_DOCS, '/fail');
+            throw e;
+          }
+        })()
+      );
+    } else if (event.cron === '*/5 * * * *') {
+      // Optional: Web-Eval Executor, über Env komplett deaktivierbar
+      ctx.waitUntil(
+        (async () => {
+          await hcPing(env.HC_WEB_EVAL, '/start');
+          try {
+            await runWebEvalExecAll(env);
+            await hcPing(env.HC_WEB_EVAL);
+          } catch (e) {
+            await hcPing(env.HC_WEB_EVAL, '/fail');
             throw e;
           }
         })()

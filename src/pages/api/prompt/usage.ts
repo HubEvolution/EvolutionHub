@@ -5,10 +5,16 @@ import {
   createApiSuccess,
   createMethodNotAllowed,
 } from '@/lib/api-middleware';
-import type { OwnerType } from '@/config/ai-image';
-import { getEntitlementsFor, type Plan } from '@/config/ai-image/entitlements';
+import type { OwnerType, Plan } from '@/config/ai-image';
+import { getPromptEntitlementsFor } from '@/config/prompt/entitlements';
 import type { KVNamespace } from '@cloudflare/workers-types';
-import { getUsage as kvGetUsage, rollingDailyKey, toUsageOverview } from '@/lib/kv/usage';
+import {
+  getUsage as kvGetUsage,
+  rollingDailyKey,
+  monthlyKey,
+  toUsageOverview,
+  getCreditsBalanceTenths,
+} from '@/lib/kv/usage';
 
 function ensureGuestIdCookie(context: APIContext): string {
   const existing = context.cookies.get('guest_id')?.value;
@@ -35,12 +41,12 @@ export const GET = withApiMiddleware(async (context: APIContext) => {
   const ownerId =
     ownerType === 'user' ? (locals.user as { id: string }).id : ensureGuestIdCookie(context);
 
-  // Reuse existing plan/entitlement mapping from ai-image for now
+  // Resolve plan from user (shared Plan type); entitlements are prompt-specific
   const plan =
     ownerType === 'user'
       ? (((locals.user as { plan?: Plan } | null)?.plan ?? 'free') as Plan)
       : undefined;
-  const ent = getEntitlementsFor(ownerType, plan);
+  const ent = getPromptEntitlementsFor(ownerType, plan);
 
   try {
     // Resolve quotas from env (authoritative for Prompt Enhancer usage)
@@ -78,15 +84,49 @@ export const GET = withApiMiddleware(async (context: APIContext) => {
     }
 
     const usage = toUsageOverview({ used, limit: effectiveLimit, resetAt });
+
+    // Extended daily usage based on entitlements (kept optional for backwards compatibility)
+    const dailyUsage = toUsageOverview({
+      used,
+      limit: ent.dailyBurstCap,
+      resetAt,
+    });
+
+    // Monthly usage based on prompt entitlements; stored via monthlyKey in KV
+    let monthlyUsage: ReturnType<typeof toUsageOverview> | null = null;
+    if (kv) {
+      const mKey = monthlyKey('prompt', ownerType, ownerId);
+      const monthlyCounter = await kvGetUsage(kv as KVNamespace, mKey);
+      const monthlyUsed = monthlyCounter?.count || 0;
+      monthlyUsage = toUsageOverview({
+        used: monthlyUsed,
+        limit: ent.monthlyRuns,
+        resetAt: null,
+      });
+    }
+
+    // Credits balance (tenths) from global AI credits KV, when available
+    let creditsBalanceTenths: number | null = null;
+    const kvCredits = rawEnv.KV_AI_ENHANCER as KVNamespace | undefined;
+    if (ownerType === 'user' && kvCredits) {
+      try {
+        creditsBalanceTenths = await getCreditsBalanceTenths(kvCredits, ownerId);
+      } catch {
+        // ignore credit lookup failures; keep field null
+      }
+    }
     const resp = createApiSuccess({
       ownerType,
       usage,
+      dailyUsage,
+      monthlyUsage,
       limits: {
         user: limitUser,
         guest: limitGuest,
       },
       plan: ownerType === 'user' ? (plan ?? 'free') : undefined,
       entitlements: ent,
+      creditsBalanceTenths,
       ...(isDebug
         ? {
             debug: {

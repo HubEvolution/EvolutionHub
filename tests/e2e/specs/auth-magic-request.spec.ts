@@ -24,7 +24,9 @@ test.describe('Auth Magic Request', () => {
     await expect(status).toHaveAttribute('role', /^(status|alert)$/);
   });
 
-  test('POST /api/auth/magic/request accepts CSRF and returns success JSON', async ({ request }) => {
+  test('POST /api/auth/magic/request accepts CSRF and returns success JSON', async ({
+    request,
+  }) => {
     const csrf = `e2e-csrf-${Date.now()}`;
     const email = `e2e-magic+${Date.now()}@example.com`;
 

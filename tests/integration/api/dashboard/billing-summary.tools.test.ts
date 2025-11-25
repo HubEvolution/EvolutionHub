@@ -14,7 +14,7 @@ interface UsageOverview {
   resetAt: number | null;
 }
 
-type ToolKey = 'image' | 'video' | 'prompt' | 'voice' | 'webscraper';
+type ToolKey = 'image' | 'video' | 'prompt' | 'voice' | 'webscraper' | 'webEval';
 
 interface BillingSummaryData {
   plan: string;

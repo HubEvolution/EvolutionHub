@@ -6,6 +6,20 @@ export interface VoiceUsageInfo {
   resetAt: number | null;
 }
 
+interface VoiceUsageResponse {
+  ownerType: 'user' | 'guest';
+  usage: VoiceUsageInfo;
+  dailyUsage?: VoiceUsageInfo;
+  monthlyUsage?: VoiceUsageInfo | null;
+  limits: { user: number; guest: number };
+  plan?: string;
+  entitlements: {
+    dailyBurstCap: number;
+    monthlyRuns: number;
+  };
+  creditsBalanceTenths?: number | null;
+}
+
 export interface VoiceTranscribeResponse {
   success: boolean;
   data?: {
@@ -63,12 +77,7 @@ export async function postTranscribeChunk(
 
 export async function getVoiceUsage(): Promise<{
   success: boolean;
-  data?: {
-    ownerType: 'user' | 'guest';
-    usage: VoiceUsageInfo;
-    limits: { user: number; guest: number };
-    plan?: string;
-  };
+  data?: VoiceUsageResponse;
 }> {
   const res = await fetch('/api/voice/usage');
   return res.json();

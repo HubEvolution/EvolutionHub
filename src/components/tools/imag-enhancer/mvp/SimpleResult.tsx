@@ -1,7 +1,9 @@
 import React, { useMemo, useCallback } from 'react';
 import { toast } from 'sonner';
 import Button from '@/components/ui/Button';
+import ToolUsageBadge from '@/components/tools/shared/ToolUsageBadge';
 import type { ImagEnhancerMVPStrings, UsageData } from './types';
+import type { OwnerType, Plan } from '../types';
 import { clientLogger } from '@/lib/client-logger';
 
 export interface SimpleResultProps {
@@ -9,6 +11,11 @@ export interface SimpleResultProps {
   resultUrl: string;
   strings: ImagEnhancerMVPStrings;
   usage: UsageData | null;
+  ownerType: OwnerType | null;
+  plan: Plan | null;
+  planLabel: string;
+  monthlyUsage: UsageData | null;
+  creditsBalanceTenths: number | null;
   onDownload: () => void;
   onStartOver: () => void;
   loading: boolean;
@@ -25,11 +32,21 @@ export function SimpleResult(props: SimpleResultProps): React.ReactElement {
     resultUrl,
     strings,
     usage,
+    ownerType,
+    plan,
+    planLabel,
+    monthlyUsage,
+    creditsBalanceTenths,
     onDownload,
     onStartOver,
     loading,
     processingLabel,
   } = props;
+
+  const locale = typeof navigator !== 'undefined' && navigator.language ? navigator.language : 'en';
+  const isDe = locale.startsWith('de');
+  const monthlyLabel = strings.monthlyUsage || (isDe ? 'Monatliches Limit' : 'Monthly limit');
+  const creditsLabel = strings.creditsBalance || (isDe ? 'Credits-Guthaben' : 'Credits balance');
 
   const cacheBustedUrl = useMemo(() => {
     try {
@@ -47,6 +64,15 @@ export function SimpleResult(props: SimpleResultProps): React.ReactElement {
     clientLogger.error('Result image failed to load', { component: 'SimpleResult', resultUrl });
     toast.error(strings.toasts.processingFailed);
   }, [resultUrl, strings.toasts.processingFailed]);
+
+  const planId =
+    ownerType === 'user' && plan
+      ? plan === 'free'
+        ? 'starter'
+        : (plan as 'pro' | 'premium' | 'enterprise')
+      : null;
+
+  const quotaExceeded = Boolean(usage && usage.used >= usage.limit);
 
   return (
     <div className="space-y-4">
@@ -108,10 +134,63 @@ export function SimpleResult(props: SimpleResultProps): React.ReactElement {
         </Button>
       </div>
 
-      {/* Usage Info */}
+      {/* Usage Info (HUD) */}
       {usage && (
-        <div className="text-center text-sm text-gray-600 dark:text-gray-400">
-          {strings.usage}: {usage.used}/{usage.limit}
+        <div className="mt-2 flex justify-center">
+          <div className="w-full max-w-xs sm:max-w-sm flex flex-col items-center gap-2">
+            <ToolUsageBadge
+              label={strings.usage}
+              loadingLabel={strings.loading}
+              usage={usage}
+              ownerType={ownerType}
+              planId={planId}
+              planLabel={planLabel}
+              layout="card"
+              size="md"
+              align="center"
+              showIcon
+              showResetHint={false}
+              showOwnerHint={false}
+              showPercent
+              severity={quotaExceeded ? 'critical' : undefined}
+              detailsTitle={strings.usageDetailsTitle}
+              resetLabel={strings.resetLabel}
+              headerCredits={
+                creditsBalanceTenths != null ? Math.round(creditsBalanceTenths) / 10 : null
+              }
+              detailsItems={[
+                {
+                  id: 'daily',
+                  label: strings.usage,
+                  used: usage.used,
+                  limit: usage.limit,
+                  resetAt: usage.resetAt,
+                },
+                ...(monthlyUsage
+                  ? [
+                      {
+                        id: 'monthly',
+                        label: monthlyLabel,
+                        used: monthlyUsage.used,
+                        limit: monthlyUsage.limit,
+                        resetAt: monthlyUsage.resetAt,
+                      },
+                    ]
+                  : []),
+                ...(creditsBalanceTenths != null
+                  ? [
+                      {
+                        id: 'credits',
+                        label: creditsLabel,
+                        used: Math.round(creditsBalanceTenths) / 10,
+                        limit: null,
+                        kind: 'credits' as const,
+                      },
+                    ]
+                  : []),
+              ]}
+            />
+          </div>
         </div>
       )}
     </div>

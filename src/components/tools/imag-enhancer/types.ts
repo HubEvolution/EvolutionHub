@@ -31,9 +31,11 @@ export interface ApiErrorBody {
 export interface UsageResponseData {
   ownerType: OwnerType;
   usage: UsageInfo;
+  monthlyUsage?: UsageInfo;
   limits: { user: number; guest: number };
   plan?: Plan;
   entitlements: PlanEntitlements;
+  creditsBalanceTenths?: number;
 }
 
 export interface GenerateResponseData {

@@ -1,0 +1,50 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "tools": "Tools",
+    "pricing": "Pricing",
+    "blog": "Blog",
+    "aria": {
+      "dashboard": "Go to Dashboard",
+      "tools": "View available tools",
+      "pricing": "View pricing plans",
+      "blog": "View blog posts"
+    }
+  },
+  "nav_language": {
+    "de": "Deutsch",
+    "en": "English"
+  },
+  "footer": {
+    "claim": "The modern platform for developers to manage, share, and scale projects. Built by developers for developers.",
+    "quick": "Quick links",
+    "legal": "Legal",
+    "tools": "Tools",
+    "cookie_settings": "Cookie settings",
+    "links": {
+      "dashboard": "Dashboard",
+      "blog": "Blog",
+      "docs": "Documentation",
+      "faq": "FAQ",
+      "contact": "Contact",
+      "privacy": "Privacy policy",
+      "imprint": "Imprint",
+      "terms": "Terms & Conditions"
+    },
+    "copyright": "© 2025 Evolution Hub. All rights reserved."
+  },
+  "header": {
+    "menu": {
+      "profile": "Profile & settings",
+      "plan_usage": "Plan & usage",
+      "plan_label": "Plan",
+      "credits": "Credits",
+      "monthly_quota": "Monthly quota",
+      "monthly_quota_remaining": "Monthly quota remaining",
+      "theme": "Theme",
+      "language": "Language",
+      "account_fallback": "Account"
+    }
+  },
+  "pages": {
+    "docs": {

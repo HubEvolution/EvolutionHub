@@ -11,6 +11,7 @@ import {
   DEFAULT_WHISPER_MODEL,
   type VoiceOwnerType,
 } from '@/config/voice';
+import { sniffAudioMime } from '@/lib/validation/voice-mime-sniffer';
 import type { R2Bucket } from '@cloudflare/workers-types';
 
 interface RuntimeEnv {
@@ -22,6 +23,7 @@ interface RuntimeEnv {
   VOICE_R2_ARCHIVE?: string;
   VOICE_DEV_ECHO?: string;
   USAGE_KV_V2?: string;
+  VOICE_MIME_SNIFF_ENABLE?: string;
 }
 
 export interface VoiceUsageInfo {
@@ -36,6 +38,11 @@ export class VoiceTranscribeService {
 
   constructor(env: RuntimeEnv) {
     this.env = env;
+  }
+
+  private isMimeSniffingEnabled(): boolean {
+    const flag = (this.env.VOICE_MIME_SNIFF_ENABLE || '').toLowerCase();
+    return flag === '1' || flag === 'true';
   }
 
   private isDevelopment(): boolean {
@@ -145,7 +152,46 @@ export class VoiceTranscribeService {
     const containerOk = VOICE_ALLOWED_CONTENT_TYPES.some((t) =>
       providedType.includes(t.split(';')[0])
     );
-    if (!containerOk) {
+
+    // Hard MIME sniffing: prefer content-based detection when enabled
+    const buf = await file.arrayBuffer();
+    const sniff = sniffAudioMime(buf);
+
+    if (this.isMimeSniffingEnabled()) {
+      const allowedSniffed: Array<'audio/webm' | 'audio/ogg' | 'audio/mp4'> = [
+        'audio/webm',
+        'audio/ogg',
+        'audio/mp4',
+      ];
+      const ok =
+        sniff.ok && allowedSniffed.includes(sniff.mime as 'audio/webm' | 'audio/ogg' | 'audio/mp4');
+      if (!ok) {
+        const err = new Error('Unsupported or invalid audio content') as Error & {
+          apiErrorType?: 'validation_error';
+          details?: Record<string, unknown>;
+        };
+        err.apiErrorType = 'validation_error';
+        err.details = {
+          reason: sniff.reason || 'invalid_mime',
+          sniffed: sniff.mime,
+          claimedType: providedType || 'unknown',
+          sizeBytes: file.size,
+        };
+        try {
+          this.log.warn('voice_mime_invalid', {
+            action: 'voice_mime_invalid',
+            metadata: {
+              claimedType: providedType || 'unknown',
+              sniffed: sniff.mime,
+              reason: sniff.reason || 'invalid_mime',
+              sizeBytes: file.size,
+            },
+          });
+        } catch {}
+        throw err;
+      }
+    } else if (!containerOk) {
+      // Legacy fallback when sniffing is disabled
       throw new Error(`Unsupported content type: ${providedType || 'unknown'}`);
     }
 
@@ -202,13 +248,16 @@ export class VoiceTranscribeService {
       let normalized: File = file;
       try {
         const t = (file.type || '').toLowerCase();
-        const baseType = t.includes('webm')
-          ? 'audio/webm'
-          : t.includes('ogg')
-            ? 'audio/ogg'
-            : t.includes('mp4')
-              ? 'audio/mp4'
-              : 'audio/webm';
+        const sniffedBase = sniff.ok && sniff.mime !== 'unknown' ? sniff.mime : undefined;
+        const baseType =
+          sniffedBase ||
+          (t.includes('webm')
+            ? 'audio/webm'
+            : t.includes('ogg')
+              ? 'audio/ogg'
+              : t.includes('mp4')
+                ? 'audio/mp4'
+                : 'audio/webm');
         const n = (file.name || '').toLowerCase();
         const hasExt = n.endsWith('.webm') || n.endsWith('.ogg') || n.endsWith('.mp4');
         const name = hasExt
@@ -218,7 +267,6 @@ export class VoiceTranscribeService {
             : baseType === 'audio/mp4'
               ? 'chunk.mp4'
               : 'chunk.webm';
-        const buf = await file.arrayBuffer();
         normalized = new File([buf], name, { type: baseType });
       } catch {}
       try {

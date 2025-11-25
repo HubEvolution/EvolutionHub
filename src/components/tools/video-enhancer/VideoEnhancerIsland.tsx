@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Button from '@/components/ui/Button';
+import ToolUsageBadge from '@/components/tools/shared/ToolUsageBadge';
 import { ensureCsrfToken } from '@/lib/security/csrf';
+import { getI18n } from '@/utils/i18n';
+import { getLocale } from '@/lib/i18n';
 import { useVideoUsage } from './useVideoUsage';
 
 type Tier = '720p' | '1080p';
@@ -48,7 +51,39 @@ export default function VideoEnhancerIsland() {
   const [etaRemainingMs, setEtaRemainingMs] = useState<number | null>(null);
   const etaTimerRef = useRef<number | null>(null);
 
-  const { usage, refresh: refreshUsage } = useVideoUsage();
+  const { usage, ownerType, plan, creditsBalanceTenths, refresh: refreshUsage } = useVideoUsage();
+
+  const locale = getLocale(typeof window !== 'undefined' ? window.location.pathname : '/');
+  const t = getI18n(locale);
+
+  const planLabel = useMemo(() => {
+    if (ownerType === 'guest' || ownerType === null) return 'Guest';
+    if (ownerType === 'user') {
+      if (!plan || plan === 'free') return 'Starter';
+      return plan.charAt(0).toUpperCase() + plan.slice(1);
+    }
+    return '';
+  }, [ownerType, plan]);
+
+  const planId = useMemo(
+    () =>
+      ownerType === 'user' && plan
+        ? plan === 'free'
+          ? 'starter'
+          : (plan as 'pro' | 'premium' | 'enterprise')
+        : null,
+    [ownerType, plan]
+  );
+
+  const monthlyLabel = useMemo(() => {
+    const maybe = t('header.menu.monthly_quota');
+    return maybe || 'Monthly quota';
+  }, [t]);
+
+  const creditsLabel = useMemo(() => {
+    const maybe = t('header.menu.credits');
+    return maybe || 'Credits';
+  }, [t]);
 
   const canStart = useMemo(
     () => !!file && !!tier && !busy && typeof durationMs === 'number',
@@ -305,63 +340,142 @@ export default function VideoEnhancerIsland() {
 
   return (
     <div className="space-y-6">
-      <div className="space-y-3">
-        <input
-          type="file"
-          accept="video/mp4,video/quicktime,video/webm"
-          onChange={(e) => setFile(e.target.files?.[0] || null)}
-          disabled={busy || step === 'running'}
-          ref={inputRef}
-        />
-        <div className="flex gap-3 items-center">
-          <label className="text-sm">Tier</label>
-          <select
-            value={tier}
-            onChange={(e) => setTier(e.target.value as Tier)}
+      <div className="max-w-2xl mx-auto space-y-4">
+        {/* Drop-style file panel */}
+        <div
+          className={`border-2 border-dashed rounded-lg px-6 py-8 text-center cursor-pointer transition-colors ${
+            busy || step === 'running'
+              ? 'border-gray-500/70 bg-slate-900/50'
+              : 'border-slate-500/70 bg-slate-900/40 hover:border-cyan-400/80 hover:bg-slate-900/70'
+          }`}
+          onClick={() => {
+            if (busy || step === 'running') return;
+            inputRef.current?.click();
+          }}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              if (busy || step === 'running') return;
+              inputRef.current?.click();
+            }
+          }}
+        >
+          <input
+            ref={inputRef}
+            type="file"
+            accept="video/mp4,video/quicktime,video/webm"
+            onChange={(e) => setFile(e.target.files?.[0] || null)}
             disabled={busy || step === 'running'}
-            className="border rounded px-2 py-1 bg-white dark:bg-gray-800"
-          >
-            <option value="720p">720p – Estimated: 5 Credits</option>
-            <option value="1080p">1080p – Estimated: 8 Credits</option>
-          </select>
+            className="hidden"
+          />
+          <div className="space-y-2">
+            <p className="text-sm sm:text-base font-medium text-gray-100">
+              Drop a video here or click to select
+            </p>
+            <p className="text-xs text-gray-400">Allowed: MP4, MOV, WEBM</p>
+            {file && (
+              <p className="mt-2 text-xs text-gray-300">
+                Selected: <span className="font-semibold">{file.name}</span>
+                {typeof durationMs === 'number' && (
+                  <span className="ml-2 text-gray-400">({Math.ceil(durationMs / 1000)}s)</span>
+                )}
+              </p>
+            )}
+          </div>
         </div>
-        <div className="flex gap-3">
-          <Button
-            type="button"
-            onClick={upload}
-            disabled={!canStart || step === 'uploaded' || step === 'running'}
-            size="sm"
-            className="px-3"
-          >
-            Upload
-          </Button>
-          <Button
-            type="button"
-            onClick={start}
-            disabled={step !== 'uploaded' || busy}
-            size="sm"
-            className="px-3"
-          >
-            Enhance Video
-          </Button>
-          <Button
-            type="button"
-            onClick={reset}
-            disabled={busy}
-            variant="ghost"
-            size="sm"
-            className="px-3 border border-gray-300 dark:border-gray-600"
-          >
-            Reset
-          </Button>
+
+        {/* Tier + actions */}
+        <div className="flex flex-col sm:flex-row sm:items-end gap-4 justify-between">
+          <div className="flex flex-col gap-1 min-w-[200px]">
+            <label className="text-xs font-medium text-gray-300">Tier</label>
+            <select
+              value={tier}
+              onChange={(e) => setTier(e.target.value as Tier)}
+              disabled={busy || step === 'running'}
+              className="border border-slate-600 rounded-md px-3 py-1.5 bg-slate-900/80 text-sm text-gray-100 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+            >
+              <option value="720p">720p – Estimated: 5 Credits</option>
+              <option value="1080p">1080p – Estimated: 8 Credits</option>
+            </select>
+          </div>
+
+          <div className="flex flex-wrap gap-3 justify-center sm:justify-end">
+            <Button
+              type="button"
+              onClick={upload}
+              disabled={!canStart || step === 'uploaded' || step === 'running'}
+              size="sm"
+              className="px-4"
+            >
+              Upload
+            </Button>
+            <Button
+              type="button"
+              onClick={start}
+              disabled={step !== 'uploaded' || busy}
+              size="sm"
+              className="px-4"
+            >
+              Enhance Video
+            </Button>
+            <Button
+              type="button"
+              onClick={reset}
+              disabled={busy}
+              variant="ghost"
+              size="sm"
+              className="px-4 border border-gray-300/70 dark:border-gray-600/80"
+            >
+              Reset
+            </Button>
+          </div>
         </div>
-        {typeof durationMs === 'number' && (
-          <p className="text-xs text-gray-500">Duration: {Math.ceil(durationMs / 1000)}s</p>
-        )}
+
         {usage && (
-          <p className="text-xs text-gray-500">
-            Usage: {usage.used}/{usage.limit} credits this month
-          </p>
+          <div className="pt-1 flex justify-center">
+            <ToolUsageBadge
+              label={monthlyLabel}
+              loadingLabel={t('common.loading') || 'Loading…'}
+              usage={usage}
+              ownerType={ownerType}
+              planId={planId}
+              planLabel={planLabel}
+              layout="card"
+              size="sm"
+              align="center"
+              showIcon
+              showResetHint={false}
+              showOwnerHint={false}
+              showPercent
+              detailsTitle={monthlyLabel}
+              headerCredits={
+                creditsBalanceTenths != null ? Math.round(creditsBalanceTenths) / 10 : null
+              }
+              detailsItems={[
+                {
+                  id: 'monthly',
+                  label: monthlyLabel,
+                  used: usage.used,
+                  limit: usage.limit,
+                  resetAt: usage.resetAt,
+                },
+                ...(creditsBalanceTenths != null
+                  ? [
+                      {
+                        id: 'credits',
+                        label: creditsLabel,
+                        used: Math.round(creditsBalanceTenths) / 10,
+                        limit: null,
+                        resetAt: null,
+                        kind: 'credits' as const,
+                      },
+                    ]
+                  : []),
+              ]}
+            />
+          </div>
         )}
         {busy && step === 'running' && etaTargetMs && (
           <div className="space-y-1">

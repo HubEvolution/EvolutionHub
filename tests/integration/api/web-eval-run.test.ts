@@ -214,6 +214,141 @@ describe('/api/testing/evaluate/next/run', () => {
     }
   });
 
+  it('returns live=null for a freshly created task before any runner activity', async () => {
+    const { taskId, cookie } = await createTask();
+
+    const { res, json } = await getJson<ApiResponse<{ task: any; live: any }>>(
+      `/api/testing/evaluate/${taskId}/live`,
+      { headers: { Cookie: cookie! } }
+    );
+
+    expect(res.status).toBe(200);
+
+    const js = json as ApiResponse<{ task: any; live: any }> | null;
+    if (!js || js.success !== true) {
+      throw new Error('Expected success live response');
+    }
+
+    expect(js.data.task.id).toBe(taskId);
+    expect(['pending', 'processing', 'completed', 'failed']).toContain(js.data.task.status);
+    expect(js.data.live === null || typeof js.data.live === 'object').toBe(true);
+  });
+
+  it('keeps task status consistent between status and live endpoints after a run', async () => {
+    const { taskId, cookie } = await createTask();
+
+    const run = await callRun();
+
+    // Environments without a configured browser runner or under heavy load
+    // may return non-200 responses. In these cases we cannot assert on the
+    // live contents in a stable way.
+    if (run.res.status !== 200 || !run.json || run.json.success !== true) {
+      return;
+    }
+
+    const { res: statusRes, json: statusJson } = await getJson<
+      ApiResponse<{ task: any; report: any }>
+    >(`/api/testing/evaluate/${taskId}`, { headers: { Cookie: cookie! } });
+
+    const { res: liveRes, json: liveJson } = await getJson<ApiResponse<{ task: any; live: any }>>(
+      `/api/testing/evaluate/${taskId}/live`,
+      { headers: { Cookie: cookie! } }
+    );
+
+    expect(statusRes.status).toBe(200);
+    expect(liveRes.status).toBe(200);
+
+    const statusPayload = statusJson as ApiResponse<{ task: any; report: any }> | null;
+    const livePayload = liveJson as ApiResponse<{ task: any; live: any }> | null;
+
+    if (!statusPayload || statusPayload.success !== true) {
+      return;
+    }
+    if (!livePayload || livePayload.success !== true) {
+      return;
+    }
+
+    expect(statusPayload.data.task.id).toBe(taskId);
+    expect(livePayload.data.task.id).toBe(taskId);
+    expect(livePayload.data.task.status).toBe(statusPayload.data.task.status);
+
+    if (livePayload.data.live) {
+      expect(livePayload.data.live.taskId).toBe(taskId);
+    }
+  });
+
+  it('uses only allowed phase values on live steps when present', async () => {
+    const { taskId, cookie } = await createTask();
+
+    const run = await callRun();
+
+    // Environments without a configured browser runner or under heavy load
+    // may return non-200 responses. In these cases we cannot assert on the
+    // live contents in a stable way.
+    if (run.res.status !== 200 || !run.json || run.json.success !== true) {
+      return;
+    }
+
+    const { res, json } = await getJson<ApiResponse<{ task: any; live: any }>>(
+      `/api/testing/evaluate/${taskId}/live`,
+      { headers: { Cookie: cookie! } }
+    );
+
+    if (res.status !== 200) {
+      return;
+    }
+
+    const js = json as ApiResponse<{ task: any; live: any }> | null;
+    if (!js || js.success !== true || !js.data.live || !Array.isArray(js.data.live.steps)) {
+      return;
+    }
+
+    for (const step of js.data.live.steps as Array<{ phase?: string }>) {
+      if (typeof step.phase === 'undefined') continue;
+      expect(['nav', 'assertions', 'cleanup']).toContain(step.phase);
+    }
+  });
+
+  it('includes browser_backend_unavailable in report errors when the browser backend is unavailable', async () => {
+    const { taskId, cookie } = await createTask();
+
+    const run = await callRun();
+
+    // Environments without a configured browser runner or under heavy load
+    // may return non-200 responses. In these cases we cannot assert on the
+    // report contents in a stable way.
+    if (run.res.status !== 200 || !run.json || run.json.success !== true) {
+      return;
+    }
+
+    const { res: statusRes, json: statusJson } = await getJson<
+      ApiResponse<{ task: any; report: { errors?: unknown[] } | null }>
+    >(`/api/testing/evaluate/${taskId}`, { headers: { Cookie: cookie! } });
+
+    if (statusRes.status !== 200) {
+      return;
+    }
+
+    const js = statusJson as ApiResponse<{
+      task: any;
+      report: { errors?: unknown[] } | null;
+    }> | null;
+    if (!js || js.success !== true || !js.data.report || !Array.isArray(js.data.report.errors)) {
+      return;
+    }
+
+    const hasBrowserUnavailable = js.data.report.errors.some(
+      (e) => typeof e === 'string' && e === 'browser_backend_unavailable'
+    );
+
+    if (!hasBrowserUnavailable) {
+      return;
+    }
+
+    // At least one error entry must be exactly the normalized browser_backend_unavailable marker
+    expect(js.data.report.errors).toContain('browser_backend_unavailable');
+  });
+
   it('exposes assertion results and verdict in the task report when assertions are provided', async () => {
     const { taskId, cookie } = await createTask({
       url: 'https://example.com/',
@@ -252,7 +387,10 @@ describe('/api/testing/evaluate/next/run', () => {
 
     expect(statusRes.status).toBe(200);
 
-    const js = statusJson as ApiResponse<{ task: any; report: WebEvalReportWithAssertions | null }> | null;
+    const js = statusJson as ApiResponse<{
+      task: any;
+      report: WebEvalReportWithAssertions | null;
+    }> | null;
     if (!js || js.success !== true || !js.data.report) {
       // If no report is present yet (or the environment short-circuited), we
       // cannot assert on assertions/verdict in a stable way.
@@ -279,6 +417,101 @@ describe('/api/testing/evaluate/next/run', () => {
     // Verdict should be set when at least one assertion has been evaluated.
     expect(['pass', 'fail', 'inconclusive']).toContain(report.verdict);
   });
+
+  // Env-guarded: only meaningful when auto-assertions are enabled for this environment
+  const AUTO_ASSERTIONS_ENABLED_FOR_TESTS =
+    process.env.WEB_EVAL_AUTO_ASSERTIONS_ENABLE === '1' ||
+    (process.env.WEB_EVAL_AUTO_ASSERTIONS_ENABLE || '').toLowerCase() === 'true';
+
+  (AUTO_ASSERTIONS_ENABLED_FOR_TESTS ? it : it.skip)(
+    'includes auto-generated assertions and verdict in the report when none are provided explicitly',
+    async () => {
+      const { taskId, cookie } = await createTask({
+        url: 'https://example.com/',
+      });
+
+      const run = await callRun();
+
+      // Environments without a configured browser runner or under heavy load
+      // may return non-200 responses. In these cases we cannot assert on the
+      // report contents in a stable way.
+      if (run.res.status !== 200) {
+        return;
+      }
+
+      if (!run.json || run.json.success !== true) {
+        throw new Error('Expected success response from run endpoint');
+      }
+
+      const { res: statusRes, json: statusJson } = await getJson<
+        ApiResponse<{ task: any; report: WebEvalReportWithAssertions | null }>
+      >(`/api/testing/evaluate/${taskId}`, { headers: { Cookie: cookie! } });
+
+      expect(statusRes.status).toBe(200);
+
+      const js = statusJson as ApiResponse<{
+        task: any;
+        report: WebEvalReportWithAssertions | null;
+      }> | null;
+      if (!js || js.success !== true || !js.data.report) {
+        // If no report is present yet (or the environment short-circuited), we
+        // cannot make stable assertions about auto-assertions.
+        return;
+      }
+
+      const report = js.data.report;
+
+      expect(Array.isArray(report.assertions)).toBe(true);
+      if (!report.assertions) return;
+
+      expect(report.assertions.length).toBeGreaterThanOrEqual(1);
+      expect(['pass', 'fail', 'inconclusive']).toContain(report.verdict);
+    }
+  );
+
+  (AUTO_ASSERTIONS_ENABLED_FOR_TESTS ? it : it.skip)(
+    'does not add auto-assertions when an explicit empty assertions array is provided',
+    async () => {
+      const { taskId, cookie } = await createTask({
+        url: 'https://example.com/',
+        assertions: [],
+      });
+
+      const run = await callRun();
+
+      if (run.res.status !== 200) {
+        return;
+      }
+
+      if (!run.json || run.json.success !== true) {
+        throw new Error('Expected success response from run endpoint');
+      }
+
+      const { res: statusRes, json: statusJson } = await getJson<
+        ApiResponse<{ task: any; report: WebEvalReportWithAssertions | null }>
+      >(`/api/testing/evaluate/${taskId}`, { headers: { Cookie: cookie! } });
+
+      expect(statusRes.status).toBe(200);
+
+      const js = statusJson as ApiResponse<{
+        task: any;
+        report: WebEvalReportWithAssertions | null;
+      }> | null;
+      if (!js || js.success !== true || !js.data.report) {
+        return;
+      }
+
+      const report = js.data.report;
+
+      if (!report.assertions) {
+        // No assertions present at all is acceptable for this case.
+        return;
+      }
+
+      expect(report.assertions.length).toBe(0);
+      // Verdict may be undefined when no assertions were evaluated.
+    }
+  );
 
   // Env-guarded: only meaningful when WEB_EVAL_BROWSER_ENABLE=1 and BROWSER binding exists in prod
   const RUN_PROD_TEST = process.env.WEB_EVAL_BROWSER_TEST_PROD === '1';

@@ -79,7 +79,9 @@ paths:
   /api/prompt-enhance:
     post:
       summary: Enhance prompt
-      description: Transforms raw text into a structured, AI-ready prompt using the Prompt Enhancer Service. Supports guest and authenticated users with quota management. Feature gated by PUBLIC_PROMPT_ENHANCER_V1.
+      description: >
+        Transforms raw text into a structured, AI-ready prompt using the Prompt Enhancer Service.
+        Supports guest and authenticated users with quota management (daily and monthly quotas per plan; see `/api/prompt/usage` for usage details).
       tags:
         - AI Tools
       security:

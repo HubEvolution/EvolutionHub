@@ -66,8 +66,9 @@ export async function recordReferralSignup(
 
   const timestamp = occurredAt ?? Date.now();
   const metadataPayload = metadata ?? { source: 'signup_magic_link' };
+  const tsDate = new Date(timestamp);
 
-  await client.insert(referralEvents).values({
+  const newEvent: typeof referralEvents.$inferInsert = {
     id: crypto.randomUUID(),
     ownerUserId,
     referralCode: safeCode,
@@ -75,10 +76,12 @@ export async function recordReferralSignup(
     status,
     creditsAwarded,
     metadata: JSON.stringify(metadataPayload),
-    occurredAt: timestamp,
-    createdAt: timestamp,
-    updatedAt: timestamp,
-  });
+    occurredAt: tsDate,
+    createdAt: tsDate,
+    updatedAt: tsDate,
+  };
+
+  await client.insert(referralEvents).values(newEvent);
 
   return { recorded: true };
 }

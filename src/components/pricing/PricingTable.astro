@@ -117,32 +117,6 @@ const plans: Plan[] = [
           document.cookie = `csrf_token=${encodeURIComponent(token)}; ${attrs}`;
         } catch {}
       }
-      const entBtn = document.getElementById('buy-enterprise-cta');
-      if (entBtn) {
-        if (!entBtn.dataset || !entBtn.dataset.wired) {
-          const monthly = entBtn.getAttribute('data-payment-monthly') || '';
-          const annual = entBtn.getAttribute('data-payment-annual') || '';
-          entBtn.addEventListener('click', async () => {
-            try {
-              await createCheckout('enterprise');
-              return;
-            } catch (_e) {
-              try {
-                const link = pricingInterval === 'annual' ? annual : monthly;
-                if (link && /^https?:\/\//.test(link)) {
-                  console.log(
-                    '[pricing] fallback to payment link (enterprise, ' + pricingInterval + ')'
-                  );
-                  window.location.href = link;
-                  return;
-                }
-              } catch {}
-            }
-          });
-          if (entBtn.dataset) entBtn.dataset.wired = '1';
-        }
-        wired = true;
-      }
       return token || '';
     }
     function getWorkspaceId() {
@@ -519,6 +493,34 @@ const plans: Plan[] = [
             })();
           });
           if (busBtn.dataset) busBtn.dataset.wired = '1';
+        }
+        wired = true;
+      }
+      const entBtn = document.getElementById('buy-enterprise-cta');
+      if (entBtn) {
+        if (!entBtn.dataset || !entBtn.dataset.wired) {
+          const monthly = entBtn.getAttribute('data-payment-monthly') || '';
+          const annual = entBtn.getAttribute('data-payment-annual') || '';
+          entBtn.addEventListener('click', () => {
+            (async () => {
+              try {
+                await createCheckout('enterprise');
+                return;
+              } catch (_e) {
+                try {
+                  const link = pricingInterval === 'annual' ? annual : monthly;
+                  if (link && /^https?:\/\//.test(link)) {
+                    console.log(
+                      '[pricing] fallback to payment link (enterprise, ' + pricingInterval + ')'
+                    );
+                    window.location.href = link;
+                    return;
+                  }
+                } catch {}
+              }
+            })();
+          });
+          if (entBtn.dataset) entBtn.dataset.wired = '1';
         }
         wired = true;
       }

@@ -11,6 +11,7 @@ import {
   getTask,
   updateTask,
   storeReport,
+  storeLiveEnvelope,
 } from '@/lib/testing/web-eval/storage';
 import { resolveQueueConfig, type WebEvalEnvBindings } from '@/lib/testing/web-eval/env';
 import type {
@@ -18,8 +19,12 @@ import type {
   WebEvalQueueConfig,
   WebEvalTaskRecord,
   WebEvalReport,
+  WebEvalStatus,
 } from '@/lib/testing/web-eval';
-import { runTaskWithBrowserRendering } from '@/lib/testing/web-eval/browser-runner';
+import {
+  runTaskWithBrowserRendering,
+  type BrowserRunLiveSnapshot,
+} from '@/lib/testing/web-eval/browser-runner';
 import { loggerFactory } from '@/server/utils/logger-factory';
 import { validateTargetUrl } from '@/lib/testing/web-eval/ssrf';
 import { isBrowserAllowedInProd } from '@/lib/testing/web-eval/provider';
@@ -69,6 +74,31 @@ async function claimNextTask(
     }
   }
   return null;
+}
+
+async function persistLiveSnapshot(
+  kv: WebEvalKvNamespace,
+  config: WebEvalQueueConfig,
+  snapshot: BrowserRunLiveSnapshot
+) {
+  const MAX_LIVE_LOGS = 20;
+  const envelope = {
+    taskId: snapshot.taskId,
+    status: 'processing' as WebEvalStatus,
+    steps: snapshot.steps.map((step) => ({
+      action: step.action,
+      timestamp: step.timestamp,
+      selectorUsed: step.selectorUsed,
+      screenshotKey: step.screenshotKey,
+    })),
+    errors: [...snapshot.errors],
+    logs: Array.isArray(snapshot.logs)
+      ? snapshot.logs.filter((e) => e.level === 'warn' || e.level === 'error').slice(-MAX_LIVE_LOGS)
+      : [],
+    updatedAt: nowIso(),
+  };
+
+  await storeLiveEnvelope(kv, envelope, config);
 }
 
 async function handler(context: APIContext): Promise<Response> {
@@ -409,20 +439,53 @@ async function handler(context: APIContext): Promise<Response> {
   }
 
   // Execute the actual browser run via Cloudflare Browser Rendering.
-  const runResult = await runTaskWithBrowserRendering(claimed, env);
+  const runResult = await runTaskWithBrowserRendering(claimed, env, (snapshot) =>
+    persistLiveSnapshot(kv, config, snapshot)
+  );
   const finishedAt = new Date();
   const report: WebEvalReport = {
     ...runResult.report,
     durationMs: Math.max(0, finishedAt.getTime() - new Date(runResult.report.startedAt).getTime()),
   };
   await storeReport(kv, claimed.id, report, config);
-  const nextTask: WebEvalTaskRecord = {
-    ...claimed,
-    status: runResult.status,
-    attemptCount: (claimed.attemptCount || 0) + 1,
-    lastError: runResult.lastError,
-  };
+
+  const latest = await getTask(kv, claimed.id);
+  if (!latest) {
+    // Task no longer exists; report is stored, but there is no task to return
+    return createApiSuccess({ task: null });
+  }
+
+  const isAborted = latest.status === 'aborted';
+
+  const nextTask: WebEvalTaskRecord = isAborted
+    ? {
+        ...latest,
+        attemptCount: (latest.attemptCount || 0) + 1,
+        lastError: latest.lastError ?? runResult.lastError,
+      }
+    : {
+        ...claimed,
+        status: runResult.status,
+        attemptCount: (claimed.attemptCount || 0) + 1,
+        lastError: runResult.lastError,
+      };
+
   await updateTask(kv, nextTask, config);
+
+  try {
+    const finalEnvelope = {
+      taskId: claimed.id,
+      status: nextTask.status,
+      steps: report.steps,
+      errors: report.errors,
+      logs: report.consoleLogs.filter((e) => e.level === 'warn' || e.level === 'error').slice(-20),
+      updatedAt: nowIso(),
+      screenshotBase64: report.screenshotBase64,
+    };
+    await storeLiveEnvelope(kv, finalEnvelope, config);
+  } catch {
+    // ignore live persistence failures
+  }
 
   return createApiSuccess({
     task: {

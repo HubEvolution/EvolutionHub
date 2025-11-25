@@ -143,9 +143,7 @@ describe('AI Image Generate – guest usage and quota behaviour', () => {
     // In dev/testing, rate limiting or disabled providers are tolerated: we
     // assert basic headers and skip strict quota assertions to avoid flakes.
     if (res.status === 429) {
-      expect(
-        res.headers.get('Retry-After') || res.headers.get('retry-after')
-      ).toBeTruthy();
+      expect(res.headers.get('Retry-After') || res.headers.get('retry-after')).toBeTruthy();
       return;
     }
 

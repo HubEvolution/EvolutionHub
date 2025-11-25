@@ -8,7 +8,7 @@ import {
 import { AiImageService } from '@/lib/services/ai-image-service';
 import { FREE_LIMIT_GUEST, FREE_LIMIT_USER, type OwnerType, type Plan } from '@/config/ai-image';
 import { getEntitlementsFor } from '@/config/ai-image/entitlements';
-import { toUsageOverview } from '@/lib/kv/usage';
+import { toUsageOverview, getCreditsBalanceTenths } from '@/lib/kv/usage';
 
 function ensureGuestIdCookie(context: APIContext): string {
   const existing = context.cookies.get('guest_id')?.value;
@@ -56,6 +56,14 @@ export const GET = withApiMiddleware(async (context) => {
       ownerId,
       ent.monthlyImages
     );
+    let creditsBalanceTenths: number | undefined;
+    if (ownerType === 'user' && env.KV_AI_ENHANCER) {
+      try {
+        creditsBalanceTenths = await getCreditsBalanceTenths(env.KV_AI_ENHANCER, ownerId);
+      } catch {
+        // ignore credit lookup failures; keep field undefined
+      }
+    }
     const usage = toUsageOverview({
       used: usageInfo.used,
       limit: usageInfo.limit,
@@ -87,6 +95,7 @@ export const GET = withApiMiddleware(async (context) => {
       // optionally provide plan for clients that want to show it; existing clients safely ignore it
       plan: ownerType === 'user' ? (plan ?? 'free') : undefined,
       entitlements: ent,
+      creditsBalanceTenths,
       ...(isDebug
         ? {
             debug: {

@@ -243,7 +243,10 @@ describe('Billing-API-Integration', () => {
         const json = parseJson<{ url: string }>(response);
         expect(json?.success).toBe(true);
         expect(json?.data?.url).toBeDefined();
-      } else if (response.status === 400 && (response.contentType || '').includes('application/json')) {
+      } else if (
+        response.status === 400 &&
+        (response.contentType || '').includes('application/json')
+      ) {
         const json = parseJson<{ success: boolean; error?: { type?: string; message?: string } }>(
           response
         );
@@ -311,7 +314,9 @@ describe('Billing-API-Integration', () => {
 
   describe('GET /api/billing/sync-callback', () => {
     it('sollte Redirect zu Login oder Sync liefern', async () => {
-      const response = await fetchPage('/api/billing/sync-callback?session_id=test_session&ws=default');
+      const response = await fetchPage(
+        '/api/billing/sync-callback?session_id=test_session&ws=default'
+      );
 
       // In den meisten Fällen: 302 Redirect (z. B. zu /login); 404 zulassen, falls Route nicht verdrahtet ist
       expect([302, 404]).toContain(response.status);

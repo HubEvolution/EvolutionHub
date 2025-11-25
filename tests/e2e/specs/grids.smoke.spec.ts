@@ -24,16 +24,19 @@ async function countColumnsByPositions(
 }
 
 async function countColumnsByComputedStyle(page: Page, containerSelector: string) {
-  return await page.evaluate(({ containerSelector }: { containerSelector: string }) => {
-    const el = document.querySelector(containerSelector) as HTMLElement | null;
-    if (!el) return -1;
-    const cs = window.getComputedStyle(el);
-    const tracks = cs.gridTemplateColumns; // e.g., "200px 200px" or "none"
-    if (!tracks || tracks === 'none') return 0;
-    // Split on spaces that separate track sizes. Compress multiple spaces first.
-    const parts = tracks.trim().replace(/\s+/g, ' ').split(' ');
-    return parts.length;
-  }, { containerSelector });
+  return await page.evaluate(
+    ({ containerSelector }: { containerSelector: string }) => {
+      const el = document.querySelector(containerSelector) as HTMLElement | null;
+      if (!el) return -1;
+      const cs = window.getComputedStyle(el);
+      const tracks = cs.gridTemplateColumns; // e.g., "200px 200px" or "none"
+      if (!tracks || tracks === 'none') return 0;
+      // Split on spaces that separate track sizes. Compress multiple spaces first.
+      const parts = tracks.trim().replace(/\s+/g, ' ').split(' ');
+      return parts.length;
+    },
+    { containerSelector }
+  );
 }
 
 // Pricing grid: grid-cols-1 (mobile) → md:grid-cols-4 (tablet/desktop)

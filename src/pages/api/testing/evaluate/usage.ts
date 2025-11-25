@@ -8,7 +8,13 @@ import {
 import type { KVNamespace } from '@cloudflare/workers-types';
 import type { Plan } from '@/config/ai-image/entitlements';
 import { getWebEvalEntitlementsFor } from '@/config/web-eval/entitlements';
-import { getUsage as kvGetUsage, rollingDailyKey } from '@/lib/kv/usage';
+import {
+  getUsage as kvGetUsage,
+  rollingDailyKey,
+  monthlyKey,
+  toUsageOverview,
+  getCreditsBalanceTenths,
+} from '@/lib/kv/usage';
 
 function ensureGuestIdCookie(context: APIContext): string {
   const existing = context.cookies.get('guest_id')?.value;
@@ -54,15 +60,52 @@ export const GET = withApiMiddleware(async (context: APIContext) => {
       resetAt = usage.resetAt ? usage.resetAt * 1000 : null;
     }
 
+    const usageOverview = toUsageOverview({ used, limit, resetAt });
+
+    const dailyUsage = toUsageOverview({
+      used,
+      limit: ent.dailyBurstCap,
+      resetAt,
+    });
+
+    // Monthly usage based on entitlements (web-eval monthlyRuns)
+    let monthlyUsage: ReturnType<typeof toUsageOverview> | null = null;
+    try {
+      const mKey = monthlyKey('web-eval', ownerType, ownerId);
+      const monthlyCounter = await kvGetUsage(kv, mKey);
+      const monthlyUsed = monthlyCounter?.count || 0;
+      monthlyUsage = toUsageOverview({
+        used: monthlyUsed,
+        limit: ent.monthlyRuns,
+        resetAt: null,
+      });
+    } catch {
+      monthlyUsage = null;
+    }
+
+    // Optional credits balance from global AI credits KV (display only; no quota fallback here yet)
+    let creditsBalanceTenths: number | null = null;
+    const kvCredits = env.KV_AI_ENHANCER as KVNamespace | undefined;
+    if (ownerType === 'user' && kvCredits) {
+      try {
+        creditsBalanceTenths = await getCreditsBalanceTenths(kvCredits, ownerId);
+      } catch {
+        creditsBalanceTenths = null;
+      }
+    }
+
     const resp = createApiSuccess({
       ownerType,
-      usage: { used, limit, resetAt },
+      usage: usageOverview,
+      dailyUsage,
+      monthlyUsage,
       limits: {
         user: limit,
         guest: limit,
       },
       plan,
       entitlements: ent,
+      creditsBalanceTenths,
       ...(isDebug
         ? {
             debug: {

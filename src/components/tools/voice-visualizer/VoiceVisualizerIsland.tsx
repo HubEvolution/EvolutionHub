@@ -1,11 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { VOICE_MIN_CHUNK_BYTES } from '@/config/voice';
-import {
-  containerCls,
-  usageBarBgCls,
-  usageBarFillCls,
-  sectionTitleCls,
-} from '@/components/tools/shared/islandStyles';
+import { containerCls, sectionTitleCls } from '@/components/tools/shared/islandStyles';
+import ToolUsageBadge from '@/components/tools/shared/ToolUsageBadge';
+import { getI18n } from '@/utils/i18n';
+import { getLocale } from '@/lib/i18n';
 import { useMicrophone } from './hooks/useMicrophone';
 import VisualizerCanvas from './VisualizerCanvas';
 import { getVoiceUsage, postTranscribeChunk, type VoiceUsageInfo } from './api';
@@ -45,6 +43,9 @@ export default function VoiceVisualizerIsland({ strings, langHint, showHeader = 
   });
   const [usage, setUsage] = useState<VoiceUsageInfo | null>(null);
   const [ownerType, setOwnerType] = useState<'user' | 'guest' | null>(null);
+  const [plan, setPlan] = useState<string | null>(null);
+  const [monthlyUsage, setMonthlyUsage] = useState<VoiceUsageInfo | null>(null);
+  const [creditsBalanceTenths, setCreditsBalanceTenths] = useState<number | null>(null);
   const [transcript, setTranscript] = useState<string>('');
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -53,12 +54,27 @@ export default function VoiceVisualizerIsland({ strings, langHint, showHeader = 
   const backoffUntilRef = useRef<number>(0);
   const streamCtl = useTranscribeStream();
 
-  const usagePercent = useMemo(() => {
-    if (!usage) return 0;
-    return Math.min(100, (usage.used / Math.max(1, usage.limit)) * 100);
-  }, [usage]);
+  const locale = getLocale(typeof window !== 'undefined' ? window.location.pathname : '/');
+  const t = getI18n(locale);
 
-  // removed unused liveText computation for lint cleanliness
+  const planLabel = useMemo(() => {
+    if (ownerType === 'guest' || ownerType === null) return 'Guest';
+    if (ownerType === 'user') {
+      if (!plan || plan === 'free') return 'Starter';
+      return plan.charAt(0).toUpperCase() + plan.slice(1);
+    }
+    return '';
+  }, [ownerType, plan]);
+
+  const planId = useMemo(
+    () =>
+      ownerType === 'user' && plan
+        ? plan === 'free'
+          ? 'starter'
+          : (plan as 'pro' | 'premium' | 'enterprise')
+        : null,
+    [ownerType, plan]
+  );
 
   const [tick, setTick] = useState(0);
   useEffect(() => {
@@ -72,8 +88,14 @@ export default function VoiceVisualizerIsland({ strings, langHint, showHeader = 
     try {
       const res = await getVoiceUsage();
       if (res.success && res.data) {
-        setUsage(res.data.usage);
-        setOwnerType(res.data.ownerType);
+        const payload = res.data;
+        setUsage(payload.usage);
+        setOwnerType(payload.ownerType);
+        setPlan(payload.plan ?? null);
+        setMonthlyUsage(payload.monthlyUsage ?? null);
+        setCreditsBalanceTenths(
+          typeof payload.creditsBalanceTenths === 'number' ? payload.creditsBalanceTenths : null
+        );
       }
     } catch {}
   }, []);
@@ -219,31 +241,10 @@ export default function VoiceVisualizerIsland({ strings, langHint, showHeader = 
             >
               {isRecording ? strings.stop : strings.start}
             </button>
-            {busy && <span className="text-sm text-gray-500 dark:text-gray-400">Uploading…</span>}
-          </div>
-
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-gray-600 dark:text-gray-300">{strings.usage}:</span>
-            <div className="flex items-center gap-2">
-              <div className="text-blue-600 dark:text-blue-400 font-semibold">
-                {usage ? `${usage.used}/${usage.limit}` : strings.loading}
-              </div>
-              <div className={usageBarBgCls}>
-                <div
-                  className={usageBarFillCls(usagePercent)}
-                  style={{ width: `${usagePercent}%` }}
-                />
-              </div>
-              {ownerType && (
-                <span className="text-xs text-gray-500 dark:text-gray-400">({ownerType})</span>
-              )}
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
             <span
-              className={`text-xs px-2 py-1 rounded ${
+              className={`inline-flex items-center px-2 py-1 rounded text-xs ${
                 streamCtl.state.connected
-                  ? 'bg-emerald-100 text-emerald-700'
+                  ? 'bg-green-100 text-green-700'
                   : 'bg-gray-200 text-gray-700'
               }`}
             >
@@ -303,6 +304,61 @@ export default function VoiceVisualizerIsland({ strings, langHint, showHeader = 
           </div>
         </div>
       </div>
+
+      {usage && (
+        <div className="mt-4 flex justify-start">
+          <ToolUsageBadge
+            label={strings.usage}
+            loadingLabel={strings.loading}
+            usage={usage}
+            ownerType={ownerType}
+            planId={planId}
+            planLabel={planLabel}
+            layout="card"
+            size="sm"
+            align="left"
+            showIcon
+            showResetHint={false}
+            showOwnerHint={false}
+            showPercent
+            detailsTitle={strings.usage}
+            headerCredits={
+              creditsBalanceTenths != null ? Math.round(creditsBalanceTenths) / 10 : null
+            }
+            detailsItems={[
+              {
+                id: 'daily',
+                label: strings.usage,
+                used: usage.used,
+                limit: usage.limit,
+                resetAt: usage.resetAt,
+              },
+              ...(monthlyUsage
+                ? [
+                    {
+                      id: 'monthly',
+                      label: t('header.menu.monthly_quota') || strings.usage,
+                      used: monthlyUsage.used,
+                      limit: monthlyUsage.limit,
+                      resetAt: monthlyUsage.resetAt,
+                    },
+                  ]
+                : []),
+              ...(creditsBalanceTenths != null
+                ? [
+                    {
+                      id: 'credits',
+                      label: t('header.menu.credits') || 'Credits',
+                      used: Math.round(creditsBalanceTenths) / 10,
+                      limit: null,
+                      kind: 'credits' as const,
+                    },
+                  ]
+                : []),
+            ]}
+          />
+        </div>
+      )}
     </div>
   );
 }

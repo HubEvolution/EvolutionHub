@@ -9,6 +9,7 @@ crons = [
   "0 2 * * *",   # pricing
   "0 4 * * *",   # prod auth health
   "0 5 * * 1"    # docs inventory (weekly)
+  # "*/5 * * * *"  # web-eval executor (ONLY when WEB_EVAL_* gates allow; enable later for prod)
 ]
 
 [[r2_buckets]]
@@ -21,6 +22,24 @@ binding = "KV_CRON_STATUS"
 id = "35a9ee6301ed4c7a9022a3e8744e251a"
 
 [vars]
+# --- Web-Eval Executor: Default (safe) ---
+# Global default: Executor aus
+# WEB_EVAL_EXEC_ENABLE = "0"
+# WEB_EVAL_EXEC_HOSTS = "[]"
+# WEB_EVAL_EXEC_MAX_RUNS_PER_TICK = "3"
+
+# --- Staging: manueller Test (TEMPORÄR, nur wenn gebraucht) ---
+# Für gezielte Staging-Tests kannst du diesen Block aktivieren und den Default oben auskommentieren:
+WEB_EVAL_EXEC_ENABLE = "1"
+WEB_EVAL_EXEC_HOSTS = "[\"staging.hub-evolution.com\"]"
+WEB_EVAL_EXEC_MAX_RUNS_PER_TICK = "2"
+
+# --- Production: dauerhafte Aktivierung (SPÄTER) ---
+# Für Prod-Setup (nur Prod-Host), zusammen mit Cron "*/5 * * * *" oben:
+# WEB_EVAL_EXEC_ENABLE = "1"
+# WEB_EVAL_EXEC_HOSTS = "[\"hub-evolution.com\"]"
+# WEB_EVAL_EXEC_MAX_RUNS_PER_TICK = "3"
+
 # Fan-out targets; adjust as needed
 BASE_URLS = "[\"https://hub-evolution.com\",\"https://staging.hub-evolution.com\",\"https://ci.hub-evolution.com\"]"
 # Gate for prod auth health check task
