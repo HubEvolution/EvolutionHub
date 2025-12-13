@@ -69,7 +69,7 @@ const seoData = getSEOData(locale);
 // Use custom props if provided, otherwise use SEO data
 const title = customTitle || seoData.title;
 const description = customDescription || seoData.description;
-const ogImage = customOgImage || seoData.ogImage;
+const ogImagePath = customOgImage || props.image || seoData.ogImage;
 const titleSuffix = customTitleSuffix ?? ' | Evolution Hub';
 const fullTitle = `${title}${titleSuffix}`;
 // Compute whether to show Coming Soon overlay
@@ -81,6 +81,7 @@ const landingBgVariant = getLandingBgVariant();
 const siteBase: URL = (import.meta.env.PUBLIC_SITE_URL as string)
   ? new URL(import.meta.env.PUBLIC_SITE_URL as string)
   : new URL(Astro.url.origin);
+const ogImage = new URL(ogImagePath, siteBase).toString();
 
 const publicTurnstileSiteKey =
   ((Astro.locals as unknown as { runtime?: { env?: Record<string, string> } })?.runtime?.env
@@ -104,7 +105,7 @@ const alternateXDefaultUrl = new URL(localeAlternates.de, siteBase).toString();
     {noIndex && <meta name="robots" content="noindex, nofollow, noarchive" />}
 
     <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={props.type || 'website'} />
     <meta property="og:url" content={props.canonical || canonicalUrl} />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
@@ -299,9 +300,9 @@ const alternateXDefaultUrl = new URL(localeAlternates.de, siteBase).toString();
     {/* Debug Panel Overlay - nur in DEV */}
     <DebugPanelIsland>
       <DebugPanelOverlay client:load />
+      {/* Initialize Debug Interceptors as a client island (CSP-safe) */}
+      <DebugInterceptors client:load />
     </DebugPanelIsland>
-    {/* Initialize Debug Interceptors as a client island (CSP-safe) */}
-    <DebugInterceptors client:load />
 
     {
       showComingSoon && (

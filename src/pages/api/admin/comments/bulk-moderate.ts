@@ -8,7 +8,7 @@ import {
 import type { D1Database } from '@cloudflare/workers-types';
 import { requireModerator } from '@/lib/auth-helpers';
 import { CommentService } from '@/lib/services/comment-service';
-import { sensitiveActionLimiter } from '@/lib/rate-limiter';
+import { adminSensitiveLimiter } from '@/lib/rate-limiter';
 
 type BulkModerateAction = 'approve' | 'reject' | 'flag' | 'hide';
 
@@ -82,7 +82,7 @@ export const POST = withAuthApiMiddleware(
   {
     // Enforce strict CSRF and apply sensitive rate limits for bulk actions
     enforceCsrfToken: true,
-    rateLimiter: sensitiveActionLimiter,
+    rateLimiter: adminSensitiveLimiter,
     logMetadata: { action: 'admin_comments_bulk_moderate' },
   }
 );

@@ -9,6 +9,13 @@ import { AiImageService } from '@/lib/services/ai-image-service';
 import { FREE_LIMIT_GUEST, FREE_LIMIT_USER, type OwnerType, type Plan } from '@/config/ai-image';
 import { getEntitlementsFor } from '@/config/ai-image/entitlements';
 import { toUsageOverview, getCreditsBalanceTenths } from '@/lib/kv/usage';
+import { resolveEffectivePlanForUser } from '@/lib/services/billing-plan-service';
+
+function flagOn(raw: string | undefined): boolean {
+  if (raw === undefined || raw === null) return true;
+  const v = String(raw).toLowerCase().trim();
+  return !(v === '0' || v === 'false' || v === 'off' || v === 'no');
+}
 
 function ensureGuestIdCookie(context: APIContext): string {
   const existing = context.cookies.get('guest_id')?.value;
@@ -37,6 +44,15 @@ export const GET = withApiMiddleware(async (context) => {
     ownerType === 'user' ? (locals.user as { id: string }).id : ensureGuestIdCookie(context);
 
   const env = locals.runtime?.env ?? {};
+
+  // Feature-Flag-Gating: Wenn sowohl MVP- als auch Legacy-Mode explizit deaktiviert sind,
+  // ist der Image Enhancer API-seitig nicht verfügbar.
+  const mvpOn = flagOn(env.PUBLIC_ENHANCER_MVP_MODE as string | undefined);
+  const legacyOn = flagOn(env.PUBLIC_ENHANCER_LEGACY_MODE as string | undefined);
+  if (!mvpOn && !legacyOn) {
+    return createApiError('forbidden', 'feature.disabled.image_enhancer');
+  }
+
   const service = new AiImageService({
     R2_AI_IMAGES: env.R2_AI_IMAGES,
     KV_AI_ENHANCER: env.KV_AI_ENHANCER,
@@ -45,10 +61,16 @@ export const GET = withApiMiddleware(async (context) => {
   });
 
   try {
-    const plan =
+    const planResult =
       ownerType === 'user'
-        ? (((locals.user as { plan?: Plan } | null)?.plan ?? 'free') as Plan)
+        ? await resolveEffectivePlanForUser({
+            userId: ownerId,
+            env: { DB: (env as { DB?: unknown }).DB },
+            localsPlan:
+              ((locals.user as { plan?: Plan } | null)?.plan as Plan | undefined) ?? undefined,
+          })
         : undefined;
+    const plan = ownerType === 'user' ? planResult!.plan : undefined;
     const ent = getEntitlementsFor(ownerType, plan);
     const usageInfo = await service.getUsage(ownerType, ownerId, ent.dailyBurstCap);
     const monthlyUsageInfo = await service.getMonthlyUsageFor(

@@ -108,7 +108,7 @@
   },
   "cta": {
     "headline": "Bereit loszulegen?",
-    "subtitle": "Werden Sie Teil der Tausenden von Entwicklern, die bereits Evolution Hub nutzen, um erstaunliche Anwendungen zu erstellen.",
+    "subtitle": "Werden Sie Teil der Entwickler, die Evolution Hub nutzen, um bemerkenswerte Anwendungen zu erstellen.",
     "button_text": "Kostenloses Konto erstellen"
   },
   "auth": {
@@ -271,6 +271,11 @@
           "icon": "video",
           "title": "Video‑Enhancer",
           "description": "Skaliert und verbessert Videos mit KI – schärfere Details, weniger Rauschen, klarere Bilder."
+        },
+        "feature6": {
+          "icon": "globe",
+          "title": "Web‑Eval",
+          "description": "Bewertet Live‑Webseiten mit strukturierten Checks – ideal für Prompt‑Tests und Qualitätskontrollen."
         }
       },
       "features_poetic": {
@@ -288,12 +293,16 @@
         },
         "feature5": {
           "description": "Wo Frames wieder atmen lernen."
+        },
+        "feature6": {
+          "description": "Lass das Web für dich Antworten testen."
         }
       },
       "testimonials": {
-        "heading": "Was unsere Nutzer über unsere Tools sagen",
-        "subtitle": "Kurze Notizen von Menschen, die unsere Tools wirklich einsetzen — was ihnen konkret geholfen hat.",
-        "trust_line": "Vertraut von 1.200+ Creators",
+        "scenario_label": "Szenario",
+        "heading": "Wie unsere Tools in Workflows passen können",
+        "subtitle": "Beispielhafte Szenarien, inspiriert von typischen Workflows – keine echten Kundenbewertungen.",
+        "trust_line": "Beispiele aus typischen kreativen und Entwickler‑Workflows",
         "testimonial1": {
           "quote": "Ich fotografiere oft in Cafés bei wenig Licht – ISO 3200 ist normal. Imag‑Enhancer hat das Rauschen entfernt, ohne diesen Wachs‑Look. Ein Tick mehr Kontrast und die Dateien waren abends beim Kunden.",
           "author": "Amira K.",
@@ -331,6 +340,16 @@
         "title_part2": "Die Zukunft der KI-gestützten Entwicklung",
         "subtitle": "Entdecken Sie die Leistung von KI-gestützten Tools zur Optimierung Ihres Workflows und zur Steigerung Ihrer Produktivität.",
         "subtitle_poetic": "Wo Sprache zu Struktur wird. Wo Daten träumen lernen.",
+        "title_magnet": "Deine KI‑Toolbox – mit einem kostenlosen Prompt Enhancer als Kundenmagnet.",
+        "subtitle_magnet": "Free‑Plan mit großzügigen Quoten: bis zu 100 Prompt‑Optimierungen pro Tag und 2.000 im Monat – ohne AI‑Credits zu verbrauchen.",
+        "free_pill": "Kostenloser Prompt Enhancer – ideal als Kundenmagnet",
+        "cta_primary": "Prompt Enhancer jetzt kostenlos starten",
+        "cta_secondary": "Alle Tools ansehen",
+        "bullets": [
+          "Kostenlos nutzbar im Free‑Plan – ohne Kreditkarte",
+          "Großzügige Limits: bis zu 100 Runs pro Tag",
+          "Verbraucht keine AI‑Credits – Upgrade erst bei hohem Volumen"
+        ],
         "typewriter_lines": [
           "Wo Sprache zur Struktur wird.",
           "Wo Daten träumen lernen.",
@@ -352,7 +371,10 @@
           "web": "Webscraper",
           "video": "Video",
           "cta": ""
-        }
+        },
+        "note": "Kostenlos · Keine Karte nötig · Starte in Sekunden.",
+        "trust_line": "Entwickelt in Berlin für Teams, die mit KI‑Workflows experimentieren.",
+        "tools_label": "Auch dabei: Imag‑Enhancer & Video‑Enhancer"
       }
     },
     "blog": {
@@ -391,7 +413,85 @@
         }
       },
       "comments": {
-        "pendingNotice": "Dein Kommentar wurde eingereicht und erscheint nach Freigabe."
+        "heading": "Kommentare",
+        "placeholder": "Schreibe einen Kommentar...",
+        "submit": "Kommentar posten",
+        "submitLoading": "Wird gesendet...",
+        "guideline": "Sei respektvoll und konstruktiv",
+        "counterSuffix": "Zeichen",
+        "guest": {
+          "label": "Du kommentierst als Gast.",
+          "loginLink": "Melde dich an",
+          "loginSuffix": "für bessere Funktionen."
+        },
+        "loggedInAs": "Angemeldet als {email}",
+        "replyingTo": "Du antwortest auf einen Kommentar",
+        "errors": {
+          "load": "Fehler beim Laden der Kommentare",
+          "create": "Fehler beim Erstellen des Kommentars",
+          "update": "Fehler beim Aktualisieren des Kommentars",
+          "delete": "Fehler beim Löschen des Kommentars",
+          "csrfMissing": "Sicherheits-Token fehlt. Bitte Seite aktualisieren.",
+          "empty": "Bitte gib einen Kommentar ein",
+          "tooLong": "Kommentar darf maximal 2000 Zeichen lang sein",
+          "submit": "Fehler beim Senden des Kommentars"
+        },
+        "toasts": {
+          "created": "Kommentar wurde gespeichert.",
+          "pending": "Dein Kommentar wurde eingereicht und erscheint nach Freigabe.",
+          "createError": "Kommentar konnte nicht gespeichert werden. Bitte erneut versuchen.",
+          "updated": "Kommentar wurde aktualisiert.",
+          "updateError": "Kommentar konnte nicht aktualisiert werden. Bitte erneut versuchen.",
+          "deleted": "Kommentar wurde gelöscht.",
+          "deleteError": "Kommentar konnte nicht gelöscht werden. Bitte erneut versuchen.",
+          "reported": "Danke für deine Meldung.",
+          "reportError": "Meldung konnte nicht gesendet werden. Bitte erneut versuchen."
+        },
+        "actions": {
+          "retry": "Erneut versuchen",
+          "cancel": "Abbrechen",
+          "loadMore": "Mehr laden"
+        },
+        "loading": "Kommentare werden geladen...",
+        "empty": {
+          "title": "Noch keine Kommentare vorhanden.",
+          "subtitle": "Sei der Erste und schreibe einen Kommentar!"
+        },
+        "pendingNotice": "Dein Kommentar wurde eingereicht und erscheint nach Freigabe.",
+        "status": {
+          "pending": "Warten",
+          "approved": "OK",
+          "rejected": "Abgelehnt",
+          "flagged": "Markiert",
+          "hidden": "Versteckt"
+        },
+        "report": {
+          "label": "Melden",
+          "reported": "Gemeldet",
+          "reason": "Grund",
+          "description": "Beschreibung (optional)",
+          "cancel": "Abbrechen",
+          "submit": "Senden",
+          "toast": "Danke für deine Meldung"
+        },
+        "time": {
+          "justNow": "Gerade eben",
+          "hoursAgo": "vor {hours}h",
+          "daysAgo": "vor {days}d"
+        },
+        "helpful": "Hilfreich",
+        "reply": "Antworten",
+        "replySubmit": "Antwort senden",
+        "replyPlaceholder": "Schreibe eine Antwort...",
+        "guestBanner": {
+          "notLoggedIn": "Du bist nicht angemeldet.",
+          "loginCta": "Anmelden zum Kommentieren"
+        },
+        "fab": {
+          "writeComment": "Kommentar schreiben",
+          "loginToComment": "Anmelden zum Kommentieren"
+        },
+        "almostFull": "Fast voll"
       },
       "cta": {
         "newsletter": {
@@ -1405,6 +1505,101 @@
         "unexpected": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es später erneut."
       }
     },
+    "futureLanding": {
+      "meta": {
+        "title": "Evolution Hub – Futuristische Landing",
+        "description": "Dunkle, cineastische Landing mit Prompt-, Image-/Video-Enhancern, Voice, Webscraping und Web-Eval."
+      },
+      "hero": {
+        "title": "Evolution Hub. Wo Werkzeuge zu Verbündeten werden.",
+        "subtitle": "Sprache wird Struktur. Daten träumen. Ideen landen auf einem lebenden Interface.",
+        "note": "Free · Keine Karte · Sofort loslegen",
+        "cta_primary": "Prompt-Enhancer gratis starten",
+        "cta_secondary": "Image & Video-Enhancer ansehen",
+        "video_label": "Futuristisches UI-Fly-through als Hintergrundvideo"
+      },
+      "trust": {
+        "line": "Vertraut von 1.200+ Teams & Creators",
+        "quote1": {
+          "quote": "Wir schreiben klarere Prompts schneller und skalieren Assets ohne Artefakte. Es fühlt sich an, als würde das UI mitarbeiten.",
+          "author": "Mara L.",
+          "role": "Product Design Lead"
+        },
+        "quote2": {
+          "quote": "Prompten, veredeln, scrapen, evaluieren – alles in einem Band. Die UI fliegt förmlich rein.",
+          "author": "Jonas P.",
+          "role": "Gründer, Micro-SaaS"
+        }
+      },
+      "tools": {
+        "heading": "Sechs Tools, ein Flow",
+        "subheading": "Von Prompt zu Media-Polish zu Web-Intelligence.",
+        "imag": {
+          "title": "Imag-Enhancer",
+          "body": "Rauschen raus, Kanten klar, 2–4× Upscaling ohne Halos."
+        },
+        "prompt": {
+          "title": "Prompt-Enhancer (Free)",
+          "body": "Stil-Presets, Safety-Heuristiken, Dateien & URLs – bessere Prompts in Sekunden."
+        },
+        "voice": {
+          "title": "Voice Visualizer & Transkriptor",
+          "body": "Live-Waveform, Sofort-Transkript, Quoten im Blick."
+        },
+        "webscraper": {
+          "title": "Webscraper",
+          "body": "SSRF-gehärtet, Markdown/Plain, Limits transparent."
+        },
+        "video": {
+          "title": "Video-Enhancer",
+          "body": "2×/4× Upscale, Denoise, Gesichtstreue. R2-Uploads ready."
+        },
+        "webeval": {
+          "title": "Web-Eval Agent",
+          "body": "Tasks in Queue, Console/Network-Reports, Credits im Griff."
+        }
+      },
+      "flow": {
+        "heading": "So fließt dein Tag",
+        "steps": {
+          "s1_title": "Starte mit Klarheit",
+          "s1_body": "Prompts verfeinern – Modi und Safety inklusive.",
+          "s2_title": "Medien veredeln",
+          "s2_body": "Bilder und Videos verbessern, Details bewahren.",
+          "s3_title": "Testen & shippen",
+          "s3_body": "Web scrapen oder evaluieren, Logs prüfen, schneller liefern."
+        }
+      },
+      "metrics": {
+        "heading": "Ergebnisse, die zählen",
+        "k1": "100+ Prompts/Tag gratis",
+        "k2": "4× Upscaling ohne Halos",
+        "k3": "SSRF-Härtung ab Werk"
+      },
+      "pricing": {
+        "title": "Starter ist gratis",
+        "subtitle": "Klare Limits, damit du alles probieren kannst.",
+        "badge_free": "Gratis",
+        "bullets": [
+          "Prompt-Enhancer: bis zu 100/Tag",
+          "Webscraper & Web-Eval: 5–20 Runs/Tag",
+          "Imag-Enhancer: 3 Bilder/Tag",
+          "Video-Enhancer: Credits nach Verbrauch"
+        ],
+        "cta": "Pläne vergleichen"
+      },
+      "trust_cta": {
+        "title": "Sicher, klar, skalierbar.",
+        "body": "DSGVO-orientiert, transparente Quoten, Self-Host-Option für sensible Medien.",
+        "cta": "Zu den Docs"
+      },
+      "final": {
+        "title": "Bereit zum Reinfliegen?",
+        "subtitle": "Starte den kostenlosen Prompt-Enhancer oder tauche in Image & Video-Enhancer ein.",
+        "cta_primary": "Kostenlos starten",
+        "cta_secondary": "Alle Tools ansehen"
+      }
+    },
     "tools": {
       "meta": {
         "title": "Tools – Evolution Hub",
@@ -1464,18 +1659,46 @@
           "enhanceButton": "Prompt verbessern",
           "enhancing": "Wird verbessert…",
           "outputLabel": "Verbesserter Prompt",
+          "inputLabelOriginal": "Original-Prompt",
+          "showComparison": "Vorher/Nachher anzeigen",
+          "hideComparison": "Nur Ergebnis anzeigen",
           "copy": "Kopieren",
           "copied": "Kopiert",
+          "copyJson": "Als JSON kopieren",
+          "viewText": "Text-Ansicht",
+          "viewJson": "JSON-Ansicht",
           "clear": "Leeren",
+          "step1": {
+            "title": "1. Eingabe‑Prompt",
+            "subtitle": "Wähle eine Vorlage oder schreibe deinen eigenen Prompt. Du kannst den Text danach frei anpassen.",
+            "presetsIntro": "Oder starte mit einer Vorlage:"
+          },
+          "step2": {
+            "title": "2. Zusätzlicher Kontext (optional)",
+            "subtitle": "Füge Dateien oder Textquellen hinzu, die der KI helfen, deine Anfrage besser zu verstehen.",
+            "help": "TXT- und Markdown-URLs werden als Textdateien importiert und beim Optimieren als Kontext genutzt."
+          },
+          "step3": {
+            "title": "3. Stil des optimierten Prompts",
+            "subtitle": "Bestimme, wie ausführlich und formal der optimierte Prompt sein soll."
+          },
+          "step4": {
+            "title": "4. Ergebnis & Vergleich"
+          },
           "files": {
             "label": "Dateien (optional)",
             "dropHint": "Dateien hier ablegen oder klicken, um auszuwählen",
             "urlImportLabel": "Aus URL importieren (TXT/Markdown)",
             "urlImportPlaceholder": "https://beispiel.de/datei.txt",
+            "urlImportToggle": "URL-Eingabe einblenden",
+            "urlImportHide": "URL-Eingabe ausblenden",
             "allowedTypes": "Erlaubte Typen",
             "maxSize": "Max. Größe",
             "maxCount": "Max. Dateien: {count}",
-            "remove": "Entfernen"
+            "remove": "Entfernen",
+            "softLimit": "Maximale Anzahl Dateien erreicht ({count}).",
+            "selectButton": "Dateien auswählen",
+            "selectedCount": "{count} Datei(en) ausgewählt"
           },
           "error": {
             "required": "Bitte gib einen Prompt ein.",
@@ -1490,14 +1713,55 @@
             "files": {
               "tooMany": "Zu viele Dateien. Maximal {count}."
             }
-          }
+          },
+          "modeMapping": "Creative – explorativer, ausführlicher · Professional – strukturiert, business-fokussiert · Concise – kurz & knapp",
+          "resultLatency": "Prompt in {ms} ms verbessert."
         },
         "usage": {
           "title": "Nutzung",
-          "used": "{used} von {limit} heute genutzt"
+          "used": "{used} von {limit} heute genutzt",
+          "freeMessage": "Bis zu 100 hochwertige Prompt-Optimierungen pro Tag im Free-Plan."
+        },
+        "improvements": {
+          "title": "Was wurde verbessert?",
+          "structure": "Struktur hinzugefügt (z. B. klare Abschnitte und Überschriften).",
+          "constraints": "Zusätzliche Constraints und Regeln ergänzt, um das Ergebnis vorhersehbarer zu machen.",
+          "steps": "Schritt-für-Schritt-Anweisungen für das Modell hinzugefügt."
         },
         "safety": {
           "title": "Sicherheitsbericht"
+        },
+        "presets": {
+          "codingBugfix": {
+            "label": "Coding / Bugfix",
+            "description": "Starter-Prompt für Fehlersuche und Refactoring in Code.",
+            "template": "Hilf mir, Bugs in folgendem Code zu finden und saubere, idiomatische Fixes vorzuschlagen. Erkläre kurz, warum jeder Bug problematisch ist, und zeige optimierte Code-Snippets."
+          },
+          "dataAnalysis": {
+            "label": "Data / Analytics",
+            "description": "Starter-Prompt für Analysen von KPIs, Reports und Datensätzen.",
+            "template": "Unterstütze mich dabei, einen Datenausschnitt (KPIs, Events, Tabellen) zu analysieren. Identifiziere Muster, Ausreißer und Hypothesen und schlage konkrete nächste Analyseschritte vor."
+          },
+          "contentLinkedin": {
+            "label": "Content / LinkedIn",
+            "description": "Starter-Prompt für LinkedIn-Posts zu AI & Produktivität.",
+            "template": "Erzeuge LinkedIn-Posts zu einem AI-Thema für Knowledge Worker. Fokus: verständliche Beispiele, echte Use Cases und ein klarer Mehrwert im ersten Absatz."
+          },
+          "researchAudience": {
+            "label": "Research / Zielgruppe",
+            "description": "Starter-Prompt für Zielgruppen-Interviews und Surveys.",
+            "template": "Hilf mir, meine Zielgruppe besser zu verstehen. Erzeuge Interview- und Survey-Fragen, um Bedürfnisse, Pain Points, aktuelle Lösungen und Entscheidungsprozesse zu erfassen."
+          }
+        },
+        "toasts": {
+          "urlImportSuccessTitle": "Kontext importiert",
+          "urlImportSuccessDescription": "Inhalt von \"{filename}\" wurde als Kontext hinzugefügt.",
+          "urlImportError": "Inhalt konnte nicht von der URL importiert werden.",
+          "enhanceSuccessTitle": "Prompt erfolgreich verbessert",
+          "enhanceSuccessDescription": "Fertig in {ms} ms. Du kannst den Prompt jetzt kopieren oder weiter anpassen.",
+          "copyJsonSuccessTitle": "JSON in Zwischenablage",
+          "copyJsonSuccessDescription": "Der optimierte Prompt wurde als JSON kopiert.",
+          "copyJsonError": "JSON konnte nicht in die Zwischenablage kopiert werden."
         }
       },
       "items": {
@@ -1554,7 +1818,7 @@
             "max": "Max. Größe",
             "download": "Herunterladen",
             "loading": "Laden...",
-            "quotaBanner": "Nutzungslimit erreicht. Versuche es später erneut oder melde dich an für höhere Limits.",
+            "quotaBanner": "Dein aktuelles Kontingent ist stark limitiert. Melde dich an oder upgrade, um mehr Bilder pro Tag verarbeiten zu können.",
             "toasts": {
               "loadQuotaError": "Kontingentinformationen konnten nicht geladen werden.",
               "loadError": "Laden fehlgeschlagen. Bitte versuche es erneut.",

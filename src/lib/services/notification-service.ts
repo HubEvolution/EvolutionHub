@@ -1,4 +1,4 @@
-import { eq, and, desc, count, sql, gte, lte, or } from 'drizzle-orm';
+import { eq, and, desc, count, sql, gte, lte } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/d1';
 import { generateId } from '../utils/id-generator';
 import { rateLimit } from '../rate-limiter';
@@ -718,9 +718,7 @@ export class NotificationService {
       })
       .from(notifications);
 
-    const filteredStatsQuery = baseWhere
-      ? baseStatsQuery.where(baseWhere)
-      : baseStatsQuery;
+    const filteredStatsQuery = baseWhere ? baseStatsQuery.where(baseWhere) : baseStatsQuery;
 
     const stats = await filteredStatsQuery.groupBy(
       notifications.type,

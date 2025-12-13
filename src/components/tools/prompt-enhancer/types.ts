@@ -52,8 +52,19 @@ export interface UsageResponseData {
   creditsBalanceTenths?: number | null;
 }
 
+export interface EnhancedPromptJson {
+  role: string;
+  objective: string;
+  constraints: string;
+  outputFormat: string;
+  steps?: string[];
+  fewShotExamples?: string[];
+  rawText: string;
+}
+
 export interface EnhanceResponseData {
   enhancedPrompt: string;
+  enhancedPromptJson?: EnhancedPromptJson;
   safetyReport?: {
     score: number;
     warnings: string[];

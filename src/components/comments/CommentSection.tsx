@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { CommentForm } from './CommentForm';
 import { CommentList } from './CommentList';
 import { CommentStats } from './CommentStats';
-import { CommentMobile, useIsMobile } from './CommentMobile';
+import { CommentMobile, MobileCommentForm, useIsMobile } from './CommentMobile';
 import { CommentErrorBoundary } from './CommentErrorBoundary';
 import { useCommentStore } from '../../stores/comment-store';
 import type { CommentEntityType } from '../../lib/types/comments';
 import { getI18n } from '@/utils/i18n';
 import { getLocale } from '@/lib/i18n';
 import { localizePath } from '@/lib/locale-path';
+import { notify } from '@/lib/notify';
 
 interface CommentSectionProps {
   entityType: CommentEntityType;
@@ -21,7 +22,7 @@ interface CommentSectionProps {
 const CommentSectionInner: React.FC<CommentSectionProps> = ({
   entityType,
   entityId,
-  title = 'Kommentare',
+  title,
   className = '',
   initialUser = null,
 }) => {
@@ -35,6 +36,7 @@ const CommentSectionInner: React.FC<CommentSectionProps> = ({
   // i18n
   const locale = getLocale(typeof window !== 'undefined' ? window.location.pathname : '/');
   const t = getI18n(locale);
+  const heading = title ?? t('pages.blog.comments.heading');
 
   const {
     comments,
@@ -78,7 +80,7 @@ const CommentSectionInner: React.FC<CommentSectionProps> = ({
         includeReplies: true,
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Fehler beim Laden der Kommentare');
+      setError(t('pages.blog.comments.errors.load'));
     } finally {
       setIsLoading(false);
     }
@@ -100,11 +102,14 @@ const CommentSectionInner: React.FC<CommentSectionProps> = ({
 
       if (created && created.status === 'pending') {
         setNotice(t('pages.blog.comments.pendingNotice'));
+        notify.info(t('pages.blog.comments.toasts.pending'));
       } else {
         await loadComments();
+        notify.success(t('pages.blog.comments.toasts.created'));
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Fehler beim Erstellen des Kommentars');
+      setError(t('pages.blog.comments.errors.create'));
+      notify.error(t('pages.blog.comments.toasts.createError'));
     }
   };
 
@@ -113,7 +118,9 @@ const CommentSectionInner: React.FC<CommentSectionProps> = ({
 
     try {
       if (!csrfToken) {
-        setError('Sicherheits-Token fehlt. Bitte Seite aktualisieren.');
+        const msg = t('pages.blog.comments.errors.csrfMissing');
+        setError(msg);
+        notify.error(msg);
         return;
       }
       await updateComment(
@@ -125,21 +132,27 @@ const CommentSectionInner: React.FC<CommentSectionProps> = ({
       );
 
       await loadComments();
+      notify.success(t('pages.blog.comments.toasts.updated'));
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Fehler beim Aktualisieren des Kommentars');
+      setError(t('pages.blog.comments.errors.update'));
+      notify.error(t('pages.blog.comments.toasts.updateError'));
     }
   };
 
   const handleDeleteComment = async (commentId: string) => {
     try {
       if (!csrfToken) {
-        setError('Sicherheits-Token fehlt. Bitte Seite aktualisieren.');
+        const msg = t('pages.blog.comments.errors.csrfMissing');
+        setError(msg);
+        notify.error(msg);
         return;
       }
       await deleteComment(commentId, csrfToken);
       await loadComments();
+      notify.success(t('pages.blog.comments.toasts.deleted'));
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Fehler beim Löschen des Kommentars');
+      setError(t('pages.blog.comments.errors.delete'));
+      notify.error(t('pages.blog.comments.toasts.deleteError'));
     }
   };
 
@@ -152,7 +165,7 @@ const CommentSectionInner: React.FC<CommentSectionProps> = ({
     return (
       <div id="comments" className={`comment-section comment-section--mobile ${className}`}>
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">{title}</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">{heading}</h2>
 
           {isAdmin && stats && <CommentStats stats={stats} />}
         </div>
@@ -163,6 +176,16 @@ const CommentSectionInner: React.FC<CommentSectionProps> = ({
           </div>
         )}
 
+        {currentUser && (
+          <div className="mb-6">
+            <MobileCommentForm
+              onSubmit={handleCreateComment}
+              placeholder={t('pages.blog.comments.placeholder')}
+              submitText={t('pages.blog.comments.submit')}
+            />
+          </div>
+        )}
+
         {error && (
           <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
             <p className="text-sm text-red-800">{error}</p>
@@ -170,7 +193,7 @@ const CommentSectionInner: React.FC<CommentSectionProps> = ({
               onClick={handleRetry}
               className="mt-2 text-sm font-medium text-red-800 hover:text-red-600"
             >
-              Erneut versuchen
+              {t('pages.blog.comments.actions.retry')}
             </button>
           </div>
         )}
@@ -192,7 +215,7 @@ const CommentSectionInner: React.FC<CommentSectionProps> = ({
   return (
     <div id="comments" className={`comment-section ${className}`}>
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">{title}</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">{heading}</h2>
 
         {/* Comment Stats */}
         {isAdmin && stats && <CommentStats stats={stats} />}
@@ -236,7 +259,7 @@ const CommentSectionInner: React.FC<CommentSectionProps> = ({
                 onClick={handleRetry}
                 className="mt-2 text-sm font-medium text-red-800 hover:text-red-600"
               >
-                Erneut versuchen
+                {t('pages.blog.comments.actions.retry')}
               </button>
             </div>
           </div>
@@ -250,12 +273,12 @@ const CommentSectionInner: React.FC<CommentSectionProps> = ({
             onSubmit={handleCreateComment}
             isLoading={isLoading}
             currentUser={currentUser}
-            placeholder={`Schreibe einen Kommentar...`}
+            placeholder={t('pages.blog.comments.placeholder')}
           />
         ) : (
           <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md">
             <p className="text-sm text-yellow-800 dark:text-yellow-200">
-              Du bist nicht angemeldet.{' '}
+              {t('pages.blog.comments.guestBanner.notLoggedIn')}{' '}
               <a
                 href={(() => {
                   const base = localizePath(locale, '/login');
@@ -266,7 +289,7 @@ const CommentSectionInner: React.FC<CommentSectionProps> = ({
                 })()}
                 className="font-medium hover:underline"
               >
-                Anmelden zum Kommentieren
+                {t('pages.blog.comments.guestBanner.loginCta')}
               </a>
               .
             </p>
@@ -294,7 +317,7 @@ const CommentSectionInner: React.FC<CommentSectionProps> = ({
                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                 ></path>
               </svg>
-              Kommentare werden geladen...
+              {t('pages.blog.comments.loading')}
             </div>
           </div>
         ) : comments.length > 0 ? (
@@ -322,8 +345,8 @@ const CommentSectionInner: React.FC<CommentSectionProps> = ({
                   d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
                 />
               </svg>
-              <p>Noch keine Kommentare vorhanden.</p>
-              <p className="text-sm mt-1">Sei der Erste und schreibe einen Kommentar!</p>
+              <p>{t('pages.blog.comments.empty.title')}</p>
+              <p className="text-sm mt-1">{t('pages.blog.comments.empty.subtitle')}</p>
             </div>
           </div>
         )}
@@ -335,7 +358,7 @@ const CommentSectionInner: React.FC<CommentSectionProps> = ({
               className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700"
               disabled={isLoading}
             >
-              {isLoading ? 'Laden…' : 'Mehr laden'}
+              {isLoading ? t('common.loading') : t('pages.blog.comments.actions.loadMore')}
             </button>
           </div>
         )}

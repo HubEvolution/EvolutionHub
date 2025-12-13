@@ -41,6 +41,12 @@ interface PromptEnhancerEnv {
   USAGE_KV_V2?: string;
 }
 
+function flagOn(raw: string | undefined): boolean {
+  if (raw === undefined || raw === null) return true;
+  const v = String(raw).toLowerCase().trim();
+  return !(v === '0' || v === 'false' || v === 'off' || v === 'no');
+}
+
 interface JsonPromptRequest {
   text?: unknown;
   input?: { text?: unknown };
@@ -200,8 +206,8 @@ export const POST = withApiMiddleware(
         typeof rawEnv.PROMPT_GUEST_LIMIT === 'string' ? rawEnv.PROMPT_GUEST_LIMIT : undefined,
       USAGE_KV_V2: typeof rawEnv.USAGE_KV_V2 === 'string' ? rawEnv.USAGE_KV_V2 : undefined,
     };
-    if (env.PUBLIC_PROMPT_ENHANCER_V1 === 'false') {
-      return createApiError('forbidden', 'Feature not enabled');
+    if (!flagOn(env.PUBLIC_PROMPT_ENHANCER_V1)) {
+      return createApiError('forbidden', 'feature.disabled.prompt_enhancer');
     }
     const service = new PromptEnhancerService({
       KV_PROMPT_ENHANCER: env.KV_PROMPT_ENHANCER,
@@ -251,6 +257,15 @@ export const POST = withApiMiddleware(
 
       return createApiSuccess({
         enhancedPrompt: enhancedString,
+        enhancedPromptJson: {
+          role: p.role,
+          objective: p.objective,
+          constraints: p.constraints,
+          outputFormat: p.outputFormat,
+          steps: p.steps,
+          fewShotExamples: p.fewShotExamples,
+          rawText: p.rawText,
+        },
         safetyReport: result.safetyReport
           ? { score: 0, warnings: result.safetyReport.masked }
           : undefined,

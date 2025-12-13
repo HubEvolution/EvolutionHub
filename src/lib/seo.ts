@@ -11,13 +11,13 @@ const seoData: Record<Locale, SEOData> = {
     title: 'Entwickle die Zukunft mit KI-gestützten Tools',
     description:
       'Streamline your workflow with our powerful suite of AI tools designed for developers and creators.',
-    ogImage: '/assets/images/og-image-de.png',
+    ogImage: '/images/blog/default-og.svg',
   },
   en: {
     title: 'Build the Future with AI-Powered Tools',
     description:
       'Streamline your workflow with our powerful suite of AI tools designed for developers and creators.',
-    ogImage: '/assets/images/og-image-en.png',
+    ogImage: '/images/blog/default-og.svg',
   },
 };
 

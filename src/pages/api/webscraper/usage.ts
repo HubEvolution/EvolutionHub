@@ -16,6 +16,13 @@ import {
   getUsage as kvGetUsage,
   getCreditsBalanceTenths,
 } from '@/lib/kv/usage';
+import { resolveEffectivePlanForUser } from '@/lib/services/billing-plan-service';
+
+function flagOn(v: string | undefined): boolean {
+  if (!v) return false;
+  const s = String(v).toLowerCase().trim();
+  return s === '1' || s === 'true' || s === 'yes' || s === 'on';
+}
 
 function ensureGuestIdCookie(context: APIContext): string {
   const existing = context.cookies.get('guest_id')?.value;
@@ -40,15 +47,23 @@ export const GET = withApiMiddleware(async (context) => {
   const ownerType: 'user' | 'guest' = locals.user?.id ? 'user' : 'guest';
   const ownerId =
     ownerType === 'user' ? (locals.user as { id: string }).id : ensureGuestIdCookie(context);
-  const plan: Plan | undefined =
-    ownerType === 'user'
-      ? (((locals.user as { plan?: Plan } | null)?.plan ?? 'free') as Plan)
-      : undefined;
-
   const rawEnv = (locals.runtime?.env ?? {}) as Record<string, unknown>;
+  const planResult =
+    ownerType === 'user'
+      ? await resolveEffectivePlanForUser({
+          userId: ownerId,
+          env: { DB: (rawEnv as { DB?: unknown }).DB },
+          localsPlan:
+            ((locals.user as { plan?: Plan } | null)?.plan as Plan | undefined) ?? undefined,
+        })
+      : undefined;
+  const plan: Plan | undefined = ownerType === 'user' ? planResult!.plan : undefined;
+
   const env = {
     KV_WEBSCRAPER: rawEnv.KV_WEBSCRAPER as KVNamespace | undefined,
     ENVIRONMENT: typeof rawEnv.ENVIRONMENT === 'string' ? rawEnv.ENVIRONMENT : undefined,
+    PUBLIC_TOOL_WEBSCRAPER:
+      typeof rawEnv.PUBLIC_TOOL_WEBSCRAPER === 'string' ? rawEnv.PUBLIC_TOOL_WEBSCRAPER : undefined,
     PUBLIC_WEBSCRAPER_V1:
       typeof rawEnv.PUBLIC_WEBSCRAPER_V1 === 'string' ? rawEnv.PUBLIC_WEBSCRAPER_V1 : undefined,
     WEBSCRAPER_GUEST_LIMIT:
@@ -58,8 +73,8 @@ export const GET = withApiMiddleware(async (context) => {
     KV_AI_ENHANCER: rawEnv.KV_AI_ENHANCER as KVNamespace | undefined,
   };
 
-  if (env.PUBLIC_WEBSCRAPER_V1 === 'false') {
-    return createApiError('forbidden', 'Feature not enabled');
+  if (!flagOn(env.PUBLIC_TOOL_WEBSCRAPER) || env.PUBLIC_WEBSCRAPER_V1 === 'false') {
+    return createApiError('forbidden', 'feature.disabled.webscraper');
   }
 
   const service = new WebscraperService(env);

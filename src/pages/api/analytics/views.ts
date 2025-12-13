@@ -2,14 +2,22 @@ import type { APIContext } from 'astro';
 import { withApiMiddleware, createApiError, createApiSuccess } from '@/lib/api-middleware';
 import { z, formatZodError } from '@/lib/validation';
 
-// Table will be created lazily if it doesn't exist
-const ensureTableSql = `
-CREATE TABLE IF NOT EXISTS page_views (
-  id TEXT PRIMARY KEY,
-  count INTEGER NOT NULL DEFAULT 0,
-  updated_at INTEGER NOT NULL
-);
-`;
+function getAnalyticsViewsMode(context: APIContext): 'disabled' | 'db' {
+  try {
+    const env =
+      (context.locals as unknown as { runtime?: { env?: Record<string, string> } })?.runtime?.env ||
+      {};
+    const raw = (env as Record<string, string>).ANALYTICS_VIEWS_MODE;
+    const normalized = raw?.toLowerCase();
+    if (normalized === 'disabled') {
+      return 'disabled';
+    }
+    // Default: echte D1-basierte Pageviews, solange nicht explizit deaktiviert
+    return 'db';
+  } catch {
+    return 'db';
+  }
+}
 
 async function getDb(context: APIContext): Promise<D1Database> {
   const env = (context.locals?.runtime?.env || {}) as { DB?: unknown };
@@ -31,9 +39,6 @@ const querySchema = z.object({ slug: z.string().min(1).max(200) }).strict();
 
 export const GET = withApiMiddleware(async (context: APIContext) => {
   try {
-    const db = await getDb(context);
-    await db.exec(ensureTableSql);
-
     const url = new URL(context.request.url);
     const parsed = querySchema.safeParse({ slug: url.searchParams.get('slug') || '' });
     if (!parsed.success) {
@@ -44,6 +49,12 @@ export const GET = withApiMiddleware(async (context: APIContext) => {
     const { slug } = parsed.data;
     const now = Date.now();
 
+    const mode = getAnalyticsViewsMode(context);
+    if (mode === 'disabled') {
+      return createApiSuccess({ slug, count: 0, ts: now });
+    }
+
+    const db = await getDb(context);
     const row = await db
       .prepare('SELECT count FROM page_views WHERE id = ?')
       .bind(slug)
@@ -58,9 +69,6 @@ export const GET = withApiMiddleware(async (context: APIContext) => {
 
 export const POST = withApiMiddleware(async (context: APIContext) => {
   try {
-    const db = await getDb(context);
-    await db.exec(ensureTableSql);
-
     const body = await context.request.json().catch(() => ({}));
     const parsed = querySchema.safeParse({ slug: body?.slug || '' });
     if (!parsed.success) {
@@ -71,6 +79,12 @@ export const POST = withApiMiddleware(async (context: APIContext) => {
     const { slug } = parsed.data;
     const now = Date.now();
 
+    const mode = getAnalyticsViewsMode(context);
+    if (mode === 'disabled') {
+      return createApiSuccess({ slug, count: 0, ts: now });
+    }
+
+    const db = await getDb(context);
     // Upsert counter
     await db
       .prepare(

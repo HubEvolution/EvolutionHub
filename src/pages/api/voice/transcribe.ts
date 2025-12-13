@@ -32,6 +32,7 @@ type VoiceEnv = {
   VOICE_R2_ARCHIVE?: string | number | boolean;
   VOICE_DEV_ECHO?: string | number | boolean;
   VOICE_MIME_SNIFF_ENABLE?: string | number | boolean;
+  PUBLIC_TOOL_VOICE_VISUALIZER?: string;
 };
 
 type MaybeTypedError = {
@@ -78,12 +79,23 @@ function normalizeFlag(value: unknown): string | undefined {
   return undefined;
 }
 
+function flagOn(raw: string | undefined): boolean {
+  if (raw === undefined || raw === null) return true;
+  const v = String(raw).toLowerCase().trim();
+  return !(v === '0' || v === 'false' || v === 'off' || v === 'no');
+}
+
 export const POST = withApiMiddleware(
   async (context: APIContext) => {
     const { request, locals } = context;
     const log = loggerFactory.createLogger('voice-transcribe-api');
     const t0 = Date.now();
     const env = (locals.runtime?.env ?? {}) as Partial<VoiceEnv>;
+
+    if (!flagOn(env.PUBLIC_TOOL_VOICE_VISUALIZER)) {
+      return createApiError('forbidden', 'feature.disabled.voice_visualizer');
+    }
+
     const form = await request.formData();
     const isFileLike = (v: unknown): v is FileLike =>
       !!v &&

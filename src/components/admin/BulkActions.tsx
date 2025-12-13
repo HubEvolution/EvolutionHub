@@ -1,6 +1,9 @@
 import { ensureCsrfToken } from '@/lib/security/csrf';
+import { useAdminStrings } from '@/lib/i18n-admin';
+import { notify } from '@/lib/notify';
 
 export default function BulkActions() {
+  const strings = useAdminStrings();
   async function perform(action: 'approve' | 'reject' | 'flag' | 'hide') {
     try {
       const boxes = Array.from(
@@ -8,7 +11,7 @@ export default function BulkActions() {
       );
       const ids = boxes.map((b) => b.getAttribute('data-comment-id')).filter(Boolean) as string[];
       if (ids.length === 0) {
-        alert('Bitte mindestens einen Kommentar auswählen.');
+        notify.info(strings.commentsAdmin.toasts.noSelection);
         return;
       }
       const defaultReason = action === 'approve' ? '' : '';
@@ -29,13 +32,14 @@ export default function BulkActions() {
       });
       const json: { success?: boolean; error?: { message?: string } } = await res.json();
       if (!res.ok || !json?.success) {
-        alert('Bulk-Aktion fehlgeschlagen');
+        notify.error(strings.commentsAdmin.toasts.bulkError);
         return;
       }
+      notify.success(strings.commentsAdmin.toasts.bulkSuccess);
       location.reload();
     } catch (e) {
       console.error(e);
-      alert('Fehler bei Bulk-Aktion');
+      notify.error(strings.commentsAdmin.toasts.bulkError);
     }
   }
 

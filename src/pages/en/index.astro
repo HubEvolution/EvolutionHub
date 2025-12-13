@@ -1,16 +1,15 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { getI18n, getI18nArray } from '@/utils/i18n';
-import TypewriterComponent from '@/components/scripts/TypewriterComponent.astro';
+import { getI18n } from '@/utils/i18n';
 import TestimonialsRotatingGrid from '@/components/landing/TestimonialsRotatingGrid';
 import { getTestimonials } from '@/lib/content/testimonials';
 import AosWrapper from '@/components/AosWrapper.astro';
 import { isLandingV2Enabled } from '@/utils/feature-flags';
+import { isToolVisible } from '@/lib/tools-availability';
 import HoloFeaturePanel from '@/components/landing/HoloFeaturePanel.astro';
 import CardGraph from '@/components/landing/CardGraph';
 import StarfieldBackdrop from '@/components/landing/StarfieldBackdrop';
 import ConnectionCTA from '@/components/landing/ConnectionCTA.astro';
-import HeroStatusLights from '@/components/landing/HeroStatusLights';
 
 import EvolutionHubLogo from '@/components/brand/EvolutionHubWordmarkOutlined.astro';
 
@@ -18,101 +17,160 @@ import { getLocale } from '@/lib/i18n';
 import { localizePath } from '@/lib/locale-path';
 const locale = getLocale(Astro.url.pathname);
 const t = getI18n(locale);
-const tArr = getI18nArray(locale);
-const heroTypewriterTexts = tArr('pages.home.hero.typewriter_lines');
-const heroTypewriterAll = [t('pages.home.hero.title_part2'), ...heroTypewriterTexts];
-const heroTypewriterItems = heroTypewriterAll.map((text) => ({ text, delay: 1100 }));
 const landingV2 = isLandingV2Enabled();
 const heroSubtitle = landingV2
-  ? (t('pages.home.hero.subtitle_poetic') ?? t('pages.home.hero.subtitle'))
+  ? (t('pages.home.hero.subtitle_magnet') ??
+    t('pages.home.hero.subtitle_poetic') ??
+    t('pages.home.hero.subtitle'))
   : t('pages.home.hero.subtitle');
+
+const runtimeEnv = (Astro.locals && Astro.locals.runtime && Astro.locals.runtime.env) || undefined;
+
+function flagOn(raw: string | undefined | null): boolean {
+  if (raw === undefined || raw === null) return true;
+  const v = String(raw).toLowerCase().trim();
+  return !(v === '0' || v === 'false' || v === 'off' || v === 'no');
+}
+
+const env = (runtimeEnv as unknown as Record<string, string | undefined>) || undefined;
+
+function isToolEnabled(toolId: string): boolean {
+  if (!env) return isToolVisible(toolId);
+
+  switch (toolId) {
+    case 'prompt-enhancer':
+      return flagOn(env.PUBLIC_PROMPT_ENHANCER_V1);
+    case 'Imag-Enhancer': {
+      const mvpOn = flagOn(env.PUBLIC_ENHANCER_MVP_MODE);
+      const legacyOn = flagOn(env.PUBLIC_ENHANCER_LEGACY_MODE);
+      return mvpOn || legacyOn;
+    }
+    case 'video-enhancer':
+      return flagOn(env.ENABLE_VIDEO_ENHANCER);
+    case 'voice-visualizer':
+      return flagOn(env.PUBLIC_TOOL_VOICE_VISUALIZER);
+    case 'webscraper':
+      return flagOn(env.PUBLIC_TOOL_WEBSCRAPER) && flagOn(env.PUBLIC_WEBSCRAPER_V1);
+    case 'web-eval':
+      return flagOn(env.PUBLIC_TOOL_WEB_EVAL);
+    default:
+      return true;
+  }
+}
+
+const showImagEnhancer = isToolEnabled('Imag-Enhancer');
+const showPromptEnhancer = isToolEnabled('prompt-enhancer');
+const showVoiceVisualizer = isToolEnabled('voice-visualizer');
+const showWebscraper = isToolEnabled('webscraper');
+const showVideoEnhancer = isToolEnabled('video-enhancer');
+const showWebEval = isToolEnabled('web-eval');
+
+const visibleFeatureCount = [
+  showImagEnhancer,
+  showPromptEnhancer,
+  showVoiceVisualizer,
+  showWebscraper,
+  showVideoEnhancer,
+  showWebEval,
+].filter(Boolean).length;
+
+const toolsForTestimonials: string[] = [];
+if (showImagEnhancer) toolsForTestimonials.push('imag');
+if (showPromptEnhancer) toolsForTestimonials.push('prompt');
+if (showVoiceVisualizer) toolsForTestimonials.push('voice');
+if (showWebscraper) toolsForTestimonials.push('web');
+if (showVideoEnhancer) toolsForTestimonials.push('video');
+
 const testimonials = await getTestimonials({
-  tools: ['imag', 'prompt', 'voice', 'web', 'video'],
+  tools: toolsForTestimonials.length ? toolsForTestimonials : ['imag'],
   lang: 'en',
   limit: 6,
 });
+
+const scenarioLabel = t('pages.home.testimonials.scenario_label');
 export const prerender = false;
 ---
 
 <BaseLayout
   title="AI development tools: web scraper, transcription & image upscaler"
   description="Build faster with AI-powered tools for data extraction, transcription, image upscaling & video enhancement. Free trial, no credit card needed."
+  disableGlobalBg={true}
 >
   <div class="landing-v2 relative">
     <!-- Hero Section -->
-    <section class="relative py-6 md:py-12 bg-transparent overflow-hidden">
-      <div class="mx-auto px-4 relative z-10">
+    <section
+      class="relative min-h-[75vh] flex items-center py-10 md:py-20 lg:py-24 bg-transparent overflow-hidden"
+    >
+      <div class="mx-auto px-4 relative z-10 w-full">
         <div class="max-w-[110rem] mx-auto text-center">
-          <AosWrapper tag="h1" class="mb-4 text-gray-900 dark:text-white leading-tight">
-            <span class="block leading-none">
-              <EvolutionHubLogo
-                class="relative z-20 block mx-auto py-3 md:py-4 w-full max-w-[22rem] sm:max-w-[26rem] h-auto md:w-auto md:max-w-none md:h-32 lg:h-36 xl:h-40 2xl:h-44 logo-glow pointer-events-none"
-                aria-label="Evolution Hub logo"
-                data-brand="wordmark-outlined"
-              />
-              <span class="sr-only">{t('pages.home.hero.title_part1')}</span>
-            </span>
-          </AosWrapper>
-          <AosWrapper
-            tag="p"
-            delay={100}
-            duration={650}
-            class="text-2xl md:text-4xl text-cyan-300 subtitle-glow mb-6 max-w-5xl mx-auto"
-          >
-            <span
-              id="hero-typewriter-sub"
-              aria-live="polite"
-              class="block min-h-[1.2em] whitespace-nowrap text-accent-gradient [text-shadow:_0_1px_0_rgb(255_255_255_/_0.6)] dark:[text-shadow:_0_1px_0_rgb(0_0_0_/_0.35)]"
-              >{heroSubtitle}</span
+          <div class="text-center">
+            <AosWrapper tag="h1" class="mb-3 text-gray-900 dark:text-white leading-tight">
+              <span class="block leading-none">
+                <EvolutionHubLogo
+                  class="relative z-20 block mx-auto py-2.5 md:py-3 w-full max-w-[20rem] sm:max-w-[24rem] h-auto md:w-auto md:max-w-none md:h-28 lg:h-32 xl:h-36 2xl:h-40 logo-glow pointer-events-none"
+                  aria-label="Evolution Hub logo"
+                  data-brand="wordmark-outlined"
+                />
+                <span class="sr-only">{t('pages.home.hero.title_part1')}</span>
+              </span>
+            </AosWrapper>
+            <AosWrapper
+              tag="p"
+              delay={100}
+              duration={650}
+              class="text-base md:text-xl lg:text-2xl text-slate-50 mb-6 max-w-2xl mx-auto"
             >
-          </AosWrapper>
-
-          <TypewriterComponent
-            elementId="hero-typewriter-sub"
-            texts={heroTypewriterItems}
-            defaultDelay={120}
-            smallScreenDelay={55}
-            smallScreenMaxWidth={768}
-            loop={true}
-          />
-          <AosWrapper
-            delay={200}
-            duration={650}
-            class="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4"
-          >
-            <HeroStatusLights
-              client:load
-              labels={{
-                infra: t('pages.home.hero.status_labels.infra'),
-                image: t('pages.home.features.feature1.title'),
-                prompt: t('pages.home.features.feature2.title'),
-                voice: t('pages.home.features.feature3.title'),
-                web: t('pages.home.features.feature4.title'),
-                video: t('pages.home.features.feature5.title'),
-              }}
-              icons={{
-                infra: 'server',
-                image: t('pages.home.features.feature1.icon'),
-                prompt: t('pages.home.features.feature2.icon'),
-                voice: t('pages.home.features.feature3.icon'),
-                web: t('pages.home.features.feature4.icon'),
-                video: 'video',
-              }}
-              iconsOnly={true}
-            />
-          </AosWrapper>
+              {heroSubtitle}
+            </AosWrapper>
+            <AosWrapper
+              delay={180}
+              duration={650}
+              class="mt-4 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3"
+            >
+              <a
+                href={localizePath(locale, '/tools/prompt-enhancer/app')}
+                class="inline-flex items-center justify-center px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold text-slate-950 bg-emerald-400 hover:bg-emerald-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 transition"
+              >
+                {t('pages.home.hero.cta_primary')}
+              </a>
+              <a
+                href={localizePath(locale, '/tools')}
+                class="inline-flex items-center justify-center px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold text-slate-100 bg-slate-900/60 hover:bg-slate-900/80 border border-slate-500/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300/60 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 transition"
+              >
+                {t('pages.home.hero.cta_secondary')}
+              </a>
+            </AosWrapper>
+            <AosWrapper
+              delay={220}
+              duration={650}
+              class="mt-5 inline-flex items-center justify-center px-3 py-1 text-[11px] md:text-xs font-semibold tracking-wide rounded-full bg-slate-900/80 text-emerald-200 border border-emerald-400/50"
+            >
+              {t('pages.home.hero.free_pill')}
+            </AosWrapper>
+          </div>
         </div>
       </div>
-      <!-- No page-level fallback background; global background handles visuals -->
-      <!-- Overlay fade: ~10% black at top -> 0% at ~55% height -->
-      <div class="absolute inset-0 pointer-events-none z-0 landing-hero-overlay" aria-hidden="true">
+
+      <!-- Background video and overlays -->
+      <div class="absolute inset-0 -z-10 overflow-hidden" aria-hidden="true">
+        <video
+          class="w-full h-full object-cover"
+          src="https://videos.pexels.com/video-files/15196747/15196747-uhd_2560_1440_30fps.mp4"
+          autoplay
+          muted
+          loop
+          playsinline></video>
+        <div
+          class="absolute inset-0 bg-gradient-to-b from-slate-950/80 via-slate-950/40 to-slate-950/95"
+        >
+        </div>
       </div>
     </section>
 
     <!-- Features Section -->
-    <section class="py-8 md:py-12 bg-transparent">
+    <section class="pt-8 md:pt-14 pb-10 md:pb-16 bg-slate-950/95">
       <div class="container mx-auto px-4">
-        <div class="text-center mb-12">
+        <div class="text-center mb-10 md:mb-12">
           <AosWrapper
             tag="h2"
             duration={650}
@@ -124,74 +182,124 @@ export const prerender = false;
             tag="p"
             delay={100}
             duration={650}
-            class="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto"
+            class="text-base md:text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto"
           >
             {t('pages.home.features.subtitle')}
           </AosWrapper>
         </div>
         <div class="relative">
           <CardGraph client:load className="z-0" fullBleed={true} />
-          <div class="grid grid-cols-1 md:grid-cols-5 gap-12 relative z-10">
-            <AosWrapper duration={600} class="feature-card">
-              <HoloFeaturePanel
-                iconName={t('pages.home.features.feature1.icon')}
-                title={t('pages.home.features.feature1.title')}
-                description={landingV2
-                  ? (t('pages.home.features_poetic.feature1.description') ??
-                    t('pages.home.features.feature1.description'))
-                  : t('pages.home.features.feature1.description')}
-              />
-            </AosWrapper>
-            <AosWrapper delay={100} duration={600} class="feature-card">
-              <HoloFeaturePanel
-                iconName={t('pages.home.features.feature2.icon')}
-                title={t('pages.home.features.feature2.title')}
-                description={landingV2
-                  ? (t('pages.home.features_poetic.feature2.description') ??
-                    t('pages.home.features.feature2.description'))
-                  : t('pages.home.features.feature2.description')}
-              />
-            </AosWrapper>
-            <AosWrapper delay={200} duration={600} class="feature-card">
-              <HoloFeaturePanel
-                iconName={t('pages.home.features.feature3.icon')}
-                title={t('pages.home.features.feature3.title')}
-                description={landingV2
-                  ? (t('pages.home.features_poetic.feature3.description') ??
-                    t('pages.home.features.feature3.description'))
-                  : t('pages.home.features.feature3.description')}
-              />
-            </AosWrapper>
-            <AosWrapper delay={300} duration={600} class="feature-card">
-              <HoloFeaturePanel
-                iconName={t('pages.home.features.feature4.icon')}
-                title={t('pages.home.features.feature4.title')}
-                description={landingV2
-                  ? (t('pages.home.features_poetic.feature4.description') ??
-                    t('pages.home.features.feature4.description'))
-                  : t('pages.home.features.feature4.description')}
-              />
-            </AosWrapper>
-            <AosWrapper delay={400} duration={600} class="feature-card">
-              <HoloFeaturePanel
-                iconName={t('pages.home.features.feature5.icon')}
-                title={t('pages.home.features.feature5.title')}
-                description={landingV2
-                  ? (t('pages.home.features_poetic.feature5.description') ??
-                    t('pages.home.features.feature5.description'))
-                  : t('pages.home.features.feature5.description')}
-              />
-            </AosWrapper>
+          <div
+            class={`grid grid-cols-1 md:grid-cols-3 ${
+              visibleFeatureCount <= 3 ? 'xl:grid-cols-3' : 'xl:grid-cols-6'
+            } gap-8 md:gap-10 relative z-10`}
+          >
+            {
+              showImagEnhancer && (
+                <AosWrapper duration={600} class="feature-card">
+                  <HoloFeaturePanel
+                    iconName={t('pages.home.features.feature1.icon')}
+                    title={t('pages.home.features.feature1.title')}
+                    description={
+                      landingV2
+                        ? (t('pages.home.features_poetic.feature1.description') ??
+                          t('pages.home.features.feature1.description'))
+                        : t('pages.home.features.feature1.description')
+                    }
+                  />
+                </AosWrapper>
+              )
+            }
+            {
+              showPromptEnhancer && (
+                <AosWrapper delay={100} duration={600} class="feature-card">
+                  <HoloFeaturePanel
+                    iconName={t('pages.home.features.feature2.icon')}
+                    title={t('pages.home.features.feature2.title')}
+                    description={
+                      landingV2
+                        ? (t('pages.home.features_poetic.feature2.description') ??
+                          t('pages.home.features.feature2.description'))
+                        : t('pages.home.features.feature2.description')
+                    }
+                  />
+                </AosWrapper>
+              )
+            }
+            {
+              showVoiceVisualizer && (
+                <AosWrapper delay={200} duration={600} class="feature-card">
+                  <HoloFeaturePanel
+                    iconName={t('pages.home.features.feature3.icon')}
+                    title={t('pages.home.features.feature3.title')}
+                    description={
+                      landingV2
+                        ? (t('pages.home.features_poetic.feature3.description') ??
+                          t('pages.home.features.feature3.description'))
+                        : t('pages.home.features.feature3.description')
+                    }
+                  />
+                </AosWrapper>
+              )
+            }
+            {
+              showWebscraper && (
+                <AosWrapper delay={300} duration={600} class="feature-card">
+                  <HoloFeaturePanel
+                    iconName={t('pages.home.features.feature4.icon')}
+                    title={t('pages.home.features.feature4.title')}
+                    description={
+                      landingV2
+                        ? (t('pages.home.features_poetic.feature4.description') ??
+                          t('pages.home.features.feature4.description'))
+                        : t('pages.home.features.feature4.description')
+                    }
+                  />
+                </AosWrapper>
+              )
+            }
+            {
+              showVideoEnhancer && (
+                <AosWrapper delay={400} duration={600} class="feature-card">
+                  <HoloFeaturePanel
+                    iconName={t('pages.home.features.feature5.icon')}
+                    title={t('pages.home.features.feature5.title')}
+                    description={
+                      landingV2
+                        ? (t('pages.home.features_poetic.feature5.description') ??
+                          t('pages.home.features.feature5.description'))
+                        : t('pages.home.features.feature5.description')
+                    }
+                  />
+                </AosWrapper>
+              )
+            }
+            {
+              showWebEval && (
+                <AosWrapper delay={500} duration={600} class="feature-card">
+                  <HoloFeaturePanel
+                    iconName={t('pages.home.features.feature6.icon')}
+                    title={t('pages.home.features.feature6.title')}
+                    description={
+                      landingV2
+                        ? (t('pages.home.features_poetic.feature6.description') ??
+                          t('pages.home.features.feature6.description'))
+                        : t('pages.home.features.feature6.description')
+                    }
+                  />
+                </AosWrapper>
+              )
+            }
           </div>
         </div>
       </div>
     </section>
 
     <!-- Testimonials Section -->
-    <section class="relative overflow-hidden py-8 md:py-12 bg-transparent">
+    <section class="relative overflow-hidden py-10 md:py-16 bg-slate-950">
       <div class="container mx-auto px-4">
         <StarfieldBackdrop client:load className="z-0" density={360} fullBleed={true} />
-        <div class="text-center mb-16">
+        <div class="text-center mb-12">
           <div class="mb-3 text-sm font-medium text-emerald-300/90 tracking-wide">
             {t('pages.home.testimonials.trust_line') ?? 'Used by 1,200+ creators'}
           </div>
@@ -206,17 +314,22 @@ export const prerender = false;
             tag="p"
             delay={100}
             duration={650}
-            class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto"
+            class="text-base md:text-lg text-gray-600 dark:text-gray-300 max-w-xl mx-auto"
           >
             {t('pages.home.testimonials.subtitle')}
           </AosWrapper>
         </div>
-        <TestimonialsRotatingGrid client:load items={testimonials} intervalMs={6500} />
+        <TestimonialsRotatingGrid
+          client:load
+          items={testimonials}
+          intervalMs={6500}
+          scenarioLabel={scenarioLabel}
+        />
       </div>
     </section>
 
     <!-- Call to Action Section -->
-    <section class="py-8 md:py-12">
+    <section class="py-12 md:py-16 bg-slate-950">
       <div class="container mx-auto px-4">
         <ConnectionCTA
           title={t('cta.headline')}

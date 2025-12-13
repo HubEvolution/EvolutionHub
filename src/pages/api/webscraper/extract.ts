@@ -22,12 +22,19 @@ import { getWebscraperEntitlementsFor } from '@/config/webscraper/entitlements';
 import { webscraperRequestSchema } from '@/lib/validation';
 import { formatZodError } from '@/lib/validation';
 
+function flagOn(raw: string | undefined): boolean {
+  if (raw === undefined || raw === null) return true;
+  const v = String(raw).toLowerCase().trim();
+  return !(v === '0' || v === 'false' || v === 'off' || v === 'no');
+}
+
 interface WebscraperEnv {
   KV_WEBSCRAPER?: KVNamespace;
   ENVIRONMENT?: string;
   PUBLIC_WEBSCRAPER_V1?: string;
   WEBSCRAPER_GUEST_LIMIT?: string;
   WEBSCRAPER_USER_LIMIT?: string;
+  PUBLIC_TOOL_WEBSCRAPER?: string;
 }
 
 interface WebscraperError extends Error {
@@ -98,6 +105,13 @@ export const POST = withApiMiddleware(
 
     // Init service with flag check
     const rawEnv = (locals.runtime?.env ?? {}) as Record<string, unknown>;
+    const publicToolFlag =
+      typeof rawEnv.PUBLIC_TOOL_WEBSCRAPER === 'string'
+        ? (rawEnv.PUBLIC_TOOL_WEBSCRAPER as string)
+        : undefined;
+    if (!flagOn(publicToolFlag)) {
+      return createApiError('forbidden', 'feature.disabled.webscraper');
+    }
     const env: WebscraperEnv = {
       KV_WEBSCRAPER: rawEnv.KV_WEBSCRAPER as KVNamespace | undefined,
       ENVIRONMENT: typeof rawEnv.ENVIRONMENT === 'string' ? rawEnv.ENVIRONMENT : undefined,
@@ -109,10 +123,11 @@ export const POST = withApiMiddleware(
           : undefined,
       WEBSCRAPER_USER_LIMIT:
         typeof rawEnv.WEBSCRAPER_USER_LIMIT === 'string' ? rawEnv.WEBSCRAPER_USER_LIMIT : undefined,
+      PUBLIC_TOOL_WEBSCRAPER: publicToolFlag,
     };
 
     if (env.PUBLIC_WEBSCRAPER_V1 === 'false') {
-      return createApiError('forbidden', 'Feature not enabled');
+      return createApiError('forbidden', 'feature.disabled.webscraper');
     }
 
     const service = new WebscraperService({

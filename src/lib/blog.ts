@@ -16,9 +16,12 @@ type CachedBlogData = {
 
 const DEFAULT_PER_PAGE = 10;
 
+const BLOG_CACHE_TTL_MS = 60_000;
+
 export class BlogService {
   private readonly defaultOptions: BlogListOptions;
   private cachedData?: Promise<CachedBlogData>;
+  private cachedDataAtMs?: number;
 
   constructor(options: BlogListOptions = {}) {
     this.defaultOptions = {
@@ -40,31 +43,38 @@ export class BlogService {
   }
 
   private async fetchAllBlogData(force = false): Promise<CachedBlogData> {
-    if (!this.cachedData || force) {
-      const client = getContentfulClient();
-      const { lang } = this.defaultOptions;
+    const nowMs = Date.now();
+    const isExpired =
+      this.cachedDataAtMs !== undefined && nowMs - this.cachedDataAtMs > BLOG_CACHE_TTL_MS;
 
-      const query: Record<string, unknown> = {
-        content_type: 'blogPost',
-        include: 2,
-        order: ['-fields.publishDate'],
-      };
-      if (lang) {
-        query['fields.lang'] = lang;
-      }
+    if (!this.cachedData || force || isExpired) {
+      this.cachedDataAtMs = nowMs;
+      this.cachedData = (async () => {
+        const client = getContentfulClient();
+        const { lang } = this.defaultOptions;
 
-      const response: EntryCollection<BlogPostSkeleton> =
-        await client.getEntries<BlogPostSkeleton>(query);
-      const entries = response.items ?? [];
-      const processedPosts = entries.map((entry) => mapEntryToBlogPost(entry));
+        const query: Record<string, unknown> = {
+          content_type: 'blogPost',
+          include: 2,
+          order: ['-fields.publishDate'],
+        };
+        if (lang) {
+          query['fields.lang'] = lang;
+        }
 
-      processedPosts.sort((a, b) => {
-        const dateA = new Date((a.data.updatedDate ?? a.data.pubDate) as Date | string).getTime();
-        const dateB = new Date((b.data.updatedDate ?? b.data.pubDate) as Date | string).getTime();
-        return dateB - dateA;
-      });
+        const response: EntryCollection<BlogPostSkeleton> =
+          await client.getEntries<BlogPostSkeleton>(query);
+        const entries = response.items ?? [];
+        const processedPosts = entries.map((entry) => mapEntryToBlogPost(entry));
 
-      this.cachedData = Promise.resolve({ entries, processedPosts });
+        processedPosts.sort((a, b) => {
+          const dateA = new Date((a.data.updatedDate ?? a.data.pubDate) as Date | string).getTime();
+          const dateB = new Date((b.data.updatedDate ?? b.data.pubDate) as Date | string).getTime();
+          return dateB - dateA;
+        });
+
+        return { entries, processedPosts };
+      })();
     }
 
     return this.cachedData;

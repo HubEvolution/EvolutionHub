@@ -1,0 +1,756 @@
+---
+import { getI18n, getI18nArray } from '@/utils/i18n';
+import { getLocale } from '@/lib/i18n';
+import { localizePath } from '@/lib/locale-path';
+
+type ToolIcon = 'spark' | 'edit' | 'wave' | 'globe' | 'video' | 'shield';
+
+interface ToolCardData {
+  key: string;
+  icon: ToolIcon;
+  title: string;
+  body: string;
+  accent: string;
+}
+
+interface FlowStep {
+  title: string;
+  body: string;
+}
+
+const locale = getLocale(Astro.url.pathname);
+const t = getI18n(locale);
+const ta = getI18nArray(locale);
+
+const metaTitle = t('pages.futureLanding.meta.title');
+const metaDescription = t('pages.futureLanding.meta.description');
+
+const tools: ToolCardData[] = [
+  {
+    key: 'prompt',
+    icon: 'edit',
+    title: t('pages.futureLanding.tools.prompt.title'),
+    body: t('pages.futureLanding.tools.prompt.body'),
+    accent: 'rgba(34, 211, 238, 0.32)',
+  },
+  {
+    key: 'imag',
+    icon: 'spark',
+    title: t('pages.futureLanding.tools.imag.title'),
+    body: t('pages.futureLanding.tools.imag.body'),
+    accent: 'rgba(251, 146, 60, 0.32)',
+  },
+  {
+    key: 'video',
+    icon: 'video',
+    title: t('pages.futureLanding.tools.video.title'),
+    body: t('pages.futureLanding.tools.video.body'),
+    accent: 'rgba(217, 70, 239, 0.28)',
+  },
+  {
+    key: 'voice',
+    icon: 'wave',
+    title: t('pages.futureLanding.tools.voice.title'),
+    body: t('pages.futureLanding.tools.voice.body'),
+    accent: 'rgba(56, 189, 248, 0.32)',
+  },
+  {
+    key: 'webscraper',
+    icon: 'globe',
+    title: t('pages.futureLanding.tools.webscraper.title'),
+    body: t('pages.futureLanding.tools.webscraper.body'),
+    accent: 'rgba(16, 185, 129, 0.32)',
+  },
+  {
+    key: 'webeval',
+    icon: 'shield',
+    title: t('pages.futureLanding.tools.webeval.title'),
+    body: t('pages.futureLanding.tools.webeval.body'),
+    accent: 'rgba(59, 130, 246, 0.32)',
+  },
+];
+
+const flowSteps: FlowStep[] = [
+  {
+    title: t('pages.futureLanding.flow.steps.s1_title'),
+    body: t('pages.futureLanding.flow.steps.s1_body'),
+  },
+  {
+    title: t('pages.futureLanding.flow.steps.s2_title'),
+    body: t('pages.futureLanding.flow.steps.s2_body'),
+  },
+  {
+    title: t('pages.futureLanding.flow.steps.s3_title'),
+    body: t('pages.futureLanding.flow.steps.s3_body'),
+  },
+];
+
+const pricingBullets = ta('pages.futureLanding.pricing.bullets');
+
+const primaryCtaHref = localizePath(locale, '/tools/prompt-enhancer/app');
+const secondaryCtaHref = localizePath(locale, '/tools');
+const docsHref = localizePath(locale, '/docs');
+---
+
+<!doctype html>
+<html lang={locale} class="h-full">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{metaTitle}</title>
+    <meta name="description" content={metaDescription} />
+    <meta property="og:title" content={metaTitle} />
+    <meta property="og:description" content={metaDescription} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={`${Astro.url.origin}/landing-future`} />
+    <meta property="og:image" content="/favicons/android-chrome-512x512.png" />
+    <link rel="icon" href="/favicons/favicon-32x32.png" sizes="32x32" />
+    <link rel="icon" href="/favicons/favicon-16x16.png" sizes="16x16" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style is:global>
+      @import '@/styles/global.css';
+    </style>
+  </head>
+  <body
+    class="landing-v2 relative min-h-screen bg-[#0b0f1a] text-slate-100 overflow-x-hidden selection:bg-cyan-500/30 selection:text-white"
+  >
+    <div class="bg-grid" aria-hidden="true"></div>
+    <div class="bg-glow" aria-hidden="true"></div>
+    <div class="bg-noise" aria-hidden="true"></div>
+
+    <main class="relative z-10 flex flex-col gap-16 md:gap-20 pb-20">
+      <section class="relative px-4 pt-12 md:pt-16 lg:pt-20">
+        <div
+          class="max-w-6xl mx-auto grid lg:grid-cols-[1.05fr_0.95fr] gap-10 lg:gap-14 items-center"
+        >
+          <div class="space-y-6">
+            <div
+              class="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.28em] text-cyan-200/80 backdrop-blur-md"
+            >
+              <span
+                class="h-2 w-2 rounded-full bg-cyan-400 shadow-[0_0_12px_rgba(34,211,238,0.7)] animate-pulse-slow"
+              ></span>
+              Evolution Hub
+            </div>
+            <div class="space-y-4">
+              <h1
+                class="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight text-white drop-shadow-[0_10px_40px_rgba(0,0,0,0.45)] tracking-tight"
+              >
+                {t('pages.futureLanding.hero.title')}
+              </h1>
+              <p class="text-lg sm:text-xl text-slate-200/90 leading-relaxed max-w-2xl">
+                {t('pages.futureLanding.hero.subtitle')}
+              </p>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+              <a
+                href={primaryCtaHref}
+                class="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-cyan-400 via-cyan-300 to-amber-300 px-5 py-3 text-sm font-semibold text-slate-950 shadow-[0_15px_45px_-18px_rgba(34,211,238,0.9)] transition-transform duration-200 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-cyan-300/70"
+              >
+                {t('pages.futureLanding.hero.cta_primary')}
+                <span
+                  class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-900/10 text-xs text-slate-900 group-hover:bg-slate-900/15"
+                  >→</span
+                >
+              </a>
+              <a
+                href={secondaryCtaHref}
+                class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-slate-100 transition duration-200 hover:border-cyan-300/60 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-cyan-300/70"
+              >
+                {t('pages.futureLanding.hero.cta_secondary')}
+              </a>
+            </div>
+            <div class="flex flex-wrap items-center gap-3 text-sm text-slate-300/90">
+              <span
+                class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5"
+              >
+                <span
+                  class="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.7)]"
+                ></span>
+                {t('pages.futureLanding.hero.note')}
+              </span>
+              <span class="text-slate-400/90">·</span>
+              <span class="text-slate-200/90">{t('pages.futureLanding.trust.line')}</span>
+            </div>
+          </div>
+
+          <div class="relative">
+            <div class="absolute -left-16 -top-16 h-36 w-36 rounded-full bg-cyan-400/20 blur-3xl">
+            </div>
+            <div
+              class="absolute -right-10 -bottom-16 h-40 w-40 rounded-full bg-amber-400/15 blur-3xl"
+            >
+            </div>
+            <div class="hero-frame">
+              <div class="hero-frame__glow" aria-hidden="true"></div>
+              <div class="hero-frame__border"></div>
+              <video
+                class="hero-frame__video"
+                src="/media/landing-future.webm"
+                poster="/media/landing-future-poster.jpg"
+                autoplay
+                muted
+                loop
+                playsinline
+                aria-label={t('pages.futureLanding.hero.video_label')}
+              >
+                <source src="/media/landing-future.webm" type="video/webm" />
+                <source src="/media/landing-future.mp4" type="video/mp4" />
+                <div class="p-6 text-slate-200 text-sm">
+                  {t('pages.futureLanding.hero.subtitle')}
+                </div>
+              </video>
+              <div class="hero-frame__hud">
+                <div class="hud-chip">{t('pages.futureLanding.tools.prompt.title')}</div>
+                <div class="hud-chip">{t('pages.futureLanding.tools.imag.title')}</div>
+                <div class="hud-chip">{t('pages.futureLanding.tools.video.title')}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="relative px-4">
+        <div class="max-w-6xl mx-auto grid gap-6 lg:grid-cols-[1.1fr_0.9fr] items-start">
+          <div
+            class="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md shadow-[0_20px_70px_-45px_rgba(0,0,0,0.9)]"
+          >
+            <div class="text-sm uppercase tracking-[0.22em] text-cyan-200/80 mb-3">
+              {t('pages.futureLanding.tools.heading')}
+            </div>
+            <p class="text-xl text-slate-100/90 mb-6">
+              {t('pages.futureLanding.tools.subheading')}
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {
+                tools.map((tool) => (
+                  <article
+                    class="tool-card"
+                    key={tool.key}
+                    style={`--card-accent: ${tool.accent};`}
+                  >
+                    <div class="tool-icon">
+                      {tool.icon === 'spark' && (
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" class="h-5 w-5">
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="1.5"
+                            d="m12 3 1.8 3.7 3.8 1.1-3 3 0.5 4.1-3.1-2-3.1 2 0.5-4.1-3-3 3.8-1.1z"
+                          />
+                        </svg>
+                      )}
+                      {tool.icon === 'edit' && (
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" class="h-5 w-5">
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="1.5"
+                            d="M16 5l3 3-9.5 9.5H6.5V14z"
+                          />
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="1.5"
+                            d="M13.5 7.5l3 3"
+                          />
+                        </svg>
+                      )}
+                      {tool.icon === 'video' && (
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" class="h-5 w-5">
+                          <rect
+                            x="4"
+                            y="5"
+                            width="12"
+                            height="14"
+                            rx="2"
+                            ry="2"
+                            stroke-width="1.5"
+                          />
+                          <path
+                            stroke-width="1.5"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M16 9l4-2v10l-4-2z"
+                          />
+                        </svg>
+                      )}
+                      {tool.icon === 'wave' && (
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" class="h-5 w-5">
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="1.5"
+                            d="M4 12c2.5-4 4.5-4 7 0s4.5 4 7 0"
+                          />
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="1.5"
+                            d="M4 16c2.5-4 4.5-4 7 0s4.5 4 7 0"
+                          />
+                        </svg>
+                      )}
+                      {tool.icon === 'globe' && (
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" class="h-5 w-5">
+                          <circle cx="12" cy="12" r="8" stroke-width="1.5" />
+                          <path stroke-width="1.5" stroke-linecap="round" d="M4 12h16" />
+                          <path
+                            stroke-width="1.5"
+                            stroke-linecap="round"
+                            d="M12 4c2.2 3 2.2 9 0 12-2.2-3-2.2-9 0-12z"
+                          />
+                        </svg>
+                      )}
+                      {tool.icon === 'shield' && (
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" class="h-5 w-5">
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="1.5"
+                            d="M12 4 6 6v5.5c0 3.5 2.5 6.6 6 7.5 3.5-.9 6-4 6-7.5V6z"
+                          />
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="1.5"
+                            d="m9.5 12 1.8 1.8L14.5 11"
+                          />
+                        </svg>
+                      )}
+                    </div>
+                    <h3 class="text-base font-semibold text-white tracking-tight">{tool.title}</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">{tool.body}</p>
+                  </article>
+                ))
+              }
+            </div>
+          </div>
+
+          <div
+            class="rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 via-white/3 to-transparent p-6 backdrop-blur-md shadow-[0_20px_70px_-45px_rgba(0,0,0,0.9)]"
+          >
+            <div class="text-sm uppercase tracking-[0.22em] text-cyan-200/80 mb-3">
+              {t('pages.futureLanding.flow.heading')}
+            </div>
+            <div class="space-y-4">
+              {
+                flowSteps.map((step, idx) => (
+                  <div class="flow-step" key={`${idx}-${step.title}`}>
+                    <div class="flow-step__badge">{idx + 1}</div>
+                    <div>
+                      <div class="text-base font-semibold text-white">{step.title}</div>
+                      <p class="text-sm text-slate-300 leading-relaxed">{step.body}</p>
+                    </div>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="relative px-4">
+        <div class="max-w-6xl mx-auto space-y-4">
+          <div class="flex items-center gap-3 text-sm uppercase tracking-[0.22em] text-cyan-200/80">
+            <span>{t('pages.futureLanding.metrics.heading')}</span>
+            <span class="h-px flex-1 bg-gradient-to-r from-cyan-300/50 via-white/10 to-transparent"
+            ></span>
+          </div>
+          <div class="grid gap-6 lg:grid-cols-3">
+            <div class="metric-card">
+              <div class="metric-card__value">{t('pages.futureLanding.metrics.k1')}</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-card__value">{t('pages.futureLanding.metrics.k2')}</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-card__value">{t('pages.futureLanding.metrics.k3')}</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="relative px-4">
+        <div class="max-w-6xl mx-auto grid gap-6 lg:grid-cols-[1.05fr_0.95fr] items-start">
+          <div class="pricing-card">
+            <div class="flex items-center gap-3 mb-3">
+              <span class="text-sm uppercase tracking-[0.22em] text-cyan-200/80">
+                {t('pages.futureLanding.pricing.title')}
+              </span>
+              <span class="badge-free">{t('pages.futureLanding.pricing.badge_free')}</span>
+            </div>
+            <p class="text-lg text-slate-100/90 mb-4">
+              {t('pages.futureLanding.pricing.subtitle')}
+            </p>
+            <ul class="space-y-2 text-sm text-slate-200/90">
+              {
+                pricingBullets.map((item) => (
+                  <li class="flex items-start gap-2">
+                    <span class="mt-1 h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.7)]" />
+                    <span>{item}</span>
+                  </li>
+                ))
+              }
+            </ul>
+            <div class="mt-5">
+              <a
+                href={localizePath(locale, '/pricing')}
+                class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-semibold text-slate-100 transition duration-200 hover:border-cyan-300/60 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-cyan-300/70"
+              >
+                {t('pages.futureLanding.pricing.cta')}
+              </a>
+            </div>
+          </div>
+
+          <div
+            class="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md shadow-[0_20px_70px_-45px_rgba(0,0,0,0.9)] flex flex-col gap-4"
+          >
+            <div class="text-sm uppercase tracking-[0.22em] text-amber-200/80">
+              {t('pages.futureLanding.trust_cta.title')}
+            </div>
+            <p class="text-base text-slate-100/90 leading-relaxed">
+              {t('pages.futureLanding.trust_cta.body')}
+            </p>
+            <a
+              href={docsHref}
+              class="inline-flex items-center gap-2 text-sm font-semibold text-cyan-200 hover:text-cyan-100 transition"
+            >
+              {t('pages.futureLanding.trust_cta.cta')}
+              <span aria-hidden="true">→</span>
+            </a>
+            <div class="rounded-lg border border-white/10 bg-white/5 p-4 text-sm text-slate-300/90">
+              <div class="flex items-center gap-2 text-amber-200/80 font-semibold mb-2">
+                <span
+                  class="h-2 w-2 rounded-full bg-amber-300 shadow-[0_0_12px_rgba(251,191,36,0.7)]"
+                ></span>
+                {t('pages.futureLanding.trust.line')}
+              </div>
+              <p class="leading-relaxed">
+                {t('pages.futureLanding.trust.quote1.quote')} — {
+                  t('pages.futureLanding.trust.quote1.author')
+                },{' '}
+                {t('pages.futureLanding.trust.quote1.role')}
+              </p>
+              <p class="leading-relaxed text-slate-400 mt-2">
+                {t('pages.futureLanding.trust.quote2.quote')} — {
+                  t('pages.futureLanding.trust.quote2.author')
+                },{' '}
+                {t('pages.futureLanding.trust.quote2.role')}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="relative px-4 pb-10">
+        <div
+          class="max-w-6xl mx-auto rounded-3xl border border-white/10 bg-gradient-to-r from-cyan-500/15 via-emerald-400/10 to-amber-300/10 p-8 md:p-10 backdrop-blur-md shadow-[0_25px_70px_-40px_rgba(0,0,0,0.9)]"
+        >
+          <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div class="space-y-2">
+              <div class="text-sm uppercase tracking-[0.24em] text-cyan-200/80">
+                {t('pages.futureLanding.final.title')}
+              </div>
+              <div class="text-2xl md:text-3xl font-semibold text-white leading-snug">
+                {t('pages.futureLanding.final.subtitle')}
+              </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+              <a
+                href={primaryCtaHref}
+                class="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-cyan-400 via-cyan-300 to-amber-300 px-5 py-3 text-sm font-semibold text-slate-950 shadow-[0_15px_45px_-18px_rgba(34,211,238,0.9)] transition-transform duration-200 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-cyan-300/70"
+              >
+                {t('pages.futureLanding.final.cta_primary')}
+                <span
+                  class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-900/10 text-xs text-slate-900 group-hover:bg-slate-900/15"
+                  >→</span
+                >
+              </a>
+              <a
+                href={secondaryCtaHref}
+                class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-slate-100 transition duration-200 hover:border-cyan-300/60 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-cyan-300/70"
+              >
+                {t('pages.futureLanding.final.cta_secondary')}
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <style>
+      :global(body) {
+        font-family:
+          'Inter',
+          system-ui,
+          -apple-system,
+          sans-serif;
+      }
+      .bg-grid {
+        position: fixed;
+        inset: 0;
+        background-image:
+          linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        background-size: 48px 48px;
+        mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.7), transparent 65%);
+        pointer-events: none;
+        z-index: 0;
+      }
+      .bg-glow {
+        position: fixed;
+        inset: 0;
+        background:
+          radial-gradient(circle at 20% 20%, rgba(34, 211, 238, 0.15), transparent 35%),
+          radial-gradient(circle at 80% 80%, rgba(251, 191, 36, 0.12), transparent 35%),
+          radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.12), transparent 40%);
+        pointer-events: none;
+        z-index: 0;
+      }
+      .bg-noise {
+        position: fixed;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+        opacity: 0.4;
+        mix-blend-mode: soft-light;
+        pointer-events: none;
+        z-index: 0;
+      }
+      .hero-frame {
+        position: relative;
+        overflow: hidden;
+        border-radius: 1.25rem;
+        background:
+          radial-gradient(circle at 25% 20%, rgba(34, 211, 238, 0.16), transparent 45%),
+          radial-gradient(circle at 80% 80%, rgba(251, 191, 36, 0.16), transparent 50%),
+          rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.08),
+          0 20px 70px rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(12px);
+        transform: translateY(12px) scale(0.98);
+        animation: frame-in 0.85s ease-out forwards;
+      }
+      .hero-frame__glow {
+        position: absolute;
+        inset: -40%;
+        background: conic-gradient(
+          from 90deg,
+          rgba(34, 211, 238, 0.18),
+          rgba(251, 191, 36, 0.18),
+          rgba(34, 211, 238, 0.18)
+        );
+        filter: blur(48px);
+        opacity: 0.4;
+        animation: rotate-slow 14s linear infinite;
+      }
+      .hero-frame__border {
+        position: absolute;
+        inset: 0;
+        border-radius: 1.25rem;
+        padding: 1px;
+        background: linear-gradient(135deg, rgba(34, 211, 238, 0.65), rgba(251, 191, 36, 0.45));
+        mask:
+          linear-gradient(#000, #000) content-box,
+          linear-gradient(#000, #000);
+        mask-composite: exclude;
+        pointer-events: none;
+        opacity: 0.8;
+      }
+      .hero-frame__video {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        height: auto;
+        display: block;
+        border-radius: 1.2rem;
+        background: rgba(0, 0, 0, 0.4);
+      }
+      .hero-frame__hud {
+        position: absolute;
+        right: 12px;
+        bottom: 12px;
+        z-index: 2;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .hud-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 9999px;
+        background: rgba(15, 23, 42, 0.72);
+        color: #e2e8f0;
+        font-size: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+        backdrop-filter: blur(6px);
+      }
+      .tool-card {
+        position: relative;
+        display: grid;
+        gap: 8px;
+        padding: 16px;
+        border-radius: 14px;
+        background: rgba(15, 23, 42, 0.65);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.06),
+          0 12px 30px rgba(0, 0, 0, 0.35);
+        overflow: hidden;
+        transition:
+          transform 180ms ease,
+          border-color 180ms ease,
+          box-shadow 180ms ease;
+      }
+      .tool-card::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          135deg,
+          var(--card-accent, rgba(34, 211, 238, 0.14)),
+          rgba(255, 255, 255, 0.04)
+        );
+        opacity: 0;
+        transition: opacity 180ms ease;
+      }
+      .tool-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(34, 211, 238, 0.4);
+        box-shadow: 0 20px 55px rgba(0, 0, 0, 0.45);
+      }
+      .tool-card:hover::before {
+        opacity: 1;
+      }
+      .tool-icon {
+        height: 36px;
+        width: 36px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        color: #e2e8f0;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        background: linear-gradient(
+          135deg,
+          var(--card-accent, rgba(34, 211, 238, 0.28)),
+          rgba(255, 255, 255, 0.06)
+        );
+      }
+      .flow-step {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 12px;
+        align-items: start;
+        padding: 12px;
+        border-radius: 12px;
+        background: rgba(15, 23, 42, 0.65);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .flow-step__badge {
+        height: 32px;
+        width: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9999px;
+        background: linear-gradient(135deg, rgba(34, 211, 238, 0.35), rgba(251, 191, 36, 0.28));
+        color: #0b0f1a;
+        font-weight: 700;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      }
+      .metric-card {
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(15, 23, 42, 0.7);
+        padding: 18px;
+        box-shadow: 0 16px 50px rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(10px);
+      }
+      .metric-card__value {
+        font-weight: 700;
+        color: #f8fafc;
+        font-size: 1.1rem;
+        line-height: 1.4;
+      }
+      .metric-card__label {
+        color: rgba(226, 232, 240, 0.7);
+        font-size: 0.9rem;
+      }
+      .pricing-card {
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background:
+          radial-gradient(circle at 12% 12%, rgba(34, 211, 238, 0.12), transparent 35%),
+          radial-gradient(circle at 80% 80%, rgba(251, 191, 36, 0.12), transparent 50%),
+          rgba(15, 23, 42, 0.7);
+        padding: 20px;
+        backdrop-filter: blur(12px);
+        box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
+      }
+      .badge-free {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border-radius: 9999px;
+        background: rgba(16, 185, 129, 0.18);
+        border: 1px solid rgba(74, 222, 128, 0.35);
+        color: #bbf7d0;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      @keyframes frame-in {
+        0% {
+          opacity: 0;
+          transform: translateY(24px) scale(0.97);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+      @keyframes rotate-slow {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      @keyframes pulse-slow {
+        0%,
+        100% {
+          opacity: 0.75;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.08);
+        }
+      }
+      .animate-pulse-slow {
+        animation: pulse-slow 2.6s ease-in-out infinite;
+      }
+      @media (max-width: 640px) {
+        .hero-frame__hud {
+          position: static;
+          margin-top: 10px;
+        }
+      }
+    </style>
+  </body>
+</html>

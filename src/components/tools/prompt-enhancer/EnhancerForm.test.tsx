@@ -124,7 +124,7 @@ describe('EnhancerForm (files validation)', () => {
     Object.defineProperty(input, 'files', { value: [ok], configurable: true });
     fireEvent.change(input);
 
-    const btn = screen.getByRole('button', { name: /enhance/i });
+    const btn = screen.getByRole('button', { name: /^enhance$/i });
     await userEvent.click(btn);
 
     // Should render result textarea

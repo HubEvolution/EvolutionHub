@@ -76,48 +76,48 @@
     "en": "English"
   },
   "footer": {
-    "claim": "Die moderne Plattform für Entwickler, um Projekte zu verwalten, zu teilen und zu skalieren. Entwickelt von Entwicklern für Entwickler.",
-    "quick": "Schnellzugriff",
-    "legal": "Rechtliches",
+    "claim": "The modern platform for developers to manage, share, and scale projects. Built by developers for developers.",
+    "quick": "Quick access",
+    "legal": "Legal",
     "tools": "Tools",
-    "cookie_settings": "Cookie-Einstellungen",
+    "cookie_settings": "Cookie settings",
     "links": {
       "dashboard": "Dashboard",
       "blog": "Blog",
-      "docs": "Dokumentation",
+      "docs": "Documentation",
       "faq": "FAQ",
-      "contact": "Kontakt",
-      "privacy": "Datenschutzerklärung",
-      "imprint": "Impressum",
-      "terms": "AGB"
+      "contact": "Contact",
+      "privacy": "Privacy policy",
+      "imprint": "Imprint",
+      "terms": "Terms"
     },
-    "copyright": "© 2025 Evolution Hub. Alle Rechte vorbehalten."
+    "copyright": "© 2025 Evolution Hub. All rights reserved."
   },
   "header": {
     "menu": {
-      "profile": "Profil & Einstellungen",
-      "plan_usage": "Plan & Nutzung",
+      "profile": "Profile & settings",
+      "plan_usage": "Plan & usage",
       "plan_label": "Plan",
       "credits": "Credits",
-      "monthly_quota": "Monatliches Kontingent",
-      "monthly_quota_remaining": "Verbleibendes monatliches Kontingent",
-      "theme": "Darstellung",
-      "language": "Sprache",
+      "monthly_quota": "Monthly quota",
+      "monthly_quota_remaining": "Remaining monthly quota",
+      "theme": "Appearance",
+      "language": "Language",
       "account_fallback": "Account"
     }
   },
   "cta": {
-    "headline": "Bereit loszulegen?",
-    "subtitle": "Werden Sie Teil der Tausenden von Entwicklern, die bereits Evolution Hub nutzen, um erstaunliche Anwendungen zu erstellen.",
-    "button_text": "Kostenloses Konto erstellen"
+    "headline": "Ready to get started?",
+    "subtitle": "Join developers using Evolution Hub to create remarkable applications.",
+    "button_text": "Create a free account"
   },
   "auth": {
-    "login": "Anmelden",
-    "logout": "Abmelden",
+    "login": "Sign in",
+    "logout": "Sign out",
     "magic": {
-      "cooldown": "Bitte warte {seconds}s, bevor du es erneut versuchst.",
-      "error": "Magischer Link konnte nicht gesendet werden. Bitte erneut versuchen.",
-      "success": "Wir haben dir einen magischen Link geschickt. Bitte prüfe dein Postfach."
+      "cooldown": "Please wait {seconds}s before trying again.",
+      "error": "Could not send magic link. Please try again.",
+      "success": "We sent you a magic link. Please check your inbox."
     },
     "toasts": {
       "turnstile_load_error": "Turnstile konnte nicht geladen werden. Bitte Seite neu laden oder anderes Netzwerk versuchen.",
@@ -243,57 +243,66 @@
       }
     },
     "home": {
-      "title": "Willkommen bei Evolution Hub",
+      "title": "Welcome to Evolution Hub",
       "features": {
-        "heading": "Die Zukunft der KI‑gestützten Entwicklung",
-        "subtitle": "Entdecke unsere Kern‑Tools für echte Alltags‑Workflows.",
+        "heading": "AI tools for your daily workflows",
+        "subtitle": "Explore our core tools for images, prompts, voice, web data, video and live web evaluation.",
         "feature1": {
           "icon": "photo",
           "title": "Imag‑Enhancer",
-          "description": "Verbessert Bilder automatisch: KI‑Entrauschen, Detailschärfung, hochwertiges Upscaling sowie Farb‑/Kontrast‑Optimierung."
+          "description": "Automatically enhances images: AI denoise, detail sharpening, high-quality upscaling, and color/contrast optimization."
         },
         "feature2": {
           "icon": "edit",
           "title": "Prompt Enhancer",
-          "description": "KI‑gestützter Prompt‑Optimierer für bessere Ergebnisse in AI‑Chats und Anwendungen."
+          "description": "AI-powered prompt optimizer for better results in AI chats and apps."
         },
         "feature3": {
           "icon": "microphone",
           "title": "Voice Transcriptor",
-          "description": "Sprache aufnehmen, Pegel visualisieren und nahezu in Echtzeit transkribieren."
+          "description": "Record audio, visualize levels, and transcribe close to real time."
         },
         "feature4": {
           "icon": "search",
           "title": "Webscraper",
-          "description": "Sicher Klartext aus Webseiten extrahieren. SSRF‑gehärtet, formatbewusst, mit Nutzungslimits und klaren Fehlermeldungen."
+          "description": "Extract clean text from websites securely. SSRF-hardened, format-aware, with usage limits and clear error messages."
         },
         "feature5": {
           "icon": "video",
           "title": "Video‑Enhancer",
-          "description": "Skaliert und verbessert Videos mit KI – schärfere Details, weniger Rauschen, klarere Bilder."
+          "description": "Upscale and enhance videos with AI — sharper details, less noise, clearer frames."
+        },
+        "feature6": {
+          "icon": "globe",
+          "title": "Web‑Eval",
+          "description": "Run structured evaluations against live websites – prompts, checks and reports in one place."
         }
       },
       "features_poetic": {
         "feature1": {
-          "description": "Verwandle verrauschte Schatten in klare Welten."
+          "description": "Turn noisy shadows into clear worlds."
         },
         "feature2": {
-          "description": "Lass Worte fliegen und Ideen wachsen."
+          "description": "Let words take flight and ideas grow."
         },
         "feature3": {
-          "description": "Höre Gedanken klarer denn je."
+          "description": "Hear thoughts clearer than ever."
         },
         "feature4": {
-          "description": "Lehre Seiten, in Strukturen zu sprechen."
+          "description": "Teach pages to speak in structure."
         },
         "feature5": {
-          "description": "Wo Frames wieder atmen lernen."
+          "description": "Where frames learn to breathe again."
+        },
+        "feature6": {
+          "description": "Let the web stress-test your ideas."
         }
       },
       "testimonials": {
-        "heading": "Was unsere Nutzer über unsere Tools sagen",
-        "subtitle": "Kurze Notizen von Menschen, die unsere Tools wirklich einsetzen — was ihnen konkret geholfen hat.",
-        "trust_line": "Vertraut von 1.200+ Creators",
+        "scenario_label": "Scenario",
+        "heading": "How our tools can fit into real workflows",
+        "subtitle": "Short example notes that illustrate realistic ways to use our tools. These are scenarios, not customer reviews.",
+        "trust_line": "Example scenarios inspired by real creative and developer workflows",
         "testimonial1": {
           "quote": "Ich fotografiere oft in Cafés bei wenig Licht – ISO 3200 ist normal. Imag‑Enhancer hat das Rauschen entfernt, ohne diesen Wachs‑Look. Ein Tick mehr Kontrast und die Dateien waren abends beim Kunden.",
           "author": "Amira K.",
@@ -328,9 +337,19 @@
       },
       "hero": {
         "title_part1": "Evolution Hub",
-        "title_part2": "Die Zukunft der KI-gestützten Entwicklung",
-        "subtitle": "Entdecken Sie die Leistung von KI-gestützten Tools zur Optimierung Ihres Workflows und zur Steigerung Ihrer Produktivität.",
-        "subtitle_poetic": "Wo Sprache zu Struktur wird. Wo Daten träumen lernen.",
+        "title_part2": "The future of AI‑powered development",
+        "subtitle": "Discover AI‑powered tools to streamline your workflow and increase your productivity.",
+        "subtitle_poetic": "Where language turns into structure. Where data learns to dream.",
+        "title_magnet": "Your AI toolbox – with a free Prompt Enhancer in the Free plan.",
+        "subtitle_magnet": "Free plan with Prompt Enhancer included – up to 100 optimizations per day without touching your AI credits.",
+        "free_pill": "Free plan · no card required",
+        "cta_primary": "Start Prompt Enhancer for free",
+        "cta_secondary": "Explore all tools",
+        "bullets": [
+          "Kostenlos nutzbar im Free‑Plan – ohne Kreditkarte",
+          "Großzügige Limits: bis zu 100 Runs pro Tag",
+          "Verbraucht keine AI‑Credits – Upgrade erst bei hohem Volumen"
+        ],
         "typewriter_lines": [
           "Wo Sprache zur Struktur wird.",
           "Wo Daten träumen lernen.",
@@ -352,14 +371,17 @@
           "web": "Webscraper",
           "video": "Video",
           "cta": ""
-        }
+        },
+        "note": "Free · No card required · Start instantly.",
+        "trust_line": "Built for teams who run real AI workflows every day.",
+        "tools_label": "Also includes Imag‑Enhancer & Video‑Enhancer"
       }
     },
     "blog": {
       "title": "Blog",
       "description": "Aktuelle Artikel, Tutorials und Neuigkeiten aus der Welt der Webentwicklung",
       "search": {
-        "title": "Blog durchsuchen",
+        "title": "Search the blog",
         "placeholder": "Suchen...",
         "button": "Suchen"
       },
@@ -386,12 +408,90 @@
       },
       "posts": {
         "count": {
-          "one": "1 Beitrag",
-          "other": "{count} Beiträge"
+          "one": "1 post",
+          "other": "{count} posts"
         }
       },
       "comments": {
-        "pendingNotice": "Dein Kommentar wurde eingereicht und erscheint nach Freigabe."
+        "heading": "Comments",
+        "placeholder": "Write a comment...",
+        "submit": "Post comment",
+        "submitLoading": "Submitting...",
+        "guideline": "Be respectful and constructive",
+        "counterSuffix": "characters",
+        "guest": {
+          "label": "You are commenting as a guest.",
+          "loginLink": "Sign in",
+          "loginSuffix": "for more features."
+        },
+        "loggedInAs": "Signed in as {email}",
+        "replyingTo": "You are replying to a comment",
+        "errors": {
+          "load": "Error loading comments",
+          "create": "Error creating comment",
+          "update": "Error updating comment",
+          "delete": "Error deleting comment",
+          "csrfMissing": "Security token is missing. Please reload the page.",
+          "empty": "Please enter a comment",
+          "tooLong": "Comment can be at most 2000 characters long",
+          "submit": "Error submitting comment"
+        },
+        "toasts": {
+          "created": "Comment posted.",
+          "pending": "Your comment was submitted and will appear after approval.",
+          "createError": "Could not save your comment. Please try again.",
+          "updated": "Comment updated.",
+          "updateError": "Could not update your comment. Please try again.",
+          "deleted": "Comment deleted.",
+          "deleteError": "Could not delete your comment. Please try again.",
+          "reported": "Thank you for your report.",
+          "reportError": "Could not send your report. Please try again."
+        },
+        "actions": {
+          "retry": "Try again",
+          "cancel": "Cancel",
+          "loadMore": "Load more"
+        },
+        "loading": "Loading comments...",
+        "empty": {
+          "title": "No comments yet.",
+          "subtitle": "Be the first to write a comment!"
+        },
+        "pendingNotice": "Your comment has been submitted and will appear after approval.",
+        "status": {
+          "pending": "Pending",
+          "approved": "OK",
+          "rejected": "Rejected",
+          "flagged": "Flagged",
+          "hidden": "Hidden"
+        },
+        "report": {
+          "label": "Report",
+          "reported": "Reported",
+          "reason": "Reason",
+          "description": "Description (optional)",
+          "cancel": "Cancel",
+          "submit": "Submit",
+          "toast": "Thanks for your report"
+        },
+        "time": {
+          "justNow": "Just now",
+          "hoursAgo": "{hours}h ago",
+          "daysAgo": "{days}d ago"
+        },
+        "helpful": "Helpful",
+        "reply": "Reply",
+        "replySubmit": "Send reply",
+        "replyPlaceholder": "Write a reply...",
+        "guestBanner": {
+          "notLoggedIn": "You are not signed in.",
+          "loginCta": "Sign in to comment"
+        },
+        "fab": {
+          "writeComment": "Write comment",
+          "loginToComment": "Sign in to comment"
+        },
+        "almostFull": "Almost full"
       },
       "cta": {
         "newsletter": {
@@ -1405,6 +1505,101 @@
         "unexpected": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es später erneut."
       }
     },
+    "futureLanding": {
+      "meta": {
+        "title": "Evolution Hub – Futuristic Landing",
+        "description": "A dark, cinematic landing with prompt, image/video enhancers, voice, web scraping and eval tools."
+      },
+      "hero": {
+        "title": "Evolution Hub. Where tools become allies.",
+        "subtitle": "Language turns into structure. Data starts dreaming. Ideas land on a living interface.",
+        "note": "Free · No card required · Start instantly",
+        "cta_primary": "Start Prompt-Enhancer for free",
+        "cta_secondary": "Explore Image & Video Enhancers",
+        "video_label": "Futuristic UI fly-through background video"
+      },
+      "trust": {
+        "line": "Trusted by 1,200+ teams & creators",
+        "quote1": {
+          "quote": "We ship cleaner prompts faster and upscale assets without artifacts. It feels like the tools are on our side.",
+          "author": "Mara L.",
+          "role": "Product Design Lead"
+        },
+        "quote2": {
+          "quote": "Prompt, enhance, scrape, evaluate — it’s one ribbon. The UI just flows in.",
+          "author": "Jonas P.",
+          "role": "Founder, micro-SaaS"
+        }
+      },
+      "tools": {
+        "heading": "Six tools, one flow",
+        "subheading": "From prompt to media polish to web intelligence.",
+        "imag": {
+          "title": "Imag-Enhancer",
+          "body": "Remove noise, sharpen edges, 2–4× upscaling without halos."
+        },
+        "prompt": {
+          "title": "Prompt-Enhancer (Free)",
+          "body": "Style presets, safety heuristics, files & URLs — better prompts in seconds."
+        },
+        "voice": {
+          "title": "Voice Visualizer & Transcriber",
+          "body": "Live waveform, instant transcript, quota awareness."
+        },
+        "webscraper": {
+          "title": "Webscraper",
+          "body": "SSRF-hardened, Markdown/plain output, transparent limits."
+        },
+        "video": {
+          "title": "Video-Enhancer",
+          "body": "2×/4× upscale, denoise, face fidelity. R2 uploads ready."
+        },
+        "webeval": {
+          "title": "Web-Eval Agent",
+          "body": "Queue tasks, console/network reports, credits under control."
+        }
+      },
+      "flow": {
+        "heading": "How your day flows",
+        "steps": {
+          "s1_title": "Start with clarity",
+          "s1_body": "Refine prompts with modes and safety baked in.",
+          "s2_title": "Polish media",
+          "s2_body": "Enhance images and videos without losing detail.",
+          "s3_title": "Test & ship",
+          "s3_body": "Scrape or evaluate the web, review logs, move faster."
+        }
+      },
+      "metrics": {
+        "heading": "Outcomes that matter",
+        "k1": "100+ prompts/day free",
+        "k2": "4× upscaling without halos",
+        "k3": "SSRF hardening out of the box"
+      },
+      "pricing": {
+        "title": "Starter is free",
+        "subtitle": "Clear limits so you can try everything.",
+        "badge_free": "Free",
+        "bullets": [
+          "Prompt-Enhancer: up to 100/day",
+          "Webscraper & Web-Eval: 5–20 runs/day",
+          "Imag-Enhancer: 3 images/day",
+          "Video-Enhancer: pay-as-you-go credits"
+        ],
+        "cta": "Compare plans"
+      },
+      "trust_cta": {
+        "title": "Safe, clear, scalable.",
+        "body": "GDPR-aligned, transparent quotas, self-host option for sensitive media.",
+        "cta": "Read the docs"
+      },
+      "final": {
+        "title": "Ready to fly in?",
+        "subtitle": "Launch the free Prompt-Enhancer or dive into Image & Video Enhancers.",
+        "cta_primary": "Start for free",
+        "cta_secondary": "See all tools"
+      }
+    },
     "tools": {
       "meta": {
         "title": "Tools – Evolution Hub",
@@ -1464,18 +1659,46 @@
           "enhanceButton": "Prompt verbessern",
           "enhancing": "Wird verbessert…",
           "outputLabel": "Verbesserter Prompt",
+          "inputLabelOriginal": "Original-Prompt",
+          "showComparison": "Vorher/Nachher anzeigen",
+          "hideComparison": "Nur Ergebnis anzeigen",
           "copy": "Kopieren",
           "copied": "Kopiert",
+          "copyJson": "Als JSON kopieren",
+          "viewText": "Text-Ansicht",
+          "viewJson": "JSON-Ansicht",
           "clear": "Leeren",
+          "step1": {
+            "title": "1. Eingabe‑Prompt",
+            "subtitle": "Wähle eine Vorlage oder schreibe deinen eigenen Prompt. Du kannst den Text danach frei anpassen.",
+            "presetsIntro": "Oder starte mit einer Vorlage:"
+          },
+          "step2": {
+            "title": "2. Zusätzlicher Kontext (optional)",
+            "subtitle": "Füge Dateien oder Textquellen hinzu, die der KI helfen, deine Anfrage besser zu verstehen.",
+            "help": "TXT- und Markdown-URLs werden als Textdateien importiert und beim Optimieren als Kontext genutzt."
+          },
+          "step3": {
+            "title": "3. Stil des optimierten Prompts",
+            "subtitle": "Bestimme, wie ausführlich und formal der optimierte Prompt sein soll."
+          },
+          "step4": {
+            "title": "4. Ergebnis & Vergleich"
+          },
           "files": {
             "label": "Dateien (optional)",
             "dropHint": "Dateien hier ablegen oder klicken, um auszuwählen",
             "urlImportLabel": "Aus URL importieren (TXT/Markdown)",
             "urlImportPlaceholder": "https://beispiel.de/datei.txt",
+            "urlImportToggle": "URL-Eingabe einblenden",
+            "urlImportHide": "URL-Eingabe ausblenden",
             "allowedTypes": "Erlaubte Typen",
             "maxSize": "Max. Größe",
             "maxCount": "Max. Dateien: {count}",
-            "remove": "Entfernen"
+            "remove": "Entfernen",
+            "softLimit": "Maximale Anzahl Dateien erreicht ({count}).",
+            "selectButton": "Dateien auswählen",
+            "selectedCount": "{count} Datei(en) ausgewählt"
           },
           "error": {
             "required": "Bitte gib einen Prompt ein.",
@@ -1490,14 +1713,55 @@
             "files": {
               "tooMany": "Zu viele Dateien. Maximal {count}."
             }
-          }
+          },
+          "modeMapping": "Creative – explorativer, ausführlicher · Professional – strukturiert, business-fokussiert · Concise – kurz & knapp",
+          "resultLatency": "Prompt in {ms} ms verbessert."
         },
         "usage": {
           "title": "Nutzung",
-          "used": "{used} von {limit} heute genutzt"
+          "used": "{used} von {limit} heute genutzt",
+          "freeMessage": "Bis zu 100 hochwertige Prompt-Optimierungen pro Tag im Free-Plan."
+        },
+        "improvements": {
+          "title": "Was wurde verbessert?",
+          "structure": "Struktur hinzugefügt (z. B. klare Abschnitte und Überschriften).",
+          "constraints": "Zusätzliche Constraints und Regeln ergänzt, um das Ergebnis vorhersehbarer zu machen.",
+          "steps": "Schritt-für-Schritt-Anweisungen für das Modell hinzugefügt."
         },
         "safety": {
           "title": "Sicherheitsbericht"
+        },
+        "presets": {
+          "codingBugfix": {
+            "label": "Coding / Bugfix",
+            "description": "Starter-Prompt für Fehlersuche und Refactoring in Code.",
+            "template": "Hilf mir, Bugs in folgendem Code zu finden und saubere, idiomatische Fixes vorzuschlagen. Erkläre kurz, warum jeder Bug problematisch ist, und zeige optimierte Code-Snippets."
+          },
+          "dataAnalysis": {
+            "label": "Data / Analytics",
+            "description": "Starter-Prompt für Analysen von KPIs, Reports und Datensätzen.",
+            "template": "Unterstütze mich dabei, einen Datenausschnitt (KPIs, Events, Tabellen) zu analysieren. Identifiziere Muster, Ausreißer und Hypothesen und schlage konkrete nächste Analyseschritte vor."
+          },
+          "contentLinkedin": {
+            "label": "Content / LinkedIn",
+            "description": "Starter-Prompt für LinkedIn-Posts zu AI & Produktivität.",
+            "template": "Erzeuge LinkedIn-Posts zu einem AI-Thema für Knowledge Worker. Fokus: verständliche Beispiele, echte Use Cases und ein klarer Mehrwert im ersten Absatz."
+          },
+          "researchAudience": {
+            "label": "Research / Zielgruppe",
+            "description": "Starter-Prompt für Zielgruppen-Interviews und Surveys.",
+            "template": "Hilf mir, meine Zielgruppe besser zu verstehen. Erzeuge Interview- und Survey-Fragen, um Bedürfnisse, Pain Points, aktuelle Lösungen und Entscheidungsprozesse zu erfassen."
+          }
+        },
+        "toasts": {
+          "urlImportSuccessTitle": "Kontext importiert",
+          "urlImportSuccessDescription": "Inhalt von \"{filename}\" wurde als Kontext hinzugefügt.",
+          "urlImportError": "Inhalt konnte nicht von der URL importiert werden.",
+          "enhanceSuccessTitle": "Prompt erfolgreich verbessert",
+          "enhanceSuccessDescription": "Fertig in {ms} ms. Du kannst den Prompt jetzt kopieren oder weiter anpassen.",
+          "copyJsonSuccessTitle": "JSON in Zwischenablage",
+          "copyJsonSuccessDescription": "Der optimierte Prompt wurde als JSON kopiert.",
+          "copyJsonError": "JSON konnte nicht in die Zwischenablage kopiert werden."
         }
       },
       "items": {
@@ -1554,7 +1818,7 @@
             "max": "Max. Größe",
             "download": "Herunterladen",
             "loading": "Laden...",
-            "quotaBanner": "Nutzungslimit erreicht. Versuche es später erneut oder melde dich an für höhere Limits.",
+            "quotaBanner": "Your current quota is very limited. Sign in or upgrade to process more images per day.",
             "toasts": {
               "loadQuotaError": "Kontingentinformationen konnten nicht geladen werden.",
               "loadError": "Laden fehlgeschlagen. Bitte versuche es erneut.",

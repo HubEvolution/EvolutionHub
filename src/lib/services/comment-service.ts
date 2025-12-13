@@ -231,7 +231,8 @@ export class CommentService {
     }
 
     // Rate limiting: 5 comments per minute per IP/user (KV-backed when available)
-    await rateLimit(`comment:${userId || 'guest'}:create`, 5, 60, { kv: this.kv });
+    const maxRequests = import.meta.env.DEV ? 1000 : 5;
+    await rateLimit(`comment:${userId || 'guest'}:create`, maxRequests, 60, { kv: this.kv });
 
     // Validate content
     if (!request.content || request.content.trim().length < 3) {
@@ -599,13 +600,17 @@ export class CommentService {
       .offset(offset);
 
     const commentsWithReports = commentResults.map(
-      (row: { comment: typeof comments.$inferSelect; reportCount: number; authorImage: string | null }) => {
+      (row: {
+        comment: typeof comments.$inferSelect;
+        reportCount: number;
+        authorImage: string | null;
+      }) => {
         const { comment, reportCount, authorImage } = row;
-      return {
-        ...(comment as unknown as Comment),
-        reportCount: reportCount || 0,
-        authorImage: authorImage || null,
-      } as Comment;
+        return {
+          ...(comment as unknown as Comment),
+          reportCount: reportCount || 0,
+          authorImage: authorImage || null,
+        } as Comment;
       }
     );
 
@@ -634,17 +639,21 @@ export class CommentService {
       // Group replies by parent ID
       const repliesByParent = new Map<string, Comment[]>();
       allRepliesResults.forEach(
-        (row: { comment: typeof comments.$inferSelect; reportCount: number; authorImage: string | null }) => {
+        (row: {
+          comment: typeof comments.$inferSelect;
+          reportCount: number;
+          authorImage: string | null;
+        }) => {
           const { comment, reportCount, authorImage } = row;
-        const parentId = comment.parentId!;
-        if (!repliesByParent.has(parentId)) {
-          repliesByParent.set(parentId, []);
-        }
-        repliesByParent.get(parentId)!.push({
-          ...(comment as unknown as Comment),
-          reportCount: reportCount || 0,
-          authorImage: authorImage || null,
-        } as Comment);
+          const parentId = comment.parentId!;
+          if (!repliesByParent.has(parentId)) {
+            repliesByParent.set(parentId, []);
+          }
+          repliesByParent.get(parentId)!.push({
+            ...(comment as unknown as Comment),
+            reportCount: reportCount || 0,
+            authorImage: authorImage || null,
+          } as Comment);
         }
       );
 

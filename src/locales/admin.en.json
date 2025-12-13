@@ -88,6 +88,10 @@
         "expires": "Expires"
       }
     },
+    "comments": {
+      "heading": "Comments & moderation",
+      "viewForUser": "Open comment moderation for this user"
+    },
     "planForm": {
       "planLabel": "Override plan",
       "intervalLabel": "Billing interval",
@@ -139,6 +143,11 @@
       "description": "Admin overview for running and completed Web-Eval runs.",
       "cta": "Open Web-Eval"
     },
+    "comments": {
+      "title": "Moderate comments",
+      "description": "Review reported and pending comments and approve or reject them.",
+      "cta": "Open comment moderation"
+    },
     "kpi": {
       "title": "Metrics & traffic",
       "description": "Overview of active sessions, user counts and traffic trends.",
@@ -158,6 +167,13 @@
       "title": "Audit & monitoring",
       "description": "Overview of audit logs and telemetry events.",
       "cta": "Go to audit & monitoring"
+    }
+  },
+  "commentsAdmin": {
+    "toasts": {
+      "noSelection": "Please select at least one comment.",
+      "bulkSuccess": "Moderation completed.",
+      "bulkError": "Moderation failed. Please try again."
     }
   },
   "webEvalAdmin": {

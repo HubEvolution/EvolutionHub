@@ -5,8 +5,10 @@ import { Button } from '../ui/Button';
 import type { Comment, ReportReason } from '../../lib/types/comments';
 import { useCommentStore } from '../../stores/comment-store';
 import { getLocale } from '@/lib/i18n';
+import { getI18n } from '@/utils/i18n';
 import { localizePath } from '@/lib/locale-path';
 import { sanitizeCommentContent } from '@/lib/security/sanitize';
+import { notify } from '@/lib/notify';
 
 /**
  * Hook to detect if user is on mobile device
@@ -151,7 +153,6 @@ const MobileCommentItem: React.FC<MobileCommentItemProps> = ({
   const [reportReason, setReportReason] = useState<ReportReason>('spam');
   const [reportDescription, setReportDescription] = useState('');
   const [reported, setReported] = useState(false);
-  const [showToast, setShowToast] = useState(false);
 
   const { reportComment, csrfToken, initializeCsrfToken } = useCommentStore();
   const sanitizedContent = useMemo(
@@ -159,27 +160,7 @@ const MobileCommentItem: React.FC<MobileCommentItemProps> = ({
     [comment.content]
   );
   const loc = getLocale(typeof window !== 'undefined' ? window.location.pathname : '/');
-  const t = (k: string) => {
-    const deT: Record<string, string> = {
-      melden: 'Melden',
-      gemeldet: 'Gemeldet',
-      grund: 'Grund',
-      beschreibung: 'Beschreibung (optional)',
-      abbrechen: 'Abbrechen',
-      senden: 'Senden',
-      toast: 'Danke für deine Meldung',
-    };
-    const enT: Record<string, string> = {
-      melden: 'Report',
-      gemeldet: 'Reported',
-      grund: 'Reason',
-      beschreibung: 'Description (optional)',
-      abbrechen: 'Cancel',
-      senden: 'Submit',
-      toast: 'Thanks for your report',
-    };
-    return (loc === 'de' ? deT : enT)[k] || k;
-  };
+  const t = getI18n(loc);
 
   const isAuthor = currentUser?.id === comment.authorId;
   const isAdmin = currentUser?.email === 'admin@hub-evolution.com';
@@ -226,13 +207,16 @@ const MobileCommentItem: React.FC<MobileCommentItemProps> = ({
   };
 
   const submitReport = async () => {
-    await reportComment(comment.id, reportReason, reportDescription, csrfToken || null);
-    setIsReporting(false);
-    setReportDescription('');
-    setReportReason('spam');
-    setReported(true);
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 3000);
+    try {
+      await reportComment(comment.id, reportReason, reportDescription, csrfToken || null);
+      setIsReporting(false);
+      setReportDescription('');
+      setReportReason('spam');
+      setReported(true);
+      notify.success(t('pages.blog.comments.toasts.reported'));
+    } catch {
+      notify.error(t('pages.blog.comments.toasts.reportError'));
+    }
   };
 
   const formatDate = (timestamp: number) => {
@@ -241,13 +225,16 @@ const MobileCommentItem: React.FC<MobileCommentItemProps> = ({
     const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
 
     if (diffInHours < 1) {
-      return 'Gerade eben';
+      return t('pages.blog.comments.time.justNow');
     } else if (diffInHours < 24) {
-      return `vor ${Math.floor(diffInHours)}h`;
+      const hours = Math.floor(diffInHours);
+      return t('pages.blog.comments.time.hoursAgo').replace('{hours}', String(hours));
     } else if (diffInHours < 168) {
-      return `vor ${Math.floor(diffInHours / 24)}d`;
+      const days = Math.floor(diffInHours / 24);
+      return t('pages.blog.comments.time.daysAgo').replace('{days}', String(days));
     } else {
-      return date.toLocaleDateString('de-DE', {
+      const localeCode = loc === 'en' ? 'en-US' : 'de-DE';
+      return date.toLocaleDateString(localeCode, {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',
@@ -256,12 +243,12 @@ const MobileCommentItem: React.FC<MobileCommentItemProps> = ({
   };
 
   const getStatusBadge = (status: Comment['status']) => {
-    const badges = {
-      pending: { text: 'Warten', className: 'bg-yellow-100 text-yellow-800' },
-      approved: { text: 'OK', className: 'bg-green-100 text-green-800' },
-      rejected: { text: 'Abgelehnt', className: 'bg-red-100 text-red-800' },
-      flagged: { text: 'Markiert', className: 'bg-orange-100 text-orange-800' },
-      hidden: { text: 'Versteckt', className: 'bg-gray-100 text-gray-800' },
+    const badges: Record<Comment['status'], { key: string; className: string }> = {
+      pending: { key: 'pending', className: 'bg-yellow-100 text-yellow-800' },
+      approved: { key: 'approved', className: 'bg-green-100 text-green-800' },
+      rejected: { key: 'rejected', className: 'bg-red-100 text-red-800' },
+      flagged: { key: 'flagged', className: 'bg-orange-100 text-orange-800' },
+      hidden: { key: 'hidden', className: 'bg-gray-100 text-gray-800' },
     };
 
     const badge = badges[status] || badges.pending;
@@ -270,7 +257,7 @@ const MobileCommentItem: React.FC<MobileCommentItemProps> = ({
       <span
         className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${badge.className}`}
       >
-        {badge.text}
+        {t(`pages.blog.comments.status.${badge.key}`)}
       </span>
     );
   };
@@ -412,7 +399,7 @@ const MobileCommentItem: React.FC<MobileCommentItemProps> = ({
                       }}
                       className="text-xs text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-300"
                     >
-                      Bearbeiten
+                      {t('common.account.settings.danger.actions.back')}
                     </button>
                     <button
                       onClick={() => {
@@ -423,19 +410,21 @@ const MobileCommentItem: React.FC<MobileCommentItemProps> = ({
                       }}
                       className="text-xs text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
                     >
-                      Löschen
+                      {t('common.account.settings.danger.actions.deleteAnyway')}
                     </button>
                   </>
                 )}
                 {currentUser &&
                   (reported ? (
-                    <span className="text-xs text-orange-500 opacity-60">{t('gemeldet')}</span>
+                    <span className="text-xs text-orange-500 opacity-60">
+                      {t('pages.blog.comments.report.reported')}
+                    </span>
                   ) : (
                     <button
                       className="text-xs text-orange-600 hover:text-orange-800 dark:text-orange-400 dark:hover:text-orange-300"
                       onClick={openReport}
                     >
-                      {t('melden')}
+                      {t('pages.blog.comments.report.label')}
                     </button>
                   ))}
               </div>
@@ -443,7 +432,7 @@ const MobileCommentItem: React.FC<MobileCommentItemProps> = ({
                 onClick={() => setShowActions(false)}
                 className="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
               >
-                Schließen
+                {t('common.account.settings.danger.actions.close')}
               </button>
             </div>
           </div>
@@ -509,10 +498,12 @@ const MobileCommentItem: React.FC<MobileCommentItemProps> = ({
                 id={`report-dialog-title-${comment.id}`}
                 className="text-sm font-medium mb-3 text-gray-900 dark:text-white"
               >
-                {t('melden')}
+                {t('pages.blog.comments.report.label')}
               </h3>
               <div className="space-y-2 mb-3 text-sm">
-                <label className="block text-gray-700 dark:text-gray-300 mb-1">{t('grund')}</label>
+                <label className="block text-gray-700 dark:text-gray-300 mb-1">
+                  {t('pages.blog.comments.report.reason')}
+                </label>
                 <select
                   className="w-full border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 p-2 text-sm"
                   value={reportReason}
@@ -527,7 +518,7 @@ const MobileCommentItem: React.FC<MobileCommentItemProps> = ({
               </div>
               <div className="mb-4 text-sm">
                 <label className="block text-gray-700 dark:text-gray-300 mb-1">
-                  {t('beschreibung')}
+                  {t('pages.blog.comments.report.description')}
                 </label>
                 <textarea
                   className="w-full border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 p-2 text-sm"
@@ -541,25 +532,16 @@ const MobileCommentItem: React.FC<MobileCommentItemProps> = ({
                   className="px-3 py-1.5 text-sm rounded-md border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300"
                   onClick={() => setIsReporting(false)}
                 >
-                  {t('abbrechen')}
+                  {t('pages.blog.comments.report.cancel')}
                 </button>
                 <button
                   className="px-3 py-1.5 text-sm rounded-md bg-orange-600 text-white hover:bg-orange-700"
                   onClick={submitReport}
                 >
-                  {t('senden')}
+                  {t('pages.blog.comments.report.submit')}
                 </button>
               </div>
             </div>
-          </div>,
-          document.body
-        )}
-
-      {showToast &&
-        typeof window !== 'undefined' &&
-        createPortal(
-          <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-emerald-600 text-white text-sm px-4 py-2 rounded-full shadow-lg">
-            {t('toast')}
           </div>,
           document.body
         )}
@@ -576,6 +558,7 @@ interface MobileCommentFABProps {
 const MobileCommentFAB: React.FC<MobileCommentFABProps> = ({ onNewComment, currentUser }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const locale = getLocale(typeof window !== 'undefined' ? window.location.pathname : '/');
+  const t = getI18n(locale);
   const loginUrl =
     localizePath(locale, '/login') +
     (typeof window !== 'undefined'
@@ -617,7 +600,7 @@ const MobileCommentFAB: React.FC<MobileCommentFABProps> = ({ onNewComment, curre
                   setIsExpanded(false);
                 }}
               >
-                Kommentar schreiben
+                {t('pages.blog.comments.fab.writeComment')}
               </button>
             ) : (
               <a
@@ -626,7 +609,7 @@ const MobileCommentFAB: React.FC<MobileCommentFABProps> = ({ onNewComment, curre
                 role="menuitem"
                 onClick={() => setIsExpanded(false)}
               >
-                Anmelden zum Kommentieren
+                {t('pages.blog.comments.fab.loginToComment')}
               </a>
             )}
           </div>
@@ -663,25 +646,43 @@ interface MobileCommentFormProps {
 export const MobileCommentForm: React.FC<MobileCommentFormProps> = ({
   onSubmit,
   onCancel,
-  placeholder = 'Schreibe einen Kommentar...',
-  submitText = 'Kommentar posten',
+  placeholder,
+  submitText,
   showCancel = false,
   autoFocus = false,
 }) => {
   const [content, setContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const textareaRef = React.useRef<HTMLTextAreaElement | null>(null);
+  const locale = getLocale(typeof window !== 'undefined' ? window.location.pathname : '/');
+  const t = getI18n(locale);
+
+  const basePlaceholder = placeholder ?? t('pages.blog.comments.placeholder');
+  const effectiveSubmitText = submitText ?? t('pages.blog.comments.submit');
+  const submitLoadingText = t('pages.blog.comments.submitLoading');
 
   useEffect(() => {
     if (autoFocus) {
       // Focus the textarea after component mounts
       const timer = setTimeout(() => {
-        const textarea = document.querySelector('textarea') as HTMLTextAreaElement;
+        const textarea = textareaRef.current;
         textarea?.focus();
       }, 100);
       return () => clearTimeout(timer);
     }
   }, [autoFocus]);
+
+  useEffect(() => {
+    const handler = () => {
+      const textarea = textareaRef.current;
+      if (textarea) {
+        textarea.focus();
+      }
+    };
+    document.addEventListener('eh:comments:new', handler as any);
+    return () => document.removeEventListener('eh:comments:new', handler as any);
+  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -717,26 +718,29 @@ export const MobileCommentForm: React.FC<MobileCommentFormProps> = ({
       >
         <div className="mb-3">
           <textarea
+            ref={textareaRef}
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder={placeholder}
+            placeholder={basePlaceholder}
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white resize-none text-sm"
             rows={3}
             maxLength={2000}
           />
           <div className="flex justify-between items-center mt-1">
             <span className="text-xs text-gray-500 dark:text-gray-400">
-              {content.length}/2000 Zeichen
+              {content.length}/2000 {t('pages.blog.comments.counterSuffix')}
             </span>
             {content.length > 1800 && (
-              <span className="text-xs text-orange-600 dark:text-orange-400">Fast voll</span>
+              <span className="text-xs text-orange-600 dark:text-orange-400">
+                {t('pages.blog.comments.almostFull')}
+              </span>
             )}
           </div>
         </div>
 
         <div className="flex items-center justify-between">
           <div className="text-xs text-gray-500 dark:text-gray-400">
-            Sei respektvoll und konstruktiv
+            {t('pages.blog.comments.guideline')}
           </div>
 
           <div className="flex items-center space-x-2">
@@ -746,7 +750,7 @@ export const MobileCommentForm: React.FC<MobileCommentFormProps> = ({
                 onClick={onCancel}
                 className="px-3 py-1 text-xs text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-300"
               >
-                Abbrechen
+                {t('pages.blog.comments.actions.cancel')}
               </button>
             )}
             <Button
@@ -755,7 +759,7 @@ export const MobileCommentForm: React.FC<MobileCommentFormProps> = ({
               isLoading={isSubmitting}
               className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md disabled:opacity-50 disabled:cursor-not-allowed text-sm"
             >
-              {isSubmitting ? 'Wird gesendet...' : submitText}
+              {isSubmitting ? submitLoadingText : effectiveSubmitText}
             </Button>
           </div>
         </div>

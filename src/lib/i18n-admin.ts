@@ -74,6 +74,10 @@ export interface AdminLocale {
       none: string;
       table: { pack: string; units: string; created: string; expires: string };
     };
+    comments: {
+      heading: string;
+      viewForUser: string;
+    };
     planForm: {
       planLabel: string;
       intervalLabel: string;
@@ -121,6 +125,11 @@ export interface AdminLocale {
   tools: {
     heading: string;
     webEval: {
+      title: string;
+      description: string;
+      cta: string;
+    };
+    comments: {
       title: string;
       description: string;
       cta: string;
@@ -173,6 +182,13 @@ export interface AdminLocale {
       openInTool: string;
       reportPresent: string;
       livePresent: string;
+    };
+  };
+  commentsAdmin: {
+    toasts: {
+      noSelection: string;
+      bulkSuccess: string;
+      bulkError: string;
     };
   };
   errors: {

@@ -88,6 +88,10 @@
         "expires": "Ablauf"
       }
     },
+    "comments": {
+      "heading": "Kommentare & Moderation",
+      "viewForUser": "Kommentar-Moderation für diesen Benutzer öffnen"
+    },
     "planForm": {
       "planLabel": "Plan überschreiben",
       "intervalLabel": "Abrechnungsintervall",
@@ -139,6 +143,11 @@
       "description": "Admin-Übersicht für laufende und abgeschlossene Web-Eval-Runs.",
       "cta": "Web-Eval öffnen"
     },
+    "comments": {
+      "title": "Kommentare moderieren",
+      "description": "Gemeldete und ausstehende Kommentare sichten und freigeben oder ablehnen.",
+      "cta": "Kommentar-Moderation öffnen"
+    },
     "kpi": {
       "title": "Kennzahlen & Traffic",
       "description": "Übersicht über aktive Sessions, Nutzerzahlen und Traffic-Entwicklung.",
@@ -158,6 +167,13 @@
       "title": "Audit & Monitoring",
       "description": "Audit-Logs und Telemetrie-Ereignisse im Überblick.",
       "cta": "Zu Audit & Monitoring"
+    }
+  },
+  "commentsAdmin": {
+    "toasts": {
+      "noSelection": "Bitte mindestens einen Kommentar auswählen.",
+      "bulkSuccess": "Moderation abgeschlossen.",
+      "bulkError": "Moderation fehlgeschlagen. Bitte erneut versuchen."
     }
   },
   "webEvalAdmin": {

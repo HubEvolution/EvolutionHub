@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import type { EnhanceArgs } from './hooks/useEnhance';
+import type { EnhancedPromptJson } from './types';
 import { useEnhance } from './hooks/useEnhance';
 import { useRateLimit } from './hooks/useRateLimit';
 import { getI18n } from '@/utils/i18n';
@@ -20,6 +21,7 @@ import {
 } from '@/lib/client/telemetry';
 import { clientLogger } from '@/lib/client-logger';
 import ToolUsageBadge from '@/components/tools/shared/ToolUsageBadge';
+import notify from '@/lib/notify';
 import { useUsage } from './hooks/useUsage';
 
 interface EnhancerFormProps {
@@ -43,13 +45,20 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
   const [dragActive, setDragActive] = useState(false);
   const [urlValue, setUrlValue] = useState('');
   const [urlLoading, setUrlLoading] = useState(false);
+  const [showUrlInput, setShowUrlInput] = useState(false);
   const [textPreviews, setTextPreviews] = useState<Record<string, string>>({});
+  const [showComparison, setShowComparison] = useState(false);
+  const [improvements, setImprovements] = useState<string[]>([]);
+  const [lastLatencyMs, setLastLatencyMs] = useState<number | null>(null);
+  const [enhancedJson, setEnhancedJson] = useState<EnhancedPromptJson | null>(null);
+  const [resultView, setResultView] = useState<'text' | 'json'>('text');
 
   const { enhance } = useEnhance();
   const { retryActive, handle429Response } = useRateLimit();
   const { usage, monthlyUsage, creditsBalanceTenths, ownerType, plan } = useUsage();
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const copyTimerRef = useRef<number | null>(null);
   const [copied, setCopied] = useState(false);
   const [hydrated, setHydrated] = useState(false);
@@ -86,6 +95,36 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
   const creditsLabel = useMemo(
     () => t('header.menu.credits') || (locale.startsWith('de') ? 'Credits' : 'Credits'),
     [locale, t]
+  );
+
+  const presets = useMemo(
+    () => [
+      {
+        id: 'coding_bugfix',
+        label: t('pages.tools.prompt-enhancer.presets.codingBugfix.label'),
+        description: t('pages.tools.prompt-enhancer.presets.codingBugfix.description'),
+        template: t('pages.tools.prompt-enhancer.presets.codingBugfix.template'),
+      },
+      {
+        id: 'data_analysis',
+        label: t('pages.tools.prompt-enhancer.presets.dataAnalysis.label'),
+        description: t('pages.tools.prompt-enhancer.presets.dataAnalysis.description'),
+        template: t('pages.tools.prompt-enhancer.presets.dataAnalysis.template'),
+      },
+      {
+        id: 'content_linkedin',
+        label: t('pages.tools.prompt-enhancer.presets.contentLinkedin.label'),
+        description: t('pages.tools.prompt-enhancer.presets.contentLinkedin.description'),
+        template: t('pages.tools.prompt-enhancer.presets.contentLinkedin.template'),
+      },
+      {
+        id: 'research_audience',
+        label: t('pages.tools.prompt-enhancer.presets.researchAudience.label'),
+        description: t('pages.tools.prompt-enhancer.presets.researchAudience.description'),
+        template: t('pages.tools.prompt-enhancer.presets.researchAudience.template'),
+      },
+    ],
+    [t]
   );
 
   useEffect(() => {
@@ -151,6 +190,7 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
     if (err) {
       setError(err);
       setErrorScope('files');
+      notify.error(err);
       return;
     }
     // Generate previews for text files
@@ -234,6 +274,10 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
       if (!isText) {
         setError(t('pages.tools.prompt-enhancer.form.error.file.invalidType'));
         setErrorScope('files');
+        notify.error(
+          t('pages.tools.prompt-enhancer.toasts.urlImportError') ||
+            t('pages.tools.prompt-enhancer.form.error.file.invalidType')
+        );
         return;
       }
       const raw = await res.text();
@@ -243,10 +287,19 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
       const safeName = base.endsWith('.md') || base.endsWith('.txt') ? base : `${base}.txt`;
       const vf = new File([clamped], safeName, { type: 'text/plain' });
       await addFiles([vf]);
+      notify.success(t('pages.tools.prompt-enhancer.toasts.urlImportSuccessTitle'), {
+        description: t('pages.tools.prompt-enhancer.toasts.urlImportSuccessDescription', {
+          filename: safeName,
+        }),
+      });
       setUrlValue('');
     } catch {
       setError(t('pages.tools.prompt-enhancer.form.error.network'));
       setErrorScope('files');
+      notify.error(
+        t('pages.tools.prompt-enhancer.toasts.urlImportError') ||
+          t('pages.tools.prompt-enhancer.form.error.network')
+      );
     } finally {
       setUrlLoading(false);
     }
@@ -264,12 +317,46 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
     }
   };
 
+  const handleCopyJson = async () => {
+    if (!outputText) return;
+    try {
+      const payload = enhancedJson ?? { prompt: outputText };
+      const json = JSON.stringify(payload, null, 2);
+      await navigator.clipboard.writeText(json);
+      notify.success(t('pages.tools.prompt-enhancer.toasts.copyJsonSuccessTitle'), {
+        description: t('pages.tools.prompt-enhancer.toasts.copyJsonSuccessDescription'),
+      });
+    } catch {
+      notify.error(
+        t('pages.tools.prompt-enhancer.toasts.copyJsonError') ||
+          t('pages.tools.prompt-enhancer.form.error.network')
+      );
+    }
+  };
+
   const handleClear = () => {
     setInputText('');
     setOutputText('');
     setSafetyReport(null);
     setError(null);
+    setImprovements([]);
     inputRef.current?.focus();
+  };
+
+  const computeImprovements = (raw: string, enhanced: string): string[] => {
+    const list: string[] = [];
+    const hasHeadingsEnhanced = /^#\s|^##\s/m.test(enhanced);
+    const hasHeadingsRaw = /^#\s|^##\s/m.test(raw);
+    if (hasHeadingsEnhanced && !hasHeadingsRaw) {
+      list.push('structure');
+    }
+    if (/constraints/i.test(enhanced)) {
+      list.push('constraints');
+    }
+    if (/^[-*]\s|\d+\.\s/m.test(enhanced)) {
+      list.push('steps');
+    }
+    return list;
   };
 
   const handleEnhance = async () => {
@@ -313,13 +400,18 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
       });
       setError(t('pages.tools.prompt-enhancer.form.error.rateLimit'));
       setErrorScope('input');
+      notify.error(t('pages.tools.prompt-enhancer.form.error.rateLimit'));
       return;
     }
 
     setIsLoading(true);
+    setLastLatencyMs(null);
     setError(null);
     setErrorScope(null);
     setOutputText('');
+    setImprovements([]);
+    setEnhancedJson(null);
+    setResultView('text');
 
     const args: EnhanceArgs = {
       text: inputText,
@@ -351,6 +443,7 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
           });
           await handle429Response(result);
           setError(t('pages.tools.prompt-enhancer.form.error.rateLimit'));
+          notify.error(t('pages.tools.prompt-enhancer.form.error.rateLimit'));
           // Telemetry: failed (rate-limited)
           await emitPromptEnhancerFailed({ errorKind: 'rate_limited', httpStatus: 429 });
         } else {
@@ -370,6 +463,7 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
             message: msg,
           });
           setError(msg);
+          notify.error(msg);
           await emitPromptEnhancerFailed({ errorKind: 'api_error', httpStatus: result.status });
         }
       } else if ('success' in result) {
@@ -383,13 +477,21 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
             warningsCount: result.data.safetyReport?.warnings?.length || 0,
           });
           setOutputText(result.data.enhancedPrompt);
+          setImprovements(computeImprovements(inputText, result.data.enhancedPrompt));
+          setEnhancedJson(result.data.enhancedPromptJson ?? null);
           setSafetyReport(result.data.safetyReport || null);
           setError(null);
           setErrorScope(null);
+          setLastLatencyMs(latencyMs);
           // Telemetry: succeeded
           await emitPromptEnhancerSucceeded({
             latencyMs,
             maskedCount: result.data.safetyReport?.warnings?.length,
+          });
+          notify.success(t('pages.tools.prompt-enhancer.toasts.enhanceSuccessTitle'), {
+            description: t('pages.tools.prompt-enhancer.toasts.enhanceSuccessDescription', {
+              ms: latencyMs,
+            }),
           });
           // keep selected files for context or clear? keep for convenience
         } else {
@@ -401,6 +503,9 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
           });
           setError(result.error?.message || t('pages.tools.prompt-enhancer.form.error.unknown'));
           setErrorScope('input');
+          notify.error(
+            result.error?.message || t('pages.tools.prompt-enhancer.form.error.unknown')
+          );
           await emitPromptEnhancerFailed({ errorKind: result.error?.type || 'api_error' });
         }
       } else {
@@ -410,6 +515,7 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
         });
         setError(t('pages.tools.prompt-enhancer.form.error.unknown'));
         setErrorScope('input');
+        notify.error(t('pages.tools.prompt-enhancer.form.error.unknown'));
         await emitPromptEnhancerFailed({ errorKind: 'unknown' });
       }
     } catch (err) {
@@ -420,6 +526,7 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
       });
       setError(t('pages.tools.prompt-enhancer.form.error.network'));
       setErrorScope('input');
+      notify.error(t('pages.tools.prompt-enhancer.form.error.network'));
       await emitPromptEnhancerFailed({ errorKind: 'network' });
     } finally {
       setIsLoading(false);
@@ -447,160 +554,294 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
         data-testid="enhancer-form"
         data-hydrated={hydrated ? 'true' : 'false'}
       >
-        <div>
-          <label
-            htmlFor="inputText"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+        {/* 1. Eingabe-Prompt */}
+        <section aria-labelledby="pe-step-1-title">
+          <h2
+            id="pe-step-1-title"
+            className="text-sm font-semibold text-gray-900 dark:text-gray-100"
           >
-            {t('pages.tools.prompt-enhancer.form.inputLabel')}
-          </label>
-          <textarea
-            id="inputText"
-            ref={inputRef}
-            value={inputText}
-            onChange={handleInputChange}
-            className="w-full h-32 p-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-            placeholder={t('pages.tools.prompt-enhancer.form.inputPlaceholder')}
-            aria-describedby="inputError"
-            disabled={isLoading}
-            maxLength={1000}
-            data-testid="input-text"
-          />
-          <div className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            {inputText.length}/1000
-          </div>
-          {error && (errorScope === 'input' || errorScope === null) && (
-            <Alert id="inputError">{error}</Alert>
-          )}
-        </div>
+            {t('pages.tools.prompt-enhancer.form.step1.title')}
+          </h2>
+          <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">
+            {t('pages.tools.prompt-enhancer.form.step1.subtitle')}
+          </p>
 
-        <div>
-          {/* URL Import */}
-          <div className="mb-4">
+          <div className="mt-3">
             <label
-              htmlFor="urlImport"
+              htmlFor="inputText"
               className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
             >
-              {t('pages.tools.prompt-enhancer.form.files.urlImportLabel')}
+              {t('pages.tools.prompt-enhancer.form.inputLabel')}
             </label>
-            <div className="flex gap-2">
-              <input
-                id="urlImport"
-                type="url"
-                value={urlValue}
-                onChange={(e) => setUrlValue(e.target.value)}
-                placeholder={t('pages.tools.prompt-enhancer.form.files.urlImportPlaceholder')}
-                className="flex-1 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                disabled={isLoading || urlLoading || files.length >= MAX_FILES}
-              />
-              <Button
-                type="button"
-                onClick={onImportUrl}
-                disabled={isLoading || urlLoading || !urlValue.trim() || files.length >= MAX_FILES}
-              >
-                {urlLoading ? t('common.loading') : t('common.import')}
-              </Button>
+            <textarea
+              id="inputText"
+              ref={inputRef}
+              value={inputText}
+              onChange={handleInputChange}
+              className="w-full h-32 p-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              placeholder={t('pages.tools.prompt-enhancer.form.inputPlaceholder')}
+              aria-describedby="inputError"
+              disabled={isLoading}
+              maxLength={1000}
+              data-testid="input-text"
+            />
+            <div className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              {inputText.length}/1000
             </div>
+            {error && (errorScope === 'input' || errorScope === null) && (
+              <Alert id="inputError">{error}</Alert>
+            )}
           </div>
 
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {t('pages.tools.prompt-enhancer.form.files.label')}
-          </label>
-          <div
-            onDragOver={onDragOver}
-            onDragLeave={onDragLeave}
-            onDrop={onDrop}
-            className={`p-4 border-2 border-dashed rounded-md text-sm ${dragActive ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-300 dark:border-gray-600'} `}
-            aria-label={t('pages.tools.prompt-enhancer.form.files.dropHint')}
-          >
-            <div className="mb-2 flex items-center gap-2 text-gray-600 dark:text-gray-300">
-              <UploadIcon className="text-gray-500 dark:text-gray-400" aria-hidden="true" />
-              <p>{t('pages.tools.prompt-enhancer.form.files.dropHint')}</p>
+          <div className="mt-4">
+            <p className="mb-2 text-xs font-medium text-gray-700 dark:text-gray-300">
+              {t('pages.tools.prompt-enhancer.form.step1.presetsIntro')}
+            </p>
+            <div className="mb-2 flex flex-wrap gap-2">
+              {presets.map((preset) => (
+                <Button
+                  key={preset.id}
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  disabled={isLoading}
+                  className="text-xs"
+                  onClick={() => {
+                    const base = inputText.trim();
+                    const next = base ? `${base}\n\n${preset.template}` : preset.template;
+                    setInputText(next);
+                    inputRef.current?.focus();
+                  }}
+                  aria-label={preset.description}
+                >
+                  {preset.label}
+                </Button>
+              ))}
             </div>
-            <div className="flex items-center gap-3">
+            {presets.length > 0 && (
+              <div className="mb-3 space-y-0.5 text-xs text-gray-500 dark:text-gray-400">
+                {presets.map((preset) => (
+                  <p key={preset.id}>
+                    <span className="font-medium">{preset.label}:</span> {preset.description}
+                  </p>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* 2. Kontext (Dateien & URLs) */}
+        <section aria-labelledby="pe-step-2-title">
+          <h2
+            id="pe-step-2-title"
+            className="text-sm font-semibold text-gray-900 dark:text-gray-100"
+          >
+            {t('pages.tools.prompt-enhancer.form.step2.title')}
+          </h2>
+          <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">
+            {t('pages.tools.prompt-enhancer.form.step2.subtitle')}
+          </p>
+          <div className="mt-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white/60 dark:bg-gray-900/40 p-3">
+            {/* URL Import (inline, collapsible) */}
+            <div className="mb-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="text-xs text-gray-600 dark:text-gray-400">
+                  {t('pages.tools.prompt-enhancer.form.files.urlImportLabel')}
+                </p>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowUrlInput((prev) => !prev)}
+                  disabled={isLoading || urlLoading || files.length >= MAX_FILES}
+                >
+                  {showUrlInput
+                    ? t('pages.tools.prompt-enhancer.form.files.urlImportHide')
+                    : t('pages.tools.prompt-enhancer.form.files.urlImportToggle')}
+                </Button>
+              </div>
+              {showUrlInput && (
+                <div className="mt-2 flex gap-2">
+                  <input
+                    id="urlImport"
+                    type="url"
+                    value={urlValue}
+                    onChange={(e) => setUrlValue(e.target.value)}
+                    placeholder={t('pages.tools.prompt-enhancer.form.files.urlImportPlaceholder')}
+                    className="flex-1 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                    disabled={isLoading || urlLoading || files.length >= MAX_FILES}
+                  />
+                  <Button
+                    type="button"
+                    onClick={onImportUrl}
+                    disabled={
+                      isLoading || urlLoading || !urlValue.trim() || files.length >= MAX_FILES
+                    }
+                  >
+                    {urlLoading ? t('common.loading') : t('common.import')}
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+              {t('pages.tools.prompt-enhancer.form.files.label')}
+            </label>
+            <div
+              onDragOver={onDragOver}
+              onDragLeave={onDragLeave}
+              onDrop={onDrop}
+              onClick={() => {
+                if (!isLoading && files.length < MAX_FILES) {
+                  fileInputRef.current?.click();
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+                  e.preventDefault();
+                  if (!isLoading && files.length < MAX_FILES) {
+                    fileInputRef.current?.click();
+                  }
+                }
+              }}
+              className={`p-3 border-2 border-dashed rounded-md text-sm cursor-pointer transition-colors ${dragActive ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-300 dark:border-gray-600 hover:border-blue-400 hover:bg-blue-50/40 dark:hover:border-blue-400 dark:hover:bg-blue-900/10'} `}
+              aria-label={t('pages.tools.prompt-enhancer.form.files.dropHint')}
+              role="button"
+              tabIndex={0}
+            >
+              <div className="flex flex-col items-center justify-center gap-1.5 text-center text-gray-600 dark:text-gray-300">
+                <div className="flex items-center justify-center h-8 w-8 rounded-full bg-blue-500/10 text-blue-500 dark:text-blue-300 dark:bg-blue-500/20">
+                  <UploadIcon className="h-4 w-4" aria-hidden="true" />
+                </div>
+                <p className="text-sm font-medium">
+                  {t('pages.tools.prompt-enhancer.form.files.dropHint')}
+                </p>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  disabled={isLoading || files.length >= MAX_FILES}
+                  className="mt-1"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (!isLoading && files.length < MAX_FILES) {
+                      fileInputRef.current?.click();
+                    }
+                  }}
+                >
+                  {t('pages.tools.prompt-enhancer.form.files.selectButton')}
+                </Button>
+                {files.length > 0 && (
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {t('pages.tools.prompt-enhancer.form.files.selectedCount', {
+                      count: files.length,
+                    })}
+                  </p>
+                )}
+              </div>
               <input
                 id="fileInput"
+                ref={fileInputRef}
                 type="file"
                 onChange={onFileInputChange}
                 multiple
                 accept={['.jpg', '.jpeg', '.png', '.webp', '.pdf', '.txt', '.md'].join(',')}
                 disabled={isLoading}
-                className="block text-sm text-gray-700 dark:text-gray-200"
+                className="sr-only"
               />
-            </div>
-            <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-              {t('pages.tools.prompt-enhancer.form.files.allowedTypes')}: JPG, PNG, WEBP, PDF, TXT,
-              MD · {t('pages.tools.prompt-enhancer.form.files.maxSize')}:{' '}
-              {formatBytes(MAX_FILE_BYTES)} ·{' '}
-              {t('pages.tools.prompt-enhancer.form.files.maxCount', { count: MAX_FILES })}
-            </div>
-            {error && errorScope === 'files' && <Alert className="mt-2">{error}</Alert>}
-            {files.length > 0 && (
-              <ul className="mt-3 space-y-2">
-                {files.map((f, idx) => (
-                  <li
-                    key={idx}
-                    className="text-sm border border-gray-200 dark:border-gray-700 rounded-md p-2"
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="truncate">
-                        {f.name} · {f.type || 'unknown'} · {formatBytes(f.size)}
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          type="button"
-                          onClick={() => moveFileUp(idx)}
-                          aria-label={`Move up ${f.name}`}
-                          disabled={isLoading || idx === 0}
-                          variant="ghost"
-                          size="sm"
-                          className="px-2 py-1 h-auto rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
-                        >
-                          ↑
-                        </Button>
-                        <Button
-                          type="button"
-                          onClick={() => moveFileDown(idx)}
-                          aria-label={`Move down ${f.name}`}
-                          disabled={isLoading || idx === files.length - 1}
-                          variant="ghost"
-                          size="sm"
-                          className="px-2 py-1 h-auto rounded-md border opacity-100 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
-                        >
-                          ↓
-                        </Button>
-                        <Button
-                          type="button"
-                          onClick={() => onRemoveFile(idx)}
-                          disabled={isLoading}
-                          variant="ghost"
-                          size="sm"
-                          className="px-2 py-1 h-auto rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
-                        >
-                          {t('pages.tools.prompt-enhancer.form.files.remove')}
-                        </Button>
-                      </div>
-                    </div>
-                    {/* Text preview if available */}
-                    {(() => {
-                      const key = fileKey(f);
-                      const pv = textPreviews[key];
-                      return pv ? (
-                        <div className="mt-1 text-xs text-gray-600 dark:text-gray-300">
-                          {pv}
-                          {pv.length >= 160 ? '…' : ''}
+              <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                {t('pages.tools.prompt-enhancer.form.files.allowedTypes')}: JPG, PNG, WEBP, PDF,
+                TXT, MD · {t('pages.tools.prompt-enhancer.form.files.maxSize')}:{' '}
+                {formatBytes(MAX_FILE_BYTES)} ·{' '}
+                {t('pages.tools.prompt-enhancer.form.files.maxCount', { count: MAX_FILES })}
+              </div>
+              {error && errorScope === 'files' && <Alert className="mt-2">{error}</Alert>}
+              {files.length > 0 && (
+                <ul className="mt-4 space-y-2 text-left">
+                  {files.map((f, idx) => (
+                    <li
+                      key={idx}
+                      className="text-sm border border-gray-200 dark:border-gray-700 rounded-md p-2"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="truncate">
+                          {f.name} · {f.type || 'unknown'} · {formatBytes(f.size)}
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            type="button"
+                            onClick={() => moveFileUp(idx)}
+                            aria-label={`Move up ${f.name}`}
+                            disabled={isLoading || idx === 0}
+                            variant="ghost"
+                            size="sm"
+                            className="px-2 py-1 h-auto rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                          >
+                            ↑
+                          </Button>
+                          <Button
+                            type="button"
+                            onClick={() => moveFileDown(idx)}
+                            aria-label={`Move down ${f.name}`}
+                            disabled={isLoading || idx === files.length - 1}
+                            variant="ghost"
+                            size="sm"
+                            className="px-2 py-1 h-auto rounded-md border opacity-100 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                          >
+                            ↓
+                          </Button>
+                          <Button
+                            type="button"
+                            onClick={() => onRemoveFile(idx)}
+                            disabled={isLoading}
+                            variant="ghost"
+                            size="sm"
+                            className="px-2 py-1 h-auto rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                          >
+                            {t('pages.tools.prompt-enhancer.form.files.remove')}
+                          </Button>
                         </div>
-                      ) : null;
-                    })()}
-                  </li>
-                ))}
-              </ul>
-            )}
+                      </div>
+                      {/* Text preview if available */}
+                      {(() => {
+                        const key = fileKey(f);
+                        const pv = textPreviews[key];
+                        return pv ? (
+                          <div className="mt-1 text-xs text-gray-600 dark:text-gray-300">
+                            {pv}
+                            {pv.length >= 160 ? '…' : ''}
+                          </div>
+                        ) : null;
+                      })()}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {files.length >= MAX_FILES && (
+                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                  {t('pages.tools.prompt-enhancer.form.files.softLimit', { count: MAX_FILES })}
+                </p>
+              )}
+            </div>
+            <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
+              {t('pages.tools.prompt-enhancer.form.step2.help')}
+            </p>
           </div>
-        </div>
+        </section>
 
-        <div>
-          <div className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        {/* 3. Stil des optimierten Prompts */}
+        <section aria-labelledby="pe-step-3-title">
+          <h2
+            id="pe-step-3-title"
+            className="text-sm font-semibold text-gray-900 dark:text-gray-100"
+          >
+            {t('pages.tools.prompt-enhancer.form.step3.title')}
+          </h2>
+          <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">
+            {t('pages.tools.prompt-enhancer.form.step3.subtitle')}
+          </p>
+
+          <div className="mt-3 block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             {t('pages.tools.prompt-enhancer.form.modeLabel')}
           </div>
           <div
@@ -631,7 +872,10 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
               );
             })}
           </div>
-        </div>
+          <p className="mt-2 text-xs text-gray-600 dark:text-gray-400">
+            {t('pages.tools.prompt-enhancer.form.modeMapping')}
+          </p>
+        </section>
 
         <Button
           type="button"
@@ -647,7 +891,7 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
         </Button>
 
         {usage && (
-          <div className="mt-4 flex justify-center">
+          <div className="mt-4 flex flex-col items-center">
             <ToolUsageBadge
               label={t('pages.tools.prompt-enhancer.usage.title')}
               loadingLabel={t('common.loading')}
@@ -699,12 +943,21 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
                   : []),
               ]}
             />
+            <p className="mt-2 text-xs text-gray-500 dark:text-gray-400 text-center">
+              {t('pages.tools.prompt-enhancer.usage.freeMessage')}
+            </p>
           </div>
         )}
       </form>
 
       {outputText && (
-        <div className="mt-6">
+        <section aria-labelledby="pe-step-4-title" className="mt-6">
+          <h2
+            id="pe-step-4-title"
+            className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2"
+          >
+            {t('pages.tools.prompt-enhancer.form.step4.title')}
+          </h2>
           <div className="flex items-center justify-between mb-2">
             <label
               htmlFor="outputText"
@@ -713,6 +966,42 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
               {t('pages.tools.prompt-enhancer.form.outputLabel')}
             </label>
             <div className="flex items-center gap-2">
+              <div className="inline-flex rounded-md border border-gray-300 dark:border-gray-600 overflow-hidden text-xs">
+                <button
+                  type="button"
+                  onClick={() => setResultView('text')}
+                  className={`px-2 py-1 ${resultView === 'text' ? 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300'}`}
+                  aria-pressed={resultView === 'text'}
+                >
+                  {t('pages.tools.prompt-enhancer.form.viewText')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => enhancedJson && setResultView('json')}
+                  className={`px-2 py-1 border-l border-gray-300 dark:border-gray-600 ${
+                    resultView === 'json'
+                      ? 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100'
+                      : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300'
+                  } ${!enhancedJson ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  aria-pressed={resultView === 'json'}
+                  disabled={!enhancedJson}
+                >
+                  {t('pages.tools.prompt-enhancer.form.viewJson')}
+                </button>
+              </div>
+              <Button
+                type="button"
+                onClick={() => setShowComparison((prev) => !prev)}
+                disabled={!outputText}
+                variant="ghost"
+                size="sm"
+                className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                aria-pressed={showComparison ? 'true' : 'false'}
+              >
+                {showComparison
+                  ? t('pages.tools.prompt-enhancer.form.hideComparison')
+                  : t('pages.tools.prompt-enhancer.form.showComparison')}
+              </Button>
               <Button
                 type="button"
                 onClick={handleCopy}
@@ -728,6 +1017,16 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
               </Button>
               <Button
                 type="button"
+                onClick={handleCopyJson}
+                disabled={!outputText}
+                variant="ghost"
+                size="sm"
+                className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+              >
+                {t('pages.tools.prompt-enhancer.form.copyJson')}
+              </Button>
+              <Button
+                type="button"
                 onClick={handleClear}
                 disabled={isLoading}
                 variant="secondary"
@@ -738,15 +1037,65 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
               </Button>
             </div>
           </div>
-          <textarea
-            id="outputText"
-            value={outputText}
-            readOnly
-            className="w-full h-32 p-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-gray-50 dark:bg-gray-600 dark:text-white"
-            aria-label={t('pages.tools.prompt-enhancer.form.outputLabel')}
-            data-testid="output-text"
-          />
-        </div>
+          {lastLatencyMs != null && (
+            <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">
+              {t('pages.tools.prompt-enhancer.form.resultLatency', { ms: lastLatencyMs })}
+            </p>
+          )}
+          {resultView === 'text' || !enhancedJson ? (
+            <textarea
+              id="outputText"
+              value={outputText}
+              readOnly
+              className="w-full h-32 p-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-gray-50 dark:bg-gray-600 dark:text-white"
+              aria-label={t('pages.tools.prompt-enhancer.form.outputLabel')}
+              data-testid="output-text"
+            />
+          ) : (
+            <pre
+              className="w-full h-48 p-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-gray-50 dark:bg-gray-900 text-xs text-gray-900 dark:text-gray-50 overflow-auto font-mono whitespace-pre"
+              aria-label={t('pages.tools.prompt-enhancer.form.outputLabel')}
+              data-testid="output-json"
+            >
+              {JSON.stringify(enhancedJson, null, 2)}
+            </pre>
+          )}
+          {showComparison && (
+            <div className="mt-3 rounded-md border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/60 p-3">
+              <label
+                htmlFor="originalText"
+                className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1"
+              >
+                {t('pages.tools.prompt-enhancer.form.inputLabelOriginal')}
+              </label>
+              <textarea
+                id="originalText"
+                value={inputText}
+                readOnly
+                className="w-full h-24 p-3 border border-gray-200 dark:border-gray-700 rounded-md shadow-sm bg-white dark:bg-gray-900 dark:text-white"
+                aria-label={t('pages.tools.prompt-enhancer.form.inputLabelOriginal')}
+              />
+            </div>
+          )}
+          {improvements.length > 0 && (
+            <div className="mt-3 p-3 rounded-md bg-blue-50 dark:bg-blue-900/20">
+              <h3 className="text-xs font-medium text-blue-800 dark:text-blue-200 mb-1">
+                {t('pages.tools.prompt-enhancer.improvements.title')}
+              </h3>
+              <ul className="text-xs text-blue-800 dark:text-blue-100 list-disc list-inside">
+                {improvements.includes('structure') && (
+                  <li>{t('pages.tools.prompt-enhancer.improvements.structure')}</li>
+                )}
+                {improvements.includes('constraints') && (
+                  <li>{t('pages.tools.prompt-enhancer.improvements.constraints')}</li>
+                )}
+                {improvements.includes('steps') && (
+                  <li>{t('pages.tools.prompt-enhancer.improvements.steps')}</li>
+                )}
+              </ul>
+            </div>
+          )}
+        </section>
       )}
 
       {safetyReport && (

@@ -119,8 +119,11 @@ const authorName = Array.isArray(data.author)
       ? data.author
       : 'EvolutionHub Team';
 const title = String(data.title);
-const description = String(data.description || '');
-const siteBase: URL = (Astro.site as URL) || new URL('http://127.0.0.1:8787');
+const rawDescription = typeof data.description === 'string' ? data.description.trim() : '';
+const fallbackDescription = typeof postData.excerpt === 'string' ? postData.excerpt.trim() : '';
+const description = rawDescription.length > 0 ? rawDescription : fallbackDescription;
+const publicSiteUrl = import.meta.env.PUBLIC_SITE_URL;
+const siteBase: URL = publicSiteUrl ? new URL(publicSiteUrl) : new URL(Astro.url.origin);
 const canonicalAlternates = getAlternateUrls(Astro.url.pathname);
 const canonicalPath =
   getLocale(Astro.url.pathname) === 'en' ? canonicalAlternates.en : canonicalAlternates.de;
@@ -129,7 +132,7 @@ const canonicalUrl = new URL(canonicalPath, siteBase);
 const imageSrc =
   data.image && typeof (data.image as { src?: unknown }).src === 'string'
     ? (data.image as { src: string }).src
-    : '/images/blog/default-og.jpg';
+    : '/images/blog/default-og.svg';
 const imageUrl = new URL(imageSrc, siteBase).toString();
 
 // Refactored logic for dateModified
@@ -149,7 +152,7 @@ const structuredData = {
   '@context': 'https://schema.org',
   '@type': 'BlogPosting',
   headline: title,
-  description: description,
+  description,
   image: imageUrl,
   author: {
     '@type': 'Person',

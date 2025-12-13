@@ -25,6 +25,7 @@ import { getWebscraperEntitlementsFor } from '@/config/webscraper/entitlements';
 import { getWebEvalEntitlementsFor } from '@/config/web-eval/entitlements';
 import { VoiceTranscribeService } from '@/lib/services/voice-transcribe-service';
 import { WebscraperService } from '@/lib/services/webscraper-service';
+import { resolveEffectivePlanForUser } from '@/lib/services/billing-plan-service';
 
 interface SubscriptionRow {
   id: string;
@@ -132,27 +133,18 @@ export const GET = withAuthApiMiddleware(
       }
     }
 
-    // Plan fallback: if no subscription and user.plan missing, read from users table
-    let planFallback: Plan | undefined = (user as unknown as { plan?: Plan })?.plan;
-    if (!subscription && !planFallback) {
-      try {
-        const row = (await (d1 as D1Like)
-          .prepare(`SELECT plan FROM users WHERE id = ?1 LIMIT 1`)
-          .bind(user.id)
-          .first()) as { plan?: string } | null;
-        const p = (row?.plan as Plan | undefined) ?? undefined;
-        planFallback = p;
-      } catch {}
-    }
+    // Resolve effective plan via shared helper and base fields from subscription row
+    const planResolution = await resolveEffectivePlanForUser({
+      userId: user.id,
+      env: { DB: env.DB },
+      localsPlan: (user as unknown as { plan?: Plan }).plan,
+    });
 
-    // Determine whether a subscription should be considered active for plan purposes
     const activeStatuses = new Set(['active', 'trialing', 'past_due', 'unpaid', 'paused']);
     const isActiveSub = Boolean(subscription && activeStatuses.has(subscription.status));
 
-    // Resolve plan and base fields
     const result = {
-      // Prefer user's entitled plan unless there is an active subscription overriding it
-      plan: (isActiveSub ? subscription!.plan : planFallback) ?? 'free',
+      plan: planResolution.plan,
       status: isActiveSub ? subscription!.status : 'inactive',
       subscriptionId: isActiveSub ? subscription!.id : null,
       currentPeriodEnd: isActiveSub ? subscription!.current_period_end : null,

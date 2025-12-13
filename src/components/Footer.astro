@@ -7,6 +7,7 @@ import Icon from '@/components/ui/Icon.astro';
 import { getI18n } from '@/utils/i18n';
 import EvolutionHubLogo from 'public/assets/svg/evolutionhub-mark.svg';
 import { getSocialLinks } from '@/config/social';
+import { isToolVisible } from '@/lib/tools-availability';
 
 interface Props {
   hideNewsletter?: boolean;
@@ -24,6 +25,40 @@ const cookiePath = `/${cookieSlug[locale as Locale]}`;
 const socialLinks = getSocialLinks();
 
 const allTools = getAllTools(locale);
+
+const runtimeEnv = (Astro.locals && Astro.locals.runtime && Astro.locals.runtime.env) || undefined;
+const env = (runtimeEnv as unknown as Record<string, string | undefined>) || undefined;
+
+function flagOn(raw: string | undefined | null): boolean {
+  if (raw === undefined || raw === null) return true;
+  const v = String(raw).toLowerCase().trim();
+  return !(v === '0' || v === 'false' || v === 'off' || v === 'no');
+}
+
+function isToolEnabled(toolId: string): boolean {
+  if (!env) return isToolVisible(toolId);
+
+  switch (toolId) {
+    case 'prompt-enhancer':
+      return flagOn(env.PUBLIC_PROMPT_ENHANCER_V1);
+    case 'Imag-Enhancer': {
+      const mvpOn = flagOn(env.PUBLIC_ENHANCER_MVP_MODE);
+      const legacyOn = flagOn(env.PUBLIC_ENHANCER_LEGACY_MODE);
+      return mvpOn || legacyOn;
+    }
+    case 'video-enhancer':
+      return flagOn(env.ENABLE_VIDEO_ENHANCER);
+    case 'voice-visualizer':
+      return flagOn(env.PUBLIC_TOOL_VOICE_VISUALIZER);
+    case 'webscraper':
+      return flagOn(env.PUBLIC_TOOL_WEBSCRAPER) && flagOn(env.PUBLIC_WEBSCRAPER_V1);
+    case 'web-eval':
+      return flagOn(env.PUBLIC_TOOL_WEB_EVAL);
+    default:
+      return true;
+  }
+}
+
 const rank = (id: string) =>
   id === 'Imag-Enhancer'
     ? 0
@@ -36,6 +71,7 @@ const rank = (id: string) =>
           : 99;
 const footerTools = allTools
   .filter((t) => !t.comingSoon)
+  .filter((tool) => isToolEnabled(tool.id))
   .slice()
   .sort((a, b) => rank(a.id) - rank(b.id));
 ---

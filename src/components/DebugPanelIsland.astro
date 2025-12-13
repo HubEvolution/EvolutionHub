@@ -2,7 +2,14 @@
 // Debug Panel Island - TEMPORARY: Always render for testing
 // TODO: Implement proper dev-only rendering strategy
 // Problem: import.meta.env.DEV is false during 'astro build' even for dev environment
-const isDev = import.meta.env.DEV || import.meta.env.PUBLIC_ENABLE_DEBUG_PANEL === 'true';
+const runtimeEnv = (Astro.locals && Astro.locals.runtime && Astro.locals.runtime.env) || undefined;
+const environment =
+  (runtimeEnv as unknown as { ENVIRONMENT?: string } | undefined)?.ENVIRONMENT ??
+  import.meta.env.MODE;
+const isProduction = environment === 'production';
+
+const isDev =
+  !isProduction && (import.meta.env.DEV || import.meta.env.PUBLIC_ENABLE_DEBUG_PANEL === 'true');
 ---
 
 {isDev && <slot />}

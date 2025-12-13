@@ -8,7 +8,7 @@ import {
 import type { D1Database } from '@cloudflare/workers-types';
 import { requireModerator } from '@/lib/auth-helpers';
 import { CommentService } from '@/lib/services/comment-service';
-import { sensitiveActionLimiter } from '@/lib/rate-limiter';
+import { adminSensitiveLimiter } from '@/lib/rate-limiter';
 
 // POST /api/admin/comments/[id]/moderate — Moderate a specific comment (approve/reject/flag/hide)
 export const POST = withAuthApiMiddleware(
@@ -72,7 +72,7 @@ export const POST = withAuthApiMiddleware(
   },
   {
     enforceCsrfToken: true,
-    rateLimiter: sensitiveActionLimiter,
+    rateLimiter: adminSensitiveLimiter,
     logMetadata: { action: 'admin_comment_moderate' },
   }
 );

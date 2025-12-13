@@ -525,6 +525,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     !isApi &&
     !isAsset &&
     !isR2Proxy &&
+    !isBlogRoute(path) &&
     cookieLocale === 'en' &&
     !path.startsWith('/welcome') &&
     !isAuthRoute(path) &&
@@ -807,6 +808,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       "connect-src 'self' ws: http: https:",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net",
       "img-src 'self' data: blob: https:",
+      "media-src 'self' https://videos.pexels.com data: blob:",
       "font-src 'self' https://fonts.gstatic.com",
       "frame-src 'self' https://challenges.cloudflare.com",
       "frame-ancestors 'self'",
@@ -832,6 +834,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
             "connect-src 'self' https: wss:",
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net",
             "img-src 'self' data: blob: https:",
+            "media-src 'self' https://videos.pexels.com data: blob:",
             "font-src 'self' https://fonts.gstatic.com",
             "frame-src 'self' https://challenges.cloudflare.com",
             "frame-ancestors 'self'",
@@ -846,18 +849,18 @@ export const onRequest = defineMiddleware(async (context, next) => {
             "connect-src 'self' ws: http: https:",
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net",
             "img-src 'self' data: blob: https:",
+            "media-src 'self' https://videos.pexels.com data: blob:",
             "font-src 'self' https://fonts.gstatic.com",
             "frame-src 'self' https://challenges.cloudflare.com",
             "frame-ancestors 'self'",
             "object-src 'none'",
             "base-uri 'self'",
-            'report-uri /api/csp-report',
           ]
     ).join('; ');
     response.headers.set('Content-Security-Policy', csp);
   }
 
-  // Route-scoped CSP relaxation for Video Enhancer: allow blob: media for client-side duration detection
+  // ...
   try {
     const vePaths = /^\/(?:(?:de|en)\/)?tools\/video-enhancer(?:\/app)?\/?$/;
     if (vePaths.test(path)) {

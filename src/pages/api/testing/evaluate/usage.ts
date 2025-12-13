@@ -15,6 +15,13 @@ import {
   toUsageOverview,
   getCreditsBalanceTenths,
 } from '@/lib/kv/usage';
+import { resolveEffectivePlanForUser } from '@/lib/services/billing-plan-service';
+
+function flagOn(v: string | undefined): boolean {
+  if (!v) return false;
+  const s = String(v).toLowerCase().trim();
+  return s === '1' || s === 'true' || s === 'yes' || s === 'on';
+}
 
 function ensureGuestIdCookie(context: APIContext): string {
   const existing = context.cookies.get('guest_id')?.value;
@@ -38,10 +45,25 @@ export const GET = withApiMiddleware(async (context: APIContext) => {
 
   const ownerType: 'user' | 'guest' = locals.user?.id ? 'user' : 'guest';
   const ownerId = ownerType === 'user' ? String(locals.user!.id) : ensureGuestIdCookie(context);
-  const plan: Plan | undefined =
-    ownerType === 'user' ? ((locals.user?.plan as Plan | undefined) ?? 'free') : undefined;
+  const planResult =
+    ownerType === 'user'
+      ? await resolveEffectivePlanForUser({
+          userId: ownerId,
+          env: { DB: ((locals.runtime?.env ?? {}) as { DB?: unknown }).DB },
+          localsPlan: (locals.user?.plan as Plan | undefined) ?? undefined,
+        })
+      : undefined;
+  const plan: Plan | undefined = ownerType === 'user' ? planResult!.plan : undefined;
 
   const env = (locals.runtime?.env ?? {}) as Record<string, unknown>;
+
+  // UI/Feature flag: tool disabled
+  const publicToolFlag =
+    typeof env.PUBLIC_TOOL_WEB_EVAL === 'string' ? (env.PUBLIC_TOOL_WEB_EVAL as string) : undefined;
+  if (!flagOn(publicToolFlag)) {
+    return createApiError('forbidden', 'feature.disabled.web_eval');
+  }
+
   const kv = env.KV_WEB_EVAL as KVNamespace | undefined;
   if (!kv) {
     return createApiError('server_error', 'Web evaluation storage is not configured');

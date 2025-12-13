@@ -55,6 +55,12 @@ function ensureGuestIdCookie(context: APIContext): string {
   return guestId;
 }
 
+function flagOn(raw: string | undefined): boolean {
+  if (raw === undefined || raw === null) return true;
+  const v = String(raw).toLowerCase().trim();
+  return !(v === '0' || v === 'false' || v === 'off' || v === 'no');
+}
+
 function maskOwnerId(ownerId: string | undefined): string {
   if (!ownerId) return '';
   const len = ownerId.length;
@@ -68,6 +74,12 @@ async function handler(context: APIContext): Promise<Response> {
   const kv = env.KV_WEB_EVAL;
   if (!kv) {
     return createApiError('server_error', 'Web evaluation storage is not configured');
+  }
+
+  // UI/Feature flag: tool disabled
+  const publicToolFlag = (env as Record<string, string | undefined>).PUBLIC_TOOL_WEB_EVAL;
+  if (!flagOn(publicToolFlag)) {
+    return createApiError('forbidden', 'feature.disabled.web_eval');
   }
 
   // Production gating: disable task creation unless explicitly enabled

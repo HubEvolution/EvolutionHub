@@ -15,6 +15,7 @@ import {
   toUsageOverview,
   getCreditsBalanceTenths,
 } from '@/lib/kv/usage';
+import { resolveEffectivePlanForUser } from '@/lib/services/billing-plan-service';
 
 function ensureGuestIdCookie(context: APIContext): string {
   const existing = context.cookies.get('guest_id')?.value;
@@ -42,10 +43,16 @@ export const GET = withApiMiddleware(async (context: APIContext) => {
     ownerType === 'user' ? (locals.user as { id: string }).id : ensureGuestIdCookie(context);
 
   // Resolve plan from user (shared Plan type); entitlements are prompt-specific
-  const plan =
+  const planResult =
     ownerType === 'user'
-      ? (((locals.user as { plan?: Plan } | null)?.plan ?? 'free') as Plan)
+      ? await resolveEffectivePlanForUser({
+          userId: ownerId,
+          env: { DB: (locals.runtime?.env as { DB?: unknown } | undefined)?.DB },
+          localsPlan:
+            ((locals.user as { plan?: Plan } | null)?.plan as Plan | undefined) ?? undefined,
+        })
       : undefined;
+  const plan = ownerType === 'user' ? planResult!.plan : undefined;
   const ent = getPromptEntitlementsFor(ownerType, plan);
 
   try {

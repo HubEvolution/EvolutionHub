@@ -41,6 +41,22 @@ const AdminToolsSection: React.FC = () => {
 
         <Card className="flex flex-col justify-between p-4" variant="default">
           <div>
+            <p className="text-sm font-semibold text-white">{strings.tools.comments.title}</p>
+            <p className="mt-1 text-sm text-white/60">{strings.tools.comments.description}</p>
+          </div>
+          <div className="mt-3 flex justify-end">
+            <a
+              href="/admin/comments"
+              onClick={() => handleClick('comments')}
+              className="inline-flex items-center rounded-md border border-white/20 px-4 py-2 text-sm font-semibold text-white/80 hover:bg-white/10"
+            >
+              {strings.tools.comments.cta}
+            </a>
+          </div>
+        </Card>
+
+        <Card className="flex flex-col justify-between p-4" variant="default">
+          <div>
             <p className="text-sm font-semibold text-white">{strings.tools.kpi.title}</p>
             <p className="mt-1 text-sm text-white/60">{strings.tools.kpi.description}</p>
           </div>

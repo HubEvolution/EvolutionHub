@@ -15,6 +15,13 @@ import {
   getUsage as kvGetUsage,
   getCreditsBalanceTenths,
 } from '@/lib/kv/usage';
+import { resolveEffectivePlanForUser } from '@/lib/services/billing-plan-service';
+
+function flagOn(raw: string | undefined): boolean {
+  if (raw === undefined || raw === null) return true;
+  const v = String(raw).toLowerCase().trim();
+  return !(v === '0' || v === 'false' || v === 'off' || v === 'no');
+}
 
 function ensureGuestIdCookie(context: APIContext): string {
   const cookies = context.cookies;
@@ -39,6 +46,7 @@ type VoiceEnv = {
   OPENAI_API_KEY?: string;
   WHISPER_MODEL?: string;
   ENVIRONMENT?: string;
+  PUBLIC_TOOL_VOICE_VISUALIZER?: string;
 };
 
 export const GET = withApiMiddleware(async (context: APIContext) => {
@@ -47,6 +55,10 @@ export const GET = withApiMiddleware(async (context: APIContext) => {
   const ownerId = ownerType === 'user' ? String(locals.user!.id) : ensureGuestIdCookie(context);
 
   const env = (locals.runtime?.env ?? {}) as Partial<VoiceEnv>;
+  if (!flagOn(env.PUBLIC_TOOL_VOICE_VISUALIZER)) {
+    return createApiError('forbidden', 'feature.disabled.voice_visualizer');
+  }
+  const rawEnv = (locals.runtime?.env as { DB?: unknown } | undefined) ?? undefined;
   const service = new VoiceTranscribeService({
     KV_VOICE_TRANSCRIBE: env.KV_VOICE_TRANSCRIBE,
     OPENAI_API_KEY: env.OPENAI_API_KEY,
@@ -55,8 +67,15 @@ export const GET = withApiMiddleware(async (context: APIContext) => {
   });
 
   try {
-    const plan: Plan | undefined =
-      ownerType === 'user' ? ((locals.user?.plan as Plan | undefined) ?? 'free') : undefined;
+    const planResult =
+      ownerType === 'user'
+        ? await resolveEffectivePlanForUser({
+            userId: ownerId,
+            env: { DB: rawEnv?.DB },
+            localsPlan: (locals.user?.plan as Plan | undefined) ?? undefined,
+          })
+        : undefined;
+    const plan: Plan | undefined = ownerType === 'user' ? planResult!.plan : undefined;
     const ent = getVoiceEntitlementsFor(ownerType, plan);
     const limit = ent.dailyBurstCap;
     const usageInfo = await service.getUsage(ownerType, ownerId, limit);
@@ -109,10 +128,7 @@ export const GET = withApiMiddleware(async (context: APIContext) => {
       resp.headers.set('Pragma', 'no-cache');
       resp.headers.set('Expires', '0');
       resp.headers.set('X-Usage-OwnerType', ownerType);
-      resp.headers.set(
-        'X-Usage-Plan',
-        ownerType === 'user' ? String(locals.user?.plan || 'free') : ''
-      );
+      resp.headers.set('X-Usage-Plan', ownerType === 'user' ? String(plan ?? 'free') : '');
       resp.headers.set('X-Usage-Limit', String(limit));
     } catch {}
     return resp;

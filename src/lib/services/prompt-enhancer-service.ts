@@ -134,6 +134,48 @@ export class PromptEnhancerService {
     }
   }
 
+  private detectDomain(text: string): 'coding' | 'data' | 'content' | 'research' | 'general' {
+    try {
+      const t = text.toLowerCase();
+
+      if (
+        /\b(code|bug|fix|refactor|typescript|javascript|react|api|endpoint|function|klasse|class|testfall|unit test)\b/.test(
+          t
+        )
+      ) {
+        return 'coding';
+      }
+
+      if (
+        /\b(kpi|conversion|dataset|sql|query|analyse|analyse|analytics|metric|cohort|retention|churn|dashboard)\b/.test(
+          t
+        )
+      ) {
+        return 'data';
+      }
+
+      if (
+        /\b(linkedin|instagram|newsletter|post|content|copy|headline|hook|hashtag|tweet|thread)\b/.test(
+          t
+        )
+      ) {
+        return 'content';
+      }
+
+      if (
+        /\b(target audience|zielgruppe|research|interview|survey|fragebogen|hypothese|persona|journey)\b/.test(
+          t
+        )
+      ) {
+        return 'research';
+      }
+
+      return 'general';
+    } catch {
+      return 'general';
+    }
+  }
+
   private getTextModel(): string {
     return this.env.PROMPT_TEXT_MODEL || DEFAULT_TEXT_MODEL;
   }
@@ -332,13 +374,15 @@ export class PromptEnhancerService {
         ? 'You are a precise analyst.'
         : 'You are an expert prompt engineer.';
 
+    const focusKeywords = keywords.slice(0, 8).join(', ');
+    const trimmedRaw = rawText.length > 180 ? `${rawText.slice(0, 177)}...` : rawText;
+    const focus = focusKeywords || trimmedRaw;
+    const intentVerb =
+      intent && typeof intent === 'string' && intent.length > 0 ? intent : 'help the user';
+
     const objective = isCode
-      ? `Design and implement a small, testable MVP for: ${
-          keywords.slice(0, 8).join(', ') || rawText.substring(0, 120)
-        }`
-      : `Perform ${intent} task based on: ${
-          keywords.slice(0, 8).join(', ') || rawText.substring(0, 120)
-        }`;
+      ? `Review and refine the following request so that an assistant can analyze and refactor code effectively. Focus: ${focus}`
+      : `Review and refine the following request so that an assistant can ${intentVerb} effectively. Focus: ${focus}`;
 
     const constraints = isCode
       ? 'Small MVP; idiomatic code; no paid deps unless specified; clear module structure; input validation and error handling; reproducible setup; minimal comments; readable; mask any PII.'
@@ -483,32 +527,46 @@ export class PromptEnhancerService {
   } {
     const systemParts: string[] = [];
     const lang = this.detectLanguage(inputText);
+    const domain = this.detectDomain(inputText);
+
     systemParts.push(
-      "You are a prompt engineer. Rewrite the user's prompt into a high-quality, actionable prompt while preserving the original intent and constraints. Output only the enhanced prompt text in Markdown (no preamble). Prefer structured sections."
+      'You are a senior prompt engineer. Your task is to transform a raw user prompt into a structured, high-quality prompt specification that works well with modern large language models.'
     );
-    // Enforce explicit output language instead of implicit "same language"
     systemParts.push(
-      lang === 'de' ? 'Antworte ausschließlich auf Deutsch.' : 'Respond in English only.'
+      'You MUST respond with a single JSON object only, no markdown, no comments, no prose before or after the JSON.'
+    );
+    systemParts.push(
+      'The JSON object MUST have the following shape: {"role": string, "objective": string, "constraints": string, "steps": string[], "fewShotExamples": string[], "rawText": string, "scores": {"clarity": number, "specificity": number, "testability": number}}.'
+    );
+    systemParts.push(
+      'Field semantics: role = short description of the assistant role (1-3 sentences), objective = what the assistant should achieve, constraints = rules, limits, style, forbidden behaviour, steps = concrete actions for the model, fewShotExamples = short example instructions or Q&A, rawText = sanitized original user text, scores = integers 1–10 for clarity/specificity/testability.'
+    );
+    systemParts.push(
+      `Primary language: ${lang === 'de' ? 'German' : 'English'}. Write role, objective, constraints and steps in this language. Preserve technical terms as needed.`
+    );
+    systemParts.push(
+      `Approximate domain: ${domain}. Use this only to pick appropriate wording; do not fabricate domain-specific facts.`
     );
     if (
       attachment &&
       (attachment.texts.length || attachment.images.length || attachment.pdfs.length)
     ) {
       systemParts.push(
-        'Use attachments only to resolve ambiguity. Never expose raw PII; summarize safely.'
+        'Attachments may contain additional context (snippets, images, PDFs). Use them only to reduce ambiguity. Never expose raw PII; summarise safely.'
       );
     }
     if (mode === 'concise') {
       systemParts.push(
-        'Produce a compact prompt under ~120 words with the minimal sections: Role, Goal, Requirements, Output.'
+        'Optimise the specification for a concise assistant: keep objective and constraints tight and focused, favour shorter lists of steps (3–5), but still fill all required JSON fields.'
       );
     } else {
       systemParts.push(
-        'Produce a structured prompt with sections: Role, Goal, Context (optional), Requirements, Constraints, Step-by-step Plan, Output Format, Acceptance Criteria. When the task is about software/code, include language and version, libraries/constraints, I/O interface, error handling, testing requirements, and run instructions.'
+        'Optimise the specification for a full agent-style assistant: include enough detail in objective, constraints and steps so the model can act autonomously, but do not invent non-existing business rules or data.'
       );
     }
 
-    const userTextHeader = 'Enhance this prompt. Reply with only the enhanced prompt in Markdown:';
+    const userTextHeader =
+      'Transform the following raw prompt into a structured JSON prompt specification as described in the system message. Raw prompt:';
 
     const content: Array<
       { type: 'text'; text: string } | { type: 'image_url'; image_url: { url: string } }
@@ -808,19 +866,91 @@ export class PromptEnhancerService {
     }
 
     if (enhancedPromptText) {
-      // LLM path: wrap as minimal EnhancedPrompt with objective containing the whole enhanced text
-      const structured: EnhancedPrompt = {
-        role: 'Optimized Prompt',
-        objective: enhancedPromptText,
-        constraints: 'Generated by LLM rewrite. No additional metadata.',
-        outputFormat: 'plain',
-        steps: undefined,
-        fewShotExamples: undefined,
-        rawText: safeText,
-      };
-      const scores = options.includeScores
-        ? this.calculateScores(structured, input.text, parsed)
-        : undefined;
+      let enhanced: EnhancedPrompt;
+      let scoresFromJson: Scores | undefined;
+
+      try {
+        const parsedJson = JSON.parse(enhancedPromptText) as {
+          role?: unknown;
+          objective?: unknown;
+          constraints?: unknown;
+          steps?: unknown;
+          fewShotExamples?: unknown;
+          rawText?: unknown;
+          scores?: {
+            clarity?: unknown;
+            specificity?: unknown;
+            testability?: unknown;
+          };
+        };
+
+        const hasCoreFields =
+          typeof parsedJson.role === 'string' &&
+          typeof parsedJson.objective === 'string' &&
+          typeof parsedJson.constraints === 'string';
+
+        if (hasCoreFields) {
+          const steps = Array.isArray(parsedJson.steps)
+            ? (parsedJson.steps.filter((s): s is string => typeof s === 'string') as string[])
+            : undefined;
+          const fewShotExamples = Array.isArray(parsedJson.fewShotExamples)
+            ? (parsedJson.fewShotExamples.filter(
+                (s): s is string => typeof s === 'string'
+              ) as string[])
+            : undefined;
+          const rawFromJson =
+            typeof parsedJson.rawText === 'string' && parsedJson.rawText.length > 0
+              ? parsedJson.rawText
+              : safeText;
+
+          enhanced = {
+            role: parsedJson.role as string,
+            objective: parsedJson.objective as string,
+            constraints: parsedJson.constraints as string,
+            outputFormat: 'plain',
+            steps,
+            fewShotExamples,
+            rawText: rawFromJson,
+          };
+
+          const jsonScores = parsedJson.scores;
+          if (
+            jsonScores &&
+            typeof jsonScores.clarity === 'number' &&
+            typeof jsonScores.specificity === 'number' &&
+            typeof jsonScores.testability === 'number'
+          ) {
+            scoresFromJson = {
+              clarity: jsonScores.clarity,
+              specificity: jsonScores.specificity,
+              testability: jsonScores.testability,
+            };
+          }
+        } else {
+          // Fallback to legacy behaviour when JSON shape is not as expected
+          enhanced = {
+            role: 'Optimized Prompt',
+            objective: enhancedPromptText,
+            constraints: 'Generated by LLM rewrite. No additional metadata.',
+            outputFormat: 'plain',
+            steps: undefined,
+            fewShotExamples: undefined,
+            rawText: safeText,
+          };
+        }
+      } catch {
+        // Fallback to legacy behaviour when response is not valid JSON
+        enhanced = {
+          role: 'Optimized Prompt',
+          objective: enhancedPromptText,
+          constraints: 'Generated by LLM rewrite. No additional metadata.',
+          outputFormat: 'plain',
+          steps: undefined,
+          fewShotExamples: undefined,
+          rawText: safeText,
+        };
+      }
+
       const usage = await this.incrementUsage(ownerType, ownerId, limit);
       const latency = Date.now() - startTime;
       const finalPathType = pathType || 'llm_text';
@@ -829,18 +959,23 @@ export class PromptEnhancerService {
         metadata: { pathType: finalPathType, inc: 1 },
       });
       await this.incrementPathMetric(finalPathType);
+
+      const scores = options.includeScores
+        ? (scoresFromJson ?? this.calculateScores(enhanced, input.text, parsed))
+        : undefined;
+
       this.logInfo('enhance_completed', {
         requestId: reqId,
         metadata: {
           latency,
-          enhancedLength: enhancedPromptText.length,
+          enhancedLength: JSON.stringify(enhanced).length,
           maskedCount: report.masked.length,
           aiUsed: true,
           path: 'llm',
           pathType: finalPathType,
         },
       });
-      return { enhanced: structured, safetyReport: report, scores, usage };
+      return { enhanced, safetyReport: report, scores, usage };
     }
 
     // Deterministic fallback

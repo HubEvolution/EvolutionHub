@@ -6,6 +6,13 @@ export function isLandingV2Enabled(): boolean {
   return v === '1' || v === 'true' || v === 'on' || v === 'yes';
 }
 
+export function isLandingPromptOrbitEnabled(): boolean {
+  const raw = (import.meta.env as Record<string, string | undefined>).PUBLIC_LANDING_PROMPT_ORBIT;
+  if (raw === undefined || raw === null) return false; // default OFF for experimental orbit landing
+  const v = String(raw).toLowerCase().trim();
+  return v === '1' || v === 'true' || v === 'on' || v === 'yes';
+}
+
 export type LandingBgVariant = 'lattice' | 'techcells' | 'off';
 
 export function getLandingBgVariant(): LandingBgVariant {

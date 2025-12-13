@@ -17,23 +17,37 @@ function buildQueryRecord(params: URLSearchParams): Record<string, string | stri
   return record;
 }
 
+function getCommentsCountMode(context: APIContext): 'disabled' | 'db' {
+  try {
+    const env =
+      (context.locals as unknown as { runtime?: { env?: Record<string, string> } })?.runtime?.env ||
+      {};
+    const raw = (env as Record<string, string>).COMMENTS_COUNT_MODE;
+    if (raw && raw.toLowerCase() === 'disabled') {
+      return 'disabled';
+    }
+    return 'db';
+  } catch {
+    return 'db';
+  }
+}
+
 export const GET = withApiMiddleware(
   async (context: APIContext) => {
     try {
-      const env = (context.locals?.runtime?.env || {}) as { DB?: unknown };
-      const dbUnknown =
-        env?.DB || (context as unknown as { locals?: { env?: { DB?: unknown } } }).locals?.env?.DB;
-      if (!dbUnknown) return createApiError('server_error', 'Database binding missing');
-      const hasPrepare = typeof (dbUnknown as { prepare?: unknown }).prepare === 'function';
-      if (!hasPrepare) return createApiError('server_error', 'Database binding invalid');
-      const dbBinding = dbUnknown as D1Database;
-      const db = drizzle(dbBinding);
-
       const url = new URL(context.request.url);
       const q = url.searchParams;
 
       // Debug diagnostics
       if (q.get('debug') === '1') {
+        const env = (context.locals?.runtime?.env || {}) as { DB?: unknown };
+        const dbUnknown =
+          env?.DB ||
+          (context as unknown as { locals?: { env?: { DB?: unknown } } }).locals?.env?.DB;
+        if (!dbUnknown) return createApiError('server_error', 'Database binding missing');
+        const hasPrepare = typeof (dbUnknown as { prepare?: unknown }).prepare === 'function';
+        if (!hasPrepare) return createApiError('server_error', 'Database binding invalid');
+        const dbBinding = dbUnknown as D1Database;
         try {
           const info = await dbBinding.prepare("PRAGMA table_info('comments')").all();
           const rows = Array.isArray(info?.results)
@@ -63,6 +77,24 @@ export const GET = withApiMiddleware(
       }
 
       const { entityType, entityIds } = parsedQuery.data;
+
+      const mode = getCommentsCountMode(context);
+      if (mode === 'disabled') {
+        if (entityIds.length === 1) {
+          return createApiSuccess({ entityId: entityIds[0], count: 0 });
+        }
+        const stubMap: Record<string, number> = Object.fromEntries(entityIds.map((id) => [id, 0]));
+        return createApiSuccess({ counts: stubMap });
+      }
+
+      const env = (context.locals?.runtime?.env || {}) as { DB?: unknown };
+      const dbUnknown =
+        env?.DB || (context as unknown as { locals?: { env?: { DB?: unknown } } }).locals?.env?.DB;
+      if (!dbUnknown) return createApiError('server_error', 'Database binding missing');
+      const hasPrepare = typeof (dbUnknown as { prepare?: unknown }).prepare === 'function';
+      if (!hasPrepare) return createApiError('server_error', 'Database binding invalid');
+      const dbBinding = dbUnknown as D1Database;
+      const db = drizzle(dbBinding);
 
       // Detect legacy schema once
       const info = await dbBinding.prepare("PRAGMA table_info('comments')").all();

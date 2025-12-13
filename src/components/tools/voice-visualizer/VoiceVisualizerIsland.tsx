@@ -5,7 +5,7 @@ import ToolUsageBadge from '@/components/tools/shared/ToolUsageBadge';
 import { getI18n } from '@/utils/i18n';
 import { getLocale } from '@/lib/i18n';
 import { useMicrophone } from './hooks/useMicrophone';
-import VisualizerCanvas from './VisualizerCanvas';
+import VisualizerParticles3D from './VisualizerParticles3D';
 import { getVoiceUsage, postTranscribeChunk, type VoiceUsageInfo } from './api';
 import { useTranscribeStream } from './hooks/useTranscribeStream';
 
@@ -272,7 +272,7 @@ export default function VoiceVisualizerIsland({ strings, langHint, showHeader = 
           </div>
         </div>
 
-        <VisualizerCanvas
+        <VisualizerParticles3D
           stream={stream}
           className="w-full rounded-md bg-white/80 dark:bg-black/30"
         />

@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '../ui/Button';
 import { clientLogger } from '@/lib/client-logger';
+import { getLocale } from '@/lib/i18n';
+import { getI18n } from '@/utils/i18n';
 
 interface CommentFormProps {
   onSubmit: (content: string, parentId?: string) => Promise<void>;
@@ -21,8 +23,8 @@ export const CommentForm: React.FC<CommentFormProps> = ({
   parentId,
   isLoading = false,
   currentUser,
-  placeholder = 'Schreibe einen Kommentar...',
-  submitText = 'Kommentar posten',
+  placeholder,
+  submitText,
   showCancel = false,
   initialValue = '',
   isEdit = false,
@@ -31,6 +33,13 @@ export const CommentForm: React.FC<CommentFormProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const locale = getLocale(typeof window !== 'undefined' ? window.location.pathname : '/');
+  const t = getI18n(locale);
+
+  const basePlaceholder = placeholder ?? t('pages.blog.comments.placeholder');
+  const shortcutHint = '(Strg+Enter zum Absenden)';
+  const effectiveSubmitText = submitText ?? t('pages.blog.comments.submit');
+  const submitLoadingText = t('pages.blog.comments.submitLoading');
 
   useEffect(() => {
     const handler = () => textareaRef.current?.focus();
@@ -54,7 +63,7 @@ export const CommentForm: React.FC<CommentFormProps> = ({
         component: 'CommentForm',
         error: 'empty_content',
       });
-      setError('Bitte gib einen Kommentar ein');
+      setError(t('pages.blog.comments.errors.empty'));
       return;
     }
 
@@ -64,7 +73,7 @@ export const CommentForm: React.FC<CommentFormProps> = ({
         error: 'content_too_long',
         length: content.length,
       });
-      setError('Kommentar darf maximal 2000 Zeichen lang sein');
+      setError(t('pages.blog.comments.errors.tooLong'));
       return;
     }
 
@@ -80,7 +89,8 @@ export const CommentForm: React.FC<CommentFormProps> = ({
       });
       setContent('');
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Fehler beim Senden des Kommentars';
+      const errorMessage =
+        err instanceof Error ? err.message : t('pages.blog.comments.errors.submit');
       clientLogger.error('Comment submission failed', {
         component: 'CommentForm',
         error: errorMessage,
@@ -137,18 +147,18 @@ export const CommentForm: React.FC<CommentFormProps> = ({
           <div>
             <p className="text-sm font-medium text-gray-900 dark:text-white">{currentUser.name}</p>
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              Angemeldet als {currentUser.email}
+              {t('pages.blog.comments.loggedInAs').replace('{email}', currentUser.email)}
             </p>
           </div>
         </div>
       ) : (
         <div className="mb-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md">
           <p className="text-sm text-yellow-800 dark:text-yellow-200">
-            Du kommentierst als Gast.{' '}
+            {t('pages.blog.comments.guest.label')}{' '}
             <a href="/login" className="font-medium hover:underline">
-              Melde dich an
+              {t('pages.blog.comments.guest.loginLink')}
             </a>{' '}
-            für bessere Funktionen.
+            {t('pages.blog.comments.guest.loginSuffix')}
           </p>
         </div>
       )}
@@ -157,7 +167,7 @@ export const CommentForm: React.FC<CommentFormProps> = ({
       {parentId && (
         <div className="mb-3 p-3 bg-gray-50 dark:bg-gray-800 border-l-4 border-blue-500">
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Du antwortest auf einen Kommentar
+            {t('pages.blog.comments.replyingTo')}
           </p>
         </div>
       )}
@@ -169,7 +179,7 @@ export const CommentForm: React.FC<CommentFormProps> = ({
             value={content}
             onChange={(e) => setContent(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder={`${placeholder} (Strg+Enter zum Absenden)`}
+            placeholder={`${basePlaceholder} ${shortcutHint}`}
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white resize-vertical"
             rows={4}
             maxLength={2000}
@@ -179,10 +189,12 @@ export const CommentForm: React.FC<CommentFormProps> = ({
           />
           <div className="flex justify-between items-center mt-1">
             <span className="text-xs text-gray-500 dark:text-gray-400">
-              {content.length}/2000 Zeichen
+              {content.length}/2000 {t('pages.blog.comments.counterSuffix')}
             </span>
             {content.length > 1800 && (
-              <span className="text-xs text-orange-600 dark:text-orange-400">Fast voll</span>
+              <span className="text-xs text-orange-600 dark:text-orange-400">
+                {t('pages.blog.comments.almostFull')}
+              </span>
             )}
           </div>
         </div>
@@ -203,7 +215,7 @@ export const CommentForm: React.FC<CommentFormProps> = ({
               isLoading={isSubmitting}
               className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? 'Wird gesendet...' : submitText}
+              {isSubmitting ? submitLoadingText : effectiveSubmitText}
             </Button>
 
             {showCancel && (
@@ -213,14 +225,14 @@ export const CommentForm: React.FC<CommentFormProps> = ({
                 disabled={isSubmitting}
                 className="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-700 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Abbrechen
+                {t('pages.blog.comments.actions.cancel')}
               </Button>
             )}
           </div>
 
           {/* Guidelines */}
           <div className="text-xs text-gray-500 dark:text-gray-400">
-            <span>Sei respektvoll und konstruktiv</span>
+            <span>{t('pages.blog.comments.guideline')}</span>
           </div>
         </div>
       </form>

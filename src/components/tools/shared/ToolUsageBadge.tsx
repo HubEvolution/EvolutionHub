@@ -213,6 +213,9 @@ export function ToolUsageBadge({
                 {label}
               </span>
               <div className="flex items-baseline gap-1 text-xs text-slate-200">
+                <span className="sr-only text-gray-600">
+                  {usage ? `${label}: ${usage.used}/${usage.limit}` : loadingLabel}
+                </span>
                 <span className="text-sm font-semibold text-slate-50">
                   {usage ? usage.used : '-'}
                 </span>
@@ -288,7 +291,7 @@ export function ToolUsageBadge({
                           <div className="flex flex-col items-end gap-0.5 text-right">
                             {item.limit != null && (
                               <span className="font-mono text-[11px] text-slate-50 whitespace-nowrap">
-                                {item.used} / {item.limit}
+                                {`${item.used}/${item.limit}`}
                               </span>
                             )}
                             {itemPercent !== null && (

@@ -14,8 +14,15 @@ import {
   toUsageOverview,
   getCreditsBalanceTenths,
 } from '@/lib/kv/usage';
+import { resolveEffectivePlanForUser } from '@/lib/services/billing-plan-service';
 
 type OwnerType = 'user' | 'guest';
+
+function flagOn(raw: string | undefined): boolean {
+  if (raw === undefined || raw === null) return true;
+  const v = String(raw).toLowerCase().trim();
+  return !(v === '0' || v === 'false' || v === 'off' || v === 'no');
+}
 
 function ensureGuestIdCookie(context: APIContext): string {
   const existing = context.cookies.get('guest_id')?.value;
@@ -51,6 +58,11 @@ function endOfDayTimestamp(): number {
 
 export const GET = withApiMiddleware(
   async (context: APIContext) => {
+    const rawEnv = (context.locals.runtime?.env ?? {}) as { ENABLE_VIDEO_ENHANCER?: string };
+    if (!flagOn(rawEnv.ENABLE_VIDEO_ENHANCER)) {
+      return createApiError('forbidden', 'feature.disabled.video_enhancer');
+    }
+
     const requestOrigin = normalizeOrigin(new URL(context.request.url).origin);
     const headerOrigin = normalizeOrigin(context.request.headers.get('origin'));
     if (headerOrigin && requestOrigin && headerOrigin !== requestOrigin) {
@@ -61,16 +73,26 @@ export const GET = withApiMiddleware(
     const ownerType: OwnerType = locals.user?.id ? 'user' : 'guest';
     const ownerId = ownerType === 'user' ? String(locals.user!.id) : ensureGuestIdCookie(context);
 
-    const plan =
-      ownerType === 'user' ? ((locals.user?.plan as Plan | undefined) ?? 'free') : undefined;
-    const entitlements = getVideoEntitlementsFor(ownerType, plan);
-    const limitTenths = Math.max(0, entitlements.monthlyCreditsTenths);
-
+    let plan: Plan | undefined;
+    let entitlements = getVideoEntitlementsFor(ownerType, undefined);
+    let limitTenths = 0;
     let usedTenths = 0;
     let resetAtMs: number | null = null;
 
     try {
       const env = locals.runtime?.env ?? {};
+      const planResult =
+        ownerType === 'user'
+          ? await resolveEffectivePlanForUser({
+              userId: ownerId,
+              env: { DB: (env as { DB?: unknown }).DB },
+              localsPlan: (locals.user?.plan as Plan | undefined) ?? undefined,
+            })
+          : undefined;
+      plan = ownerType === 'user' ? planResult!.plan : undefined;
+      entitlements = getVideoEntitlementsFor(ownerType, plan);
+      limitTenths = Math.max(0, entitlements.monthlyCreditsTenths);
+
       const kv = (env.KV_AI_VIDEO_USAGE ?? env.KV_AI_ENHANCER) as
         | import('@cloudflare/workers-types').KVNamespace
         | undefined;
@@ -126,7 +148,7 @@ export const GET = withApiMiddleware(
       remaining,
       resetAt: effectiveResetAt,
       usage,
-      plan: ownerType === 'user' ? (plan ?? 'free') : undefined,
+      plan: ownerType === 'user' ? plan : undefined,
       entitlements,
       creditsBalanceTenths,
     });

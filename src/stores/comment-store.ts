@@ -105,24 +105,68 @@ export const useCommentStore = create<CommentStore>()(
             const nextComments = append
               ? [...get().comments, ...data.data.comments]
               : data.data.comments;
+
+            let stats: CommentStats | null = null;
+
+            if (
+              isAdmin &&
+              typeof window !== 'undefined' &&
+              filters.entityType &&
+              filters.entityId
+            ) {
+              try {
+                const adminUrl = new URL('/api/admin/comments', window.location.origin);
+                adminUrl.searchParams.set('entityType', filters.entityType);
+                adminUrl.searchParams.set('entityId', filters.entityId);
+                adminUrl.searchParams.set('limit', '1');
+                adminUrl.searchParams.set('offset', '0');
+
+                const adminRes = await fetch(adminUrl.toString(), {
+                  credentials: 'same-origin',
+                });
+
+                if (adminRes.ok) {
+                  const adminJson = (await adminRes.json()) as {
+                    success?: boolean;
+                    data?: {
+                      stats?: {
+                        total: number;
+                        pending: number;
+                        approved: number;
+                        rejected: number;
+                        flagged: number;
+                      };
+                    };
+                  };
+
+                  if (adminJson.success && adminJson.data?.stats) {
+                    const s = adminJson.data.stats as {
+                      total: number;
+                      pending: number;
+                      approved: number;
+                      rejected: number;
+                      flagged: number;
+                      hidden?: number;
+                    };
+                    stats = {
+                      total: s.total,
+                      pending: s.pending,
+                      approved: s.approved,
+                      rejected: s.rejected,
+                      flagged: s.flagged,
+                      hidden: s.hidden ?? 0,
+                    };
+                  }
+                }
+              } catch {
+                // Admin-Stats sind optional; bei Fehlern einfach keine detaillierten Stats setzen
+                stats = null;
+              }
+            }
+
             set({
               comments: nextComments,
-              stats:
-                isAdmin && data.data.total !== undefined
-                  ? {
-                      total: data.data.total,
-                      approved: data.data.comments.filter((c: Comment) => c.status === 'approved')
-                        .length,
-                      pending: data.data.comments.filter((c: Comment) => c.status === 'pending')
-                        .length,
-                      rejected: data.data.comments.filter((c: Comment) => c.status === 'rejected')
-                        .length,
-                      flagged: data.data.comments.filter((c: Comment) => c.status === 'flagged')
-                        .length,
-                      hidden: data.data.comments.filter((c: Comment) => c.status === 'hidden')
-                        .length,
-                    }
-                  : null,
+              stats,
               hasMore: data.data.hasMore,
               isLoading: false,
             });

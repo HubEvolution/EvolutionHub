@@ -44,19 +44,15 @@ const {
   bottomCTAConfig,
 } = Astro.props;
 
-const {
-  title,
-  description,
-  image,
-  imageAlt,
-  category,
-  tags,
-  author,
-} = post.data;
+const { title, description, image, imageAlt, category, tags, author } = post.data;
+
+const rawDescription = typeof description === 'string' ? description.trim() : '';
+const fallbackDescription = typeof post.excerpt === 'string' ? post.excerpt.trim() : '';
+const headerDescription = rawDescription.length > 0 ? rawDescription : fallbackDescription;
 
 const hasImage = Boolean(image && typeof (image as { src?: unknown })?.src === 'string');
 const fallbackImage: SafeImage = {
-  src: '/images/blog/default-og.jpg',
+  src: '/images/blog/default-og.svg',
   width: 1200,
   height: 630,
 };
@@ -188,9 +184,11 @@ const finalBottomCTA =
       {title}
     </h1>
 
-    <p class="mt-3 text-xl text-gray-500 dark:text-gray-400">
-      {description}
-    </p>
+    {
+      headerDescription && (
+        <p class="mt-3 text-xl text-gray-500 dark:text-gray-400">{headerDescription}</p>
+      )
+    }
 
     <div class="mt-6 flex items-center">
       <div class="flex-shrink-0">

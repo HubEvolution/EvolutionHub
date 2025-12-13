@@ -145,11 +145,11 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
   const [selectError, setSelectError] = useState<string | null>(null);
   const [isResultLoading, setIsResultLoading] = useState<boolean>(false);
   // Baseline settings captured on last successful enhance to compute dirty state
-  const [baselineSettings, setBaselineSettings] = useState<{
+  const [baselineSettings, setBaselineSettings] = useState<null | {
     model: string;
     scale: 2 | 4;
     faceEnhance: boolean;
-  } | null>(null);
+  }>(null);
 
   // Resolve selected model to access capability flags
   const selectedModel = useMemo(() => ALLOWED_MODELS.find((m) => m.slug === model), [model]);
@@ -166,8 +166,14 @@ export default function ImagEnhancerIsland({ strings }: ImagEnhancerIslandProps)
           /^10\./.test(host) ||
           /^172\.(1[6-9]|2\d|3[0-1])\./.test(host);
         const isTesting = host === 'ci.hub-evolution.com';
+        const isProductionHost = host === 'hub-evolution.com' || host === 'www.hub-evolution.com';
         if (isLocal || isTesting) {
-          return ALLOWED_MODELS.filter((m) => (m as any).provider === 'workers_ai');
+          // Localhost/Testing: nur Cloudflare-Modelle (workers_ai) sichtbar
+          return ALLOWED_MODELS.filter((m) => m.provider === 'workers_ai');
+        }
+        if (isProductionHost) {
+          // Production-Domain: nur Replicate-Modelle sichtbar, Cloudflare-Modelle ausgeblendet
+          return ALLOWED_MODELS.filter((m) => m.provider === 'replicate');
         }
       }
     } catch {}

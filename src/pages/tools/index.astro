@@ -9,6 +9,7 @@ import { getAllTools, getToolCategories, type ToolCategory } from '@/lib/tools-d
 import Card from '@/components/ui/Card';
 import { isToolsFilterEnabled } from '@/utils/feature-flags';
 import ToolsIndexIsland from '@/components/tools/ToolsIndexIsland';
+import { isToolVisible } from '@/lib/tools-availability';
 
 // Get search params for filtering
 const searchParams = Astro.url.searchParams;
@@ -27,8 +28,42 @@ const filteredTools = allTools.filter((tool) => {
   return matchesCategory && matchesSearch;
 });
 
-// Hidden placeholders should not render cards.
-const availableTools = filteredTools.filter((tool) => !tool.comingSoon);
+const runtimeEnv = (Astro.locals && Astro.locals.runtime && Astro.locals.runtime.env) || undefined;
+
+function flagOn(raw: string | undefined): boolean {
+  if (raw === undefined || raw === null) return true;
+  const v = String(raw).toLowerCase().trim();
+  return !(v === '0' || v === 'false' || v === 'off' || v === 'no');
+}
+
+// Hidden placeholders should not render cards. Zusätzlich werden Tools mit
+// Status `incubating`/`deprecated` für Endkund:innen in Production vollständig ausgeblendet.
+const availableTools = filteredTools.filter((tool) => {
+  if (tool.comingSoon) return false;
+
+  const env = (runtimeEnv as unknown as Record<string, string | undefined>) || undefined;
+  if (!env) return isToolVisible(tool.id);
+
+  switch (tool.id) {
+    case 'prompt-enhancer':
+      return flagOn(env.PUBLIC_PROMPT_ENHANCER_V1);
+    case 'Imag-Enhancer': {
+      const mvpOn = flagOn(env.PUBLIC_ENHANCER_MVP_MODE);
+      const legacyOn = flagOn(env.PUBLIC_ENHANCER_LEGACY_MODE);
+      return mvpOn || legacyOn;
+    }
+    case 'video-enhancer':
+      return flagOn(env.ENABLE_VIDEO_ENHANCER);
+    case 'voice-visualizer':
+      return flagOn(env.PUBLIC_TOOL_VOICE_VISUALIZER);
+    case 'webscraper':
+      return flagOn(env.PUBLIC_TOOL_WEBSCRAPER) && flagOn(env.PUBLIC_WEBSCRAPER_V1);
+    case 'web-eval':
+      return flagOn(env.PUBLIC_TOOL_WEB_EVAL);
+    default:
+      return true;
+  }
+});
 
 // Get categories for filter (localized)
 const categories: { id: ToolCategory; name: string }[] = getToolCategories(locale);

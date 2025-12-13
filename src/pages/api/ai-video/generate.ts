@@ -19,6 +19,12 @@ import {
 import type { Plan } from '@/config/ai-image/entitlements';
 import { getVideoEntitlementsFor } from '@/config/ai-video/entitlements';
 
+function flagOn(raw: string | undefined): boolean {
+  if (raw === undefined || raw === null) return true;
+  const v = String(raw).toLowerCase().trim();
+  return !(v === '0' || v === 'false' || v === 'off' || v === 'no');
+}
+
 function ensureGuestIdCookie(context: APIContext): string {
   const existing = context.cookies.get('guest_id')?.value;
   if (existing) return existing;
@@ -37,6 +43,11 @@ function ensureGuestIdCookie(context: APIContext): string {
 export const POST = withApiMiddleware(
   async (context: APIContext) => {
     const { locals, request } = context;
+
+    const rawEnv = (locals.runtime?.env ?? {}) as { ENABLE_VIDEO_ENHANCER?: string };
+    if (!flagOn(rawEnv.ENABLE_VIDEO_ENHANCER)) {
+      return createApiError('forbidden', 'feature.disabled.video_enhancer');
+    }
 
     let payload: unknown;
     try {

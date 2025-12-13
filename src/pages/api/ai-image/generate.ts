@@ -22,6 +22,8 @@ type AiEnvBindings = {
   WORKERS_AI_ENABLED?: string;
   TESTING_WORKERS_AI_ALLOW?: string;
   TESTING_ALLOWED_CF_MODELS?: string;
+  PUBLIC_ENHANCER_MVP_MODE?: string;
+  PUBLIC_ENHANCER_LEGACY_MODE?: string;
 };
 
 type MaybeTypedError = {
@@ -37,6 +39,12 @@ type MaybeTypedError = {
   code?: string;
   details?: Record<string, unknown>;
 };
+
+function flagOn(raw: string | undefined): boolean {
+  if (raw === undefined || raw === null) return true;
+  const v = String(raw).toLowerCase().trim();
+  return !(v === '0' || v === 'false' || v === 'off' || v === 'no');
+}
 
 function ensureGuestIdCookie(context: APIContext): string {
   const existing = context.cookies.get('guest_id')?.value;
@@ -133,6 +141,15 @@ export const POST = withApiMiddleware(
 
     // Init service with runtime env
     const env = (locals.runtime?.env ?? {}) as AiEnvBindings;
+
+    // Feature-Flag-Gating: Wenn sowohl MVP- als auch Legacy-Mode explizit deaktiviert
+    // sind, ist der Image Enhancer API-seitig nicht verfügbar.
+    const mvpOn = flagOn(env.PUBLIC_ENHANCER_MVP_MODE);
+    const legacyOn = flagOn(env.PUBLIC_ENHANCER_LEGACY_MODE);
+    if (!mvpOn && !legacyOn) {
+      return createApiError('forbidden', 'feature.disabled.image_enhancer');
+    }
+
     const service = new AiImageService({
       R2_AI_IMAGES: env.R2_AI_IMAGES,
       KV_AI_ENHANCER: env.KV_AI_ENHANCER,

@@ -43,7 +43,11 @@ export async function GET(context: APIContext): Promise<Response> {
 
   for (const entry of items) {
     const title = entry.data.title ?? entry.slug;
-    const description = entry.data.description ?? '';
+    const rawDescription = typeof entry.data.description === 'string' ? entry.data.description : '';
+    const normalizedDescription = rawDescription.trim();
+    const fallbackDescription = typeof entry.excerpt === 'string' ? entry.excerpt.trim() : '';
+    const description =
+      normalizedDescription.length > 0 ? normalizedDescription : fallbackDescription;
     const pubDate = normalizeDate(entry.data.updatedDate ?? entry.data.pubDate).toUTCString();
     const url = `${site}/blog/${entry.slug}`;
 

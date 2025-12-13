@@ -99,6 +99,36 @@ declare module 'drizzle-orm/sqlite-core' {
 declare module '@/server/utils/logger-factory' {
   export const loggerFactory: any;
 }
+
+declare module 'opentype.js' {
+  namespace opentype {
+    export interface BoundingBox {
+      x1: number;
+      y1: number;
+      x2: number;
+      y2: number;
+    }
+
+    export interface Path {
+      toPathData(decimalPlaces?: number): string;
+      getBoundingBox(): BoundingBox;
+    }
+
+    export interface Glyph {
+      advanceWidth?: number;
+      getPath(x: number, y: number, fontSize: number): Path;
+    }
+
+    export interface Font {
+      unitsPerEm: number;
+      stringToGlyphs(text: string): Glyph[];
+    }
+
+    export function load(url: string): Promise<Font>;
+  }
+
+  export default opentype;
+}
 // Minimal ambient module declarations for src-only typecheck (Phase-1)
 // Do not expand unless necessary.
 

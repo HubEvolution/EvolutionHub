@@ -40,9 +40,20 @@ function extFromContentType(ct: string): string | null {
   return null;
 }
 
+function flagOn(raw: string | undefined): boolean {
+  if (raw === undefined || raw === null) return true;
+  const v = String(raw).toLowerCase().trim();
+  return !(v === '0' || v === 'false' || v === 'off' || v === 'no');
+}
+
 export const POST = withApiMiddleware(
   async (context: APIContext) => {
     const { locals, request } = context;
+
+    const rawEnv = (locals.runtime?.env ?? {}) as { ENABLE_VIDEO_ENHANCER?: string };
+    if (!flagOn(rawEnv.ENABLE_VIDEO_ENHANCER)) {
+      return createApiError('forbidden', 'feature.disabled.video_enhancer');
+    }
 
     let file: File | null = null;
     let tier: VideoTier | null = null;

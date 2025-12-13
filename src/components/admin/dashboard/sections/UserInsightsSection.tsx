@@ -601,6 +601,27 @@ const UserInsightsSection: React.FC = () => {
                   {planActionError && <p className="text-xs text-red-300">{planActionError}</p>}
                 </div>
               </form>
+              {userId && (
+                <div className="mt-4 border-t border-white/10 pt-3 text-xs text-white/80">
+                  <p className="text-xs uppercase text-white/50">
+                    {strings.insights.comments.heading}
+                  </p>
+                  <a
+                    href={`/admin/comments?status=pending&authorId=${encodeURIComponent(userId)}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-2 inline-flex items-center rounded-md border border-white/20 px-3 py-1 text-xs font-semibold text-emerald-300 hover:bg-white/5 hover:text-white"
+                    onClick={() =>
+                      sendEvent('action_performed', {
+                        action: 'open_comments_for_user',
+                        metadata: { userId },
+                      })
+                    }
+                  >
+                    {strings.insights.comments.viewForUser}
+                  </a>
+                </div>
+              )}
             </Card>
           )}
 

@@ -11,12 +11,12 @@ const { iconName, title, description, lottieSrc } = Astro.props as Props;
 ---
 
 <div
-  class="relative isolate text-center p-6 rounded-2xl landing-holo-panel border border-white/10 bg-white/10 dark:bg-white/5 backdrop-blur-xl transition duration-300 will-change-transform hover:-translate-y-0.5"
+  class="relative isolate text-center p-6 rounded-2xl landing-holo-panel border border-emerald-400/25 bg-slate-950/70 dark:bg-slate-950/70 backdrop-blur-xl shadow-[0_0_25px_rgba(16,185,129,0.18)] transition duration-300 will-change-transform hover:-translate-y-0.5 hover:shadow-[0_0_35px_rgba(16,185,129,0.28)]"
 >
   <div class="absolute inset-0 rounded-2xl pointer-events-none landing-holo-bg"></div>
   <div class="relative">
     <div
-      class="mb-4 inline-flex items-center justify-center w-14 h-14 rounded-xl bg-white/5 border border-white/10"
+      class="mb-4 inline-flex items-center justify-center w-14 h-14 rounded-xl bg-slate-900/70 border border-emerald-400/40 shadow-[0_0_18px_rgba(16,185,129,0.4)]"
     >
       <div class="landing-panel-pulse">
         {
@@ -28,7 +28,7 @@ const { iconName, title, description, lottieSrc } = Astro.props as Props;
         }
       </div>
     </div>
-    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">{title}</h3>
-    <p class="text-gray-700 dark:text-gray-300">{description}</p>
+    <h3 class="text-xl font-semibold text-slate-50 mb-2">{title}</h3>
+    <p class="text-sm text-slate-300 leading-relaxed">{description}</p>
   </div>
 </div>
