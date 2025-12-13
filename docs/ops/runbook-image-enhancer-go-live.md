@@ -11,7 +11,7 @@ testRefs: 'N/A'
 
 # AI Image Enhancer — Go-Live Runbook (MVP)
 
-Scope: Production readiness verification and emergency rollback for the AI Image Enhancer MVP (sync generate + R2 results; provider: Cloudflare Workers AI for Enhance, Replicate for upscale/face on allowed models).
+Scope: Production readiness verification and emergency rollback for the AI Image Enhancer MVP (sync generate + R2 results; provider: Cloudflare Workers AI for Enhance, Replicate for upscale/face on allowed models). Launch phases, cohorts and plan/credits gating are documented in `docs/ops/runbook-ai-image-enhancer-launch.md` and `docs/ops/tool-launch-matrix.md`.
 
 ## Preconditions
 

@@ -2,7 +2,7 @@
 description: 'Operative Dokumentation, Deployment und Third-Party-Service-Management für Evolution Hub'
 owner: 'Operations Team'
 priority: 'medium'
-lastSync: '2025-10-27'
+lastSync: '2025-11-29'
 codeRefs: 'wrangler.toml, package.json, .github/workflows'
 testRefs: 'test-suite-v2/src/e2e/smoke'
 ---
@@ -18,6 +18,20 @@ testRefs: 'test-suite-v2/src/e2e/smoke'
 - **[Runbook: Image Enhancer Go-Live](./runbook-image-enhancer-go-live.md)** — Schritt-für-Schritt-Ablauf für Deployments & Rollbacks
 
 - **[Runbook: Web‑Eval Executor](./web-eval-executor-runbook.md)** — Auth, Secrets, Start/Stop, Prod‑Gating, Rate‑Limits
+
+- **[Tool-Launch-Matrix – AI Tools](./tool-launch-matrix.md)** — Zentrale Phasen-/Cohort-Matrix für alle AI-Tools
+
+- **[Runbook: Prompt Enhancer Launch](./runbook-prompt-enhancer-launch.md)** — Launch-Phasen, Cohorts, Limits & Rollback für Prompt Enhancer
+
+- **[Runbook: Webscraper Launch](./runbook-webscraper-launch.md)** — Launch-Phasen, SSRF-Guardrails, Limits & Rollback für Webscraper
+
+- **[Runbook: Voice Visualizer & Transcriptor Launch](./runbook-voice-transcriptor-launch.md)** — Launch-Phasen, Upload-/MIME-Limits, SSE/Poll, Limits & Rollback
+
+- **[Runbook: Web‑Eval Launch](./runbook-web-eval-launch.md)** — Launch-Phasen, Cohorts, Flags & Rollback für Web‑Eval Tool (UI/API-Ebene)
+
+- **[Runbook: AI Image Enhancer Launch](./runbook-ai-image-enhancer-launch.md)** — Launch-Phasen, Plan-/Credits-Gating, Limits & Rollback für AI Image Enhancer
+
+- **[Runbook: AI Video Enhancer Launch](./runbook-ai-video-enhancer-launch.md)** — Launch-Phasen, Upload-/Tier-Limits, Quoten & Rollback für AI Video Enhancer
 
 - **[Production-Readiness & Go-Live Review](./production-readiness-go-live.md)** — Zentrales Go-Live Review & Checkliste (Owner: Project Owner; unterstützt durch Cascade EvolutionHub AI Agent)
 

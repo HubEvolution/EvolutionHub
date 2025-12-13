@@ -28,10 +28,8 @@ Der **AI Image Enhancer** verbessert Bildqualität mittels State-of-the-Art KI-M
 - 😊 **Face Enhancement**: GFPGAN-Integration für Porträts
 
 - 🎯 **Plan-System**: Free/Pro/Premium/Enterprise mit unterschiedlichen Limits
-
 - 🌍 **i18n**: Mehrsprachig (DE/EN)
-
-- 📊 **Quota-Tracking**: Guest (3/Tag) vs. User (15-500/Tag je nach Plan)
+- 📊 **Quota-Tracking**: Guest (3/Tag) vs. User (3-400/Tag je nach Plan)
 
 - ⚡ **Rate-Limiting**: Dedizierter `aiGenerateLimiter`
 
@@ -155,10 +153,10 @@ export const ALLOWED_MODELS: readonly AllowedModel[] = [
 | Plan           | Monatliche Bilder | Daily Burst | Max Upscale | Face Enhance |
 | -------------- | ----------------- | ----------- | ----------- | ------------ |
 | **Guest**      | 90 (3/Tag × 30)   | 3           | 2x          | ❌           |
-| **Free**       | 450               | 15          | 2x          | ❌           |
-| **Pro**        | 400               | 40          | 4x          | ✅           |
-| **Premium**    | 1200              | 120         | 6x          | ✅           |
-| **Enterprise** | 5000              | 500         | 8x          | ✅           |
+| **Free**       | 30                | 3           | 2x          | ❌           |
+| **Pro**        | 300               | 30          | 4x          | ✅           |
+| **Premium**    | 1000              | 100         | 6x          | ✅           |
+| **Enterprise** | 4000              | 400         | 8x          | ✅           |
 
 **Gating-Logik** (`src/components/tools/imag-enhancer/gating.ts`):
 

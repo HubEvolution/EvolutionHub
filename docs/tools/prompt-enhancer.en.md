@@ -2,7 +2,7 @@
 description: 'Prompt Enhancer – API & Usage Documentation (English)'
 owner: 'Prompt Team'
 priority: 'medium'
-lastSync: '2025-11-04'
+lastSync: '2025-11-28'
 codeRefs: 'src/pages/api/prompt-enhance.ts, docs/tools/prompt-enhancer.md'
 testRefs: 'N/A'
 ---
@@ -28,6 +28,8 @@ The Prompt Enhancer turns raw text into clear, agent‑ready prompts for LLMs. I
 - Validation: text required, 1–1000 chars
 
 - Security: Same‑Origin + Double‑Submit CSRF (X‑CSRF‑Token == csrf_token cookie)
+
+- UX: presets for common use cases (coding, data, content, research), before/after toggle, "What was improved?" hint, and a free‑plan usage banner in the tool UI.
 
 ---
 
@@ -123,11 +125,17 @@ Returns current usage and limits (rolling 24h when USAGE_KV_V2=1).
 
 ## Quotas & Rate Limiting
 
-- Env defaults: PROMPT_USER_LIMIT=20, PROMPT_GUEST_LIMIT=5
+The Prompt Enhancer behaves as a **Free Tool** with generous, plan‑based entitlements defined in `src/config/prompt/entitlements.ts`.
+
+- Guest: `dailyBurstCap=10`, `monthlyRuns=100`
+- free (user): `dailyBurstCap=100`, `monthlyRuns=2000`
+- pro: `dailyBurstCap=500`, `monthlyRuns=15000`
+- premium: `dailyBurstCap=2000`, `monthlyRuns=60000`
+- enterprise: `dailyBurstCap=10000`, `monthlyRuns=1000000`
+
+`/api/prompt/usage` returns `usage` for a rolling 24h window plus `dailyUsage`, `monthlyUsage` and an `entitlements` object based on these caps, so UIs can present Prompt Enhancer quotas per plan.
 
 - Rate limiter: 15/min on POST /api/prompt-enhance
-
-- usage.limit is authoritative for the current requester
 
 ---
 
@@ -137,6 +145,34 @@ Returns current usage and limits (rolling 24h when USAGE_KV_V2=1).
 { "success": false, "error": { "type": "validation_error|forbidden|server_error", "message": "...", "details": {"…": "…"} } }
 
 ```text
+
+---
+
+## Example input prompts (for testing/demo)
+
+The following German input prompts work well to test or demo the Prompt Enhancer in production:
+
+1. **Coding / Bugfix (React useEffect)**
+
+   > Ich habe eine React‑Komponente mit useEffect, die manchmal falsche Daten rendert. Schreib mir einen Prompt für eine KI, die meinen Code Schritt für Schritt auf typische Bugs (stale state, doppelte Requests, unvollständige Dependency Arrays) prüft und mir konkrete Refactor‑Vorschläge macht.
+
+2. **Data / Analytics (monthly revenue)**
+
+   > Hilf mir, einen Prompt zu formulieren, mit dem ich eine KI bitte, Monatsumsätze nach Ländern und Kanälen zu analysieren. Die KI soll mir Trends, Ausreißer, Kohorten und konkrete Hypothesen liefern, wie wir Conversion Rate und AOV steigern können.
+
+3. **Content / LinkedIn (AI workflows)**
+
+   > Ich möchte regelmäßig LinkedIn Posts über praktische AI‑Workflows für Knowledge Worker schreiben. Erstelle mir einen Prompt, der eine KI anweist, mir aus einer kurzen Stichwortliste je 3 Post‑Entwürfe zu generieren – mit Hook, Hauptteil und Call to Action.
+
+4. **Research / Audience (Freelance Designer)**
+
+   > Erstelle einen Prompt für eine KI, die mir hilft, meine Zielgruppe „Freelance Designer, die AI‑Tools zögerlich nutzen“ besser zu verstehen. Sie soll qualitative Interviewfragen, mögliche Antwortmuster und Interpretationshinweise liefern.
+
+5. **Intentionally vague prompt (for before/after UX)**
+
+   > Mach den folgenden Prompt deutlich besser: „Hilf mir einfach mal bei meinem Projekt, ich brauche ein bisschen Unterstützung.“ Es geht um ein internes Dashboard, das langsame Reports hat.
+
+These are good baselines both for manual evaluation and for E2E smoke tests of the Prompt Enhancer UI.
 
 ---
 

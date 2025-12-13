@@ -2,7 +2,7 @@
 description: 'Architektur des Prompt Enhancers (Service, Limits, UI)'
 owner: 'Prompt Team'
 priority: 'high'
-lastSync: '2025-11-03'
+lastSync: '2025-11-28'
 codeRefs: 'src/lib/services/prompt-enhancer-service.ts, src/pages/api/prompt/**'
 testRefs: 'N/A'
 ---
@@ -49,8 +49,18 @@ Transform raw user text (optionally with attachments) into a clear, agent‑read
      - applySafety: mask PII (email, phone, address, id) on input
 
      - rewrite (LLM path): Chat Completions (text/vision) or Responses (file_search for PDFs)
+       - Für Text/Multimodal-Pfade wird das Modell angewiesen, ein **JSON-Objekt** mit folgender Struktur zu liefern:
+         - `role: string`
+         - `objective: string`
+         - `constraints: string`
+         - `steps: string[]`
+         - `fewShotExamples: string[]`
+         - `rawText: string` (sanitisierter Original‑Input)
+         - `scores: { clarity: number; specificity: number; testability: number }`
 
-     - fallback: deterministic structured prompt (role/objective/constraints/steps/examples)
+       - Der Service parst dieses JSON in ein internes `EnhancedPrompt` + optionale Scores. Wenn das JSON fehlt oder unvollständig ist, fällt der Service robust auf die bisherige **Plain‑Text‑Rewrite**‑Variante zurück.
+
+     - fallback: deterministische strukturierte Prompts (role/objective/constraints/steps/examples) ohne LLM
 
      - scoring (optional): clarity/specificity/testability
 
@@ -146,4 +156,9 @@ See openapi.yaml for full schema.
 
 - Without OPENAI_API_KEY the deterministic fallback path is used (no hard error)
 
-- LLM output is returned as plain text in `enhancedPrompt`; structured markdown is synthesized for deterministic path
+- LLM‑Antworten werden intern als JSON‑Struktur verarbeitet, die im Service zu einem `EnhancedPrompt` (Role/Objectives/Constraints/Steps/Examples/RawText/Scores) zusammengeführt wird.
+
+- Nach außen bleibt der API‑Contract unverändert: `enhancedPrompt` ist weiterhin ein einzelnes Textfeld. Je nach Pfad:
+  - **LLM‑Rewrite mit gültigem JSON** → Service formt aus der Struktur einen konsistenten, strukturierten Prompt.
+  - **LLM‑Rewrite ohne gültiges JSON** → Fallback: gesamter generierter Text landet als Plain‑String in `enhancedPrompt`.
+  - **Deterministischer Pfad (kein OPENAI_API_KEY oder Flag aus)** → strukturierter Markdown‑Prompt wird aus `EnhancedPrompt` im Handler synthetisiert.

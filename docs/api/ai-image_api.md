@@ -2,7 +2,7 @@
 description: 'API-Referenz für den AI Image Enhancer (Generate, Usage, Jobs)'
 owner: 'AI Enhancer Team'
 priority: 'high'
-lastSync: '2025-11-03'
+lastSync: '2025-11-28'
 codeRefs: 'src/pages/api/ai-image/**, src/lib/services/ai-image-service.ts, docs/api/ai-image_api.md'
 testRefs: 'N/A'
 ---
@@ -27,6 +27,30 @@ Die AI-Image Enhancement API bietet umfassende Bildverbesserungsfunktionen mit H
 - **Provider:** Hybrid (Replicate + Cloudflare Workers AI)
 
 - **Modelle:** Real-ESRGAN (2x/4x), GFPGAN/CodeFormer (Gesichts-Restore), SD 1.5/SDXL (img2img)
+
+### Provider & Umgebungs-Gating
+
+Der Einsatz der Provider ist environmentspezifisch geregelt:
+
+- **Production (`hub-evolution.com`, `www.hub-evolution.com`)**
+  - **Nur Replicate** ist aktiv.
+  - Cloudflare Workers AI (`provider = workers_ai`) ist serverseitig deaktiviert
+    (`WORKERS_AI_ENABLED = "0"` in `[env.production.vars]`) und im UI nicht auswählbar.
+
+- **Testing (`ci.hub-evolution.com`) und lokale Entwicklung**
+  - **Nur Cloudflare Workers AI** ist im UI sichtbar (Model-Dropdown filtert auf `provider = workers_ai`).
+  - Replicate-Modelle sind in diesen Umgebungen nicht auswählbar.
+  - In Testing ist Workers AI explizit per Env-Flags aktiviert
+    (`WORKERS_AI_ENABLED = "1"`, `TESTING_WORKERS_AI_ALLOW = "1"`,
+    `TESTING_ALLOWED_CF_MODELS` als JSON-Liste erlaubter Model-Slugs).
+
+- **Staging (`staging.hub-evolution.com`)**
+  - Nutzt denselben Codepfad wie Production, aber mit `ENVIRONMENT = "staging"` und
+    `WORKERS_AI_ENABLED = "1"`.
+  - Sowohl Replicate- als auch Workers-AI-Modelle können dort für QA sichtbar sein.
+
+Wichtig: Die UI spiegelt nur den aktuellen Zustand dieser Env-Flags wider.
+Die eigentliche Durchsetzung (Allow/Block) erfolgt immer im Backend.
 
 ## Endpunkte
 
@@ -159,7 +183,7 @@ curl -X POST \
 
 ### GET `/api/ai-image/usage`
 
-Liefert den aktuellen Nutzungsstand und Limits für den authentifizierten Benutzer oder Gast.
+Liefert den aktuellen Nutzungsstand und Limits (rolling 24h Fenster) für den aktuellen Owner (authentifizierter Benutzer oder Gast mit `guest_id`‑Cookie). `usage.limit` ist maßgeblich; `limits.*` sind statische Defaults. Wenn KV aktiv ist, wird zusätzlich `monthlyUsage` auf Basis der planbasierten Entitlements (`monthlyImages`, `dailyBurstCap`) sowie ein `entitlements`‑Objekt zurückgegeben.
 
 #### Request Headers
 

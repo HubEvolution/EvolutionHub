@@ -602,6 +602,16 @@ export const POST = withApiMiddleware(async (context) => {
 });
 ```
 
+Bei flag‑gesteuerten Tools (z. B. Prompt/Image/Video Enhancer) sollte bei
+deaktiviertem Flag die API mit `forbidden` und einem klaren, key‑artigen
+Fehlermeldungswert wie `feature.disabled.prompt_enhancer`,
+`feature.disabled.image_enhancer` oder `feature.disabled.video_enhancer`
+antworten. So können Frontend und Monitoring diese Fälle eindeutig erkennen.
+
+Weitere flag‑gesteuerte Tools folgen demselben Muster, z. B.:
+`feature.disabled.voice_visualizer`, `feature.disabled.webscraper`,
+`feature.disabled.web_eval`.
+
 ### 10. Client-Integration
 
 #### SDK-Patterns

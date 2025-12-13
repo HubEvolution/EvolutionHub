@@ -2,7 +2,7 @@
 description: 'Production-Readiness für Blog & Comment-System (Plan, Konventionen, Tasks)'
 owner: 'Platform Team'
 priority: 'high'
-lastSync: '2025-11-04'
+lastSync: '2025-12-12'
 codeRefs: 'src/components/BlogPost.astro, src/pages/api/comments/**, src/lib/services/comment-service.ts, docs/features/admin-notifications.md'
 feature: 'blog-comment-system'
 status: 'in_progress'
@@ -30,9 +30,11 @@ Diese Seite dient als zentrale Referenz für die aktuelle Blog- und Comments-Imp
 ### Komponenten & Konventionen (Astro)
 
 - **BlogPost Rendering** ([`src/components/BlogPost.astro`](../../src/components/BlogPost.astro))
-  - Bilder über Astro `<Image>`; Frontmatter-Bilder als `ImageMetadata` getypt (defensive Guards für `src/width/height`).
+  - Bilder über native `<img>` (Worker-SSR-safe); Bilddaten als `ImageMetadata`/`SafeImage` getypt (defensive Guards für `src/width/height`).
 
   - Alt-Text strikt normalisiert (`imageAltText: string`); Caption nur bei `typeof imageAlt === 'string'`.
+
+  - Description/SEO: `description` kann in Contentful fehlen; Fallback wird aus `excerpt` (aus Body-Text) abgeleitet und für Head/On-Page/RSS verwendet.
 
   - Share-URLs mit `new URL(post.url, Astro.site?.origin || 'http://127.0.0.1:8787')` und `encodeURIComponent(String(title))`.
 
@@ -48,7 +50,7 @@ Diese Seite dient als zentrale Referenz für die aktuelle Blog- und Comments-Imp
 - **BlogCard** ([`src/components/BlogCard.astro`](../../src/components/BlogCard.astro))
   - Zeigt Comment-Count-Badge (über `/api/comments/count`).
 
-  - Bilddarstellung konsistent mit Astro `<Image>` (siehe Phase 2.3 – Status: in Arbeit/teils umgesetzt).
+  - Bilddarstellung konsistent mit `BlogPost` (native `<img>`; siehe Phase 2.3 – Status: in Arbeit/teils umgesetzt).
 
 #### Locale-bewusste Links (SSoT)
 
@@ -225,21 +227,22 @@ Umsetzungsstand:
 
 **Lösung**:
 
-1. Astro Image-Component konsequent nutzen
-1. Responsive Images (srcset) generieren
-1. WebP-Konvertierung automatisieren
+1. Worker-SSR-safe Bildstrategie beibehalten (native `<img>`)
+1. Bilder mit korrekten `width/height` pflegen (Layout-Stabilität)
+1. WebP bevorzugen; Upload-Pipeline/Assets entsprechend anpassen
+1. Optional: `srcset`/responsive Varianten nur nutzen, wenn sie ohne Astro Image-Endpoint sicher verfügbar sind
 
 **Dateien**:
 
-- `src/components/BlogCard.astro` (UPDATE: `<Image>` statt `<img>`)
+- `src/components/BlogCard.astro` (optional: Bild-Handling/Attribute verfeinern)
 
-- `src/components/BlogPost.astro` (UPDATE: `<Image>` Component)
+- `src/components/BlogPost.astro` (optional: Bild-Handling/Attribute verfeinern)
 
 **Akzeptanzkriterien**:
 
-- ✅ Alle Blog-Images nutzen Astro `<Image>`
+- ✅ Alle Blog-Images sind Worker-SSR-safe gerendert (native `<img>`)
 
-- ✅ Responsive srcset generiert (min 3 Größen)
+- ✅ Layout-Stabilität (CLS) durch konsequente `width/height`
 
 - ✅ WebP-Format bevorzugt (Fallback zu JPEG/PNG)
 
@@ -518,7 +521,7 @@ Umsetzungsstand:
    - Logging optional: Cache-Hit/Miss im `CommentService` (debug-level)
 
 1. Phase 2.3 umsetzen (Image-Optimierung)
-   - `src/components/BlogCard.astro` und `src/components/BlogPost.astro` auf `<Image>` + `srcset` + WebP
+   - `src/components/BlogCard.astro` und `src/components/BlogPost.astro`: Worker-SSR-safe (native `<img>`) beibehalten; Bild-Attribute + WebP-Policy verbessern
 
    - Build & Smoke; Light-Perf-Check
 

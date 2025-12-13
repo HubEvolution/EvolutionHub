@@ -2,8 +2,8 @@
 description: 'Admin API — Moderation, Status, Users, Plan, Credits, Discounts (secured)'
 owner: 'API Team'
 priority: 'high'
-lastSync: '2025-11-16'
-codeRefs: 'src/pages/api/admin/**, src/lib/api-middleware.ts'
+lastSync: '2025-11-28'
+codeRefs: 'src/pages/api/admin/**, src/lib/api-middleware.ts, src/lib/rate-limiter.ts'
 testRefs: 'N/A'
 ---
 
@@ -15,7 +15,10 @@ testRefs: 'N/A'
 
 - Security: Same‑Origin required for unsafe methods; Double‑Submit CSRF when enforced (`X-CSRF-Token` header must match `csrf_token` cookie).
 
-- Rate limiting: reads use `apiRateLimiter` (30/min), writes use `sensitiveActionLimiter` (5/hour).
+- Rate limiting: reads use `apiRateLimiter` (30/min).
+  - Schreibende Endpunkte verwenden in der Regel `sensitiveActionLimiter` (5/h),
+    für bestimmte Admin‑Flows (z. B. Kommentar‑Moderation) wird der etwas großzügigere
+    `adminSensitiveLimiter` (20/h) eingesetzt.
 
 - Response format: `createApiSuccess({ data })` on success, `createApiError({ type, message, details? })` on error.
 - Feature Flags / Env:
@@ -243,9 +246,56 @@ curl -i -X POST https://hub-evolution.com/api/admin/credits/grant \
 
 GET `/api/admin/comments`
 
-- Filters: `status`, `entityType`, `entityId`, `authorId`, `limit`, `offset`, `includeReports`
+- **Filter/Query‑Parameter**
+  - `status`: `pending|approved|rejected|flagged|hidden|all` (Standard: `all`)
+  - `entityType`: `blog_post|project|general` (optional)
+  - `entityId`: ID/Slug der Entität (optional)
+  - `authorId`: User‑ID des Autors (optional)
+  - `q`: Freitextsuche über Kommentar‑Inhalt, gespeicherten Autor‑Namen/-E‑Mail und
+    verknüpfte `users.name`/`users.email` (optional)
+  - `limit`: 1..100 (Standard 12)
+  - `offset`: Offset für klassische Pagination
+  - `includeReports`: `true|false` – wenn `true`, werden aggregierte Report‑Zahlen je Kommentar
+    zurückgegeben (Total/Pending).
 
-- Role: moderator or admin
+- **Antwort:**
+
+  ```json
+  {
+    "success": true,
+    "data": {
+      "comments": [
+        {
+          "id": "…",
+          "content": "…",
+          "author": { "id": "…", "email": "…", "name": "…" },
+          "entityType": "blog_post",
+          "entityId": "ki-als-kollege",
+          "status": "approved|pending|rejected|flagged|hidden",
+          "createdAt": "2025-11-28T10:00:00.000Z",
+          "updatedAt": "2025-11-28T10:15:00.000Z",
+          "reports": { "total": 3, "pending": 1 }
+        }
+      ],
+      "stats": {
+        "total": 42,
+        "pending": 3,
+        "approved": 30,
+        "rejected": 5,
+        "flagged": 2,
+        "hidden": 2
+      },
+      "pagination": { "limit": 12, "offset": 0, "count": 12 },
+      "filters": {
+        "status": "all",
+        "entityType": "blog_post",
+        "entityId": "ki-als-kollege"
+      }
+    }
+  }
+  ```
+
+- **Role:** moderator or admin
 
 ### Details
 
@@ -263,7 +313,7 @@ POST `/api/admin/comments/{id}/moderate`
 
 - Headers: `X-CSRF-Token`, `Content-Type: application/json`
 
-- Rate limit: sensitive (5/hour)
+- Rate limit: `adminSensitiveLimiter` (20/hour)
 
 - Role: moderator or admin
 

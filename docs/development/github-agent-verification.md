@@ -38,7 +38,7 @@ The script performs the following validations:
 
 When all checks pass, you'll see:
 
-```
+```text
 🔍 Checking GitHub Copilot Agent installation...
 
 ✅ Agents Directory: .github/agents directory is valid
@@ -61,7 +61,7 @@ The script exits with code 0.
 
 If any check fails, you'll see error messages indicating what needs to be fixed:
 
-```
+```text
 🔍 Checking GitHub Copilot Agent installation...
 
 ❌ Agent Configuration File: Agent file missing YAML frontmatter

@@ -2,12 +2,41 @@
 description: 'Production-Readiness & Go-Live Review für Evolution Hub'
 owner: 'Project Owner & Cascade EvolutionHub AI Agent'
 priority: 'high'
-lastSync: '2025-11-22'
+lastSync: '2025-11-28'
 codeRefs: 'src/pages/api/**, src/lib/**, src/config/**, src/middleware.ts, wrangler.toml, openapi.yaml'
 testRefs: 'tests/**, test-suite-v2/**'
 ---
 
 # Production-Readiness & Go-Live Review
+
+> **Status: Archiviert (Legacy)**
+>
+> Dieses Dokument wird nicht mehr aktiv gepflegt. Für aktuelle Informationen zu Quoten,
+> Credits, Usage-Endpoints und Feature-Readiness nutze bitte die spezialisierten
+> Dokumente:
+>
+> - **Global/API-Guidelines & Fehlerformen**
+>   - [API Guidelines](../api/api-guidelines.md)
+> - **Prompt Enhancer**
+>   - [Prompt Enhance API](../api/prompt-enhance.md)
+> - **AI Image Enhancer**
+>   - [AI Image API](../api/ai-image_api.md)
+> - **AI Video Enhancer**
+>   - [AI Video API](../api/ai-video_api.md)
+>   - [AI Video Tool-Doku](../tools/video-enhancer.md)
+> - **Voice Visualizer & Transcriber**
+>   - [Voice API](../api/voice_api.md)
+>   - [Voice-Architektur](../architecture/voice-visualizer-transcriptor.md)
+> - **Webscraper**
+>   - [Webscraper API](../api/webscraper_api.md)
+>   - [Webscraper Tool-Doku](../tools/webscraper/README.md)
+> - **Web-Eval**
+>   - [Web-Eval Tool-Doku](../tools/web-eval.md)
+>   - [Web-Eval Executor Runbook](./web-eval-executor-runbook.md)
+>
+> Die übrigen Abschnitte dieses Dokuments bleiben als historisches Protokoll erhalten
+> (Stand vor der Verteilung in die oben genannten Ziel-Dokumente) und werden nicht mehr
+> aktualisiert.
 
 ## 1. Zweck & Scope
 
@@ -50,11 +79,25 @@ Owner dieses Dokuments und aller Abschnitte ist der Project Owner; der Cascade E
 - [ ] `wrangler.toml` Bindings (D1/KV/R2/AI) vollständig für **development / testing / staging / production**.
 - [ ] Alle benötigten Secrets (Stripe, Stytch, Resend, Replicate/OpenAI) sind pro Env gesetzt (Wrangler Secrets / CI), nicht im Code.
 - [ ] `PUBLIC_SITE_URL` und `BASE_URL` korrekt je Env (Prod: `https://hub-evolution.com`).
+- [ ] In Production ist `WORKERS_AI_ENABLED = "0"` in `[env.production.vars]` gesetzt (Prod nutzt ausschließlich Replicate; Cloudflare Workers AI ist auf Dev/Testing/Staging begrenzt).
 
 ### Docs & Runbooks
 
 - [ ] `docs/` Frontmatter vollständig (`description`, `owner`, `priority`, `lastSync`, `codeRefs`, `testRefs`).
 - [ ] Relevante Ops-Runbooks (Deployment, Monitoring, Feature-Runbooks) sind aktuell und verlinkt.
+
+### Production-Smoke-Checks (Prod, nach Deploy)
+
+- [ ] **Cron-Smokes aktiv** (Pricing & Auth):
+  - Cron-Worker (`workers/cron-worker`) ist für Prod ausgerollt; `BASE_URLS` enthält `https://hub-evolution.com`.
+  - `INTERNAL_HEALTH_TOKEN` ist als Secret gesetzt; `E2E_PROD_AUTH_SMOKE` ist für Prod aktiviert.
+  - Tägliche Runs für:
+    - Pricing-Smoke (`GET /en/pricing` je Host) mit Status/Timing in R2 + `KV_CRON_STATUS`.
+    - Prod-Auth-Health (`GET /api/health/auth` mit `X-Internal-Health`) mit Status/JSON in R2 + `KV_CRON_STATUS`.
+- [ ] **Playwright Prod Auth Smoke (manuell/CI, nach Prod-Deploy):**
+  - `TEST_BASE_URL=https://hub-evolution.com`, `E2E_PROD_AUTH_SMOKE=1`, `STYTCH_TEST_EMAIL=<Test-Postfach>` sind gesetzt.
+  - Spec `test-suite-v2/src/e2e/smoke/prod-auth-smoke.spec.ts` wird mindestens einmal nach Deploy gegen Prod ausgeführt (z. B. via `.github/workflows/prod-auth-smoke.yml`).
+  - Erwartung: `POST /api/auth/magic/request` auf Prod liefert entweder `200 { success: true, data: { sent: true } }` **oder** einen sauber gemappten Provider-Fehler (`400/403/429/500` mit `error.type ∈ { validation_error, forbidden, rate_limit, server_error }`).
 
 ---
 
@@ -406,11 +449,11 @@ Folgende Ausbaustufen sind als **Konzept** für ein späteres Web‑Eval-Upgrade
     - **Restore-Link-Mechanismus** (Idee): Admin erzeugt für einen Task einen Link auf die Tool-UI, z. B. `https://<host>/tools/web-eval/app?restoreTaskId=<id>`; die UI prüft Ownership via `GET /api/testing/evaluate/{id}` und fügt die Task-ID bei Erfolg wieder lokal in die `My Tasks`-Liste ein.
     - Diese Punkte sind bewusst als **konzeptionelle P3-Ziele** formuliert; Implementierung, Zod-/OpenAPI-Schemas und konkrete UI/Endpoint-Details werden in separaten ADRs/Tasks spezifiziert.
 
-  #### Ist-Stand (Webscraper-Kurz)
+#### Ist-Stand (Webscraper-Kurz)
 
-  - Starke SSRF-Guards (Schemes, Ports, IP-Literals, geblockte Domains, Self-Scrape-Block); Robots.txt-Respekt; rolling Usage.
+- Starke SSRF-Guards (Schemes, Ports, IP-Literals, geblockte Domains, Self-Scrape-Block); Robots.txt-Respekt; rolling Usage.
 
-  #### P1 – Vor Go-Live (Webscraper)
+#### P1 – Vor Go-Live (Webscraper)
 
 - [x] Unit-Tests für Robots.txt-Verhalten (Allow/Disallow, keine/kaputte robots.txt) umgesetzt (`tests/unit/services/webscraper-service.test.ts`).
 - [x] Fehlertypen (`robots_txt_blocked`, `validation_error`, `forbidden`, `server_error`) im Code konsistent und für OpenAPI spezifiziert (Webscraper-Abschnitt in `openapi.yaml` anpassen).

@@ -16,6 +16,8 @@ testRefs:
 
 # Web‑Eval Executor – Runbook
 
+Scope: Operational details for the Web‑Eval executor and CBR runner (headers, secrets, cron, health). Launch phases, cohorts and feature exposure for the Web‑Eval tool are documented in `docs/ops/runbook-web-eval-launch.md` and `docs/ops/tool-launch-matrix.md`.
+
 - **Header (Executor Auth)**
   - Name: `x-executor-token` (case-sensitive)
   - Wert: statischer Token aus dem Worker‑Env `WEB_EVAL_EXECUTOR_TOKEN`
@@ -54,9 +56,9 @@ testRefs:
   - Aktivierung: `RUN_EXECUTOR_SMOKE=1` als Job‑Env setzen und `WEB_EVAL_EXECUTOR_TOKEN` als Secret hinterlegen.
   - Ziel‑URL: `https://staging.hub-evolution.com` (voreingestellt)
 
-- **Staging-Notizen (Usage, Storage & Executor)**
+  - **Staging-Notizen (Usage, Storage & Executor)**
   - In **Staging** ist `KV_WEB_EVAL` als Binding konfiguriert (siehe `wrangler.toml`, Abschnitt `env.staging.kv_namespaces`).
-  - `GET /api/testing/evaluate/usage` funktioniert in Staging; das Web‑Eval‑Tool zeigt die Usage‑Anzeige (`Usage: X/Y`) sowie den täglichen Reset‑Zeitpunkt als Text *"Web‑Eval daily limit resets at <Datum/Uhrzeit>"*.
+  - `GET /api/testing/evaluate/usage` funktioniert in Staging; das Web‑Eval‑Tool zeigt die Usage‑Anzeige (`Usage: X/Y`) sowie den täglichen Reset‑Zeitpunkt als Text *"Web‑Eval daily limit resets at <Datum/Uhrzeit>"*. Die API liefert dabei `usage`/`dailyUsage` (24h‑Fenster) und `monthlyUsage` auf Basis der Web‑Eval‑Entitlements (`dailyBurstCap`, `monthlyRuns`), aus denen die HUD‑Werte in der UI berechnet werden.
   - Der Cron‑Worker `evolution-hub-cron` ist in Staging deployt; der Web‑Eval‑Executor dort ist jedoch vollständig über `WEB_EVAL_EXEC_ENABLE`/`WEB_EVAL_EXEC_HOSTS`/`WEB_EVAL_EXEC_MAX_RUNS_PER_TICK` gegated.
   - Standardzustand in Staging: `WEB_EVAL_EXEC_ENABLE="0"`, `WEB_EVAL_EXEC_HOSTS="[]"` und **kein** Cron‑Trigger `"*/5 * * * *"` für Web‑Eval → Tasks bleiben `pending`, bis der Executor manuell über `/__cron/run/webeval?host=staging.hub-evolution.com` getriggert wird.
   - Für Staging‑Smokes kann `WEB_EVAL_EXEC_ENABLE="1"` und `WEB_EVAL_EXEC_HOSTS="[\"staging.hub-evolution.com\"]"` gesetzt werden; Ausführung dann ausschließlich über manuelle Calls (siehe unten „Variante A – Cron‑Worker Executor“).

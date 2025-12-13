@@ -2,7 +2,7 @@
 description: 'Prompt Enhancer – Architektur, Quotas und Multimodale Prompt-Optimierung'
 owner: 'Prompt Team'
 priority: 'high'
-lastSync: '2025-11-04'
+lastSync: '2025-11-28'
 codeRefs: 'src/pages/api/prompt-enhance.ts, src/lib/services/prompt-enhancer-service.ts, src/components/tools/prompt-enhancer/**'
 testRefs: 'N/A'
 ---
@@ -34,6 +34,8 @@ Der **Prompt Enhancer** transformiert einfache Text-Eingaben in strukturierte, a
 - 📊 **Quota-System**: Guest (5/Tag) vs. User (20/Tag)
 
 - ⚡ **Rate-Limiting**: 15 Requests/Minute
+
+- 💡 **UX-Features**: Preset-Buttons für typische Use-Cases, Before/After-Vergleich, Verbesserungs-Hinweis und Free-Plan-Lead-Magnet-Text direkt im Tool.
 
 ---
 
@@ -93,11 +95,17 @@ src/components/tools/prompt-enhancer/
 
 ### Quota-Limits
 
-**Default-Limits** (überschreibbar via `PROMPT_USER_LIMIT`/`PROMPT_GUEST_LIMIT`):
+Der Prompt Enhancer fungiert als **Free Tool** mit planbasierten Quoten. Die effektiven Limits werden in `src/config/prompt/entitlements.ts` gepflegt und über `/api/prompt/usage` exponiert.
 
-- **Guest**: 5 Enhances/Tag
+**Entitlements pro Owner/Plan (Auszug):**
 
-- **User**: 20 Enhances/Tag
+- **Guest**: `dailyBurstCap=10`, `monthlyRuns=100`
+- **free (User)**: `dailyBurstCap=100`, `monthlyRuns=2000`
+- **pro**: `dailyBurstCap=500`, `monthlyRuns=15000`
+- **premium**: `dailyBurstCap=2000`, `monthlyRuns=60000`
+- **enterprise**: `dailyBurstCap=10000`, `monthlyRuns=1000000`
+
+`/api/prompt/usage` liefert neben `usage` (rolling 24h Fenster) auch `dailyUsage` und `monthlyUsage` auf Basis dieser Entitlements sowie ein `entitlements`‑Objekt, das von UI und Dashboard zur Anzeige der Quoten genutzt wird.
 
 **Rate-Limit** (`src/pages/api/prompt-enhance.ts:26-30`):
 
@@ -309,6 +317,40 @@ const handleCopy = async () => {
 };
 ```
 
+### Presets, Vergleich & Verbesserungs-Hinweis
+
+- **Presets**:
+
+  - Vier Preset-Buttons oberhalb des Eingabe-Textfelds (Coding / Bugfix, Data / Analytics, Content / LinkedIn, Research / Zielgruppe).
+
+  - Jeder Preset setzt einen kuratierten Eingabe‑Prompt, der sich in der Praxis bewährt hat (z. B. Code‑Fehlersuche, KPI‑Analyse, LinkedIn‑Posts, Zielgruppen‑Interviews).
+
+- **Before/After‑Vergleich**:
+
+  - Toggle „Vorher/Nachher anzeigen“ blendet neben dem optimierten Prompt den ursprünglichen Input ein.
+
+  - Nutzt intern das `rawText`‑Feld aus dem Service (sanitisierter Original‑Prompt).
+
+- **Verbesserungs‑Hinweis** („Was wurde verbessert?“):
+
+  - Heuristik in `EnhancerForm.tsx` markiert, ob der Output **Struktur** (Markdown‑Headings), **Constraints** oder **Steps** hinzugewonnen hat.
+
+  - Die UI zeigt eine kleine Liste unterhalb des Outputs, z. B.:
+
+    - Struktur hinzugefügt (z. B. klare Abschnitte und Überschriften).
+
+    - Zusätzliche Constraints und Regeln ergänzt, um das Ergebnis vorhersehbarer zu machen.
+
+    - Schritt-für-Schritt-Anweisungen für das Modell hinzugefügt.
+
+- **Free-Plan‑Lead‑Magnet**:
+
+  - Direkt unter dem Nutzungs‑Badge zeigt das Tool den Hinweis:
+
+    - „Bis zu 100 hochwertige Prompt-Optimierungen pro Tag im Free-Plan.“
+
+  - Die angezeigten Werte stammen aus `/api/prompt/usage` und spiegeln die Entitlements (`dailyBurstCap`) für Gäste/Free‑User wider.
+
 ### Responsiveness
 
 - **Max-Width**: `max-w-4xl` (Card-Container)
@@ -434,6 +476,32 @@ Input: "Create unit tests for this API spec"
 → Enhanced Prompt für Test-Generierung
 
 ```text
+
+### 5. Empfohlene Test-Prompts (Lead-Magnet)
+
+Die folgenden Eingabe‑Prompts haben sich in unseren eigenen Tests als gute „Starter“ erwiesen, um die Qualität des Prompt Enhancers zu beurteilen und als Lead‑Magnet zu nutzen:
+
+1. **Coding / Bugfix (React useEffect)**
+
+   > Ich habe eine React‑Komponente mit useEffect, die manchmal falsche Daten rendert. Schreib mir einen Prompt für eine KI, die meinen Code Schritt für Schritt auf typische Bugs (stale state, doppelte Requests, unvollständige Dependency Arrays) prüft und mir konkrete Refactor‑Vorschläge macht.
+
+2. **Data / Analytics (Monatsumsätze)**
+
+   > Hilf mir, einen Prompt zu formulieren, mit dem ich eine KI bitte, Monatsumsätze nach Ländern und Kanälen zu analysieren. Die KI soll mir Trends, Ausreißer, Kohorten und konkrete Hypothesen liefern, wie wir Conversion Rate und AOV steigern können.
+
+3. **Content / LinkedIn (AI‑Workflows)**
+
+   > Ich möchte regelmäßig LinkedIn Posts über praktische AI‑Workflows für Knowledge Worker schreiben. Erstelle mir einen Prompt, der eine KI anweist, mir aus einer kurzen Stichwortliste je 3 Post‑Entwürfe zu generieren – mit Hook, Hauptteil und Call to Action.
+
+4. **Research / Zielgruppe (Freelance Designer)**
+
+   > Erstelle einen Prompt für eine KI, die mir hilft, meine Zielgruppe „Freelance Designer, die AI‑Tools zögerlich nutzen“ besser zu verstehen. Sie soll qualitative Interviewfragen, mögliche Antwortmuster und Interpretationshinweise liefern.
+
+5. **Allgemeiner „schlechter“ Prompt (für Before/After‑Vergleich)**
+
+   > Mach den folgenden Prompt deutlich besser: „Hilf mir einfach mal bei meinem Projekt, ich brauche ein bisschen Unterstützung.“ Es geht um ein internes Dashboard, das langsame Reports hat.
+
+Diese Beispiele eignen sich sowohl für interne Tests (E2E/Smoke) als auch für Marketing‑Demos des Tools.
 
 ---
 

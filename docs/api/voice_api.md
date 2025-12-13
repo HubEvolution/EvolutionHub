@@ -2,9 +2,9 @@
 description: 'API-Referenz für Voice Transcription (Whisper) inklusive Streaming'
 owner: 'Voice Team'
 priority: 'high'
-lastSync: '2025-11-03'
+lastSync: '2025-11-26'
 codeRefs: 'src/pages/api/voice/**, src/lib/services/voice-transcribe-service.ts, docs/api/voice_api.md'
-testRefs: 'N/A'
+testRefs: 'tests/integration/api/voice/usage.test.ts, test-suite-v2/src/e2e/voice/stream-and-poll.spec.ts'
 ---
 
 <!-- markdownlint-disable MD051 -->
@@ -247,7 +247,9 @@ curl "http://127.0.0.1:8787/api/voice/poll?jobId=job_def456&lastUpdate=170531220
 
 ### GET `/api/voice/usage`
 
-Ruft die aktuellen Voice-Nutzungsstatistiken ab.
+Liefert den aktuellen Nutzungsstand für den Voice-Transkriptionsdienst (rolling 24h Fenster) und die effektiven planbasierten Limits für den aktuellen Besitzer (User oder Gast mit `guest_id`-Cookie). `usage.limit` ist maßgeblich; `limits.*` sind statische Defaults.
+
+Zusätzlich werden – sofern `KV_VOICE_TRANSCRIBE` aktiv ist – `monthlyUsage` basierend auf den Voice-Entitlements (`dailyBurstCap`, `monthlyRuns`) sowie ein `entitlements`-Objekt zurückgegeben; für eingeloggte Nutzer kann optional `creditsBalanceTenths` (globale Credits) enthalten sein.
 
 #### Beispiel-Request (4)
 

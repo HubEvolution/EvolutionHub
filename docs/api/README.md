@@ -31,6 +31,8 @@ testRefs: 'tests/integration/api, test-suite-v2/src/e2e'
 
 - **[AI Image API](./ai-image_api.md)** — Generate/Usage/Jobs Endpunkte
 
+- **[AI Video API](./ai-video_api.md)** — Usage-/Quota-Endpunkt für den AI Video Enhancer
+
 - **[Prompt Enhance API](./prompt-enhance.md)** — Prompt-Optimierung mit JSON/Multipart
 
 - **[Comments API](./comments_api.md)** — Kommentar- und Moderationsendpunkte
@@ -46,6 +48,10 @@ testRefs: 'tests/integration/api, test-suite-v2/src/e2e'
 ### AI-Image Enhancer API
 
 - **[AI Image API](./ai-image_api.md)** bündelt Generate-, Usage- und Job-Endpunkte inklusive Cancel-Flows.
+
+### AI-Video Enhancer API
+
+- **[AI Video API](./ai-video_api.md)** beschreibt den Usage-/Quota-Endpunkt `/api/ai-video/usage` des AI Video Enhancers, inklusive planbasierter Video-Quoten (Credits in Zehnteln) und Zusammenspiel mit dem globalen Credits-Bucket.
 
 ### Comments API
 
@@ -251,7 +257,7 @@ curl -X POST \
 
 ### GET `/api/prompt/usage`
 
-Liefert den aktuellen Usage‑Stand und Limits (24h Fenster) für den aktuellen Besitzer (User oder Gast mit `guest_id`‑Cookie). `usage.limit` ist maßgeblich; `limits.*` sind statische Defaults.
+Liefert den aktuellen Usage‑Stand für den Prompt Enhancer (rolling 24h Fenster) und die effektiven Limits für den aktuellen Besitzer (User oder Gast mit `guest_id`‑Cookie). `usage.limit` ist maßgeblich; `limits.*` sind statische Defaults. Zusätzlich werden `dailyUsage` und `monthlyUsage` basierend auf den Prompt‑Entitlements (`dailyBurstCap`, `monthlyRuns`) zurückgegeben, sodass der Prompt Enhancer als "Free Tool" mit planbasierten Quoten pro Plan ausgewiesen werden kann.
 
 - Beispiel (curl):
 

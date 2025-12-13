@@ -2,9 +2,9 @@
 description: 'API-Referenz für den Webscraper inklusive SSRF-Schutz und Limits'
 owner: 'Scraper Team'
 priority: 'high'
-lastSync: '2025-11-03'
-codeRefs: 'src/pages/api/webscraper/**, src/lib/services/webscraper/**, docs/api/webscraper_api.md'
-testRefs: 'N/A'
+lastSync: '2025-11-26'
+codeRefs: 'src/pages/api/webscraper/**, src/lib/services/webscraper/**, src/config/webscraper/entitlements.ts, docs/api/webscraper_api.md'
+testRefs: 'tests/integration/api/webscraper.test.ts'
 ---
 
 <!-- markdownlint-disable MD051 -->
@@ -140,7 +140,7 @@ curl -X POST "http://127.0.0.1:8787/api/webscraper/extract" \
   }'
 ```
 
-#### Success Response (200)
+#### Beispiel-Response (200)
 
 ```json
 {
@@ -244,6 +244,43 @@ curl -X POST "http://127.0.0.1:8787/api/webscraper/extract" \
 
 ```text
 
+### GET `/api/webscraper/usage`
+
+Liefert den aktuellen Nutzungsstand für den Webscraper (rolling 24h Fenster) und die effektiven planbasierten Limits für den aktuellen Besitzer (User oder Gast mit `guest_id`-Cookie). `usage.limit` ist maßgeblich; `limits.*` spiegeln die statischen Default-Limits aus `WEBSCRAPER_GUEST_LIMIT`/`WEBSCRAPER_USER_LIMIT` wider und dienen vor allem Debug/Legacy-Zwecken.
+
+Zusätzlich werden – sofern `KV_WEBSCRAPER` aktiv ist – `dailyUsage` (identisch zu `usage`) und `monthlyUsage` basierend auf den Webscraper-Entitlements (`dailyBurstCap`, `monthlyRuns`) sowie ein `entitlements`-Objekt zurückgegeben. Für eingeloggte Nutzer kann optional `creditsBalanceTenths` (globaler AI-Credits-Saldo, nur zur Anzeige; der Webscraper selbst verbraucht aktuell keine Credits) enthalten sein.
+
+#### Beispiel-Request
+
+```bash
+curl "http://127.0.0.1:8787/api/webscraper/usage" \
+  -H "Cookie: guest_id=abc123"
+```
+
+#### Erwartete Header
+
+- `X-Usage-OwnerType: user|guest`
+- `X-Usage-Plan: free|pro|premium|enterprise|''`
+- `X-Usage-Limit: <zahl>`
+
+#### Success Response (200)
+
+```json
+{
+  "success": true,
+  "data": {
+    "ownerType": "guest",
+    "usage": { "used": 1, "limit": 5, "resetAt": null },
+    "dailyUsage": { "used": 1, "limit": 5, "resetAt": null },
+    "monthlyUsage": { "used": 10, "limit": 60, "resetAt": null },
+    "limits": { "user": 20, "guest": 5 },
+    "plan": null,
+    "entitlements": { "dailyBurstCap": 5, "monthlyRuns": 60 },
+    "creditsBalanceTenths": null
+  }
+}
+```
+
 ## Konfiguration
 
 ### Umgebungsvariablen
@@ -256,33 +293,24 @@ curl -X POST "http://127.0.0.1:8787/api/webscraper/extract" \
 
 ### Entitlements
 
-**Gast-Benutzer:**
+Die planbasierten Quoten werden in `src/config/webscraper/entitlements.ts` gepflegt und über `/api/webscraper/usage` exponiert. Sie definieren pro Owner/Plan `dailyBurstCap` (maximale Scrapes pro rolling 24h Fenster) und `monthlyRuns` (monatliche Gesamtanzahl Scrapes).
 
-- Täglich: 5 Scraping-Operationen
+**Basiskonfiguration (statische Limits):**
 
-- Max. Content-Length: 30.000 Zeichen
+- `WEBSCRAPER_GUEST_LIMIT` und `WEBSCRAPER_USER_LIMIT` steuern die Default-Limits in `limits.guest/limits.user` der API-Responses.
+- Diese Werte dienen primär als UI-/Debug-Hints; die effektiven Quoten werden über die Entitlements und `usage.limit`/`monthlyUsage.limit` erzwungen.
 
-- Timeout: 10 Sekunden
+**Plan-Entitlements (`WebscraperPlanEntitlements`):**
 
-**Registrierte Benutzer:**
+| Owner/Plan    | dailyBurstCap | monthlyRuns |
+| ------------- | ------------- | ----------- |
+| **Guest**     | 5             | 60          |
+| **free**      | 20            | 200         |
+| **pro**       | 100           | 2000        |
+| **premium**   | 300           | 6000        |
+| **enterprise**| 1000          | 20000       |
 
-- Täglich: 50 Scraping-Operationen
-
-- Max. Content-Length: 100.000 Zeichen
-
-- Timeout: 15 Sekunden
-
-- Erweiterte Features: robots.txt Override für eigene Domains
-
-**Premium-Benutzer:**
-
-- Täglich: 500 Scraping-Operationen
-
-- Max. Content-Length: 500.000 Zeichen
-
-- Timeout: 30 Sekunden
-
-- Priority Processing: Schnellere Verarbeitung
+Die UI kann diese Entitlements (inkl. `dailyUsage`/`monthlyUsage` aus `/api/webscraper/usage`) nutzen, um Quoten pro Plan/HUD anzuzeigen. Der Webscraper nutzt aktuell **keinen** globalen Credits-Bucket; alle Limits werden vollständig über diese Quoten und Rate-Limits erzwungen.
 
 ## Content-Extraction
 

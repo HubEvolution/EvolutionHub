@@ -2,7 +2,7 @@
 description: 'Webscraper-Tool für Content-Extraktion und -Analyse in Evolution Hub'
 owner: 'Tools Team'
 priority: 'medium'
-lastSync: '2025-10-27'
+lastSync: '2025-11-26'
 codeRefs: 'src/config/webscraper, src/pages/api/webscraper'
 testRefs: 'tests/unit/webscraper, test-suite-v2/src/e2e/tools'
 ---
@@ -108,7 +108,7 @@ Das Webscraper-Tool ermöglicht es Nutzern, strukturierte Inhalte von Webseiten 
 
 - ✅ **robots.txt Compliance**: Automatische Prüfung und Einhaltung
 
-- ✅ **Quota-System**: 5 Requests/Tag (Gast), 20 Requests/Tag (User)
+- ✅ **Quota-System**: 5 Requests/Tag (Gast), 20+ Requests/Tag (User – je nach Plan/Entitlements)
 
 - ✅ **Sicherheit**: Rate-Limiting, CSRF-Schutz, Input-Validierung
 
@@ -221,7 +221,12 @@ WEBSCRAPER_TIMEOUT=10000    # Fetch-Timeout in ms
 
 # Limits
 WEBSCRAPER_MAX_SIZE=5242880 # Max Response-Größe (5MB)
-```
+
+### Quota & Usage
+
+Die effektiven Quoten werden planbasiert in `src/config/webscraper/entitlements.ts` gepflegt (`dailyBurstCap` pro rolling 24h Fenster, `monthlyRuns` pro Monat) und über `GET /api/webscraper/usage` exponiert. Die dort zurückgegebenen Felder `usage`/`dailyUsage` und – sofern `KV_WEBSCRAPER` aktiv ist – `monthlyUsage` sind maßgeblich für UI/HUDs.
+
+Die Environment-Variablen `WEBSCRAPER_GUEST_LIMIT` und `WEBSCRAPER_USER_LIMIT` speisen das `limits`-Objekt in der Usage-Response und dienen primär als statische Defaults/Debug-Hilfen; die Durchsetzung von Limits erfolgt über die Entitlements (`dailyBurstCap`, `monthlyRuns`) und das 24h-/Monats-Usage-Tracking.
 
 ### KV-Namespaces
 

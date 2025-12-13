@@ -2,7 +2,7 @@
 description: 'Web-Eval Tool – UI, Usage & Assertions'
 owner: 'platform'
 priority: 'medium'
-lastSync: '2025-11-23'
+lastSync: '2025-11-26'
 codeRefs: 'src/components/tools/web-eval/WebEvalIsland.tsx, src/pages/en/tools/web-eval/app.astro, src/pages/de/tools/web-eval/app.astro, src/pages/api/testing/evaluate/**'
 testRefs: 'tests/integration/api/web-eval-next.test.ts, tests/integration/api/web-eval-run.test.ts, tests/integration/api/web-eval-complete.test.ts'
 ---
@@ -32,6 +32,20 @@ Optional können Assertions definiert werden, aus denen ein Gesamt‑**Verdict**
   - `selectorExists` – CSS‑Selector muss mindestens ein Element matchen
 - **Verdicts** basierend auf Assertions/Runner‑Status:
   - `pass` | `fail` | `inconclusive`
+
+### Quota & Usage
+
+Web‑Eval nutzt planbasierte Quoten aus `src/config/web-eval/entitlements.ts`. Für jeden Owner‑Typ/Plan werden dort
+
+- `dailyBurstCap` (maximale Anzahl Runs pro rolling 24h Fenster) und
+- `monthlyRuns` (maximale Anzahl Runs pro Kalendermonat)
+
+definiert. Die UI‑HUD „Usage: X/Y“ liest die effektiven Limits aus `GET /api/testing/evaluate/usage`:
+
+- `usage`/`dailyUsage` spiegeln das aktuelle 24h‑Fenster wider.
+- `monthlyUsage` (sofern `KV_WEB_EVAL` aktiv ist) bildet die Monats‑Quota (`monthlyRuns`) ab.
+- `entitlements` enthält die aufgelösten Entitlements je Owner/Plan.
+- `creditsBalanceTenths` (falls gesetzt) zeigt nur den globalen Credits‑Kontostand an; Web‑Eval selbst nutzt aktuell **keinen** Credits‑Fallback, sondern erzwingt Limits vollständig über Entitlements + Usage‑Tracking.
 
 ---
 

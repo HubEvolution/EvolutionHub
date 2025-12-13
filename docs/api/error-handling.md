@@ -162,6 +162,10 @@ Zugriff verweigert.
 - Ressourcen-Zugriff verweigert
 
 - Feature nicht verfügbar für aktuellen Plan
+- Feature-Flags / Tool-Gating (z. B. `feature.disabled.prompt_enhancer`,
+  `feature.disabled.image_enhancer`, `feature.disabled.video_enhancer`,
+  `feature.disabled.voice_visualizer`, `feature.disabled.webscraper`,
+  `feature.disabled.web_eval`)
 
 #### `not_found` (404)
 

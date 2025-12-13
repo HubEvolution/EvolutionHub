@@ -2,7 +2,7 @@
 description: 'Architekturübersicht des AI Image Enhancers (Worker + R2 + Entitlements)'
 owner: 'AI Enhancer Team'
 priority: 'high'
-lastSync: '2025-11-03'
+lastSync: '2025-11-28'
 codeRefs: 'src/lib/services/ai-image-service.ts, src/pages/api/ai-image/**'
 testRefs: 'N/A'
 ---
@@ -148,6 +148,40 @@ CREATE TABLE ai_jobs (
 - Unterstützte Modelle werden in `src/config/ai-image.ts` via `ALLOWED_MODELS` whitelisted
 
 - Beispiel: `nightmareai/real-esrgan:latest` (Upscaling, optional `scale` und `face_enhance`)
+
+#### Provider-Strategie nach Umgebung
+
+Der AI Image Enhancer nutzt verschiedene Provider je nach Umgebung. Die zentrale Steuerung
+erfolgt über `wrangler.toml` (insb. `ENVIRONMENT` und `WORKERS_AI_ENABLED`) und die
+UI-spezifische Host-Erkennung in `ImagEnhancerIsland.tsx`:
+
+- **Production (`hub-evolution.com`, `www.hub-evolution.com`)**
+  - `ENVIRONMENT = "production"`, `WORKERS_AI_ENABLED = "0"`.
+  - **Nur Replicate** ist aktiv; Cloudflare Workers AI (Modelle mit `provider = 'workers_ai'`)
+    ist serverseitig deaktiviert und wird im UI ausgeblendet.
+
+- **Testing (`ci.hub-evolution.com`)**
+  - `ENVIRONMENT = "testing"`, `WORKERS_AI_ENABLED = "1"`,
+    `TESTING_WORKERS_AI_ALLOW = "1"`,
+    `TESTING_ALLOWED_CF_MODELS` enthält die explizit erlaubten Workers-AI-Modelle.
+  - Die UI zeigt auf diesem Host nur `workers_ai`-Modelle; Replicate ist hier bewusst geblockt,
+    um Kosten in der Testumgebung zu vermeiden.
+
+- **Lokale Entwicklung (localhost, 127.0.0.1, private IPs)**
+  - Host-basierte Logik im Frontend sorgt dafür, dass lokal ebenfalls nur Workers-AI-Modelle
+    sichtbar sind. Replicate wird in diesem Modus typischerweise gar nicht angerufen.
+
+- **Staging (`staging.hub-evolution.com`)**
+  - `ENVIRONMENT = "staging"`, `WORKERS_AI_ENABLED = "1"`.
+  - Beide Provider stehen zur Verfügung; welche Modelle effektiv aktiv sind, ergibt sich aus
+    `ALLOWED_MODELS` und der aktuellen Env-Konfiguration.
+
+Design-Entscheidung:
+
+> **Produktiv: „Replicate only“; Cloudflare Workers AI ist primär ein Dev/Testing-Tooling.**
+
+Damit bleiben Kostenrisiken kontrollierbar, während Worker-basierte Experimente und
+Optimierungen in Dev/Testing weiterhin möglich sind.
 
 #### R2-Speicher
 
