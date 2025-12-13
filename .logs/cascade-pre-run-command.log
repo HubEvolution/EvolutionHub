@@ -302,3 +302,126 @@ except Exception as e:
 2025-11-25T03:02:39.566Z pre_run_command: cd /Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub && python3 -c "import json; json.load(open('src/locales/en.json')); print('JSON is now valid')"
 2025-11-25T03:08:17.597Z pre_run_command: npm run openapi:validate
 2025-11-25T03:10:00.533Z pre_run_command: npm run lint:md
+2025-11-26T14:05:03.451Z pre_run_command: npm run lint
+2025-11-26T14:05:31.917Z pre_run_command: npm run format:check
+2025-11-26T14:06:06.876Z pre_run_command: npm run typecheck:src
+2025-11-26T14:06:29.448Z pre_run_command: npm run openapi:validate
+2025-11-26T14:13:49.595Z pre_run_command: npm run test
+2025-11-26T17:13:09.331Z pre_run_command: npm run format:check
+2025-11-26T17:14:01.624Z pre_run_command: npm run format:check
+2025-11-26T17:14:02.037Z pre_run_command: npm run typecheck:src
+2025-11-26T20:07:06.325Z pre_run_command: contentful space list
+2025-11-26T20:07:36.462Z pre_run_command: contentful content-type get --space-id tmtc6fophkx8 --environment-id master --id blogPost --json
+2025-11-26T20:07:48.644Z pre_run_command: contentful content-type get --space-id tmtc6fophkx8 --environment-id master --id blogPost
+2025-11-26T21:46:54.833Z pre_run_command: contentful entry list --help
+2025-11-26T21:58:41.900Z pre_run_command: curl -I -L https://hub-evolution.com/blog/ki-als-kollege
+2025-11-26T21:58:42.902Z pre_run_command: curl -I -L https://hub-evolution.com/en/blog/ki-als-kollege
+2025-11-26T22:06:24.936Z pre_run_command: npm run docs:lint && npm run openapi:validate
+2025-11-26T22:12:51.258Z pre_run_command: npx tsx scripts/contentful-blog-audit.ts
+2025-11-26T22:16:55.454Z pre_run_command: npm run docs:lint && npm run openapi:validate
+2025-11-26T22:17:08.380Z pre_run_command: npm run docs:lint && npm run openapi:validate
+2025-11-28T00:38:44.425Z pre_run_command: npx wrangler d1 execute evolution-hub-main --command "CREATE TABLE IF NOT EXISTS page_views (id TEXT PRIMARY KEY, count INTEGER NOT NULL DEFAULT 0, updated_at INTEGER NOT NULL);" --env production
+2025-11-28T00:38:57.795Z pre_run_command: npx wrangler d1 execute evolution-hub-main --command "CREATE TABLE IF NOT EXISTS page_views (id TEXT PRIMARY KEY, count INTEGER NOT NULL DEFAULT 0, updated_at INTEGER NOT NULL);" --env production --remote
+2025-11-28T02:10:44.469Z pre_run_command: npx wrangler d1 migrations apply evolution-hub-main --env development
+2025-11-28T02:11:15.226Z pre_run_command: npx wrangler d1 migrations apply evolution-hub-main-dev --env development
+2025-11-28T02:14:00.267Z pre_run_command: npx wrangler d1 execute evolution-hub-main-dev --env development --command "CREATE TABLE IF NOT EXISTS page_views (id TEXT PRIMARY KEY, count INTEGER NOT NULL DEFAULT 0, updated_at INTEGER NOT NULL);"
+2025-11-28T02:14:01.273Z pre_run_command: npx wrangler d1 execute evolution-hub-main-local --env staging --command "CREATE TABLE IF NOT EXISTS page_views (id TEXT PRIMARY KEY, count INTEGER NOT NULL DEFAULT 0, updated_at INTEGER NOT NULL);"
+2025-11-28T04:29:36.706Z pre_run_command: npm run dev:worker
+2025-11-28T05:36:13.862Z pre_run_command: npm run lint
+2025-11-28T05:37:10.276Z pre_run_command: npm run typecheck:src
+2025-11-28T06:07:46.841Z pre_run_command: npm run lint
+2025-11-28T06:07:47.697Z pre_run_command: npm run typecheck:src
+2025-11-28T06:08:30.173Z pre_run_command: npm run lint
+2025-11-28T06:09:11.270Z pre_run_command: npm run typecheck:src
+2025-11-28T06:11:16.930Z pre_run_command: npm run typecheck:src
+2025-11-28T06:45:58.396Z pre_run_command: npm run typecheck:src
+2025-11-28T06:52:28.994Z pre_run_command: npm run typecheck:src
+2025-11-28T07:10:44.778Z pre_run_command: npm run typecheck:src
+2025-11-28T07:45:35.561Z pre_run_command: npm run lint && npm run typecheck:src
+2025-11-28T07:52:38.554Z pre_run_command: npm run typecheck:src
+2025-11-28T08:22:06.524Z pre_run_command: npm run typecheck:src
+2025-11-28T08:40:31.221Z pre_run_command: npm run typecheck:src
+2025-11-28T08:41:30.691Z pre_run_command: npm run typecheck:src
+2025-11-28T09:13:02.497Z pre_run_command: npm run typecheck:src
+2025-11-28T10:05:14.944Z pre_run_command: npm run typecheck:src
+2025-11-28T10:06:27.809Z pre_run_command: npm run typecheck:src
+2025-11-28T10:32:38.880Z pre_run_command: npm run lint && npm run typecheck:src && npm run deploy:staging && npm run deploy:production
+2025-11-28T15:00:49.383Z pre_run_command: npm run lint && npm run typecheck:src && npm run openapi:validate
+2025-11-30T01:07:53.052Z pre_run_command: npx wrangler d1 execute evolution-hub-main --env production --command "SELECT id, email, role FROM users WHERE email = 'mcp-admin-prod@hub-evolution.com';"
+2025-11-30T01:08:19.569Z pre_run_command: npx wrangler d1 execute evolution-hub-main --env production --remote --command "SELECT id, email, role FROM users WHERE email = 'mcp-admin-prod@hub-evolution.com';"
+2025-11-30T01:08:38.383Z pre_run_command: npx wrangler d1 execute evolution-hub-main --env production --remote --command "UPDATE users SET role = 'admin' WHERE email = 'mcp-admin-prod@hub-evolution.com';"
+2025-11-30T01:08:39.039Z pre_run_command: npx wrangler d1 execute evolution-hub-main --env production --remote --command "SELECT email, role FROM users WHERE email = 'mcp-admin-prod@hub-evolution.com';"
+2025-11-30T01:14:22.272Z pre_run_command: npx wrangler d1 execute evolution-hub-main --env production --remote --command "SELECT id, email, username, name, role, status, created_at FROM users WHERE email = 'mcp-test-user-prod@hub-evolution.com';"
+2025-11-30T01:15:16.930Z pre_run_command: npx wrangler d1 execute evolution-hub-main --env production --remote --command "SELECT id, email, username, name, role, status, created_at FROM users WHERE username LIKE 'mcp_test_user_prod%';"
+2025-11-30T01:28:47.932Z pre_run_command: npx wrangler d1 execute evolution-hub-main --env production --remote --command "DELETE FROM users WHERE id = '11c07b7a-3d32-4943-bea4-d94c0e11d52e';"
+2025-11-30T01:28:48.491Z pre_run_command: npx wrangler d1 execute evolution-hub-main --env production --remote --command "SELECT id, email, username, name, role, status FROM users WHERE username LIKE 'mcp_test_user_prod%';"
+2025-11-30T06:02:22.693Z pre_run_command: source .env && curl https://api.openai.com/v1/images/generations -H "Authorization: Bearer $OPENAI_API_KEY" -H "Content-Type: application/json" -d '{"model": "gpt-image-1", "prompt": "simple flat illustration of a landscape, blue gradient sky, minimal style, 512x512, png", "size": "512x512", "response_format": "b64_json"}' | jq -r '.data[0].b64_json' | base64 -D > tests/fixtures/imag-smoke.png
+2025-11-30T06:02:48.795Z pre_run_command: OPENAI_API_KEY="$(grep '^OPENAI_API_KEY=' .env | cut -d '=' -f2-)" && curl https://api.openai.com/v1/images/generations -H "Authorization: Bearer $OPENAI_API_KEY" -H "Content-Type: application/json" -d '{"model":"gpt-image-1","prompt":"simple flat illustration of a landscape, blue gradient sky, minimal style, 512x512, png","size":"512x512","response_format":"b64_json"}' | jq -r '.data[0].b64_json' | base64 -D > tests/fixtures/imag-smoke.png
+2025-11-30T06:07:42.892Z pre_run_command: file tests/fixtures/imag-smoke.png && wc -c tests/fixtures/imag-smoke.png | cat
+2025-12-03T23:59:29.125Z pre_run_command: npm run typecheck:src
+2025-12-04T00:01:10.805Z pre_run_command: npm run typecheck:src
+2025-12-04T00:01:37.122Z pre_run_command: npm run typecheck:src
+2025-12-04T00:09:07.128Z pre_run_command: npm run typecheck:src
+2025-12-12T14:58:56.573Z pre_run_command: npm run lint
+2025-12-12T14:59:18.197Z pre_run_command: npm run typecheck:src
+2025-12-12T14:59:30.120Z pre_run_command: npm run test
+2025-12-12T15:09:02.167Z pre_run_command: npm run test -- tests/integration/routing/blog-i18n-seo-integration.test.ts tests/integration/routing/blog-routes.test.ts
+2025-12-12T15:10:33.322Z pre_run_command: npm run test -- tests/integration/routing/blog-i18n-seo-integration.test.ts tests/integration/routing/blog-routes.test.ts
+2025-12-12T15:11:30.521Z pre_run_command: npm run openapi:validate
+2025-12-12T15:18:17.784Z pre_run_command: npm run lint
+2025-12-12T15:18:43.863Z pre_run_command: npm run typecheck
+2025-12-12T15:35:20.808Z pre_run_command: npm run typecheck:src
+2025-12-12T15:35:25.689Z pre_run_command: npm run test -- tests/integration/routing/blog-i18n-seo-integration.test.ts tests/integration/routing/blog-routes.test.ts
+2025-12-12T15:38:05.849Z pre_run_command: npm run deploy:staging
+2025-12-12T15:46:25.754Z pre_run_command: npm run typecheck
+2025-12-12T15:48:25.573Z pre_run_command: npm run lint
+2025-12-12T15:50:16.810Z pre_run_command: npm ls react react-dom
+2025-12-12T18:16:48.871Z pre_run_command: npm run typecheck
+2025-12-12T22:21:58.675Z pre_run_command: npm run typecheck
+2025-12-12T22:27:13.505Z pre_run_command: npm run typecheck:src
+2025-12-12T22:58:48.919Z pre_run_command: npm run typecheck
+2025-12-12T22:59:17.360Z pre_run_command: npm run typecheck
+2025-12-12T23:14:04.006Z pre_run_command: npm run lint
+2025-12-12T23:14:41.208Z pre_run_command: npm run format:check
+2025-12-12T23:18:25.531Z pre_run_command: stat -f "%z %N" developer.mozilla.org--mdn-web-docs--20251025-090628_scrapedwithhub-evolutioncom.json
+2025-12-12T23:21:06.672Z pre_run_command: npm run format
+2025-12-12T23:21:27.362Z pre_run_command: npm run format:check
+2025-12-12T23:22:08.129Z pre_run_command: npm run openapi:validate
+2025-12-12T23:22:17.652Z pre_run_command: npm run test
+2025-12-12T23:24:53.926Z pre_run_command: npm run test:once -- src/components/tools/imag-enhancer/mvp/__tests__/SimpleResult.test.tsx
+2025-12-12T23:31:57.100Z pre_run_command: npm run test:once -- src/components/tools/imag-enhancer/mvp/__tests__/SimpleResult.test.tsx
+2025-12-12T23:32:46.368Z pre_run_command: npm run test:once
+2025-12-12T23:37:12.900Z pre_run_command: npm run test:once -- tests/unit/pages/api/auth/login-logger.test.ts
+2025-12-12T23:43:34.751Z pre_run_command: npm run test:once -- --max-failures=1
+2025-12-12T23:51:44.226Z pre_run_command: npm run test:once -- --reporter=dot
+2025-12-13T00:03:55.778Z pre_run_command: npx vitest --help
+2025-12-13T00:26:38.038Z pre_run_command: npm run test:once -- src/components/tools/imag-enhancer/mvp/__tests__/EnhancerActionsMVP.test.tsx
+2025-12-13T00:29:06.962Z pre_run_command: npm run test:once
+2025-12-13T00:30:48.286Z pre_run_command: npm run test:once -- --bail=1
+2025-12-13T00:32:59.876Z pre_run_command: npm run test:integration:run -- tests/integration/api/voice/transcribe-and-poll.test.ts
+2025-12-13T00:39:43.868Z pre_run_command: npm run test:integration:run -- tests/integration/api/voice/transcribe-and-poll.test.ts
+2025-12-13T00:40:38.587Z pre_run_command: npm run test:once
+2025-12-13T00:48:21.897Z pre_run_command: npm run test:once -- src/components/tools/prompt-enhancer/EnhancerForm.test.tsx
+2025-12-13T00:48:32.615Z pre_run_command: npm run test:once
+2025-12-13T01:26:32.830Z pre_run_command: ls -1 scripts | head
+2025-12-13T02:08:29.268Z pre_run_command: npm run lint
+2025-12-13T02:08:48.897Z pre_run_command: npm run typecheck:src
+2025-12-13T02:22:24.438Z pre_run_command: npm run test:once
+2025-12-13T02:41:12.618Z pre_run_command: npx vitest run -c vitest.config.ts tests/integration/comments.test.ts
+2025-12-13T04:21:24.767Z pre_run_command: npm run lint
+2025-12-13T04:22:14.106Z pre_run_command: npm run typecheck:src
+2025-12-13T05:36:25.570Z pre_run_command: npm run format
+2025-12-13T05:36:46.067Z pre_run_command: npm run lint
+2025-12-13T05:36:46.679Z pre_run_command: npm run format:check
+2025-12-13T05:42:11.568Z pre_run_command: npm run deploy:staging
+2025-12-13T05:51:39.153Z pre_run_command: node scripts/i18n-identical.mjs common
+2025-12-13T06:01:36.388Z pre_run_command: node scripts/i18n-identical.mjs auth.toasts
+2025-12-13T06:01:36.387Z pre_run_command: node scripts/i18n-identical.mjs pages.docs
+2025-12-13T06:01:36.730Z pre_run_command: node scripts/i18n-identical.mjs pages.home
+2025-12-13T06:09:20.921Z pre_run_command: node scripts/i18n-identical.mjs pages.login
+2025-12-13T06:09:21.114Z pre_run_command: node scripts/i18n-identical.mjs pages.register
+2025-12-13T06:09:21.230Z pre_run_command: node scripts/i18n-identical.mjs pages.forgotPassword
+2025-12-13T06:09:21.346Z pre_run_command: node scripts/i18n-identical.mjs pages.resetPassword
+2025-12-13T06:09:21.503Z pre_run_command: node scripts/i18n-identical.mjs pages.pricing
+2025-12-13T06:09:21.619Z pre_run_command: node scripts/i18n-identical.mjs pages.blog
+2025-12-13T06:09:22.149Z pre_run_command: node scripts/i18n-identical.mjs faq

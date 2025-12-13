@@ -67,10 +67,8 @@ Konsistente Tooling‑Konfiguration und Typ‑Strenge für verlässliches Refact
   - `pre_write_code`:
     - Schützt kritische Single Sources of Truth vor automatischen Writes durch Cascade, insbesondere:
       - `.env`, `.env.*`
-      - `wrangler.toml`, `wrangler.ci.toml`
       - `.windsurf/rules/**`
-      - `openapi.yaml`
-      - `migrations/**`
+    - `wrangler.toml` und `openapi.yaml` sind **bewusst nicht** durch den Hook geschützt (manuelle Edits möglich).
     - Blockiert Writes mit Exit‑Code `2` und Hinweis im Cascade‑UI; manuelle Edits im Editor bleiben erlaubt.
   - `post_write_code`:
     - Führt **keine** automatischen CI‑Läufe aus.
@@ -96,6 +94,7 @@ Konsistente Tooling‑Konfiguration und Typ‑Strenge für verlässliches Refact
 
 ## Changelog
 
+- 2025-12-08: Hook-Scope klargezogen
 - 2025‑11‑13: Cascade Hooks als Teil der Tooling‑Baseline dokumentiert (Workspace‑Hooks, Guardrails).
 - 2025‑11‑12: Astro‑Linting präzisiert (plugin‑astro), `.prettierignore` um `tests/performance/README.md` erweitert, Astro.locals‑Leitlinie verankert.
 - 2025‑10‑31: `no-explicit-any=error` in `src/**` festgelegt; Tests warnend.
