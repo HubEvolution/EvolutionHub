@@ -58,11 +58,81 @@ async function requestWithTimeout(url: string, options: RequestInit & { timeout?
   }
 }
 
-async function getJsonSafe(res: Response) {
+async function getJsonSafe(res: Response): Promise<unknown | null> {
   try {
     return await res.json();
   } catch {
     return null;
+  }
+}
+
+type ToolStatus = 'enabled' | 'disabled' | 'unexpected';
+
+interface ToolWarmupConfig {
+  id: string;
+  usagePath: string;
+  pagePaths: string[];
+}
+
+interface ToolStatusResult {
+  id: string;
+  status: ToolStatus;
+  httpStatus?: number;
+  reason?: string;
+}
+
+function readStatusFromHealthBody(body: unknown): string | undefined {
+  if (!body || typeof body !== 'object') return undefined;
+  const b = body as { status?: unknown; data?: unknown };
+  if (typeof b.status === 'string') return b.status;
+  if (b.data && typeof b.data === 'object') {
+    const d = b.data as { status?: unknown };
+    if (typeof d.status === 'string') return d.status;
+  }
+  return undefined;
+}
+
+async function checkToolStatus(baseUrl: string, tool: ToolWarmupConfig): Promise<ToolStatusResult> {
+  const url = `${baseUrl}${tool.usagePath}`;
+  try {
+    const res = await requestWithTimeout(url, { method: 'GET' });
+    const body = await getJsonSafe(res);
+
+    const success =
+      Boolean(body && typeof body === 'object') &&
+      Boolean((body as { success?: unknown }).success === true);
+    if (res.status === 200 && success) {
+      return { id: tool.id, status: 'enabled', httpStatus: res.status };
+    }
+
+    const errObj =
+      body && typeof body === 'object' && (body as { error?: unknown }).error
+        ? ((body as { error?: unknown }).error as { type?: unknown; message?: unknown })
+        : null;
+    const errType = errObj && typeof errObj.type === 'string' ? errObj.type : undefined;
+    const errMessage = errObj && typeof errObj.message === 'string' ? errObj.message : undefined;
+
+    if (
+      res.status === 403 &&
+      errType === 'forbidden' &&
+      typeof errMessage === 'string' &&
+      errMessage.startsWith('feature.disabled.')
+    ) {
+      return { id: tool.id, status: 'disabled', httpStatus: res.status, reason: errMessage };
+    }
+
+    return {
+      id: tool.id,
+      status: 'unexpected',
+      httpStatus: res.status,
+      reason: errMessage ?? 'unexpected_response',
+    };
+  } catch (e) {
+    return {
+      id: tool.id,
+      status: 'unexpected',
+      reason: (e as Error).message,
+    };
   }
 }
 
@@ -73,7 +143,7 @@ async function checkHealth(baseUrl: string, retries = 3, timeout = REQUEST_TIMEO
       console.log(`[Health] Attempt ${attempt}/${retries}: ${url}`);
       const res = await requestWithTimeout(url, { method: 'GET', timeout });
       const body = await getJsonSafe(res);
-      const statusVal: string | undefined = body?.status ?? body?.data?.status;
+      const statusVal = readStatusFromHealthBody(body);
       if (res.status === 200 && statusVal === 'ok') {
         console.log('✅ Health OK');
         return true;
@@ -215,21 +285,52 @@ async function main() {
     '/en/login',
     '/register',
     '/en/register',
-    '/admin',
-    '/tools/imag-enhancer/app',
-    '/en/tools/imag-enhancer/app',
-    '/tools/prompt-enhancer/app',
-    '/en/tools/prompt-enhancer/app',
-    '/tools/webscraper/app',
-    '/en/tools/webscraper/app',
-    '/tools/voice-visualizer/app',
-    '/en/tools/voice-visualizer/app',
-    '/tools/video-enhancer/app',
-    '/en/tools/video-enhancer/app',
     '/blog',
     '/en/blog',
   ];
   await prewarmPaths(baseUrl, 'pages', pagePaths, concurrency);
+
+  const tools: ToolWarmupConfig[] = [
+    {
+      id: 'prompt',
+      usagePath: '/api/prompt/usage',
+      pagePaths: ['/tools/prompt-enhancer/app', '/en/tools/prompt-enhancer/app'],
+    },
+    {
+      id: 'ai-image',
+      usagePath: '/api/ai-image/usage',
+      pagePaths: ['/tools/imag-enhancer/app', '/en/tools/imag-enhancer/app'],
+    },
+    {
+      id: 'ai-video',
+      usagePath: '/api/ai-video/usage',
+      pagePaths: ['/tools/video-enhancer/app', '/en/tools/video-enhancer/app'],
+    },
+    {
+      id: 'voice',
+      usagePath: '/api/voice/usage',
+      pagePaths: ['/tools/voice-visualizer/app', '/en/tools/voice-visualizer/app'],
+    },
+    {
+      id: 'webscraper',
+      usagePath: '/api/webscraper/usage',
+      pagePaths: ['/tools/webscraper/app', '/en/tools/webscraper/app'],
+    },
+    {
+      id: 'web-eval',
+      usagePath: '/api/testing/evaluate/usage',
+      pagePaths: ['/tools/web-eval/app', '/en/tools/web-eval/app'],
+    },
+  ];
+
+  const toolStatusResults = await Promise.all(tools.map((t) => checkToolStatus(baseUrl, t)));
+
+  for (const tool of tools) {
+    const r = toolStatusResults.find((x: ToolStatusResult) => x.id === tool.id);
+    if (!r) continue;
+    if (r.status !== 'enabled') continue;
+    await prewarmPaths(baseUrl, `tool:${tool.id}`, tool.pagePaths, concurrency);
+  }
 
   const blogPaths = [
     '/blog/ki-als-kollege',
@@ -252,20 +353,28 @@ async function main() {
   await prewarmPaths(baseUrl, 'blog-archive', blogPaths, concurrency);
 
   // APIs (public, lightweight)
-  const apiPaths = [
-    '/api/tools',
-    '/api/ai-image/usage',
-    '/api/ai-video/usage',
-    '/api/prompt/usage',
-    '/api/voice/usage',
-    '/api/webscraper/usage',
-  ];
+  const apiPaths = ['/api/tools'];
   await prewarmPaths(baseUrl, 'apis', apiPaths, concurrency);
 
   // Optional: warm top blog posts via RSS
   const rssPostPaths = await prewarmRssTopPosts(baseUrl, 3);
   if (rssPostPaths.length > 0) {
     await prewarmPaths(baseUrl, 'blog-posts', rssPostPaths, concurrency);
+  }
+
+  const unexpected = toolStatusResults.filter((r: ToolStatusResult) => r.status === 'unexpected');
+  const statusLines = toolStatusResults
+    .map((r: ToolStatusResult) => {
+      const suffix = r.reason ? ` (${r.reason})` : '';
+      const http = typeof r.httpStatus === 'number' ? ` ${r.httpStatus}` : '';
+      return `- ${r.id}: ${r.status.toUpperCase()}${http}${suffix}`;
+    })
+    .join('\n');
+  console.log(`\nTools Warmup Summary${envLabel ? ` (${envLabel})` : ''}:\n${statusLines}`);
+
+  if (unexpected.length > 0) {
+    console.error(`\n❌ Warmup failed: ${unexpected.length} tool(s) returned an unexpected status`);
+    process.exit(1);
   }
 
   console.log('\n✅ Warmup completed');
@@ -276,3 +385,5 @@ main().catch((e) => {
   console.error(`❌ Warmup fatal error: ${(e as Error).message}`);
   process.exit(1);
 });
+
+export {};

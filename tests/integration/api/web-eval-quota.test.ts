@@ -43,6 +43,15 @@ async function getUsageForGuest(guestId: string) {
     }
   );
 
+  if (
+    res.status === 403 &&
+    json?.success === false &&
+    json.error?.type === 'forbidden' &&
+    json.error?.message === 'feature.disabled.web_eval'
+  ) {
+    return null;
+  }
+
   expect(res.status).toBe(200);
   if (!json || json.success !== true || !json.data) {
     throw new Error('Expected success usage response for Web Eval');
@@ -84,6 +93,7 @@ describe('Web Eval Task Create — Quota enforcement', () => {
     const guestId = buildGuestId();
 
     const usage = await getUsageForGuest(guestId);
+    if (!usage) return;
     const { used, limit } = usage;
 
     if (!Number.isFinite(limit) || limit <= 0) {

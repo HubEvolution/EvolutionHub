@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { TEST_URL, csrfHeaders, hex32, safeParseJson } from '../../shared/http';
+import { TEST_URL, csrfHeaders, safeParseJson } from '../../shared/http';
 
 interface ApiJson<T = unknown> {
   success: boolean;

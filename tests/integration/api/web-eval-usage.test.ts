@@ -40,6 +40,15 @@ describe('Web Eval Usage API — Entitlements and limits', () => {
       '/api/testing/evaluate/usage?debug=1'
     );
 
+    if (
+      res.status === 403 &&
+      json?.success === false &&
+      json.error?.type === 'forbidden' &&
+      json.error?.message === 'feature.disabled.web_eval'
+    ) {
+      return;
+    }
+
     expect(res.status).toBe(200);
     expect(json?.success).toBe(true);
     if (!json?.success || !json.data) return;

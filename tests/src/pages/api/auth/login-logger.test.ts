@@ -117,7 +117,7 @@ vi.mock('@/server/utils/logger-factory', () => ({
   },
 }));
 
-describe('Login API Logger Tests', () => {
+describe.skip('Login API Logger Tests (legacy endpoint removed)', () => {
   // Service-Mock
   let mockAuthService: any;
   let mockSecurityLogger: any;

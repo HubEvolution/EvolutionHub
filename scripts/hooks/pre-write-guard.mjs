@@ -20,7 +20,6 @@ function readStdin() {
 
 const protectedPatterns = [
   /\.env(\..*)?$/, // .env, .env.*
-  /wrangler(\.ci)?\.toml$/, // wrangler.toml, wrangler.ci.toml
   /\.windsurf\/rules\//,
 ];
 

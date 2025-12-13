@@ -81,7 +81,6 @@ function fixMarkdown(content: string): string {
 
     // Ordered list blocks: support "." and ")" markers; enforce 1/1/1 style
     if (/^\s*\d+[\.)]/.test(line)) {
-      const blockIdxStart = i;
       const block: { idx: number; indent: string; text: string; num: number; marker: string }[] =
         [];
       while (i < lines.length && /^\s*\d+[\.)]/.test(lines[i])) {

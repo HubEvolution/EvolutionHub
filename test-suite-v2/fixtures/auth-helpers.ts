@@ -277,8 +277,6 @@ export async function loginAs(
  */
 export async function logout(page: Page): Promise<void> {
   // Navigate to dashboard (or current page)
-  const currentUrl = page.url();
-
   // Look for logout button
   const logoutSelectors = [
     'button:has-text("Logout")',

@@ -52,7 +52,8 @@ function makeContext(env: any, user?: { id: string; plan?: string }) {
 function mockReplicateFetch() {
   vi.stubGlobal(
     'fetch',
-    vi.fn(async (url: string, init?: any) => {
+    vi.fn(async (url: string, _init?: unknown) => {
+      void _init;
       if (typeof url === 'string' && url.includes('/v1/models/topazlabs/video-upscale')) {
         return new Response(JSON.stringify({ latest_version: { id: 'ver-123' } }), { status: 200 });
       }

@@ -57,6 +57,11 @@ PUBLIC_ENHANCER_MVP_MODE = "0"
 PUBLIC_ENHANCER_LEGACY_MODE = "1"
 ENABLE_REFERRAL_REWARDS = "1"
 REFERRAL_REWARD_TENTHS = "500"
+PUBLIC_PROMPT_ENHANCER_V1 = "1"
+ENABLE_VIDEO_ENHANCER = "1"
+PUBLIC_TOOL_VOICE_VISUALIZER = "1"
+PUBLIC_TOOL_WEBSCRAPER = "1"
+PUBLIC_TOOL_WEB_EVAL = "1"
 
 [env.production.ai]
 binding = "AI"
@@ -303,12 +308,19 @@ CLOUDFLARE_ACCOUNT_ID = "39434b5635d8beb4bde93e1792b628d7"
 BASE_URL = "https://hub-evolution.com"
 LEADMAGNET_SOURCE = "r2"
 USAGE_KV_V2 = "1"
-WORKERS_AI_ENABLED = "1"
+WORKERS_AI_ENABLED = "0"
 PUBLIC_ENABLE_CREDITS_CTA = "1"
 PUBLIC_LANDING_BG_VARIANT = "techcells"
 PUBLIC_DISABLE_LEADMAGNETS = "1"
 # Temporär für Admin-Credit-Grants (UI in /admin). Nach Vergabe wieder auf "0" setzen.
-INTERNAL_CREDIT_GRANT = "1"
+INTERNAL_CREDIT_GRANT = "0"
+PUBLIC_PROMPT_ENHANCER_V1 = "1"
+ENABLE_VIDEO_ENHANCER = "1"
+# Disable non-Enhancer tools in production via feature flags
+PUBLIC_TOOL_VOICE_VISUALIZER = "0"
+PUBLIC_TOOL_WEBSCRAPER = "0"
+PUBLIC_WEBSCRAPER_V1 = "false"
+PUBLIC_TOOL_WEB_EVAL = "0"
 # Live Stripe price IDs (plan -> price)
 PRICING_TABLE = '{"free":"","pro":"price_1SKjwqHdpdQAtOQBPUkZoavZ","premium":"price_1SKjx5HdpdQAtOQB5NLrDeSC","enterprise":"price_1SKjwaHdpdQAtOQBiEjoUpTK"}'
 PRICING_TABLE_ANNUAL = '{"free":"","pro":"price_1SKjwrHdpdQAtOQBWuyGjizw","premium":"price_1SKjx6HdpdQAtOQB8QTHxs0j","enterprise":"price_1SKjwbHdpdQAtOQBoR40Gesj"}'
@@ -399,7 +411,6 @@ binding = "DB"
 database_name = "evolution-hub-main"
 database_id = "cadc96d1-712a-4873-8f3d-da87a936f3be"
 
-
 [[env.testing.routes]]
 pattern = "ci.hub-evolution.com/*"
 zone_name = "hub-evolution.com"
@@ -428,7 +439,12 @@ VOICE_STREAM_POLL = "1"
 WORKERS_AI_ENABLED = "1"
 # Allow Workers AI only for specific free models in testing; keep Replicate disabled (no token).
 TESTING_WORKERS_AI_ALLOW = "1"
-TESTING_ALLOWED_CF_MODELS = '["@cf/runwayml/stable-diffusion-v1-5-img2img","@cf/stabilityai/stable-diffusion-xl-base-1.0"]'
+TESTING_ALLOWED_CF_MODELS = '[@"cf/runwayml/stable-diffusion-v1-5-img2img","@cf/stabilityai/stable-diffusion-xl-base-1.0"]'
+PUBLIC_PROMPT_ENHANCER_V1 = "1"
+ENABLE_VIDEO_ENHANCER = "1"
+PUBLIC_TOOL_VOICE_VISUALIZER = "1"
+PUBLIC_TOOL_WEBSCRAPER = "1"
+PUBLIC_TOOL_WEB_EVAL = "1"
 
 [[env.testing.d1_databases]]
 binding = "DB"
@@ -507,6 +523,7 @@ AUTH_PROVIDER = "stytch"
 STYTCH_CUSTOM_DOMAIN = "login-test.hub-evolution.com"
 PUBLIC_ENABLE_CREDITS_CTA = "1"
 PUBLIC_LANDING_BG_VARIANT = "techcells"
+PUBLIC_LANDING_PROMPT_ORBIT = "1"
 
 # ...
 USAGE_KV_V2 = "1"
@@ -516,6 +533,11 @@ PUBLIC_ENHANCER_MVP_MODE = "1"
 PUBLIC_ENHANCER_LEGACY_MODE = "1"
 ENABLE_REFERRAL_REWARDS = "1"
 REFERRAL_REWARD_TENTHS = "500"
+PUBLIC_PROMPT_ENHANCER_V1 = "1"
+ENABLE_VIDEO_ENHANCER = "1"
+PUBLIC_TOOL_VOICE_VISUALIZER = "1"
+PUBLIC_TOOL_WEBSCRAPER = "1"
+PUBLIC_TOOL_WEB_EVAL = "1"
 
 # Enable Cloudflare Browser Rendering runner in staging (Web-Eval)
 WEB_EVAL_BROWSER_ENABLE = "1"

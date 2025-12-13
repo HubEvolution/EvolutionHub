@@ -1,11 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import {
-  createRateLimiter,
-  rateLimit,
-  type RateLimiter,
-  type RateLimiterContext,
-} from '@/lib/rate-limiter';
+import { createRateLimiter, rateLimit, type RateLimiterContext } from '@/lib/rate-limiter';
 
 type KvKey = string;
 type KvValue = { value: string; expiresAt?: number };

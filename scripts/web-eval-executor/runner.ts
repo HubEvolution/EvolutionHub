@@ -125,7 +125,7 @@ export async function runTask(task: WebEvalTask): Promise<CompletionPayload> {
           .catch(() => undefined);
         try {
           // stop and save trace if enabled
-          // @ts-expect-error tracing on context may not have strong types here
+          // @ts-ignore tracing on context may not have strong types here
           if (task.traceOnFailure && page.context()?.tracing) {
             await page.context().tracing.stop({ path: join(dir, 'trace.zip') });
           }
@@ -138,7 +138,7 @@ export async function runTask(task: WebEvalTask): Promise<CompletionPayload> {
     } else if (task.traceOnFailure) {
       try {
         // Stop tracing without saving if success
-        // @ts-expect-error tracing on context may not have strong types here
+        // @ts-ignore tracing on context may not have strong types here
         await page?.context()?.tracing?.stop();
       } catch {
         // ignore

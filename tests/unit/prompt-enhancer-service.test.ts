@@ -170,7 +170,7 @@ describe('PromptEnhancerService', () => {
       const result = await service.enhance(defaultInput, defaultOptions, 'guest', 'test-guest-id');
 
       expect(result.enhanced.role).toBe('You are an expert prompt engineer.');
-      expect(result.enhanced.objective).toContain('Perform generate task');
+      expect(result.enhanced.objective).toContain('can generate effectively');
       expect(result.usage.used).toBe(1);
       expect(result.usage.limit).toBe(5);
       expect(mockLogger.info).toHaveBeenCalledWith('enhance_completed', expect.any(Object));

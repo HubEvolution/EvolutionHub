@@ -12,7 +12,6 @@ import {
   rateLimit,
   resetLimiterKey,
   type RateLimiterContext,
-  type RateLimiter,
 } from '@/lib/rate-limiter';
 
 let limiterCounter = 0;

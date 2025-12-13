@@ -47,6 +47,11 @@ favicon_package/
 # Non-JSON test artifact
 webhook.testing.json
 
+# Temporary localization drafts (excluded from Prettier checks)
+temp.json
+temp_clean.json
+temp_start.json
+
 tests/performance/README.md
 
 # Temporarily ignore docs and a problematic workflow file for Prettier stability

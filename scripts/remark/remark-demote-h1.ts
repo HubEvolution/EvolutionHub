@@ -13,8 +13,9 @@ export const remarkDemoteH1: Plugin = () => {
       return;
     }
     visit(tree, 'heading', (node) => {
-      if (node.depth === 1) {
-        node.depth = 2;
+      const heading = node as unknown as { depth?: number };
+      if (heading.depth === 1) {
+        heading.depth = 2;
       }
     });
   };

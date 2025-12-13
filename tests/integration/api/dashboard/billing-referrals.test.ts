@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getJson, sendJson, csrfHeaders, TEST_URL } from '../../../shared/http';
+import { getJson, sendJson } from '../../../shared/http';
 
 // Tolerant integration checks for dashboard billing/referral summary endpoints
 // - 401 unauth OK

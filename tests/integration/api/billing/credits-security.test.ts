@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { sendJson, csrfHeaders, TEST_URL, safeParseJson } from '../../../shared/http';
+import { sendJson, TEST_URL } from '../../../shared/http';
 import { debugLogin } from '../../../shared/auth';
 
 type ApiJson = { success?: boolean; data?: unknown; error?: { type?: string; message?: string } };

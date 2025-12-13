@@ -15,20 +15,6 @@ const rootDir = join(__dirname, '../..');
 // Test-Server-URL (Cloudflare Wrangler default: 8787). Prefer TEST_BASE_URL from global-setup
 const TEST_URL = (process.env.TEST_BASE_URL || 'http://127.0.0.1:8787').replace(/\/$/, '');
 
-// Rate-Limiting-Konfiguration gemäß globalen Regeln
-const RATE_LIMITS = {
-  aiGenerate: { limit: 15, window: '1m' },
-  auth: { limit: 10, window: '1m' },
-  sensitiveAction: { limit: 5, window: '1h' },
-  api: { limit: 30, window: '1m' },
-  newsletter: { limit: 15, window: '1m' },
-  leadMagnet: { limit: 15, window: '1m' },
-  avatar: { limit: 5, window: '1m' },
-  billing: { limit: 10, window: '1m' },
-  dashboard: { limit: 30, window: '1m' },
-  projects: { limit: 20, window: '1m' },
-};
-
 // Interface für Performance-Test-Ergebnisse
 interface PerformanceResult {
   endpoint: string;
@@ -56,7 +42,6 @@ async function makeParallelRequests(
   const endTime = Date.now();
 
   const successful = responses.filter((r) => r.status === 'fulfilled').length;
-  const failed = responses.filter((r) => r.status === 'rejected').length;
   const rateLimited = responses.filter(
     (r) => r.status === 'fulfilled' && r.value.status === 429
   ).length;
@@ -194,7 +179,8 @@ describe('Rate-Limiting-Performance-Tests', () => {
       const result = await makeParallelRequests(
         `${TEST_URL}/api/lead-magnets/download`,
         25, // Mehr als das Limit
-        async (index) => {
+        async (_index) => {
+          void _index;
           const response = await fetch(`${TEST_URL}/api/lead-magnets/download`, {
             method: 'POST',
             headers: {
@@ -289,7 +275,8 @@ describe('Rate-Limiting-Performance-Tests', () => {
       const result = await makeParallelRequests(
         `${TEST_URL}/api/dashboard/stats`,
         40, // Mehr als das Limit von 30
-        async (index) => {
+        async (_index) => {
+          void _index;
           const response = await fetch(`${TEST_URL}/api/dashboard/stats`);
           return response;
         }

@@ -620,7 +620,6 @@ describe('Server-Helper', () => {
 
     it('sollte Server-Uptime korrekt berechnen', async () => {
       const testServer = await setupTestServer();
-      const startTime = testServer.startTime;
 
       await new Promise((resolve) => setTimeout(resolve, 10));
 

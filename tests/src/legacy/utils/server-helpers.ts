@@ -398,7 +398,8 @@ function registerDashboardRoutes(server: TestServer): void {
   server.routes.set('GET /api/dashboard/stats', {
     method: 'GET',
     path: '/api/dashboard/stats',
-    handler: (req, res) => {
+    handler: (_req, res) => {
+      void _req;
       server.requestCount++;
       res.status(200).json({
         users: { total: 1250, active: 890, new: 45 },

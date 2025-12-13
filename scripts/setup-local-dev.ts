@@ -363,6 +363,10 @@ const R2_BUCKET =
 const KV_BINDING = extractConfigValue(WRANGLER_CONFIG, 'binding') || 'SESSION';
 const KV_NAMESPACE = extractConfigValue(WRANGLER_CONFIG, 'preview_id') || 'SESSION_LOCAL';
 
+void DB_BINDING;
+void R2_BINDING;
+void KV_BINDING;
+
 console.log('🚀 Starte Einrichtung der lokalen Entwicklungsumgebung...');
 
 // 1. Lokale D1-Datenbank erstellen

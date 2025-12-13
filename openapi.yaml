@@ -1067,6 +1067,40 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiErrorResponse'
+  /api/testing/evaluate/usage:
+    get:
+      summary: Web-Eval usage/limits
+      description: |
+        Returns current 24h usage and effective plan-based limit for the current owner (user or guest with guest_id cookie).
+        If the Web-Eval tool is disabled via feature flag, returns 403 with `feature.disabled.web_eval`.
+      x-source: src/pages/api/testing/evaluate/usage.ts
+      operationId: getTestingEvaluateUsage
+      parameters:
+        - name: debug
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Optional debug mode (`debug=1`) adds a debug section to the response.
+      responses:
+        "200":
+          description: Usage/Limits
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsageSuccessResponse'
+        "403":
+          description: Forbidden (feature flag off)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /api/testing/evaluate/next:
     post:
       summary: Claim next pending web evaluation task (executor)
@@ -3450,6 +3484,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UsageSuccessResponse'
+        "403":
+          description: Forbidden (feature flag off)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
         "500":
           description: Server error
           content:
@@ -4894,6 +4934,8 @@ components:
           properties:
             enhancedPrompt:
               type: string
+            enhancedPromptJson:
+              $ref: '#/components/schemas/EnhancedPromptJson'
             safetyReport:
               type: object
               nullable: true
@@ -4915,6 +4957,34 @@ components:
                 guest: { type: integer }
               required: [user, guest]
       required: [success, data]
+    EnhancedPromptJson:
+      type: object
+      additionalProperties: false
+      properties:
+        role:
+          type: string
+        objective:
+          type: string
+        constraints:
+          type: string
+        outputFormat:
+          type: string
+        steps:
+          type: array
+          items:
+            type: string
+        fewShotExamples:
+          type: array
+          items:
+            type: string
+        rawText:
+          type: string
+      required:
+        - role
+        - objective
+        - constraints
+        - outputFormat
+        - rawText
     LeadMagnetMetadata:
       type: object
       properties:

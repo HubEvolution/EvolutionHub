@@ -22,13 +22,13 @@ vi.mock('@/server/utils/logger-factory', () => {
 });
 
 // Stub bcrypt compare/hash to avoid expensive operations
-const compareMock = vi.fn<[], Promise<boolean>>();
-const hashMock = vi.fn<[], Promise<string>>();
+const compareMock = vi.fn((..._args: unknown[]) => Promise.resolve(false));
+const hashMock = vi.fn((..._args: unknown[]) => Promise.resolve(''));
 
 vi.mock('bcrypt-ts', () => {
   return {
-    compare: (...args: unknown[]) => compareMock(...(args as [])),
-    hash: (...args: unknown[]) => hashMock(...(args as [])),
+    compare: (...args: unknown[]) => compareMock(...args),
+    hash: (...args: unknown[]) => hashMock(...args),
   };
 });
 

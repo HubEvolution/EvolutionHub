@@ -6,8 +6,8 @@ import * as rateLimiterModule from '@/lib/rate-limiter';
 import type { RateLimiter } from '@/lib/rate-limiter';
 
 vi.mock('@/lib/rate-limiter', () => ({
-  standardApiLimiter: vi.fn<RateLimiter>().mockResolvedValue(null),
-  apiRateLimiter: vi.fn<RateLimiter>().mockResolvedValue(null),
+  standardApiLimiter: vi.fn(async () => undefined) as unknown as RateLimiter,
+  apiRateLimiter: vi.fn(async () => undefined) as unknown as RateLimiter,
 }));
 
 vi.mock('@/lib/security-logger', () => ({

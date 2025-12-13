@@ -30,9 +30,13 @@ const mockedKvGetUsage = vi.mocked(kvGetUsage);
 type RuntimeEnv = ConstructorParameters<typeof AiImageService>[0];
 
 function createService(overrides: Partial<RuntimeEnv> = {}) {
+  const getMock = vi.fn<(key: string) => Promise<string | null>>();
+  const putMock =
+    vi.fn<(key: string, value: string, opts?: Record<string, unknown>) => Promise<void>>();
+
   const kv = {
-    get: vi.fn(),
-    put: vi.fn(),
+    get: getMock,
+    put: putMock,
   } as unknown as KVNamespace;
 
   const env: RuntimeEnv = {
@@ -43,6 +47,7 @@ function createService(overrides: Partial<RuntimeEnv> = {}) {
   return {
     service: new AiImageService(env),
     kv,
+    getMock,
     env,
   };
 }
@@ -54,8 +59,8 @@ describe('AiImageService', () => {
 
   describe('getUsage', () => {
     it('returns default usage when KV value is missing', async () => {
-      const { service, kv } = createService();
-      vi.mocked(kv.get).mockResolvedValueOnce(null);
+      const { service, kv, getMock } = createService();
+      getMock.mockResolvedValueOnce(null);
 
       const result = await service.getUsage('user' as OwnerType, 'user-1', 3);
 
@@ -64,8 +69,8 @@ describe('AiImageService', () => {
     });
 
     it('parses KV payload when present', async () => {
-      const { service, kv } = createService();
-      vi.mocked(kv.get).mockResolvedValueOnce(JSON.stringify({ count: 2, resetAt: 1700000000 }));
+      const { service, getMock } = createService();
+      getMock.mockResolvedValueOnce(JSON.stringify({ count: 2, resetAt: 1700000000 }));
 
       const result = await service.getUsage('guest' as OwnerType, 'guest-99', 5);
 

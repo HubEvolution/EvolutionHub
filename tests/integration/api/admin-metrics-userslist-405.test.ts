@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getJson, sendJson } from '../../shared/http';
+import { sendJson } from '../../shared/http';
 
 describe('Admin APIs 405/Allow — metrics & users/list', () => {
   it('POST /api/admin/metrics → 405 with Allow: GET', async () => {

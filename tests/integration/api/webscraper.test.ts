@@ -2,7 +2,7 @@
  * Integration tests for Webscraper API
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 
 describe('Webscraper API Integration Tests', () => {
   it('should validate request structure', () => {

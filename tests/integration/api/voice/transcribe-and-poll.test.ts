@@ -22,7 +22,13 @@ describe('POST /api/voice/transcribe + GET /api/voice/poll', () => {
     const jobId = `it-${hex32()}`;
     const sessionId = `sess-${hex32()}`;
     const mime = 'audio/webm';
-    const blob = new Blob([new Uint8Array(2048)], { type: mime });
+    const bytes = new Uint8Array(2048);
+    // EBML header (WebM/Matroska signature) so server-side MIME sniffing accepts the payload
+    bytes[0] = 0x1a;
+    bytes[1] = 0x45;
+    bytes[2] = 0xdf;
+    bytes[3] = 0xa3;
+    const blob = new Blob([bytes], { type: mime });
     const file = new File([await blob.arrayBuffer()], `chunk.${extFromType(mime)}`, { type: mime });
 
     const form = new FormData();

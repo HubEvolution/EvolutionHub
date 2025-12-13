@@ -89,22 +89,22 @@ async function startWorkers(count: number) {
     env.WEB_EVAL_TRACE_ON_FAILURE = runnerDefaults.traceOnFailure ? '1' : '0';
   const pids = readPool();
   for (let i = 0; i < count; i++) {
-    const child = await execa('npm', ['run', '-s', 'web-eval:executor'], {
+    const child = execa('npm', ['run', '-s', 'web-eval:executor'], {
       stdio: 'ignore',
       env,
       detached: true,
     });
-    // execa returns once child exits unless detached; with detached it still waits for spawn
-    if (child?.pid) {
-      try {
-        // @ts-expect-error execa types
-        child.unref?.();
-      } catch {}
+    if (child.pid) {
+      child.unref();
       pids.push(child.pid);
     }
   }
   writePool(pids);
   console.log(`Started ${count} worker(s). Pool size: ${pids.length}`);
+}
+
+async function startFgAuto() {
+  await execa('npm', ['run', '-s', 'web-eval:exec:auto'], { stdio: 'inherit' });
 }
 
 function listWorkers() {

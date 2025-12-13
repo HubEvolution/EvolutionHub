@@ -408,6 +408,10 @@ function getDefaultShellConfigFile(): string {
   }
 }
 
+void createTestUser;
+void setupShellAliases;
+void showDocumentation;
+
 // Starte das Hauptprogramm
 main().catch((error) => {
   console.error(chalk.red('Ein Fehler ist aufgetreten:'));

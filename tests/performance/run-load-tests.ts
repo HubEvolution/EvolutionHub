@@ -13,7 +13,35 @@ const __dirname = dirname(__filename);
 
 // Lade Load-Test-Konfiguration
 const configPath = join(__dirname, 'load-test-config.json');
-const config = JSON.parse(readFileSync(configPath, 'utf-8'));
+
+type LoadTestConfig = {
+  testEnvironments: Record<string, { baseUrl: string }>;
+  rateLimitTests: Record<
+    string,
+    {
+      endpoint: string;
+      method: 'GET' | 'POST';
+      testScenarios: Array<{
+        name: string;
+        requestsPerSecond: number;
+        duration: number;
+        expectedRateLimited: number;
+      }>;
+    }
+  >;
+  stressTests: {
+    burstTraffic: {
+      requestsPerEndpoint: number;
+      parallelEndpoints: string[];
+    };
+  };
+  performanceThresholds: {
+    maxAverageResponseTime: number;
+    minRequestsPerSecond: number;
+  };
+};
+
+const config = JSON.parse(readFileSync(configPath, 'utf-8')) as LoadTestConfig;
 
 // Kommandozeilenargumente
 const args = process.argv.slice(2);
@@ -39,11 +67,12 @@ interface LoadTestResult {
 
 // Hilfsfunktion für parallele Requests
 async function makeParallelRequests(
-  baseUrl: string,
+  _baseUrl: string,
   endpoint: string,
   count: number,
   requestFn: (index: number) => Promise<Response>
 ): Promise<LoadTestResult> {
+  void _baseUrl;
   const startTime = Date.now();
   const promises = Array(count)
     .fill(null)
@@ -86,8 +115,9 @@ async function runRateLimitTests() {
   const envConfig = config.testEnvironments[environment];
   const baseUrl = envConfig.baseUrl;
 
-  for (const [apiName, apiConfig] of Object.entries(config.rateLimitTests)) {
+  for (const apiName of Object.keys(config.rateLimitTests)) {
     if (endpoint && !apiName.includes(endpoint)) continue;
+    const apiConfig = config.rateLimitTests[apiName];
 
     console.log(`📊 Teste ${apiName} Rate-Limiting...`);
 
@@ -298,6 +328,7 @@ async function main() {
     }
 
     const report = saveResults(results, testType);
+    void report;
 
     // Prüfe ob alle Tests erfolgreich waren
     const allSuccessful = results.every((r) => r.success);
