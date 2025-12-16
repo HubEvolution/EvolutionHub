@@ -71,3 +71,6 @@ secrets/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Generated JavaScript from TypeScript
+public/scripts/**/*.js
