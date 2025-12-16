@@ -56,6 +56,12 @@ enable_experimental_windows_sandbox = false
 # MCP servers available to Codex in this project
 # See: https://github.com/openai/codex/blob/main/docs/config.md#mcp-integration
 [mcp_servers]
+[mcp_servers.playwright]
+command = "npx"
+args = ["-y", "--package", "@playwright/mcp@0.0.52", "mcp-server-playwright"]
+# optional:
+# startup_timeout_sec = 30
+# tool_timeout_sec = 120
 
 # Google Search Console MCP (stdio)
 [mcp_servers.gsc]

@@ -1,13 +1,10 @@
 ---
 trigger: always_on
----
-
-trigger: always_on
 scope: feature
 extends:
-
-- api-and-security.md
-- zod-openapi.md
+  - api-and-security.md
+  - zod-openapi.md
+---
 
 # Pricing & Stripe Rules
 

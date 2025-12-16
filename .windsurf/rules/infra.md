@@ -11,6 +11,10 @@ Saubere Worker‑Konfiguration, Bindings und Middleware‑Verhalten auf Edge‑E
 ## Muss
 
 - [wrangler.toml](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/wrangler.toml:0:0-0:0) pro Environment vollständige Bindings (D1/KV/R2; optional `[ai] binding = "AI"`).
+- Bindings sind die Source of Truth für Runtime‑Zugriffe:
+  - D1: `binding = "DB"` (Code greift über `context.locals.runtime.env.DB` zu)
+  - KV/R2: Binding‑Namen müssen mit Code & Rules konsistent sein (siehe [caching-kv.md](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/.windsurf/rules/caching-kv.md:0:0-0:0))
+  - Schema‑Änderungen an D1 laufen ausschließlich über `migrations/*.sql` (siehe [database-migrations.md](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/.windsurf/rules/database-migrations.md:0:0-0:0))
 - Middleware setzt Security‑Header; `/r2-ai/**` bleibt öffentlich erreichbar. Ergebnisse unter `results/<ownerType>/<ownerId>/*` sind owner‑gegated; `uploads/*` bleibt öffentlich (Provider‑Fetch).
 - CSRF/Origin‑Regeln aus API & Security gelten auch für Redirect‑Endpunkte (via `withRedirectMiddleware`).
 - Assets‑Serving aus `dist/`; `.assetsignore` schließt `_worker.js` aus.
@@ -25,6 +29,9 @@ Saubere Worker‑Konfiguration, Bindings und Middleware‑Verhalten auf Edge‑E
 - `astro.config.mjs`
 - [wrangler.toml](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/wrangler.toml:0:0-0:0)
 - [src/middleware.ts](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/src/middleware.ts:0:0-0:0)
+- `migrations/*.sql`
+- [.windsurf/rules/caching-kv.md](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/.windsurf/rules/caching-kv.md:0:0-0:0)
+- [.windsurf/rules/database-migrations.md](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/.windsurf/rules/database-migrations.md:0:0-0:0)
 
 ## Referenzen
 
@@ -33,5 +40,6 @@ Saubere Worker‑Konfiguration, Bindings und Middleware‑Verhalten auf Edge‑E
 
 ## Changelog
 
+- 2025-12-16: Infra um Referenzen/Verbindlichkeit für D1-Migrations sowie KV/R2 Binding-Konsistenz ergänzt.
 - 2025‑11‑13: R2‑AI Policy präzisiert: Route öffentlich erreichbar; `uploads/*` öffentlich; `results/*` owner‑gegated.
 - 2025‑10‑31: Bindings + Assets‑Serving konkretisiert; `/r2-ai/**` öffentlich bekräftigt.

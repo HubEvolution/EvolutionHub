@@ -2,17 +2,16 @@
 trigger: always_on
 ---
 
----
-trigger: always_on
----
+AI Video Enhancer Rules
+=======================
 
-# AI Video Enhancer Rules
-
-## Zweck
+Zweck
+-----
 
 Sicheres Video‑Upscaling über Replicate mit strikten Upload‑Guardrails, planbasierten Quoten/Krediten, R2‑Speicherung und konsistenter Fehlerbehandlung.
 
-## Muss
+Muss
+----
 
 - Upload & Validierung
   - Form‑Data Felder `file`, `tier`, `durationMs` strikt mit `videoUploadSchema` prüfen (`durationMs` ≥ 1, Tier ∈ {720p,1080p}).
@@ -39,18 +38,21 @@ Sicheres Video‑Upscaling über Replicate mit strikten Upload‑Guardrails, pla
   - `GET /api/ai-video/jobs/:id` validiert Eigentum (Session vs. `guest_id`); fremde Jobs → `forbidden`.
   - Erfolgreiche Jobs laden Provider‑Output, speichern unter `ai-video/results/...` (14 Tage), geben signalisierende URL über `/r2-ai/` zurück.
 
-## Sollte
+Sollte
+------
 
 - Structured Logging der Provider‑Responses (redacted) und KV‑Charge‑Pfade zur Nachvollziehbarkeit.
 - UI soll Gebühren (Credits/Quota) und Fortschritt transparent anzeigen; Polling‑Intervalle adaptiv an `Retry-After` anpassen.
 - Quoten‑/Kreditwerte in Docs und OpenAPI synchron halten (TIER_CREDITS, Monatskontingente).
 
-## Nicht
+Nicht
+-----
 
 - Keine Provider‑ oder R2‑Credentials im Client speichern.
 - Keine Videos außerhalb geprüfter Formate/Limits akzeptieren; keine dauerhafte Speicherung über definierte Retention hinaus.
 
-## Checkliste
+Checkliste
+----------
 
 - [ ] Upload validiert MIME, Größe, Dauer und schreibt nach `ai-video/uploads`.
 - [ ] Rate‑Limit `aiJobsLimiter` liefert `Retry-After`.
@@ -58,7 +60,8 @@ Sicheres Video‑Upscaling über Replicate mit strikten Upload‑Guardrails, pla
 - [ ] Kredit‑/Quota‑Pfade idempotent; Fehlermeldungen nutzen `insufficient_*` Shapes.
 - [ ] Job‑Polling prüft Eigentum, speichert Ergebnisse in `ai-video/results` mit 14‑Tage‑Retention.
 
-## Code‑Anker
+Code‑Anker
+----------
 
 - `src/pages/api/ai-video/upload.ts`
 - `src/pages/api/ai-video/generate.ts`
@@ -68,17 +71,20 @@ Sicheres Video‑Upscaling über Replicate mit strikten Upload‑Guardrails, pla
 - `src/lib/kv/usage.ts`
 - `src/components/tools/video-enhancer/VideoEnhancerIsland.tsx`
 
-## CI/Gates
+CI/Gates
+--------
 
 - `npm run test:integration` (AI Video Upload/Generate/Poll)
 - `npm run openapi:validate`
 - `npm run lint`
 
-## Referenzen
+Referenzen
+----------
 
 - Global Rules; API & Security Rules; Zod↔OpenAPI.
 - [.windsurf/rules/image-enhancer.md](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/.windsurf/rules/image-enhancer.md:0:0-0:0), [.windsurf/rules/transcriptor.md](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/.windsurf/rules/transcriptor.md:0:0-0:0)
 
-## Changelog
+Changelog
+---------
 
 - 2025‑11‑05: Erstfassung für Video‑Upscaling (Upload, Provider, Quoten, Ownership).

@@ -3,6 +3,7 @@
 Geltung: `scripts/*` (inkl. `scripts/dev`, `scripts/setup`).
 
 Baseline-Rules für Skripte:
+
 - Infra/Struktur: `.windsurf/rules/infra.md`, `.windsurf/rules/project-structure.md`.
 - Qualität/Automation (falls zutreffend): `.windsurf/rules/testing-and-ci.md`, `.windsurf/rules/docs-documentation.md`, `.windsurf/rules/zod-openapi.md`.
 

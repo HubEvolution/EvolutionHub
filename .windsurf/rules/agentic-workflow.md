@@ -7,6 +7,7 @@ trigger: always_on
 ## Zweck
 
 Sicherstellen, dass für jede Aufgabe ein nachvollziehbarer, fehlerarmer Ablauf eingehalten wird:
+
 - Zuerst gründlich planen (Ziele, Kontext, Risiken, Tasks).
 - Zwischenschritte in der richtigen Reihenfolge ausführen und wiederholen, bis „Done“.
 - Umsetzung erst nach deiner ausdrücklichen Freigabe.

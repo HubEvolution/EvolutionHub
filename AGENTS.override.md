@@ -1,4 +1,6 @@
-# AGENTS.md (Root)
+# AGENTS.md (Root Override)
+
+> Hinweis: Dieses Override spiegelt den aktuellen Inhalt von `AGENTS.md`. Temporäre/kurzfristige Abweichungen bitte hier ergänzen und anschließend zurückrollen oder mit `AGENTS.md` synchron halten.
 
 ## Zweck
 

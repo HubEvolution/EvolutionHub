@@ -1,289 +1,87 @@
 # Konfigurations-Analyse: Zusammenfassung & Sofortmaßnahmen
 
-> **Datum:** 2025-11-12  
-> **Status:** ✅ Analyse abgeschlossen  
-> **Nächste Schritte:** Team-Review + Phase 1 Start
+> **Datum:** 2025-12-16
+> **Status:** ✅ Phase 1–3 abgeschlossen | 🟡 Phase 4 geplant
+> **Nächste Schritte:** `frontend-state.md`, `i18n.md`, `performance.md` + fehlende AGENTS.md (src/lib, migrations)
 
 ## Executive Summary
 
 Die projektspezifischen Konfigurationen des EvolutionHub-Repositories sind **solide strukturiert** mit einer sehr guten Grundlage. Das Projekt verfügt über:
 
-- ✅ **18 aktive Rules-Dateien** in `.windsurf/rules/`
+- ✅ **22 aktive Rules-Dateien** in `.windsurf/rules/` (inkl. [database-migrations.md](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/.windsurf/rules/database-migrations.md:0:0-0:0), [caching-kv.md](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/.windsurf/rules/caching-kv.md:0:0-0:0), [observability.md](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/.windsurf/rules/observability.md:0:0-0:0), [background-jobs.md](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/.windsurf/rules/background-jobs.md:0:0-0:0), [email-notifications.md](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/.windsurf/rules/email-notifications.md:0:0-0:0))
 - ✅ **Konsistente Sicherheitsstandards** (CSRF, Same-Origin, Rate-Limiting)
 - ✅ **Klare Testing-Konventionen** (safeParseJson, ApiJson, Coverage ≥70%)
 - ✅ **Strikte Typisierung** (@typescript-eslint/no-explicit-any)
 - ✅ **Dokumentations-Hygiene** (Frontmatter, Changelog, Link-Checks)
 
-**Identifizierte Lücken:** 8 fehlende Rules (5 kritisch, 3 mittel), 2 minimal dokumentierte Rules (infra, content)
+**Identifizierte Lücken:** 3 fehlende Rules (frontend-state, i18n, performance), 2 fehlende AGENTS.md (src/lib, migrations)
 
 ## Deliverables dieser Analyse
 
-### 1. Umfassender Analyse-Report (29 KB)
-**Datei:** [`docs/architecture/configuration-analysis-2025-11-12.md`](../docs/architecture/configuration-analysis-2025-11-12.md)
+### 1. Umfassender Analyse-Report
 
-**Inhalte:**
-- Vollständige Bestandsaufnahme (18 Rules analysiert)
-- Detaillierte Gap-Analyse mit Priorisierung
-- Konkrete Verbesserungsvorschläge mit Code-Beispielen
-- 3-Phasen-Implementierungs-Roadmap (6 Wochen)
-- Rules-Matrix und Template-Struktur im Anhang
+**Datei:** [[docs/architecture/configuration-analysis-2025-11-12.md](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/docs/architecture/configuration-analysis-2025-11-12.md:0:0-0:0)]
 
-### 2. Rules-Index & Entwickler-Guide (16 KB)
-**Datei:** [`.windsurf/rules/README.md`](./README.md)
+### 2. Rules-Index & Entwickler-Guide
 
-**Inhalte:**
-- Schnellstart für Agenten und Entwickler
-- Vollständige Rules-Liste mit Status/Priorität
-- Dependency-Graph (Visualisierung der Cross-References)
-- Konventionen und Template
-- Geplante Erweiterungen (Phase 1-3)
-- Tools & Automation (Roadmap)
+**Datei:** [[.windsurf/rules/_README.md](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/.windsurf/rules/_README.md:0:0-0:0)](./_README.md)
 
 ### 3. Diese Zusammenfassung
-**Datei:** `.windsurf/rules/SUMMARY.md` (dieses Dokument)
 
-**Zweck:** Schnellreferenz für Sofortmaßnahmen und Team-Meeting
+**Datei:** [.windsurf/rules/_SUMMARY.md](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/.windsurf/rules/_SUMMARY.md:0:0-0:0) (dieses Dokument)
 
 ## Kritische Erkenntnisse
 
 ### 🟢 Stärken
 
-1. **Exzellente API-Security-Baseline:**
-   - `api-and-security.md` (79 Zeilen) deckt alle kritischen Aspekte ab
-   - Konsistente Middleware-Nutzung (`withApiMiddleware`, `withAuthApiMiddleware`)
+1. **API-Security-Baseline stabil:**
+   - [api-and-security.md](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/.windsurf/rules/api-and-security.md:0:0-0:0) deckt alle kritischen Aspekte ab
+   - Middleware-Nutzung (`withApiMiddleware`, `withAuthApiMiddleware`)
    - Same-Origin + Double-Submit CSRF für unsafe Methods
-   - Security-Header vollständig dokumentiert
+   - Security-Header dokumentiert
 
-2. **Sehr gute Testing-Strategie:**
-   - `testing-and-ci.md` (72 Zeilen) mit klaren Konventionen
-   - Spezifische JSON-Parsing-Regeln (`safeParseJson<ApiJson>`)
-   - Coverage-Gates (≥70% für `src/**/*.{ts,tsx}`)
-   - Env-guarded Stripe-Tests
+2. **Testing-Strategie klar:**
+   - [testing-and-ci.md](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/.windsurf/rules/testing-and-ci.md:0:0-0:0) mit Konventionen (`safeParseJson<ApiJson>`)
+   - Coverage-Gates und CI-Workflows
 
-3. **Umfassende Feature-Abdeckung:**
-   - Alle 6 AI-Tools haben dedizierte Rules (image, video, transcriptor, prompt, scraper)
-   - Pricing/Billing sehr gut dokumentiert (88 Zeilen)
-   - Cookies & Consent GDPR-konform (76 Zeilen)
-
-4. **Klare Governance:**
-   - `agentic-workflow.md` (96 Zeilen) definiert SOP für Agenten
-   - AGENTS.md-Hierarchie (Root → Feature-Ordner)
-   - Changelog-Pflicht in den meisten Rules
+3. **Infra-Cross-Cutting geschlossen:**
+   - DB-Migrations, KV/Caching, Observability, Background Jobs, Email-Notifications sind dokumentiert und repo-konform.
 
 ### 🔴 Kritische Lücken (Priorität: Hoch)
 
-| # | Fehlende Rule | Impact | Betroffene Bereiche |
-|---|---------------|--------|---------------------|
-| 1 | `database-migrations.md` | **Sehr hoch** | Alle DB-Änderungen, Schema-Evolution, Rollbacks |
-| 2 | `caching-kv.md` | **Hoch** | KV-Namespaces, TTL-Strategien, R2-Lifecycle, Cache-Invalidierung |
-| 3 | `email-notifications.md` | **Hoch** | Resend-Integration, Template-Management, Rate-Limiting |
-| 4 | `background-jobs.md` | **Hoch** | Cron-Worker, Job-Scheduling, Failure-Handling, Monitoring |
-| 5 | `observability.md` | **Hoch** | Logging-Standards, Metriken, Error-Tracking, Dashboards |
+Aktuell **keine offenen kritischen Rule-Lücken**.
 
-**Risiko:** Ohne diese Rules können inkonsistente Implementierungen entstehen, die später schwer zu refactoren sind.
-
-### 🟡 Mittlere Lücken
+### 🟡 Offene Lücken (Priorität: Mittel)
 
 | # | Issue | Impact | Lösung |
 |---|-------|--------|--------|
-| 6 | `infra.md` zu kurz (36 Zeilen) | Mittel | Erweitern: Bindings-Zugriff, Edge-Caching, Deployment-Strategien |
-| 7 | `content.md` minimal (20 Zeilen) | Mittel | Erweitern: Content Collections, Frontmatter-Standards, Slug-Generierung |
-| 8 | Fehlende AGENTS.md für `src/lib/` | Mittel | Neu: Service-Konventionen, Utils, Config-Patterns |
-| 9 | Fehlende AGENTS.md für `migrations/` | Mittel | Neu: Migration-Naming, Struktur, Idempotenz |
-| 10 | Unvollständige Cross-References | Niedrig | Script: `rules-validate-refs.ts` implementieren |
+| 1 | `frontend-state.md` fehlt | Mittel | State-Patterns (Islands, Fetching, Caching, Error-Handling), Anti-Patterns |
+| 2 | `i18n.md` fehlt | Mittel | Key-Konventionen, Fallbacks, Routing, Tests |
+| 3 | `performance.md` fehlt | Mittel | Budgets, Profiling, Caching, E2E-Smokes |
+| 4 | Fehlende AGENTS.md für `src/lib/` | Mittel | Service-Konventionen, Utils, Validation, Logging/PII |
+| 5 | Fehlende AGENTS.md für [migrations/](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/migrations:0:0-0:0) | Mittel | Migration-Naming, Unveränderlichkeit, Rollback-Disziplin |
 
-## Sofortmaßnahmen (Top 3)
+## Roadmap-Übersicht
 
-### 1. Team-Review & Priorisierung (diese Woche)
-**Owner:** Architecture Team  
-**Dauer:** 1-2 Stunden Meeting
+### Phase 1–3 (✅ erledigt)
 
-**Agenda:**
-1. Vorstellung Analyse-Report (15 Min)
-2. Diskussion kritischer Lücken (30 Min)
-3. Priorisierung bestätigen oder anpassen (15 Min)
-4. Ownership für Phase 1 vergeben (15 Min)
-5. Nächste Schritte festlegen (15 Min)
+- [database-migrations.md](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/.windsurf/rules/database-migrations.md:0:0-0:0)
+- [caching-kv.md](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/.windsurf/rules/caching-kv.md:0:0-0:0)
+- [infra.md](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/.windsurf/rules/infra.md:0:0-0:0) (Erweiterung)
+- [content.md](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/.windsurf/rules/content.md:0:0-0:0) (Erweiterung)
+- [observability.md](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/.windsurf/rules/observability.md:0:0-0:0)
+- [background-jobs.md](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/.windsurf/rules/background-jobs.md:0:0-0:0)
+- [email-notifications.md](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/.windsurf/rules/email-notifications.md:0:0-0:0)
 
-**Vorbereitung:**
-- Alle Teilnehmer lesen `.windsurf/rules/README.md` (Schnellstart + Geplante Erweiterungen)
-- Tech Lead reviewed `docs/architecture/configuration-analysis-2025-11-12.md` (Kapitel 2 + 3)
+### Phase 4 (🟡 als nächstes)
 
-### 2. Phase 1 starten: `database-migrations.md` erstellen (nächste Woche)
-**Owner:** DevOps + Backend  
-**Dauer:** 1-2 Tage
+- `frontend-state.md`
+- `i18n.md`
+- `performance.md`
+- AGENTS.md: `src/lib/**`, [migrations/](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/migrations:0:0-0:0)
 
-**Schritte:**
-1. Template kopieren (Anhang B im Analyse-Report)
-2. Bestehende Migration-Files analysieren (`migrations/*.ts`)
-3. Drizzle-spezifische Patterns dokumentieren
-4. Rollback-Strategien mit Team abstimmen
-5. Code-Beispiele aus bestehenden Migrations extrahieren
-6. PR mit `[RULES]` Prefix öffnen
+## Links
 
-**Erfolgs-Kriterium:** 
-- Neue Migrations folgen dokumentierten Conventions
-- Rollback-Plan für jede Migration vorhanden
-
-### 3. Phase 1 parallel: `caching-kv.md` erstellen (nächste Woche)
-**Owner:** Backend + Infra  
-**Dauer:** 1-2 Tage
-
-**Schritte:**
-1. Template kopieren
-2. KV-Namespaces inventarisieren (`SESSION`, `RATE_LIMIT`, `CACHE`, `JOBS`)
-3. TTL-Strategien dokumentieren (bestehende Patterns)
-4. R2-Lifecycle-Policies aus Code extrahieren
-5. Cache-Invalidierung-Patterns beschreiben
-6. PR öffnen
-
-**Erfolgs-Kriterium:**
-- Alle KV-Zugriffe folgen dokumentierten Patterns
-- TTL immer explizit gesetzt
-
-## Roadmap-Übersicht (6 Wochen)
-
-### Phase 1: Kritische Lücken (Woche 1-2) 🔴
-**Fokus:** Infrastructure & Core Services
-
-| Woche | Rules | Owner | Status |
-|-------|-------|-------|--------|
-| W1 | `database-migrations.md` | DevOps | 🔴 To Do |
-| W1 | `caching-kv.md` | Backend | 🔴 To Do |
-| W2 | `email-notifications.md` | Backend | 🔴 To Do |
-| W2 | `background-jobs.md` | DevOps | 🔴 To Do |
-| W2 | `observability.md` | SRE | 🔴 To Do |
-| W2 | `infra.md` (Erweiterung) | DevOps | 🔴 To Do |
-
-### Phase 2: Erweiterte Rules (Woche 3-4) 🟡
-**Fokus:** Frontend, Content, i18n
-
-| Woche | Rules | Owner | Status |
-|-------|-------|-------|--------|
-| W3 | `content.md` (Erweiterung) | Content | 🟡 Geplant |
-| W3 | `frontend-state.md` | Frontend | 🟡 Geplant |
-| W4 | `i18n.md` | i18n-Team | 🟡 Geplant |
-| W4 | `performance.md` | Performance | 🟡 Geplant |
-| W4 | AGENTS.md für `src/lib/` | Backend | 🟡 Geplant |
-| W4 | AGENTS.md für `migrations/` | DevOps | 🟡 Geplant |
-
-### Phase 3: Strukturelle Optimierung (Woche 5-6) 🟢
-**Fokus:** Governance & Automation
-
-| Woche | Task | Owner | Status |
-|-------|------|-------|--------|
-| W5 | Frontmatter-Standardisierung | Architecture | 🟢 Optional |
-| W5 | Rules-Linting (`npm run rules:lint`) | DevOps | 🟢 Optional |
-| W6 | Cross-Reference-Validation | DevOps | 🟢 Optional |
-| W6 | Coverage-Report | Architecture | 🟢 Optional |
-| W6 | CI-Integration | DevOps | 🟢 Optional |
-
-## Success Metrics
-
-### Phase 1 (Ende Woche 2)
-- [ ] 6 neue/erweiterte Rules-Dateien merged
-- [ ] Alle neuen Rules in Root `AGENTS.md` referenziert
-- [ ] Mindestens 1 Code-Beispiel pro Rule
-- [ ] CI-Gates (lint, tests) grün
-
-### Phase 2 (Ende Woche 4)
-- [ ] 6 weitere Rules-Dateien merged (4 neue + 2 erweiterte)
-- [ ] Cross-References aktualisiert
-- [ ] AGENTS.md-Hierarchie vollständig
-
-### Phase 3 (Ende Woche 6)
-- [ ] Rules-Governance-Tooling einsatzbereit
-- [ ] Automatisierte Quality-Checks in CI
-- [ ] Maintenance-Playbook dokumentiert
-
-## Risiken & Mitigation
-
-| Risiko | Wahrscheinlichkeit | Impact | Mitigation |
-|--------|-------------------|--------|------------|
-| **Ressourcen-Engpass** (Phase 1) | Mittel | Hoch | Pair-Programming, Review-Slots blocken |
-| **Scope-Creep** (zu detailliert) | Mittel | Mittel | Template-Länge begrenzen (≤100 Zeilen), pragmatisch bleiben |
-| **Adoption-Rate niedrig** | Niedrig | Hoch | Agenten automatisch referenzieren, Code-Reviews checken |
-| **Veraltete Rules** | Hoch | Mittel | Changelog-Pflicht, quartalsweise Reviews |
-
-## Nächste Meetings
-
-### 1. Kick-Off (diese Woche)
-**Teilnehmer:** Architecture Team, Tech Lead, DevOps, Backend Leads  
-**Dauer:** 1-2 Stunden  
-**Agenda:** Siehe [Sofortmaßnahme #1](#1-team-review--priorisierung-diese-woche)
-
-### 2. Phase 1 Check-In (Ende Woche 1)
-**Teilnehmer:** Phase 1 Owners  
-**Dauer:** 30 Min  
-**Agenda:**
-- Status `database-migrations.md` und `caching-kv.md`
-- Blocker identifizieren
-- Nächste Schritte koordinieren
-
-### 3. Phase 1 Retro (Ende Woche 2)
-**Teilnehmer:** Alle Phase 1 Contributors  
-**Dauer:** 45 Min  
-**Agenda:**
-- Was lief gut?
-- Was kann verbessert werden?
-- Lessons Learned für Phase 2
-
-## Anhänge
-
-### Links zu Haupt-Dokumenten
-- **Vollständiger Analyse-Report:** [`docs/architecture/configuration-analysis-2025-11-12.md`](../docs/architecture/configuration-analysis-2025-11-12.md)
-- **Rules-Index:** [`.windsurf/rules/README.md`](./README.md)
-- **Root AGENTS.md:** [`/AGENTS.md`](../../AGENTS.md)
-
-### Template-Vorschau (verkürzt)
-Siehe [Anhang B im Analyse-Report](../docs/architecture/configuration-analysis-2025-11-12.md#b-vorgeschlagene-template-struktur) für vollständiges Template.
-
-```markdown
----
-trigger: always_on
-scope: core|feature|infra|quality|cross-cutting
-priority: critical|high|medium|low
-extends: [../other.md]
-lastUpdate: YYYY-MM-DD
----
-
-# [Feature] Rules
-
-## Zweck
-1-2 Sätze
-
-## Muss
-- Verpflichtend
-
-## Sollte
-- Empfohlen
-
-## Nicht
-- Verboten
-
-## Checkliste
-- [ ] Item
-
-## Code-Anker
-- `src/path.ts`
-
-## CI/Gates
-- `npm run command`
-
-## Referenzen
-- [other.md](./other.md)
-
-## Changelog
-- YYYY-MM-DD: Change
-```
-
-### Contact
-**Fragen:** Architecture Team  
-**Issues:** Label `rules-feedback`  
-**PR-Reviews:** Tech Lead Approval erforderlich
-
----
-
-**Version:** 1.0  
-**Erstellt:** 2025-11-12  
-**Status:** ✅ Analyse abgeschlossen, bereit für Team-Review
+- Analyse-Report: [[docs/architecture/configuration-analysis-2025-11-12.md](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/docs/architecture/configuration-analysis-2025-11-12.md:0:0-0:0)]
+- Rules-Index: [[.windsurf/rules/_README.md](cci:7://file:///Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/.windsurf/rules/_README.md:0:0-0:0)](./_README.md)
+- Root AGENTS.md: [`/AGENTS.md`](../../AGENTS.md)
