@@ -82,6 +82,34 @@ function padAnsiRight(s: string, len: number): string {
   return s + ' '.repeat(len - plainLen);
 }
 
+function truncateAnsi(input: string, maxLen: number): string {
+  if (maxLen <= 0) return '';
+  if (stripAnsi(input).length <= maxLen) return input;
+
+  const target = Math.max(0, maxLen - 1);
+  let out = '';
+  let visible = 0;
+
+  for (let i = 0; i < input.length && visible < target; i += 1) {
+    const ch = input[i];
+
+    if (ch === '\x1b' && input[i + 1] === '[') {
+      const rest = input.slice(i);
+      const m = /^\x1b\[[0-9;]*m/.exec(rest);
+      if (m) {
+        out += m[0];
+        i += m[0].length - 1;
+        continue;
+      }
+    }
+
+    out += ch;
+    visible += 1;
+  }
+
+  return `${out}…\x1b[0m`;
+}
+
 function formatSectionCell(
   label: string,
   meta: string,
@@ -109,6 +137,7 @@ function printTwoColumnGrid(
 ) {
   const width = typeof process.stdout.columns === 'number' ? process.stdout.columns : 120;
   const colWidth = Math.max(40, Math.floor((width - 3) / 2));
+  const rightWidth = Math.max(20, width - colWidth - 3);
   if (opts?.header) {
     printSectionHeader(opts.header, opts.headerMeta ?? '');
   }
@@ -116,12 +145,16 @@ function printTwoColumnGrid(
     const left = cells[i];
     const right = cells[i + 1];
     if (right) {
-      console.log(`${padAnsiRight(left.top, colWidth)} │ ${right.top}`);
-      console.log(`${padAnsiRight(left.bottom, colWidth)} │ ${right.bottom}`);
+      const leftTop = padAnsiRight(truncateAnsi(left.top, colWidth), colWidth);
+      const leftBottom = padAnsiRight(truncateAnsi(left.bottom, colWidth), colWidth);
+      const rightTop = truncateAnsi(right.top, rightWidth);
+      const rightBottom = truncateAnsi(right.bottom, rightWidth);
+      console.log(`${leftTop} │ ${rightTop}`);
+      console.log(`${leftBottom} │ ${rightBottom}`);
       console.log('');
     } else {
-      console.log(left.top);
-      console.log(left.bottom);
+      console.log(truncateAnsi(left.top, width));
+      console.log(truncateAnsi(left.bottom, width));
       console.log('');
     }
   }
@@ -241,7 +274,14 @@ function formatPreflightCell(r: PreflightCheckResult): { top: string; bottom: st
   const attemptSuffix = r.attempts > 1 ? chalk.gray(`(attempts ${r.attempts})`) : '';
   const reasonSuffix = r.reason ? chalk.gray(`(${r.reason})`) : '';
 
-  const top = `${chalk.cyanBright(r.id)} ${chalk.gray(r.url)}`;
+  let displayUrl = r.url;
+  try {
+    displayUrl = new URL(r.url).pathname;
+  } catch {
+    displayUrl = r.url;
+  }
+
+  const top = `${chalk.cyanBright(r.id)} ${chalk.gray(displayUrl)}`;
   const bottom = `${formatOutcome(r.outcome)} ${padRight(status, 3)} ${padRight(ms, 6)} ${attemptSuffix} ${reasonSuffix}`.trim();
   return { top, bottom };
 }
