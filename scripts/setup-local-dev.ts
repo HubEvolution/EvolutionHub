@@ -70,6 +70,21 @@ function columnExists(dbPath: string, table: string, column: string): boolean {
   }
 }
 
+// Utility: check if a table exists
+function tableExists(dbPath: string, table: string): boolean {
+  try {
+    const out = execSync(
+      `sqlite3 ${dbPath} "SELECT name FROM sqlite_master WHERE type='table' AND name='${table}' LIMIT 1;"`,
+      {
+        encoding: 'utf-8',
+      }
+    );
+    return out.trim() === table;
+  } catch {
+    return false;
+  }
+}
+
 // Utility: add a column if it does not exist
 function addColumnIfMissing(dbPath: string, table: string, column: string, definition: string) {
   if (!columnExists(dbPath, table, column)) {
@@ -782,18 +797,24 @@ try {
         );
 
         // notifications table: ensure is_read column exists and indices
-        addColumnIfMissing(dbPath, 'notifications', 'is_read', 'INTEGER DEFAULT 0');
-        if (columnExists(dbPath, 'notifications', 'is_read')) {
-          runSafeSQL(
-            dbPath,
-            'CREATE INDEX IF NOT EXISTS idx_notifications_is_read ON notifications(is_read);'
-          );
-          if (columnExists(dbPath, 'notifications', 'user_id')) {
+        if (tableExists(dbPath, 'notifications')) {
+          addColumnIfMissing(dbPath, 'notifications', 'is_read', 'INTEGER DEFAULT 0');
+          if (columnExists(dbPath, 'notifications', 'is_read')) {
             runSafeSQL(
               dbPath,
-              'CREATE INDEX IF NOT EXISTS idx_notifications_user_unread ON notifications(user_id, is_read) WHERE is_read = 0;'
+              'CREATE INDEX IF NOT EXISTS idx_notifications_is_read ON notifications(is_read);'
             );
+            if (columnExists(dbPath, 'notifications', 'user_id')) {
+              runSafeSQL(
+                dbPath,
+                'CREATE INDEX IF NOT EXISTS idx_notifications_user_unread ON notifications(user_id, is_read) WHERE is_read = 0;'
+              );
+            }
           }
+        } else {
+          console.log(
+            `ℹ️ Table notifications missing on ${dbPath}; skipping notifications schema guards.`
+          );
         }
       }
       console.log('✅ Schema-Guards abgeschlossen.');

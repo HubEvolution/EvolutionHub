@@ -57,11 +57,12 @@ enable_experimental_windows_sandbox = false
 # See: https://github.com/openai/codex/blob/main/docs/config.md#mcp-integration
 [mcp_servers]
 [mcp_servers.playwright]
-command = "npx"
+# Use an absolute path so GUI apps (Windsurf) don't need your shell PATH/nvm init.
+command = "/Users/lucas/.nvm/versions/node/v20.19.1/bin/npx"
 args = ["-y", "--package", "@playwright/mcp@0.0.52", "mcp-server-playwright"]
-# optional:
-# startup_timeout_sec = 30
-# tool_timeout_sec = 120
+# First start may be slow (npx download); give it more headroom.
+startup_timeout_sec = 60
+tool_timeout_sec = 300
 
 # Google Search Console MCP (stdio)
 [mcp_servers.gsc]

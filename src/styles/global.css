@@ -63,6 +63,51 @@
     --techcells-top-mask-alpha: 0.07;
   }
 
+  /* Docs landing tokens (scoped; opt-in via .docs-landing) */
+  .landing-v2.docs-landing {
+    /* One accent hue (tuned per theme below) */
+    --docs-accent: 56 189 248; /* sky-400 */
+    --docs-accent-ink: 3 7 18; /* slate-950-ish */
+    /* Base surfaces */
+    --docs-bg: 6 10 18;
+    --docs-surface: 10 14 24;
+    --docs-surface-2: 14 19 32;
+    /* Lines */
+    --docs-border: 51 65 85; /* slate-700 */
+    --docs-border-strong: 71 85 105; /* slate-600 */
+    /* Text */
+    --docs-fg: 226 232 240; /* slate-200 */
+    --docs-fg-muted: 148 163 184; /* slate-400 */
+    --docs-fg-subtle: 100 116 139; /* slate-500 */
+    /* Background grid/glow controls */
+    --docs-grid: 148 163 184;
+    --docs-grid-alpha: 0.06;
+    --docs-glow-alpha: 0.18;
+
+    /* Keep global accent utilities single-hue on docs landing */
+    --accent-blue: var(--docs-accent);
+    --accent-gold: var(--docs-accent);
+    --accent-orange: var(--docs-accent);
+    --accent-a: var(--docs-accent);
+    --accent-b: var(--docs-accent);
+  }
+
+  :root:not(.dark) .landing-v2.docs-landing {
+    --docs-accent: 14 165 233; /* sky-500 */
+    --docs-accent-ink: 255 255 255;
+    --docs-bg: 248 250 252; /* slate-50 */
+    --docs-surface: 255 255 255;
+    --docs-surface-2: 241 245 249; /* slate-100 */
+    --docs-border: 203 213 225; /* slate-300 */
+    --docs-border-strong: 148 163 184; /* slate-400 */
+    --docs-fg: 15 23 42; /* slate-900 */
+    --docs-fg-muted: 51 65 85; /* slate-700 */
+    --docs-fg-subtle: 71 85 105; /* slate-600 */
+    --docs-grid: 51 65 85;
+    --docs-grid-alpha: 0.08;
+    --docs-glow-alpha: 0.12;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .landing-v2 {
       --motion-k: 0;

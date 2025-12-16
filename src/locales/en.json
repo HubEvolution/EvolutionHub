@@ -1,59 +1,59 @@
 {
   "common": {
-    "greeting": "Willkommen bei Evolution Hub! Ein Projekt für die Zukunft der Softwareentwicklung.",
-    "description": "Entdecken Sie die Leistung von KI-gestützten Tools zur Optimierung Ihres Workflows und zur Steigerung Ihrer Produktivität.",
-    "language_switch_label": "Sprache",
-    "get_started": "Loslegen",
-    "documentation": "Dokumentation",
+    "greeting": "Welcome to Evolution Hub! A project for the future of software development.",
+    "description": "Discover the power of AI-powered tools to optimize your workflow and boost your productivity.",
+    "language_switch_label": "Language",
+    "get_started": "Get Started",
+    "documentation": "Documentation",
     "errors": {
-      "generic": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.",
-      "upload_failed_prefix": "Fehler beim Hochladen:"
+      "generic": "An error occurred. Please try again later.",
+      "upload_failed_prefix": "Upload failed:"
     },
     "upload": {
-      "invalid_type": "Ungültiger Dateityp.",
-      "too_large": "Datei ist zu groß."
+      "invalid_type": "Please select an image in JPG, PNG or GIF format",
+      "too_large": "File is too large. Maximum size is 2MB"
     },
     "status": {
-      "uploading": "Wird hochgeladen…",
-      "sending": "Wird gesendet…"
+      "uploading": "Uploading...",
+      "sending": "Sending..."
     },
     "actions": {
-      "upload": "Hochladen",
-      "subscribe": "Abonnieren"
+      "upload": "Upload",
+      "subscribe": "Subscribe"
     },
     "upgrade": "Upgrade",
     "success": {
-      "avatar_updated": "Avatar wurde aktualisiert.",
-      "newsletter_confirmation_sent": "Bestätigung für den Newsletter wurde gesendet."
+      "avatar_updated": "Profile picture updated successfully!",
+      "newsletter_confirmation_sent": "Confirmation email sent!"
     },
     "forms": {
-      "email_placeholder": "E-Mail-Adresse"
+      "email_placeholder": "Email address"
     },
-    "loading": "Laden…",
-    "import": "Importieren",
+    "loading": "Loading...",
+    "import": "Import",
     "account": {
       "settings": {
         "danger": {
-          "title": "Gefahrenbereich",
-          "description": "Kritische Aktionen für Ihr Konto. Bitte mit Vorsicht verwenden.",
-          "button": "Konto löschen",
-          "confirmTitle": "Löschen bestätigen",
-          "confirm": "Ja, endgültig löschen",
-          "processing": "Wird verarbeitet…",
-          "success": "Aktion erfolgreich abgeschlossen.",
-          "error": "Aktion fehlgeschlagen. Bitte erneut versuchen.",
-          "subscriptionTitle": "Abonnement kündigen",
-          "subscriptionWarning": "Die Kündigung wird am Ende des aktuellen Abrechnungszeitraums wirksam.",
-          "subscriptionPeriodEnd": "Läuft bis {date}",
-          "subscriptionIndefinite": "Unbefristet",
-          "subscriptionConfirm": "Ja, Abonnement kündigen",
+          "title": "Delete account",
+          "description": "Deleting your account anonymises data and logs you out everywhere. This action cannot be undone.",
+          "button": "Delete account",
+          "confirmTitle": "Confirm deletion",
+          "confirm": "Are you sure you want to permanently delete your account?",
+          "processing": "Deleting account…",
+          "success": "Your account was deleted successfully. You will be signed out.",
+          "error": "We couldn’t delete your account. Please try again or contact support.",
+          "subscriptionTitle": "Active subscription detected",
+          "subscriptionWarning": "We found active subscriptions in your account. Cancel them in billing first or schedule automatic cancellation at the current period end by deleting your account.",
+          "subscriptionPeriodEnd": "Renews on {date}",
+          "subscriptionIndefinite": "Renews automatically until cancelled",
+          "subscriptionConfirm": "Proceed and schedule automatic cancellation?",
           "actions": {
-            "cancel": "Abbrechen",
-            "confirm": "Bestätigen",
-            "goToBilling": "Zum Abrechnungsbereich",
-            "deleteAnyway": "Dennoch löschen",
-            "close": "Schließen",
-            "back": "Zurück"
+            "cancel": "Cancel",
+            "confirm": "Delete account",
+            "goToBilling": "Go to billing",
+            "deleteAnyway": "Delete anyway",
+            "close": "Close",
+            "back": "Back"
           }
         }
       }
@@ -120,125 +120,133 @@
       "success": "We sent you a magic link. Please check your inbox."
     },
     "toasts": {
-      "turnstile_load_error": "Turnstile konnte nicht geladen werden. Bitte Seite neu laden oder anderes Netzwerk versuchen.",
-      "logged_out": "Erfolgreich abgemeldet.",
-      "login_success": "Aktion erfolgreich abgeschlossen.",
-      "login_error": "Anmeldung fehlgeschlagen ({code}).",
+      "turnstile_load_error": "Turnstile failed to load. Please reload the page or try a different network.",
+      "logged_out": "You have been logged out.",
+      "login_success": "Action completed successfully.",
+      "login_error": "Sign-in failed ({code}).",
       "password_reset_sent": {
-        "success": "E-Mail wurde versendet.",
-        "error": "Versand fehlgeschlagen ({code})."
+        "success": "Email has been sent.",
+        "error": "Sending failed ({code})."
       },
       "forgot_password": {
-        "success": "E-Mail zum Zurücksetzen wurde gesendet.",
-        "error": "Senden fehlgeschlagen ({code})."
+        "success": "Password reset email sent.",
+        "error": "Failed to send reset email ({code})."
       },
       "reset_password": {
-        "success": "Passwort wurde zurückgesetzt.",
-        "error": "Passwort-Zurücksetzen fehlgeschlagen ({code})."
+        "success": "Password has been reset.",
+        "error": "Password reset failed ({code})."
       },
       "register": {
-        "success": "Registrierung erfolgreich.",
-        "error": "Registrierung fehlgeschlagen ({code})."
+        "success": "Registration successful.",
+        "error": "Registration failed ({code})."
       }
     }
   },
   "pages": {
     "docs": {
       "meta": {
-        "title": "Dokumentation – Evolution Hub",
-        "description": "Übersicht über Anleitungen, API-Referenzen und häufige Fragen zu Evolution Hub."
+        "title": "Documentation – Evolution Hub",
+        "description": "Overview of guides, API references, and frequently asked questions for Evolution Hub."
       },
       "hero": {
-        "kicker": "Dokumentation",
-        "title": "Alles was Sie wissen müssen",
-        "subtitle": "Umfassende Anleitungen und Dokumentationen, die Ihnen helfen, das Beste aus Evolution Hub herauszuholen."
+        "kicker": "Documentation",
+        "title": "Everything you need to know",
+        "subtitle": "Comprehensive guides and documentation to help you get the most out of Evolution Hub."
       },
       "steps": {
-        "title": "In drei Schritten loslegen",
-        "subtitle": "So startest du strukturiert – jede Phase führt dich tiefer in Evolution Hub ein.",
+        "title": "Get started in three steps",
+        "subtitle": "Follow these quick onboarding steps to explore Evolution Hub without missing any essentials.",
         "step1": {
-          "title": "Konto anlegen",
-          "description": "Erstelle ein kostenloses Konto und sichere dir dein persönliches Dashboard.",
-          "linkLabel": "Jetzt registrieren",
+          "title": "Create your account",
+          "description": "Sign up for a free account and unlock your personal dashboard.",
+          "linkLabel": "Register now",
           "checklist": [
-            "Einladungs- oder Firmen-Link bereithalten (optional)",
-            "E-Mail bestätigen, um sicherzustellen, dass der Login funktioniert",
-            "Profilinformationen ergänzen"
+            "Have your invite or workspace link ready (optional)",
+            "Verify your email to ensure login continuity",
+            "Complete your profile details"
           ]
         },
         "step2": {
-          "title": "Plan auswählen",
-          "description": "Wähle einen Tarif, der zu deinem Team passt – du kannst später jederzeit wechseln.",
-          "linkLabel": "Preise vergleichen",
+          "title": "Pick a plan",
+          "description": "Choose the plan that fits your team – you can change it at any time.",
+          "linkLabel": "Compare pricing",
           "checklist": [
-            "Verfügbare Limits und Entitlements vergleichen",
-            "Zahlungsmethode vorbereiten oder Testzeitraum prüfen",
-            "Stakeholder über geplanten Plan informieren"
+            "Review available limits and entitlements",
+            "Prepare a payment method or confirm trial status",
+            "Inform stakeholders about the selected plan"
           ]
         },
         "step3": {
-          "title": "Tools erkunden",
-          "description": "Starte mit unseren Kern-Tools und folge den Schritt-für-Schritt-Anleitungen in der Dokumentation.",
-          "linkLabel": "Zur Tool-Übersicht",
+          "title": "Explore the tools",
+          "description": "Dive into our core tools and follow the step-by-step guides in the documentation.",
+          "linkLabel": "Go to tools overview",
           "checklist": [
-            "Imag-Enhancer ausprobieren und ein Bild hochladen",
-            "Prompt Enhancer mit einem Beispiel-Prompt testen",
-            "Voice Transcriptor oder Webscraper in der Sandbox ausführen"
+            "Upload a sample image with Imag-Enhancer",
+            "Test a prompt with Prompt Enhancer",
+            "Run Voice Transcriptor or Webscraper in the sandbox"
           ]
         },
         "step4": {
-          "title": "Wissen vertiefen",
-          "description": "Nutze Guides, Blog-Artikel und Change-Logs, um Best Practices und neue Features kennenzulernen.",
-          "linkLabel": "Aktuelle Updates lesen",
+          "title": "Deepen your knowledge",
+          "description": "Leverage guides, blog posts, and changelogs to adopt best practices and new features.",
+          "linkLabel": "Read the latest updates",
           "checklist": [
-            "Letzte Release-Notizen durchgehen",
-            "Empfohlene Workflows im Blog notieren",
-            "Interne Dokumentation/linksliste aktualisieren"
+            "Review the latest release notes",
+            "Bookmark recommended workflows from the blog",
+            "Update your internal documentation/checklists"
           ]
         }
       },
       "resources": {
-        "title": "Hilfreiche Ressourcen",
-        "subtitle": "Empfehlungen, um Wissen zu vertiefen und Antworten schnell zu finden.",
-        "action": "Mehr erfahren",
+        "title": "Helpful resources",
+        "subtitle": "Curated destinations to deepen your knowledge and find answers fast.",
+        "action": "See details",
         "tools": {
-          "title": "Tool-Übersicht",
-          "description": "Entdecke alle verfügbaren KI-Tools und deren Funktionen im Schnelldurchlauf."
+          "title": "Tools overview",
+          "description": "See every available AI tool and what it can do at a glance."
         },
         "faq": {
-          "title": "Häufige Fragen",
-          "description": "Antworten auf typische Fragen rund um Registrierung, Abrechnung und Nutzungslimits."
+          "title": "FAQ",
+          "description": "Answers to common questions about sign-up, billing, and usage limits."
         },
         "pricing": {
-          "title": "Preisübersicht",
-          "description": "Transparente Tarife, Limits und Informationen zur Abrechnung auf einen Blick."
+          "title": "Pricing overview",
+          "description": "Transparent plans, limits, and billing information at a glance."
         },
         "blog": {
-          "title": "Blog & Guides",
-          "description": "Praxisnahe Artikel mit Workflows, Best Practices und Release-Notizen."
+          "title": "Blog & guides",
+          "description": "Hands-on articles covering workflows, best practices, and release notes."
         },
         "contact": {
-          "title": "Support kontaktieren",
-          "description": "Du brauchst persönliche Hilfe? Unser Team beantwortet deine Anfrage so schnell wie möglich.",
-          "action": "Kontaktformular öffnen"
+          "title": "Contact support",
+          "description": "Need help from a real person? Our team will get back to you as quickly as possible.",
+          "action": "Open contact form"
         }
+      },
+      "search": {
+        "label": "Search docs (Contentful coming soon)",
+        "placeholder": "Contentful-powered search arrives soon",
+        "note": "Contentful search is on the way — use the quick links for now."
+      },
+      "access": {
+        "title": "Quick access to key destinations"
       },
       "sections": {
         "gettingStarted": {
-          "title": "Erste Schritte",
-          "description": "Lernen Sie die Grundlagen kennen und starten Sie mit Evolution Hub durch."
+          "title": "Getting started",
+          "description": "Learn the basics and get up and running with Evolution Hub."
         },
         "guides": {
-          "title": "Anleitungen",
-          "description": "Detaillierte Anleitungen für alle Funktionen und Features."
+          "title": "Guides",
+          "description": "Detailed walkthroughs for all features and workflows."
         },
         "api": {
-          "title": "API-Referenz",
-          "description": "Technische Dokumentation unserer API-Endpunkte."
+          "title": "API reference",
+          "description": "Technical documentation for our API endpoints."
         },
         "faq": {
-          "title": "Häufige Fragen",
-          "description": "Antworten auf häufig gestellte Fragen."
+          "title": "FAQ",
+          "description": "Answers to the most common questions."
         }
       }
     },
@@ -304,36 +312,36 @@
         "subtitle": "Short example notes that illustrate realistic ways to use our tools. These are scenarios, not customer reviews.",
         "trust_line": "Example scenarios inspired by real creative and developer workflows",
         "testimonial1": {
-          "quote": "Ich fotografiere oft in Cafés bei wenig Licht – ISO 3200 ist normal. Imag‑Enhancer hat das Rauschen entfernt, ohne diesen Wachs‑Look. Ein Tick mehr Kontrast und die Dateien waren abends beim Kunden.",
+          "quote": "I often shoot in cafés with low light — ISO 3200 is normal. Imag‑Enhancer removed the noise without that waxy look. A touch more contrast and the files were with the client that evening.",
           "author": "Amira K.",
-          "role": "Freelance‑Fotografin"
+          "role": "Freelance photographer"
         },
         "testimonial2": {
-          "quote": "Wir verkaufen Second‑Hand‑Ware. Handyfotos auf zerknittertem Papier sahen immer unruhig aus. Batch‑Entrauschen plus etwas Schärfen – plötzlich wirkt alles einheitlich. Retuschezeit: von zwei Tagen auf einen Nachmittag.",
+          "quote": "We sell second‑hand goods. Phone photos on crumpled paper always looked busy. Batch denoise plus a bit of sharpening — suddenly everything feels consistent. Retouch time: from two days to one afternoon.",
           "author": "Diego R.",
-          "role": "Operations, kleiner E‑Commerce"
+          "role": "Operations, small e‑commerce"
         },
         "testimonial3": {
-          "quote": "Für die Startseite brauchten wir saubere 4×‑Crops. Der Upscaler blieb ohne Halos, Farben blieben ehrlich. Ist jetzt ein kleiner, verlässlicher Schritt in unserem Figma→Prod‑Ablauf.",
+          "quote": "We needed clean 4× crops for the homepage. The upscaler stayed free of halos and kept colors honest. It’s now a small, reliable step in our Figma→prod workflow.",
           "author": "Nina P.",
           "role": "Design Lead"
         },
         "testimonial4": {
-          "quote": "Kunden schicken winzige JPEG‑Logos fünf Minuten vor Druck. Der Upscaler liefert saubere Kanten für A3‑Flyer – keine Treppchen. Wir jagen nicht mehr panisch der „Originaldatei“ hinterher.",
+          "quote": "Clients send tiny JPEG logos five minutes before print. The upscaler delivers clean edges for A3 flyers — no stair‑stepping. We’re no longer chasing the “original file.”",
           "author": "Leila M.",
-          "role": "Inhaberin, kleine Kreativagentur"
+          "role": "Owner, small creative agency"
         },
         "testimonial5": {
-          "quote": "Wir ziehen Stills aus Produktvideos für Listings. Denoise + Detail bringt Konturen zurück, Text bleibt lesbar. Das ist der Unterschied zwischen „geht so“ und „scharf“.",
+          "quote": "We pull stills from product videos for listings. Denoise + detail brings contours back and keeps text readable. That’s the difference between ‘meh’ and ‘sharp’.",
           "author": "Tom S.",
-          "role": "Content Manager, Retail‑Marke"
+          "role": "Content Manager, retail brand"
         }
       },
       "introduction": {
-        "part1": "Evolution Hub bietet eine innovative Sammlung von KI-gestützten Tools, die speziell für Entwickler und Kreative entwickelt wurden. Mit unseren KI-gestützten Tools können Sie Ihren Workflow optimieren, repetitive Aufgaben automatisieren und Ihre Produktivität steigern. Ob Sie Code generieren, Inhalte erstellen oder komplexe Daten analysieren möchten – unsere Plattform unterstützt Sie bei jedem Schritt.",
-        "part2": "Die intelligente Kombination aus künstlicher Intelligenz und benutzerfreundlichem Design ermöglicht es Ihnen, Ihre Kreativität freizusetzen und Projekte schneller zum Leben zu erwecken. Entdecken Sie unsere leistungsstarken Funktionen und erfahren Sie, wie Sie mit Evolution Hub die Zukunft der Softwareentwicklung und Content-Erstellung gestalten können.",
-        "part3_de": "Unsere fortschrittlichen Algorithmen und benutzerfreundlichen Interfaces arbeiten nahtlos zusammen, um Ihnen die bestmögliche Entwicklererfahrung zu bieten. Von der ersten Idee bis zur finalen Umsetzung – Evolution Hub begleitet Sie durch jeden Schritt Ihres kreativen Prozesses.",
-        "part4_de": "Nutzen Sie die Kraft der künstlichen Intelligenz, um komplexe Aufgaben zu vereinfachen, innovative Solutions zu entwickeln und Ihre Projekte auf das nächste Level zu heben. Mit Evolution Hub gestalten Sie die Zukunft der digitalen Entwicklung."
+        "part1": "Evolution Hub offers an innovative collection of AI‑assisted tools built for developers and creatives. With our AI‑powered tools, you can streamline your workflow, automate repetitive tasks, and increase productivity. Whether you want to generate code, create content, or analyze complex data — our platform supports you at every step.",
+        "part2": "The intelligent combination of artificial intelligence and user‑friendly design lets you unlock creativity and bring projects to life faster. Explore our powerful capabilities and learn how Evolution Hub helps shape the future of software development and content creation.",
+        "part3_de": "Our advanced algorithms and user‑friendly interfaces work seamlessly to provide the best possible developer experience. From the first idea to the final implementation — Evolution Hub accompanies every step of your creative process.",
+        "part4_de": "Use the power of AI to simplify complex tasks, build innovative solutions, and take your projects to the next level. With Evolution Hub, you help shape the future of digital development."
       },
       "hero": {
         "title_part1": "Evolution Hub",
@@ -346,31 +354,31 @@
         "cta_primary": "Start Prompt Enhancer for free",
         "cta_secondary": "Explore all tools",
         "bullets": [
-          "Kostenlos nutzbar im Free‑Plan – ohne Kreditkarte",
-          "Großzügige Limits: bis zu 100 Runs pro Tag",
-          "Verbraucht keine AI‑Credits – Upgrade erst bei hohem Volumen"
+          "Free to use in the Free plan — no credit card required",
+          "Generous limits: up to 100 runs per day",
+          "Uses no AI credits — upgrade only when you need higher volume"
         ],
         "typewriter_lines": [
-          "Wo Sprache zur Struktur wird.",
-          "Wo Daten träumen lernen.",
-          "Wo Ideen zu Systemen werden.",
-          "Wo Werkzeuge zu Partnern werden.",
-          "Wo Abläufe schneller werden.",
-          "Wo Kreativität auf Engineering trifft.",
-          "Wo kleine Teams Großes bauen."
+          "Where language becomes structure.",
+          "Where data learns to dream.",
+          "Where ideas become systems.",
+          "Where tools become partners.",
+          "Where workflows accelerate.",
+          "Where creativity meets engineering.",
+          "Where small teams build big things."
         ],
-        "get_started_button": "Jetzt loslegen",
-        "documentation_link": "Dokumentation anzeigen",
-        "tools_link": "Zu unseren Tools",
+        "get_started_button": "Get started",
+        "documentation_link": "View documentation",
+        "tools_link": "Browse our tools",
         "typewriter": ["Imag‑Enhancer", "Prompt Enhancer", "Voice Transcriptor", "Webscraper"],
         "status_labels": {
           "infra": "Infra",
-          "image": "Bild",
+          "image": "Image",
           "prompt": "Prompt",
-          "voice": "Stimme",
+          "voice": "Voice",
           "web": "Webscraper",
           "video": "Video",
-          "cta": ""
+          "cta": "Open FAQ"
         },
         "note": "Free · No card required · Start instantly.",
         "trust_line": "Built for teams who run real AI workflows every day.",
@@ -379,32 +387,32 @@
     },
     "blog": {
       "title": "Blog",
-      "description": "Aktuelle Artikel, Tutorials und Neuigkeiten aus der Welt der Webentwicklung",
+      "description": "Latest articles, tutorials, and news from the world of web development",
       "search": {
         "title": "Search the blog",
-        "placeholder": "Suchen...",
-        "button": "Suchen"
+        "placeholder": "Search...",
+        "button": "Search"
       },
       "noPosts": {
-        "title": "Keine Beiträge gefunden",
-        "description": "Es wurden keine Blog-Beiträge gefunden, die Ihren Suchkriterien entsprechen.",
-        "action": "Alle Beiträge anzeigen"
+        "title": "No posts found",
+        "description": "We couldn't find any blog posts matching your filters.",
+        "action": "View all posts"
       },
       "filter": {
         "category": {
-          "title": "Nach Kategorie filtern",
-          "all": "Alle Kategorien"
+          "title": "Filter by category",
+          "all": "All categories"
         },
-        "tag": "Gefiltert nach Tag: ",
-        "search": "Suchergebnisse für: ",
-        "reset": "Filter zurücksetzen",
-        "all": "Alle",
-        "category_label": "Gefiltert nach Kategorie: "
+        "tag": "Filtered by tag: ",
+        "search": "Search results for: ",
+        "reset": "Reset filters",
+        "all": "All",
+        "category_label": "Filtered by category: "
       },
       "featured": "Featured Post",
       "tags": {
-        "title": "Alle Tags",
-        "none": "Keine Tags verfügbar"
+        "title": "All tags",
+        "none": "No tags available"
       },
       "posts": {
         "count": {
@@ -495,308 +503,308 @@
       },
       "cta": {
         "newsletter": {
-          "title": "Bleiben Sie auf dem Laufenden",
-          "description": "Erhalten Sie wöchentlich die neuesten Insights zu New Work, KI und Produktivität direkt in Ihr Postfach.",
-          "button": "Newsletter abonnieren"
+          "title": "Stay in the loop",
+          "description": "Get weekly insights on new work, AI, and productivity straight to your inbox.",
+          "button": "Subscribe to newsletter"
         },
         "leadmagnet": {
-          "title": "Kostenloses Experten-Material",
-          "description": "Laden Sie unser praxiserprobtes Material herunter und setzen Sie die Tipps sofort um.",
-          "button": "Jetzt herunterladen"
+          "title": "Free expert material",
+          "description": "Download our battle‑tested material and put the tips to work right away.",
+          "button": "Download now"
         },
         "consultation": {
-          "title": "Individuelle Beratung gewünscht?",
-          "description": "Lassen Sie uns in einem kostenlosen Gespräch Ihre spezifischen Herausforderungen besprechen.",
-          "button": "Gespräch vereinbaren"
+          "title": "Need a consultation?",
+          "description": "Let's discuss your specific challenges in a free call.",
+          "button": "Book a call"
         },
         "social": {
-          "title": "Teilen Sie diesen Artikel",
-          "description": "Helfen Sie anderen dabei, diese wertvollen Insights zu entdecken.",
-          "button": "Artikel teilen"
+          "title": "Share this article",
+          "description": "Help others discover these valuable insights.",
+          "button": "Share article"
         }
       },
       "leadMagnet": {
         "newWorkGuide": {
           "title": "New Work Transformation Guide",
-          "description": "Schritt-für-Schritt Anleitung zur erfolgreichen Einführung von New Work in Ihrem Unternehmen.",
+          "description": "Step‑by‑step guidance for successfully introducing new work in your organization.",
           "benefits": [
-            "Praxiserprobte Transformation-Roadmap",
-            "Checklisten für jede Implementierungsphase",
-            "Häufige Stolpersteine und wie Sie sie vermeiden",
-            "Erfolgsmetriken und KPI-Dashboard"
+            "Battle‑tested transformation roadmap",
+            "Checklists for every implementation phase",
+            "Common pitfalls and how to avoid them",
+            "Success metrics and KPI dashboard"
           ]
         },
         "kiToolsChecklist": {
-          "title": "KI-Tools Checkliste 2025",
-          "description": "Umfassende Liste der besten KI-Tools für verschiedene Anwendungsbereiche im Business.",
+          "title": "AI Tools Checklist 2025",
+          "description": "A comprehensive list of the best AI tools for various business use cases.",
           "benefits": [
-            "50+ getestete KI-Tools mit Bewertungen",
-            "Kategorisiert nach Anwendungsbereich",
-            "Kosten-Nutzen-Analyse für jedes Tool",
-            "Implementierungs-Tipps und Best Practices"
+            "50+ tested AI tools with ratings",
+            "Categorized by use case",
+            "Cost‑benefit analysis for each tool",
+            "Implementation tips and best practices"
           ]
         },
         "productivityMasterclass": {
-          "title": "Produktivitäts-Masterclass",
-          "description": "Video-Serie mit den effektivsten Techniken für maximale Produktivität im Home Office.",
+          "title": "Productivity Masterclass",
+          "description": "Video series with the most effective techniques for maximum productivity in the home office.",
           "benefits": [
-            "5 Video-Module (insgesamt 2 Stunden)",
-            "Downloadbare Arbeitsblätter",
-            "Pomodoro-Timer-App inklusive",
-            "Exklusive Community-Zugang"
+            "5 video modules (2 hours total)",
+            "Downloadable worksheets",
+            "Pomodoro timer app included",
+            "Exclusive community access"
           ]
         },
-        "download": "Kostenlos herunterladen",
-        "limited": "Limitiertes Angebot"
+        "download": "Download for free",
+        "limited": "Limited offer"
       }
     },
     "impressum": {
-      "title": "Impressum",
-      "disclaimer_note": "Hinweis: Diese englische Übersetzung dient nur der Verständlichkeit. Verbindlich ist die deutsche Fassung.",
+      "title": "Legal Notice",
+      "disclaimer_note": "This English text is a convenience translation. The German version is legally binding.",
       "section_intro": {
-        "heading": "Angaben gemäß § 5 TMG"
+        "heading": "Information in accordance with § 5 TMG"
       },
       "sections": {
         "provider": {
-          "headline": "Diensteanbieter",
+          "headline": "Service provider",
           "company_name": "Evolution Hub GmbH",
-          "street_address": "Musterstraße 123",
+          "street_address": "Sample Street 123",
           "city_postal_code": "10115 Berlin",
-          "country": "Deutschland"
+          "country": "Germany"
         },
         "contact": {
-          "headline": "Kontakt",
-          "phone": "Telefon: +49 (0)30 12345678",
-          "fax": "Telefax: +49 (0)30 12345679",
-          "email": "E-Mail: info@evolutionhub.de",
-          "website": "Web: www.evolutionhub.de"
+          "headline": "Contact",
+          "phone": "Phone: +49 (0)30 12345678",
+          "fax": "Fax: +49 (0)30 12345679",
+          "email": "Email: info@evolutionhub.de",
+          "website": "Website: www.evolutionhub.de"
         },
         "represented_by": {
-          "headline": "Vertreten durch",
-          "managing_directors": "Geschäftsführer: Max Mustermann, Erika Musterfrau"
+          "headline": "Represented by",
+          "managing_directors": "Managing directors: Max Mustermann, Erika Musterfrau"
         },
         "registration": {
-          "headline": "Registereintrag",
-          "register_entry": "Eingetragen im Handelsregister",
-          "register_court": "Registergericht: Amtsgericht Berlin-Charlottenburg",
-          "register_number": "Registernummer: HRB 123456"
+          "headline": "Commercial register",
+          "register_entry": "Registered in the commercial register",
+          "register_court": "Register court: Amtsgericht Berlin‑Charlottenburg",
+          "register_number": "Registration number: HRB 123456"
         },
         "vat": {
-          "headline": "Umsatzsteuer-Identifikationsnummer",
-          "vat_id_label": "Umsatzsteuer-Identifikationsnummer gemäß § 27 a Umsatzsteuergesetz:",
+          "headline": "VAT identification number",
+          "vat_id_label": "VAT identification number pursuant to § 27 a UStG:",
           "vat_id": "DE 123456789"
         },
         "content_responsible": {
-          "headline": "Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV",
+          "headline": "Responsible for content pursuant to § 55 (2) RStV",
           "name": "Max Mustermann",
-          "street": "Musterstraße 123",
+          "street": "Sample Street 123",
           "city_postal_code": "10115 Berlin"
         },
         "dispute_resolution": {
-          "headline": "Streitschlichtung",
-          "os_platform_intro": "Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: ",
+          "headline": "Dispute resolution",
+          "paragraph1": "The European Commission provides a platform for online dispute resolution (OS):",
           "os_platform_url": "https://ec.europa.eu/consumers/odr/",
-          "email_note": "Unsere E-Mail-Adresse finden Sie oben im Impressum.",
-          "participation_statement": "Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen."
+          "email_note": "You can find our email address above in this legal notice.",
+          "participation_statement": "We are neither willing nor obliged to participate in dispute resolution proceedings before a consumer arbitration board."
         },
         "disclaimer": {
-          "headline": "Haftungsausschluss",
+          "headline": "Disclaimer",
           "content_liability": {
-            "headline": "Haftung für Inhalte",
-            "paragraph1": "Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittete oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.",
-            "paragraph2": "Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Bei Bekanntwerden von entsprechenden Rechtsverletzungen werden wir diese Inhalte umgehend entfernen."
+            "headline": "Liability for content",
+            "paragraph1": "As a service provider, we are responsible for our own content on these pages under general legislation pursuant to § 7 (1) TMG. Under §§ 8 to 10 TMG, however, we are not obliged to monitor transmitted or stored third‑party information or to investigate circumstances indicating unlawful activity.",
+            "paragraph2": "Obligations to remove or block the use of information under general legislation remain unaffected. Liability in this respect is only possible from the time we become aware of a concrete infringement. As soon as we become aware of such infringements, we will remove this content immediately."
           },
           "link_liability": {
-            "headline": "Haftung für Links",
-            "paragraph1": "Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich. Die verlinkten Seiten wurden zum Zeitpunkt der Verlinkung auf mögliche Rechtsverstöße überprüft. Rechtswidrige Inhalte waren zum Zeitpunkt der Verlinkung nicht erkennbar.",
-            "paragraph2": "Eine permanente inhaltliche Kontrolle der verlinkten Seiten ist jedoch ohne konkrete Anhaltspunkte einer Rechtsverletzung nicht zumutbar. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Links umgehend entfernen."
+            "headline": "Liability for links",
+            "paragraph1": "Our offer contains links to external third‑party websites over whose content we have no influence. Therefore, we cannot assume any liability for this external content. The respective provider or operator of the pages is always responsible for the content of the linked pages. The linked pages were checked for possible legal violations at the time of linking. Illegal content was not recognizable at the time of linking.",
+            "paragraph2": "However, permanent monitoring of the content of linked pages is not reasonable without concrete evidence of a violation. If we become aware of legal violations, we will remove such links immediately."
           },
           "copyright": {
-            "headline": "Urheberrecht",
-            "paragraph1": "Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung",
-            "paragraph2": "Soweit die Inhalte auf dieser Seite nicht vom Betreiber erstellt wurden, werden die Urheberrechte Dritter beachtet. Insbesondere werden Inhalte Dritter als solche gekennzeichnet. Sollten Sie trotzdem auf eine Urheberrechtsverletzung aufmerksam werden, bitten wir um einen entsprechenden Hinweis. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Inhalte umgehend entfernen."
+            "headline": "Copyright",
+            "paragraph1": "The content and works created by the website operators on these pages are subject to German copyright law. Duplication, processing and any kind of use outside the limits of copyright require the written consent of the respective author or creator.",
+            "paragraph2": "Insofar as the content on this site was not created by the operator, the copyrights of third parties are respected. In particular, third‑party content is identified as such. Should you nevertheless become aware of a copyright infringement, please inform us accordingly. Upon becoming aware of infringements, we will remove such content immediately."
           }
         },
         "image_credits": {
-          "headline": "Bildnachweise",
-          "description": "Die auf dieser Website verwendeten Bilder und Grafiken unterliegen dem Urheberrecht der Evolution Hub GmbH oder sind lizenzfreie Stockfotos von Drittanbietern."
+          "headline": "Image credits",
+          "description": "The images and graphics used on this website are copyrighted by Evolution Hub GmbH or are royalty‑free stock photos from third‑party providers."
         }
       },
-      "source_label": "Quelle:",
+      "source_label": "Source:",
       "source_url": "https://www.e-recht24.de",
       "source_name": "e-recht24.de",
       "source_attribution": "e-recht24.de"
     },
     "faq": {
-      "title": "Häufig gestellte Fragen",
+      "title": "Frequently asked questions",
       "hero": {
-        "heading": "Häufig gestellte Fragen",
-        "subtitle": "Finde Antworten auf die häufigsten Fragen"
+        "heading": "Frequently asked questions",
+        "subtitle": "Find answers to the most common questions"
       },
-      "search_placeholder": "Suchen Sie nach einer Frage oder einem Stichwort...",
+      "search_placeholder": "Search for a question or keyword...",
       "no_results": {
-        "title": "Keine Ergebnisse gefunden",
-        "description_before": "Keine passenden Fragen. Versuche, deine Suche anzupassen oder",
-        "description_link_text": "kontaktiere uns",
+        "title": "No results found",
+        "description_before": "No matching questions. Try refining your search or ",
+        "description_link_text": "contact us",
         "description_after": "."
       },
       "contact_teaser": {
-        "heading": "Noch Fragen?",
-        "description": "Schreibe uns eine Nachricht und wir melden uns per E-Mail. Aktuelle Updates findest du auch auf unseren Social-Kanälen.",
-        "cta": "Kontaktformular öffnen",
-        "social_empty": "Unsere Social-Kanäle folgen in Kürze."
+        "heading": "Still need assistance?",
+        "description": "Reach out and our team will get back to you via email. You can also follow our social channels for updates.",
+        "cta": "Open contact form",
+        "social_empty": "Social channels coming soon."
       }
     },
     "datenschutz": {
-      "title": "Datenschutzerklärung",
-      "disclaimer_note": "Hinweis: Diese englische Übersetzung dient nur der Verständlichkeit. Verbindlich ist die deutsche Fassung.",
+      "title": "Privacy Policy",
+      "disclaimer_note": "This English text is a convenience translation. The German version is legally binding.",
       "header": {
-        "title": "Datenschutzerklärung",
-        "last_updated": "Letzte Aktualisierung: 20. Juli 2025"
+        "title": "Privacy Policy",
+        "last_updated": "Last updated: 20 July 2025"
       },
       "sections": {
         "1": {
-          "title": "1. Verantwortlicher",
-          "description": "Verantwortlich im Sinne der Datenschutz-Grundverordnung (DSGVO) und anderer nationaler Datenschutzgesetze der Mitgliedsstaaten sowie sonstiger datenschutzrechtlicher Bestimmungen ist:",
+          "title": "1. Controller",
+          "description": "The controller within the meaning of the GDPR and other national data protection laws of the Member States as well as other data protection regulations is:",
           "provider": {
             "company_name": "Evolution Hub GmbH",
-            "street_address": "Musterstraße 123",
+            "street_address": "Sample Street 123",
             "city_postal_code": "10115 Berlin",
-            "country": "Deutschland",
-            "email_label": "E-Mail:",
+            "country": "Germany",
+            "email_label": "Email:",
             "email": "datenschutz@evolutionhub.de",
-            "phone_label": "Telefon:",
+            "phone_label": "Phone:",
             "phone": "+49 30 12345678"
           }
         },
         "2": {
-          "title": "2. Grundlegendes zur Datenverarbeitung",
-          "description": "Wir verarbeiten personenbezogene Daten unserer Nutzer grundsätzlich nur, soweit dies zur Bereitstellung einer funktionsfähigen Website sowie unserer Inhalte und Leistungen erforderlich ist. Die Verarbeitung personenbezogener Daten unserer Nutzer erfolgt regelmäßig nur nach Einwilligung des Nutzers. Eine Ausnahme gilt in solchen Fällen, in denen eine vorherige Einholung einer Einwilligung aus tatsächlichen Gründen nicht möglich ist und die Verarbeitung der Daten durch gesetzliche Vorschriften gestattet ist."
+          "title": "2. General information on data processing",
+          "description": "We process personal data of our users only insofar as this is necessary to provide a functional website as well as our content and services. The processing of our users' personal data regularly takes place only with the user's consent. An exception applies in those cases in which prior consent cannot be obtained for practical reasons and the processing of the data is permitted by legal provisions."
         },
         "3": {
-          "title": "3. Bereitstellung der Website und Erstellung von Logfiles",
-          "subtitle": "Beschreibung und Umfang der Datenverarbeitung",
-          "paragraph1": "Bei jedem Aufruf unserer Internetseite erfasst unser System automatisiert Daten und Informationen vom Computersystem des aufrufenden Rechners.",
-          "list_intro": "Folgende Daten werden hierbei erhoben:",
+          "title": "3. Provision of the website and creation of log files",
+          "subtitle": "Description and scope of data processing",
+          "paragraph1": "Every time our website is accessed, our system automatically collects data and information from the computer system of the calling device.",
+          "list_intro": "The following data is collected:",
           "list_items": {
-            "0": "Browsertyp und -version",
-            "1": "Verwendetes Betriebssystem",
+            "0": "Browser type and version",
+            "1": "Operating system used",
             "2": "Referrer URL",
-            "3": "Hostname des zugreifenden Rechners",
-            "4": "Uhrzeit der Serveranfrage",
-            "5": "IP-Adresse"
+            "3": "Hostname of the accessing device",
+            "4": "Time of the server request",
+            "5": "IP address"
           }
         },
         "4": {
           "title": "4. Cookies",
-          "description": "Unsere Webseite verwendet Cookies. Bei Cookies handelt es sich um Textdateien, die im Internetbrowser bzw. vom Internetbrowser auf dem Computersystem des Nutzers gespeichert werden. Ruft ein Nutzer eine Website auf, so kann ein Cookie auf dem Betriebssystem des Nutzers gespeichert werden. Dieser Cookie enthält eine charakteristische Zeichenfolge, die eine eindeutige Identifizierung des Browsers beim erneuten Aufrufen der Website ermöglicht."
+          "description": "Our website uses cookies. Cookies are text files that are stored in the internet browser or by the internet browser on the user's computer system. When a user visits a website, a cookie may be stored on the user's operating system. This cookie contains a characteristic string that enables the browser to be uniquely identified when the website is accessed again."
         },
         "5": {
-          "title": "5. Kontaktformular und E-Mail-Kontakt",
-          "paragraph1": "Auf unserer Internetseite ist ein Kontaktformular vorhanden, welches für die elektronische Kontaktaufnahme genutzt werden kann. Nimmt ein Nutzer diese Möglichkeit wahr, werden die in der Eingabemaske eingegeben Daten an uns übermittelt und gespeichert.",
-          "paragraph2": "Alternativ ist eine Kontaktaufnahme über die bereitgestellte E-Mail-Adresse möglich. In diesem Fall werden die mit der E-Mail übermittelten personenbezogenen Daten des Nutzers gespeichert."
+          "title": "5. Contact form and email contact",
+          "paragraph1": "A contact form is available on our website which can be used for electronic contact. If a user takes advantage of this option, the data entered in the input mask is transmitted to us and stored.",
+          "paragraph2": "Alternatively, it is possible to contact us via the email address provided. In this case, the user's personal data transmitted with the email will be stored."
         },
         "6": {
-          "title": "6. Rechte der betroffenen Person",
-          "subtitle": "Sie haben das Recht:",
+          "title": "6. Rights of the data subject",
+          "subtitle": "You have the right to:",
           "list_items": {
-            "0": "gemäß Art. 15 DSGVO Auskunft über Ihre von uns verarbeiteten personenbezogenen Daten zu verlangen",
-            "1": "gemäß Art. 16 DSGVO unverzüglich die Berichtigung unrichtiger oder Vervollständigung Ihrer bei uns gespeicherten personenbezogenen Daten zu verlangen",
-            "2": "gemäß Art. 17 DSGVO die Löschung Ihrer bei uns gespeicherten personenbezogenen Daten zu verlangen",
-            "3": "gemäß Art. 18 DSGVO die Einschränkung der Verarbeitung Ihrer personenbezogenen Daten zu verlangen",
-            "4": "gemäß Art. 20 DSGVO Ihre personenbezogenen Daten, die Sie uns bereitgestellt haben, in einem strukturierten, gängigen und maschinenlesbaren Format zu erhalten",
-            "5": "gemäß Art. 7 Abs. 3 DSGVO Ihre einmal erteilte Einwilligung jederzeit gegenüber uns zu widerrufen",
-            "6": "gemäß Art. 77 DSGVO sich bei einer Aufsichtsbehörde zu beschweren"
+            "0": "request information about your personal data processed by us in accordance with Art. 15 GDPR",
+            "1": "request the rectification of inaccurate or completion of your personal data stored by us without undue delay in accordance with Art. 16 GDPR",
+            "2": "request the erasure of your personal data stored by us in accordance with Art. 17 GDPR",
+            "3": "request the restriction of processing of your personal data in accordance with Art. 18 GDPR",
+            "4": "receive your personal data that you have provided to us in a structured, commonly used and machine‑readable format in accordance with Art. 20 GDPR",
+            "5": "withdraw consent once given to us at any time in accordance with Art. 7 (3) GDPR",
+            "6": "lodge a complaint with a supervisory authority in accordance with Art. 77 GDPR"
           }
         },
         "7": {
-          "title": "7. Widerspruchsrecht",
-          "description": "Sie haben das Recht, aus Gründen, die sich aus Ihrer besonderen Situation ergeben, jederzeit gegen die Verarbeitung Sie betreffender personenbezogener Daten, die aufgrund von Art. 6 Abs. 1 lit. e oder f DSGVO erfolgt, Widerspruch einzulegen."
+          "title": "7. Right to object",
+          "description": "You have the right, on grounds relating to your particular situation, to object at any time to processing of personal data concerning you which is based on Article 6 (1) (e) or (f) GDPR."
         },
         "8": {
-          "title": "8. Datensicherheit",
-          "description": "Wir verwenden innerhalb des Website-Besuchs das verbreitete SSL-Verfahren (Secure Socket Layer) in Verbindung mit der jeweils höchsten Verschlüsselungsstufe, die von Ihrem Browser unterstützt wird. In der Regel handelt es sich dabei um eine 256-Bit-Verschlüsselung. Falls Ihr Browser keine 256-Bit-Verschlüsselung unterstützt, greifen wir stattdessen auf 128-Bit v3 Technologie zurück."
+          "title": "8. Data security",
+          "description": "We use the common SSL (Secure Socket Layer) method during your website visit in conjunction with the highest level of encryption supported by your browser. This is usually 256‑bit encryption. If your browser does not support 256‑bit encryption, we use 128‑bit v3 technology instead."
         },
         "9": {
-          "title": "9. Aktualität und Änderung dieser Datenschutzerklärung",
-          "description": "Diese Datenschutzerklärung ist aktuell gültig und hat den Stand Juli 2025. Durch die Weiterentwicklung unserer Website und Angebote darüber oder aufgrund geänderter gesetzlicher beziehungsweise behördlicher Vorgaben kann es notwendig werden, diese Datenschutzerklärung zu ändern."
+          "title": "9. Currency and changes to this privacy policy",
+          "description": "This privacy policy is currently valid and is up to date as of July 2025. Due to the further development of our website and offers or due to changed legal or official requirements, it may become necessary to change this privacy policy."
         }
       }
     },
     "pricing": {
-      "title": "Preise – Evolution Hub",
-      "description": "Wähle den passenden Plan für deine Bedürfnisse. Kostenlose Testversion verfügbar.",
+      "title": "Pricing – Evolution Hub",
+      "description": "Choose the plan that fits your needs. Free trial available.",
       "billing_messages": {
-        "unauthorized": "Bitte melde dich an, um auf dein Abrechnungsportal zuzugreifen.",
-        "stripe_not_configured": "Das Abrechnungsportal ist derzeit nicht verfügbar.",
-        "db_unavailable": "Wir konnten den Billing-Service nicht erreichen. Bitte versuche es später erneut.",
-        "no_customer": "Deinem Konto ist noch kein Stripe-Kunde zugeordnet.",
-        "portal_unavailable": "Wir konnten dein Abrechnungsportal nicht öffnen. Bitte versuche es erneut.",
-        "retry_cta": "Erneut versuchen"
+        "unauthorized": "Please sign in to access your billing portal.",
+        "stripe_not_configured": "The billing portal is currently unavailable.",
+        "db_unavailable": "We couldn't reach the billing service. Please try again later.",
+        "no_customer": "No Stripe customer is linked to your account yet.",
+        "portal_unavailable": "We couldn't open your billing portal. Please try again.",
+        "retry_cta": "Try again"
       },
       "table": {
-        "per_month": "/Monat",
-        "per_year": "pro Jahr",
-        "annual_savings": "Jahresplan: 10 zahlen, 12 erhalten",
-        "free": "Kostenlos",
-        "custom": "Individuell",
-        "featured_badge": "Beliebt",
-        "cta_buy_enterprise": "Enterprise kaufen",
+        "per_month": "/month",
+        "per_year": "per year",
+        "annual_savings": "Annual plan: pay for 10 months, get 12",
+        "free": "Free",
+        "custom": "Custom",
+        "featured_badge": "Popular",
+        "cta_buy_enterprise": "Buy Enterprise",
         "plans": {
           "starter": {
             "name": "Starter",
-            "price": "Kostenlos",
-            "description": "Perfekt zum Ausprobieren",
+            "price": "Free",
+            "description": "Perfect for trying it out",
             "features": [
-              "Credits: 30/Monat (Burst: 3/Tag)",
-              "Alle fünf Tools enthalten",
-              "Kommerzielle Nutzung: Nein"
+              "Credits: 30/month (burst: 3/day)",
+              "Access to all tools (subject to availability; limits vary by plan)",
+              "Commercial use: No"
             ],
-            "cta": "Jetzt starten"
+            "cta": "Get started"
           },
           "pro": {
             "name": "Pro",
             "price": "12,00€",
-            "description": "Für Creator und Indie-Teams",
+            "description": "For creators and indie teams",
             "features": [
-              "Credits: 300/Monat (Burst: 30/Tag)",
-              "Alle fünf Tools enthalten",
-              "Kommerzielle Nutzung: Ja"
+              "Credits: 300/month (burst: 30/day)",
+              "Access to all tools (subject to availability; limits vary by plan)",
+              "Commercial use: Yes"
             ],
-            "cta": "Pro kaufen"
+            "cta": "Buy Pro"
           },
           "premium": {
             "name": "Business",
             "price": "28,00€",
-            "description": "Für Power-User",
+            "description": "For power users",
             "features": [
-              "Credits: 1.000/Monat (Burst: 100/Tag)",
-              "Alle fünf Tools enthalten",
-              "Priorisierter E-Mail-Support",
-              "Kommerzielle Nutzung: Ja"
+              "Credits: 1,000/month (burst: 100/day)",
+              "Access to all tools (subject to availability; limits vary by plan)",
+              "Priority email support",
+              "Commercial use: Yes"
             ],
-            "cta": "Business kaufen"
+            "cta": "Buy Business"
           },
           "enterprise": {
             "name": "Enterprise",
             "price": "99,00€",
-            "description": "Für Unternehmen",
+            "description": "For organizations",
             "features": [
-              "Credits: 4.000+/Monat (Burst: 400/Tag)",
-              "Alle fünf Tools enthalten",
-              "Individuelle Limits & Abrechnung",
-              "Dedizierter Kontakt"
+              "Credits: 4,000+/month (burst: 400/day)",
+              "Access to all tools (subject to availability; limits vary by plan)",
+              "Custom limits & billing",
+              "Dedicated contact"
             ],
-            "cta": "Kontakt aufnehmen"
+            "cta": "Get in touch"
           }
         },
         "details": {
-          "trigger": "Mehr Details",
-          "close": "Details schließen"
+          "trigger": "More details",
+          "close": "Close details"
         }
       },
       "comparison": {
-        "title": "Detaillierter Vergleich",
+        "title": "Detailed comparison",
         "columns": {
           "feature": "Feature",
           "starter": "Starter",
@@ -806,25 +814,25 @@
         },
         "rows": {
           "images_per_month": {
-            "name": "Credits pro Monat",
-            "starter": "30 (3/Tag)",
+            "name": "Credits per month",
+            "starter": "30 (3/day)",
             "pro": "300",
-            "premium": "1.000",
-            "enterprise": "4.000+"
+            "premium": "1,000",
+            "enterprise": "4,000+"
           },
           "daily_burst": {
-            "name": "Tages‑Burst‑Limit",
+            "name": "Daily burst limit",
             "starter": "3",
             "pro": "30",
             "premium": "100",
             "enterprise": "400"
           },
           "max_resolution": {
-            "name": "Enthaltene Tools",
-            "starter": "Alle 5 Tools",
-            "pro": "Alle 5 Tools",
-            "premium": "Alle 5 Tools",
-            "enterprise": "Alle 5 Tools"
+            "name": "Tool access",
+            "starter": "All tools (subject to availability)",
+            "pro": "All tools (subject to availability)",
+            "premium": "All tools (subject to availability)",
+            "enterprise": "All tools (subject to availability)"
           },
           "max_upscale": {
             "name": "—",
@@ -834,11 +842,11 @@
             "enterprise": "—"
           },
           "face_enhance": {
-            "name": "Kommerzielle Nutzung",
-            "starter": "Nein",
-            "pro": "Ja",
-            "premium": "Ja",
-            "enterprise": "Ja"
+            "name": "Commercial use",
+            "starter": "No",
+            "pro": "Yes",
+            "premium": "Yes",
+            "enterprise": "Yes"
           },
           "batch": {
             "name": "—",
@@ -857,16 +865,16 @@
           "queue": {
             "name": "Support",
             "starter": "Community",
-            "pro": "E‑Mail",
-            "premium": "E‑Mail (schneller)",
-            "enterprise": "Dedizierter Kontakt"
+            "pro": "Email",
+            "premium": "Email (priority)",
+            "enterprise": "Dedicated contact"
           },
           "commercial": {
-            "name": "Kontakt/Enterprise",
+            "name": "Contact/Enterprise",
             "starter": "—",
             "pro": "—",
             "premium": "—",
-            "enterprise": "Kontakt"
+            "enterprise": "Contact"
           },
           "support": {
             "name": "—",
@@ -876,204 +884,210 @@
             "enterprise": "—"
           }
         },
-        "contact_cta": "Fragen zu den Plänen?"
+        "contact_cta": "Questions about plans?"
       },
       "header": {
-        "title": "Einfache, transparente Preise",
-        "subtitle": "Wähle den Plan, der am besten zu dir passt."
+        "title": "Simple, transparent pricing",
+        "subtitle": "Choose the plan that fits you best."
       },
       "interval": {
-        "monthly": "Monatlich",
-        "annual": "Jährlich"
+        "monthly": "Monthly",
+        "annual": "Annual"
       },
       "sections": {
-        "plans": "Pläne",
-        "credits_packs": "Credit-Pakete",
-        "comparison": "Vergleich",
+        "plans": "Plans",
+        "credits_packs": "Credit packs",
+        "comparison": "Comparison",
         "faq": "FAQ"
       },
       "highlights": {
-        "tools_title": "Alle 5 Tools enthalten",
-        "tools_desc": "Imag‑Enhancer, Video Enhancer, Prompt Enhancer, Voice Visualizer, Webscraper nutzen",
-        "commercial_title": "Kommerzielle Nutzung erlaubt",
-        "commercial_desc": "Pro, Business und Enterprise enthalten kommerzielle Nutzungsrechte",
-        "credits_title": "Monatliche Credits + Tages‑Burst",
-        "credits_desc": "Monatlicher Reset mit fairen Tages‑Burst‑Grenzen"
+        "tools_title": "Tool access in your plan",
+        "tools_desc": "Use the tools you need across image, video, prompts, voice and web workflows (subject to availability)",
+        "commercial_title": "Commercial use allowed",
+        "commercial_desc": "Pro, Business and Enterprise include commercial usage rights",
+        "credits_title": "Monthly credits + daily burst",
+        "credits_desc": "Monthly reset with fair daily burst limits"
       },
       "credits_packs": {
-        "title": "Zusätzliche Credits kaufen",
-        "subtitle": "Einmalpakete, um dein Monatskontingent aufzustocken.",
+        "title": "Buy extra credits",
+        "subtitle": "One-time packs to top up your monthly allowance.",
         "cards": {
           "100": {
-            "title": "Starter-Paket",
+            "title": "Starter pack",
             "price": "6,00 €",
-            "description": "Perfekt, wenn dir nur wenige Runs fehlen.",
+            "description": "Perfect if you're just a few runs short.",
             "bullets": [
-              "100 zusätzliche Credits sofort gutgeschrieben",
-              "Für alle Tools nutzbar – ohne Planwechsel"
+              "100 extra credits credited instantly",
+              "Usable for all tools – no plan change required"
             ],
-            "cta": "100 Credits kaufen"
+            "cta": "Buy 100 credits"
           },
           "500": {
-            "title": "Creator-Paket",
+            "title": "Creator pack",
             "price": "22,00 €",
-            "description": "Ideal für wöchentliche Projekte und Team-Workflows.",
-            "bullets": ["500 Credits für größere Batches", "Schont deine täglichen Burst-Limits"],
-            "cta": "500 Credits kaufen"
+            "description": "Ideal for weekly projects and team workflows.",
+            "bullets": [
+              "500 credits for larger batches",
+              "Helps you stay within daily burst limits"
+            ],
+            "cta": "Buy 500 credits"
           },
           "1500": {
-            "title": "Pro-Paket",
+            "title": "Pro pack",
             "price": "55,00 €",
-            "description": "Bestes Preis-Leistungs-Verhältnis für Agenturen und Produktionsteams.",
-            "bullets": ["1.500 Credits sofort verfügbar", "Im gesamten Workspace teilbar"],
-            "cta": "1.500 Credits kaufen"
+            "description": "Best value for agencies and production teams.",
+            "bullets": [
+              "1,500 credits available instantly",
+              "Shareable across your entire workspace"
+            ],
+            "cta": "Buy 1,500 credits"
           }
         },
         "details": {
-          "trigger": "Mehr Details"
+          "trigger": "More details"
         }
       },
       "credits_explainer": {
-        "title": "Was sind Credits?",
-        "intro": "Credits sind ein einheitliches Kontingent, das du über alle Tools hinweg nutzen kannst. Jede Operation verbraucht Credits; höhere Pläne enthalten mehr Credits und höhere Tages‑Burst‑Limits.",
+        "title": "What are credits?",
+        "intro": "Credits are a unified allowance you can use across all tools. Each operation consumes credits; higher plans include more credits and higher daily burst limits.",
         "bullets": {
-          "0": "Nutze Credits in Tools wie Imag‑Enhancer, Video Enhancer, Prompt Enhancer und Voice Transcriptor.",
-          "1": "Deine monatlichen Credits werden zu jedem Abrechnungszyklus zurückgesetzt; Tages‑Burst‑Limits sichern die Service‑Qualität.",
-          "2": "Mehr Bedarf? Kaufe jederzeit einmalige Credit‑Pakete (100/500/1500)."
+          "0": "Use credits in tools like Imag‑Enhancer, Video Enhancer, Prompt Enhancer and Voice Transcriptor.",
+          "1": "Your monthly credits reset every billing cycle; daily burst limits help ensure service quality.",
+          "2": "Need more? Buy one-time credit packs anytime (100/500/1500)."
         }
       },
       "faq": {
-        "title": "Häufig gestellte Fragen",
-        "question1": "Kann ich meinen Plan später wechseln?",
-        "answer1": "Ja, du kannst jederzeit zwischen den Plänen wechseln. Die Änderung wird mit deinem nächsten Abrechnungszyklus wirksam.",
-        "question2": "Gibt es eine Mindestvertragslaufzeit?",
-        "answer2": "Nein, alle Pläne sind monatlich kündbar. Es gibt keine vertragliche Bindung.",
-        "question3": "Kann ich die Enterprise-Version testen?",
-        "answer3": "Ja, kontaktiere uns für eine individuelle Demo und Testphase der Enterprise-Features."
+        "title": "Frequently asked questions",
+        "question1": "Can I change my plan later?",
+        "answer1": "Yes, you can switch plans at any time. The change takes effect with your next billing cycle.",
+        "question2": "Is there a minimum contract term?",
+        "answer2": "No, all plans can be cancelled monthly. There is no long-term commitment.",
+        "question3": "Can I try the Enterprise plan?",
+        "answer3": "Yes — contact us for an individual demo and a trial period for Enterprise features."
       },
-      "faq_contact_cta_text": "Noch Fragen?",
-      "faq_contact_cta_link_text": "Kontaktiere unser Team"
+      "faq_contact_cta_text": "Still have questions?",
+      "faq_contact_cta_link_text": "Contact our team"
     },
     "kontakt": {
-      "title": "Kontakt",
+      "title": "Contact",
       "hero": {
-        "heading": "Kontaktieren Sie uns",
-        "subtitle": "Haben Sie Fragen oder Anregungen? Wir freuen uns, von Ihnen zu hören."
+        "heading": "Contact us",
+        "subtitle": "Do you have questions or suggestions? We'd love to hear from you."
       },
       "form": {
-        "heading": "Senden Sie uns eine Nachricht",
+        "heading": "Send us a message",
         "fields": {
           "first_name": {
-            "label": "Vorname"
+            "label": "First name"
           },
           "last_name": {
-            "label": "Nachname"
+            "label": "Last name"
           },
           "email": {
-            "label": "E-Mail"
+            "label": "Email"
           },
           "subject": {
-            "label": "Betreff"
+            "label": "Subject"
           },
           "message": {
-            "label": "Ihre Nachricht",
-            "placeholder": "Beschreiben Sie Ihr Anliegen..."
+            "label": "Your message",
+            "placeholder": "Describe your request..."
           }
         },
         "privacy_policy": {
-          "link_text": "Datenschutzerklärung",
-          "agree_prefix": "Ich stimme der ",
-          "agree_suffix": " zu."
+          "link_text": "Privacy policy",
+          "agree_prefix": "I agree to the ",
+          "agree_suffix": "."
         },
-        "submit_button": "Nachricht senden",
+        "submit_button": "Send message",
         "feedback": {
-          "success": "Danke! Wir melden uns in Kürze.",
-          "error": "Die Nachricht konnte nicht gesendet werden. Bitte versuche es erneut oder schreibe uns direkt per E-Mail.",
-          "generic_error": "Es ist ein Fehler aufgetreten. Bitte versuche es erneut.",
-          "sending": "Wird gesendet…"
+          "success": "Thanks! We'll get back to you shortly.",
+          "error": "Your message could not be sent. Please try again or email us directly.",
+          "generic_error": "An error occurred. Please try again.",
+          "sending": "Sending…"
         }
       },
       "info": {
-        "heading": "Kontaktinformationen",
-        "subtitle": "Unser Support-Team ist für Sie da. Schreiben Sie uns oder rufen Sie uns an.",
-        "email_label": "E-Mail",
+        "heading": "Contact information",
+        "subtitle": "Our support team is here for you. Send us a message or give us a call.",
+        "email_label": "Email",
         "email_address": "contact@hub-evolution.com",
-        "phone_label": "Telefon",
-        "support_hours": "Wir melden uns schnellstmöglich zurück.",
+        "phone_label": "Phone",
+        "support_hours": "We'll get back to you as soon as possible.",
         "phone_number": "",
-        "address_label": "Adresse",
-        "phone_unavailable": "Telefonischer Support ist derzeit nicht verfügbar.",
-        "address_unavailable": "Adressangaben folgen in Kürze.",
-        "social_heading": "Folge uns",
-        "response_time_label": "Durchschnittliche Antwortzeit:",
-        "response_time": "innerhalb von 24h",
-        "response_time_unit": "an Werktagen.",
+        "address_label": "Address",
+        "phone_unavailable": "Phone support is currently unavailable.",
+        "address_unavailable": "Address details coming soon.",
+        "social_heading": "Follow us",
+        "response_time_label": "Average response time:",
+        "response_time": "within 24h",
+        "response_time_unit": "on business days.",
         "provider": {
-          "headline": "Anbieter",
+          "headline": "Provider",
           "company_name": "",
           "street_address": "",
           "city_postal_code": "",
           "country": ""
         },
         "contact": {
-          "headline": "Kontakt",
+          "headline": "Contact",
           "phone": "",
           "fax": "",
           "email": "contact@hub-evolution.com",
           "website": "https://hub-evolution.com"
         },
         "represented_by": {
-          "headline": "Vertreten durch",
+          "headline": "Represented by",
           "managing_directors": ""
         },
         "registration": {
-          "headline": "Handelsregister",
+          "headline": "Commercial register",
           "register_entry": "",
           "register_court": "",
           "register_number": ""
         },
         "vat": {
-          "headline": "Umsatzsteuer",
-          "vat_id_label": "USt-IdNr.",
+          "headline": "VAT",
+          "vat_id_label": "VAT ID",
           "vat_id": ""
         },
         "content_responsible": {
-          "headline": "Inhaltlich verantwortlich",
+          "headline": "Content responsible",
           "name": "",
           "street": "",
           "city_postal_code": ""
         },
         "dispute_resolution": {
-          "headline": "Streitschlichtung",
+          "headline": "Dispute resolution",
           "os_platform_intro": "",
           "os_platform_url": "https://hub-evolution.com",
           "email_note": "",
           "participation_statement": ""
         },
         "disclaimer": {
-          "headline": "Haftungsausschluss",
+          "headline": "Disclaimer",
           "content_liability": {
-            "headline": "Haftung für Inhalte",
+            "headline": "Liability for content",
             "paragraph1": "",
             "paragraph2": ""
           },
           "link_liability": {
-            "headline": "Haftung für Links",
+            "headline": "Liability for links",
             "paragraph1": "",
             "paragraph2": ""
           },
           "copyright": {
-            "headline": "Urheberrecht",
+            "headline": "Copyright",
             "paragraph1": "",
             "paragraph2": ""
           }
         },
         "image_credits": {
-          "headline": "Bildnachweise",
-          "description": "Die auf dieser Website verwendeten Bilder und Grafiken unterliegen dem Urheberrecht der Evolution Hub GmbH oder sind lizenzfreie Stockfotos von Drittanbietern."
+          "headline": "Image credits",
+          "description": "The images and graphics used on this website are subject to copyright by Evolution Hub GmbH or are royalty-free stock photos from third-party providers."
         }
       },
-      "source_label": "Quelle:",
+      "source_label": "Source:",
       "source_url": "https://www.e-recht24.de",
       "source_name": "e-recht24.de",
       "source_attribution": "e-recht24.de"
@@ -1081,428 +1095,428 @@
     "dashboard": {
       "title": "Dashboard",
       "tools_overview": {
-        "title": "Tool-Kontingente & Nutzung",
-        "subtitle": "Planbasierte Limits für alle Tools",
+        "title": "Tool quotas & usage",
+        "subtitle": "Plan-based limits across all tools",
         "columns": {
           "tool": "Tool",
-          "usage": "Nutzung",
-          "remaining": "Verbleibend",
-          "period": "Zeitraum"
+          "usage": "Usage",
+          "remaining": "Remaining",
+          "period": "Period"
         },
         "period": {
-          "daily": "pro Tag",
-          "monthly": "pro Monat"
+          "daily": "per day",
+          "monthly": "per month"
         }
       },
       "stats": {
-        "projects": "Projekte",
-        "tasks": "Aufgaben",
-        "teamMembers": "Teammitglieder"
+        "projects": "Projects",
+        "tasks": "Tasks",
+        "teamMembers": "Team members"
       },
       "quickActions": {
-        "title": "Schnellaktionen",
-        "empty": "Keine Schnellaktionen verfügbar",
+        "title": "Quick actions",
+        "empty": "No quick actions available",
         "actions": {
           "newProject": {
-            "title": "Neues Projekt",
-            "description": "Starte ein neues Projekt"
+            "title": "New project",
+            "description": "Start a new project"
           },
           "newTask": {
-            "title": "Neue Aufgabe",
-            "description": "Erstelle eine neue Aufgabe"
+            "title": "New task",
+            "description": "Create a new task"
           },
           "inviteTeam": {
-            "title": "Team einladen",
-            "description": "Lade ein neues Teammitglied ein"
+            "title": "Invite team",
+            "description": "Invite a new team member"
           },
           "viewDocs": {
-            "title": "Dokumentation öffnen",
-            "description": "Sieh dir die Dokumentation an"
+            "title": "Open documentation",
+            "description": "View the documentation"
           }
         }
       },
       "billing": {
-        "title": "Abonnement & Abrechnung",
-        "currentPlan": "Aktueller Plan",
+        "title": "Subscription & billing",
+        "currentPlan": "Current plan",
         "statusLabel": "Status",
-        "noSubscription": "Kein aktives Abonnement",
-        "renewal": "Verlängert sich am",
-        "credits": "Verbleibende KI-Credits",
-        "empty": "Derzeit keine Empfehlungen verfügbar.",
+        "noSubscription": "No active subscription",
+        "renewal": "Renews on",
+        "credits": "Remaining AI credits",
+        "empty": "No recommendations available right now.",
         "actions": {
-          "manage": "Abrechnung öffnen",
-          "cancel": "Abonnement kündigen",
-          "cancelled": "Kündigung geplant"
+          "manage": "Open billing",
+          "cancel": "Cancel subscription",
+          "cancelled": "Cancellation scheduled"
         },
         "statusMap": {
-          "active": "Aktiv",
-          "trialing": "Testphase",
-          "past_due": "Überfällig",
-          "canceled": "Gekündigt",
-          "unpaid": "Unbezahlt",
-          "incomplete": "Unvollständig",
-          "incomplete_expired": "Unvollständig (abgelaufen)",
-          "paused": "Pausiert",
-          "unknown": "Unbekannt"
+          "active": "Active",
+          "trialing": "Trial",
+          "past_due": "Past due",
+          "canceled": "Canceled",
+          "unpaid": "Unpaid",
+          "incomplete": "Incomplete",
+          "incomplete_expired": "Incomplete (expired)",
+          "paused": "Paused",
+          "unknown": "Unknown"
         },
         "quota": {
-          "label": "Verbleibendes Monatskontingent",
-          "loading": "Aktualisiere…",
+          "label": "Remaining monthly quota",
+          "loading": "Updating…",
           "usage": {
-            "suffix": "genutzt"
+            "suffix": "used"
           },
           "resets": {
-            "one": "setzt sich in 1 Tag zurück",
-            "other": "setzt sich in {count} Tagen zurück"
+            "one": "resets in 1 day",
+            "other": "resets in {count} days"
           }
         },
         "creditsBuy": {
-          "button": "Credits kaufen",
-          "errorPrefix": "Checkout fehlgeschlagen: ",
-          "errorInvalidResponse": "Checkout fehlgeschlagen: Ungültige Antwort",
-          "errorGeneric": "Checkout fehlgeschlagen"
+          "button": "Buy credits",
+          "errorPrefix": "Checkout failed: ",
+          "errorInvalidResponse": "Checkout failed: Invalid response",
+          "errorGeneric": "Checkout failed"
         }
       },
       "referrals": {
-        "title": "Referral-Programm",
-        "description": "Teile deinen persönlichen Link, lade Freundinnen und Freunde ein und erhalte Nutzungsguthaben, sobald sie Evolution Hub beitreten.",
-        "linkLabel": "Dein Referral-Link",
-        "copy": "Link kopieren",
-        "copied": "Kopiert!",
-        "loading": "Referral-Daten werden geladen…",
-        "error": "Deine Referral-Daten konnten nicht geladen werden. Bitte versuche es erneut.",
-        "empty": "Noch keine Referral-Aktivitäten. Teile deinen Link, um zu starten.",
-        "statsTitle": "Gesamtübersicht",
+        "title": "Referral program",
+        "description": "Share your personal link, invite friends, and earn usage credits when they join Evolution Hub.",
+        "linkLabel": "Your referral link",
+        "copy": "Copy link",
+        "copied": "Copied!",
+        "loading": "Loading referral data…",
+        "error": "We couldn't load your referral data. Please try again.",
+        "empty": "No referral activity yet. Share your link to get started.",
+        "statsTitle": "Overview",
         "stats": {
-          "referred": "Geworben",
-          "verified": "Verifiziert",
-          "paid": "Bezahlt",
-          "pending": "Ausstehend",
-          "cancelled": "Abgebrochen"
+          "referred": "Referred",
+          "verified": "Verified",
+          "paid": "Paid",
+          "pending": "Pending",
+          "cancelled": "Cancelled"
         },
-        "creditsEarned": "Verdiente Credits",
-        "recentTitle": "Neueste Referrals",
-        "recentEmpty": "Keine aktuellen Referral-Aktivitäten",
+        "creditsEarned": "Credits earned",
+        "recentTitle": "Recent referrals",
+        "recentEmpty": "No recent referral activity",
         "status": {
-          "pending": "Ausstehend",
-          "verified": "Verifiziert",
-          "paid": "Bezahlt",
-          "cancelled": "Abgebrochen"
+          "pending": "Pending",
+          "verified": "Verified",
+          "paid": "Paid",
+          "cancelled": "Cancelled"
         },
-        "updated": "Aktualisiert",
-        "retry": ""
+        "updated": "Updated",
+        "retry": "Try again"
       },
       "projects": {
-        "title": "Deine Projekte",
-        "empty": "Keine Projekte gefunden",
-        "createFirst": "Erstelle dein erstes Projekt",
-        "retry": "Erneut versuchen",
-        "progress": "Fortschritt",
-        "add": "+ Neues Projekt hinzufügen",
-        "updated": "Aktualisiert {date}"
+        "title": "Your projects",
+        "empty": "No projects found",
+        "createFirst": "Create your first project",
+        "retry": "Try again",
+        "progress": "Progress",
+        "add": "+ Add new project",
+        "updated": "Updated {date}"
       },
       "notifications": {
-        "title": "Benachrichtigungen",
-        "empty": "Keine neuen Benachrichtigungen",
+        "title": "Notifications",
+        "empty": "No new notifications",
         "samples": {
-          "comment": "Du hast einen neuen Kommentar zu deinem Projekt \"{project}\".",
-          "mention": "{user} hat dich in \"{item}\" erwähnt.",
-          "task_completed": "Aufgabe \"{task}\" wurde abgeschlossen."
+          "comment": "You have a new comment on your project \"{project}\".",
+          "mention": "{user} mentioned you in \"{item}\".",
+          "task_completed": "Task \"{task}\" was completed."
         }
       },
       "activity": {
-        "title": "Aktuelle Aktivitäten",
-        "empty": "Keine aktuellen Aktivitäten",
-        "viewAll": "Alle Aktivitäten anzeigen"
+        "title": "Recent activity",
+        "empty": "No recent activity",
+        "viewAll": "View all activity"
       },
       "profile": {
-        "avatarAlt": "Benutzer-Avatar",
-        "actionsTitle": "Konto-Aktionen",
-        "settings": "Einstellungen bearbeiten",
+        "avatarAlt": "User avatar",
+        "actionsTitle": "Account actions",
+        "settings": "Edit settings",
         "upgrade": "Upgrade",
-        "logout": "Abmelden",
-        "planTooltip": "Aktueller Plan: {plan}",
+        "logout": "Log out",
+        "planTooltip": "Current plan: {plan}",
         "planLabels": {
           "free": "Starter",
           "pro": "Pro",
           "premium": "Premium",
           "enterprise": "Enterprise"
         },
-        "pulse": "Dein Workspace funktioniert vollständig passwortlos – Magic Links kommen direkt in deinem Postfach an und OAuth hält Identitäten verifiziert."
+        "pulse": "Your workspace is fully passwordless — Magic Links arrive right in your inbox and OAuth keeps identities verified."
       },
       "account": {
         "danger": {
-          "title": "Konto löschen",
-          "description": "Das Entfernen deines Kontos anonymisiert deine Daten und beendet aktive Sitzungen. Diese Aktion kann nicht rückgängig gemacht werden.",
-          "button": "Konto löschen",
-          "close": "Schließen",
+          "title": "Delete account",
+          "description": "Deleting your account anonymizes your data and ends active sessions. This action cannot be undone.",
+          "button": "Delete account",
+          "close": "Close",
           "confirm": {
-            "title": "Löschung bestätigen",
-            "description": "Bist du sicher, dass du dein Konto dauerhaft löschen möchtest?",
-            "confirmCta": "Jetzt löschen",
-            "cancelCta": "Abbrechen"
+            "title": "Confirm deletion",
+            "description": "Are you sure you want to permanently delete your account?",
+            "confirmCta": "Delete now",
+            "cancelCta": "Cancel"
           },
           "subscription": {
-            "title": "Aktives Abonnement erkannt",
-            "description": "Wir haben aktive Abonnements gefunden. Du kannst zur Abrechnung wechseln oder die Kündigung automatisch zum aktuellen Laufzeitende einplanen.",
-            "periodEnd": "Verlängert sich am {date}",
-            "indefinite": "Verlängert sich automatisch bis zur Kündigung",
-            "goToBilling": "Zur Abrechnung wechseln",
-            "deleteAnyway": "Trotzdem löschen",
-            "back": "Zurück"
+            "title": "Active subscription detected",
+            "description": "We found active subscriptions. You can go to billing or schedule a cancellation at the end of the current period.",
+            "periodEnd": "Renews on {date}",
+            "indefinite": "Renews automatically until cancelled",
+            "goToBilling": "Go to billing",
+            "deleteAnyway": "Delete anyway",
+            "back": "Back"
           },
           "messages": {
-            "processing": "Konto wird gelöscht…",
-            "success": "Dein Konto wurde gelöscht. Du wirst abgemeldet.",
-            "error": "Das Konto konnte nicht gelöscht werden. Bitte versuche es erneut."
+            "processing": "Deleting account…",
+            "success": "Your account has been deleted. You'll be signed out.",
+            "error": "The account could not be deleted. Please try again."
           }
         },
         "profile": {
-          "title": "Öffentliches Profil",
-          "description": "Aktualisiere, wie du in Evolution Hub erscheinst – für Kommentare, Dashboards und Team-Arbeitsbereiche.",
+          "title": "Public profile",
+          "description": "Update how you appear in Evolution Hub — for comments, dashboards, and team workspaces.",
           "nameLabel": "Name",
-          "usernameLabel": "Benutzername",
-          "emailLabel": "E-Mail",
-          "changeEmailHint": "E-Mail-Änderungen erfordern eine erneute Verifizierung über den Support.",
-          "changeEmailCta": "E-Mail ändern (bald verfügbar)",
-          "saveCta": "Änderungen speichern",
-          "hybridTitle": "Passwortlos per Design",
-          "hybridDescription": "Anmeldung erfolgt über Magic Links und OAuth-Anbieter – keine Passwörter, kein Reset-Stress.",
-          "supportTitle": "Hilfe benötigt?",
-          "supportDescription": "Das Auth-Playbook erklärt Sessions, Gerätevertrauen und Recovery-Schritte im Detail.",
-          "supportCta": "Guide öffnen"
+          "usernameLabel": "Username",
+          "emailLabel": "Email",
+          "changeEmailHint": "Email changes require re-verification via support.",
+          "changeEmailCta": "Change email (coming soon)",
+          "saveCta": "Save changes",
+          "hybridTitle": "Passwordless by design",
+          "hybridDescription": "Sign-in happens via Magic Links and OAuth providers — no passwords, no reset stress.",
+          "supportTitle": "Need help?",
+          "supportDescription": "The auth playbook explains sessions, device trust, and recovery steps in detail.",
+          "supportCta": "Open guide"
         }
       },
       "toolShortcuts": {
-        "title": "Werkzeuge im Schnellzugriff",
-        "description": "Greife direkt auf deine wichtigsten Workflows zu.",
-        "open": "Tool öffnen"
+        "title": "Tool shortcuts",
+        "description": "Access your key workflows directly.",
+        "open": "Open tool"
       },
       "newsletter": {
-        "title": "Newsletter-Präferenzen",
-        "subscribed": "Du erhältst derzeit Produkt-Updates und Release Notes.",
-        "unsubscribed": "Du erhältst aktuell keine Produkt-Updates.",
-        "unsubscribe": "Abmelden",
-        "resubscribe": "Erneut abonnieren",
-        "processing": "Aktualisiere…",
-        "success": "Deine Präferenzen wurden aktualisiert.",
-        "error": "Wir konnten deine Präferenzen nicht aktualisieren. Bitte versuche es erneut."
+        "title": "Newsletter preferences",
+        "subscribed": "You're currently receiving product updates and release notes.",
+        "unsubscribed": "You're currently not receiving product updates.",
+        "unsubscribe": "Unsubscribe",
+        "resubscribe": "Resubscribe",
+        "processing": "Updating…",
+        "success": "Your preferences have been updated.",
+        "error": "We couldn't update your preferences. Please try again."
       },
       "consent": {
-        "title": "Cookie & Consent",
-        "description": "Diese Einstellungen steuern Analyse- und Marketingfunktionen in Evolution Hub.",
-        "manageHref": "/cookie-einstellungen",
+        "title": "Cookies & consent",
+        "description": "These settings control analytics and marketing features in Evolution Hub.",
+        "manageHref": "/cookie-settings",
         "categories": {
           "necessary": {
-            "label": "Notwendig",
-            "description": "Immer aktiv, damit Sicherheit und Grundfunktionen gewährleistet sind."
+            "label": "Necessary",
+            "description": "Always enabled to ensure security and core functionality."
           },
           "analytics": {
-            "label": "Analyse",
-            "description": "Seiten-Analysen und Telemetrie zur Verbesserung des Produkts."
+            "label": "Analytics",
+            "description": "Page analytics and telemetry to improve the product."
           },
           "marketing": {
             "label": "Marketing",
-            "description": "Personalisierte Kampagnen und Retargeting über verschiedene Kanäle."
+            "description": "Personalized campaigns and retargeting across channels."
           }
         },
         "actions": {
-          "manage": "Einstellungen öffnen",
-          "acceptAll": "Alle akzeptieren",
-          "rejectAll": "Nur notwendige"
+          "manage": "Open settings",
+          "acceptAll": "Accept all",
+          "rejectAll": "Necessary only"
         },
         "status": {
-          "granted": "Aktiv",
-          "limited": "Teilweise",
-          "disabled": "Deaktiviert"
+          "granted": "Enabled",
+          "limited": "Limited",
+          "disabled": "Disabled"
         }
       }
     },
     "login": {
-      "title": "Anmelden",
+      "title": "Sign in",
       "form": {
-        "heading": "Melden Sie sich bei Ihrem Konto an",
+        "heading": "Sign in to your account",
         "fields": {
           "email": {
-            "label": "E-Mail"
+            "label": "Email"
           },
           "password": {
-            "label": "Passwort"
+            "label": "Password"
           }
         },
-        "or": "oder",
-        "forgot_password_link": "Passwort vergessen?",
-        "submit_button": "Anmelden",
-        "magic_button": "Mit Magic Link fortfahren",
+        "or": "or",
+        "forgot_password_link": "Forgot password?",
+        "submit_button": "Sign in",
+        "magic_button": "Continue with Magic Link",
         "oauth": {
-          "github": "Mit GitHub anmelden"
+          "github": "Sign in with GitHub"
         },
-        "no_account_prompt": "Sie haben noch kein Konto?",
-        "register_link": "Registrieren"
+        "no_account_prompt": "Don't have an account?",
+        "register_link": "Register"
       }
     },
     "register": {
-      "title": "Konto erstellen",
+      "title": "Create account",
       "form": {
-        "heading": "Erstellen Sie Ihr Konto",
-        "subheading": "Wir senden dir einen Anmelde‑Link per E‑Mail. Nach dem Absenden siehst du eine Bestätigungs‑Antwort.",
+        "heading": "Create your account",
+        "subheading": "We'll send you a sign-in link via email. After submitting, you'll see a confirmation message.",
         "fields": {
           "name": {
             "label": "Name",
-            "help": "2–50 Zeichen."
+            "help": "2–50 characters."
           },
           "username": {
-            "label": "Benutzername",
-            "help": "3–30 Zeichen; Buchstaben, Zahlen, Unterstrich."
+            "label": "Username",
+            "help": "3–30 characters; letters, numbers, underscore."
           },
           "email": {
-            "label": "E-Mail"
+            "label": "Email"
           },
           "password": {
-            "label": "Passwort"
+            "label": "Password"
           }
         },
-        "submit_button": "Konto erstellen",
-        "already_have_account_prompt": "Sie haben bereits ein Konto?",
-        "login_link": "Anmelden"
+        "submit_button": "Create account",
+        "already_have_account_prompt": "Already have an account?",
+        "login_link": "Sign in"
       }
     },
     "auth": {
-      "login": "Anmelden",
+      "login": "Sign in",
       "magic": {
-        "success": "Prüfe deine E‑Mails auf den Anmelde‑Link.",
-        "error": "Der Link konnte nicht gesendet werden. Bitte versuche es erneut.",
-        "cooldown": "Erneut senden in {s}s"
+        "success": "Check your email for the sign-in link.",
+        "error": "The link could not be sent. Please try again.",
+        "cooldown": "Resend in {s}s"
       }
     },
     "welcomeProfile": {
-      "title": "Profil vervollständigen",
-      "description": "Name und Benutzername festlegen",
-      "heading": "Willkommen! Profil vervollständigen",
-      "helper": "Wir haben dein Konto erstellt. Du kannst jetzt deinen öffentlichen Namen und Benutzernamen festlegen oder dies später in den Einstellungen erledigen.",
+      "title": "Complete profile",
+      "description": "Set your name and username",
+      "heading": "Welcome! Complete your profile",
+      "helper": "We've created your account. You can set your public name and username now, or do it later in settings.",
       "fields": {
         "name": {
           "label": "Name"
         },
         "username": {
-          "label": "Benutzername"
+          "label": "Username"
         }
       },
       "buttons": {
-        "saveContinue": "Speichern und weiter",
-        "skipNow": "Später"
+        "saveContinue": "Save and continue",
+        "skipNow": "Later"
       }
     },
     "forgotPassword": {
-      "title": "Passwort vergessen",
+      "title": "Forgot password",
       "form": {
-        "heading": "Passwort vergessen",
+        "heading": "Forgot password",
         "fields": {
           "email": {
-            "label": "E-Mail"
+            "label": "Email"
           }
         },
-        "submit_button": "Link zum Zurücksetzen senden"
+        "submit_button": "Send reset link"
       }
     },
     "account": {
       "settings": {
         "email": {
-          "change_hint": "Zum Ändern der E‑Mail ist eine erneute Verifizierung nötig. Bitte kontaktiere den Support oder nutze später die Funktion „E‑Mail ändern“.",
-          "change_cta": "E‑Mail ändern"
+          "change_hint": "Changing your email requires re-verification. Please contact support or use the “Change email” feature later.",
+          "change_cta": "Change email"
         }
       }
     },
     "resetPassword": {
-      "title": "Passwort zurücksetzen",
+      "title": "Reset password",
       "form": {
-        "heading": "Neues Passwort erstellen",
+        "heading": "Create a new password",
         "fields": {
           "password": {
-            "label": "Neues Passwort"
+            "label": "New password"
           }
         },
-        "submit_button": "Passwort zurücksetzen"
+        "submit_button": "Reset password"
       }
     },
     "agb": {
-      "title": "Allgemeine Geschäftsbedingungen – Evolution Hub",
+      "title": "Terms and Conditions – Evolution Hub",
       "header": {
-        "title": "Allgemeine Geschäftsbedingungen (AGB)",
-        "effective_date": "Gültig ab: 20. Juli 2025"
+        "title": "Terms and Conditions",
+        "effective_date": "Effective from: July 20, 2025"
       },
       "sections": {
         "1": {
-          "title": "Geltungsbereich",
-          "content": "Diese Bedingungen regeln die Nutzung der Dienste von Evolution Hub und gelten für alle mit der Evolution Hub GmbH geschlossenen Verträge."
+          "title": "Scope",
+          "content": "These terms govern the use of Evolution Hub services and apply to all agreements concluded with Evolution Hub GmbH."
         },
         "2": {
-          "title": "Vertragsschluss",
-          "content": "Ein Vertrag kommt zustande, wenn Sie die Registrierung abschließen oder diese Bedingungen auf andere Weise akzeptieren, z. B. durch Nutzung des Dienstes nach Hinweis auf diese Bedingungen."
+          "title": "Conclusion of contract",
+          "content": "A contract is concluded when you complete registration or accept these terms in another way, for example by using the service after being notified of these terms."
         },
         "3": {
-          "title": "Leistungen",
-          "content": "Wir stellen eine cloudbasierte Plattform und zugehörige Funktionen bereit. Der Leistungsumfang ergibt sich aus dem gewählten Plan und der zum Zeitpunkt des Vertragsschlusses gültigen Dokumentation."
+          "title": "Services",
+          "content": "We provide a cloud-based platform and related features. The scope of services depends on the selected plan and the documentation in effect at the time the contract is concluded."
         },
         "4": {
-          "title": "Konten und Sicherheit",
-          "content": "Sie sind für die Vertraulichkeit Ihrer Zugangsdaten und für alle Aktivitäten in Ihrem Konto verantwortlich. Informieren Sie uns umgehend über eine unbefugte Nutzung."
+          "title": "Accounts and security",
+          "content": "You are responsible for maintaining the confidentiality of your access credentials and for all activities in your account. Please inform us immediately of any unauthorized use."
         },
         "5": {
-          "title": "Preise und Zahlung",
-          "content": "Gebühren, Abrechnungszyklen und Zahlungsmethoden sind auf der Preisseite angegeben. Alle Preise verstehen sich in EUR, sofern nicht anders angegeben. Gesetzliche Steuern können anfallen."
+          "title": "Pricing and payment",
+          "content": "Fees, billing cycles, and payment methods are listed on the pricing page. All prices are in EUR unless stated otherwise. Applicable taxes may apply."
         },
         "6": {
-          "title": "Laufzeit und Kündigung",
-          "content": "Verträge werden auf unbestimmte Zeit geschlossen und können zum Ende des aktuellen Abrechnungszeitraums gekündigt werden. Eine fristlose Kündigung aus wichtigem Grund bleibt vorbehalten."
+          "title": "Term and cancellation",
+          "content": "Contracts are concluded for an indefinite period and can be cancelled at the end of the current billing period. The right to terminate for cause without notice remains unaffected."
         },
         "7": {
-          "title": "Zulässige Nutzung",
-          "content": "Sie dürfen den Dienst nicht missbrauchen, seinen Betrieb stören oder gegen geltendes Recht verstoßen. Automatisiertes Scraping, Reverse Engineering oder Sicherheitstests ohne Zustimmung sind untersagt."
+          "title": "Permitted use",
+          "content": "You must not misuse the service, interfere with its operation, or violate applicable law. Automated scraping, reverse engineering, or security testing without permission is prohibited."
         },
         "8": {
-          "title": "Gewährleistung und Haftung",
-          "content": "Der Dienst wird im Rahmen des gewählten Plans bereitgestellt. Unsere Haftung ist auf Vorsatz und grobe Fahrlässigkeit beschränkt, sofern nicht zwingendes Recht etwas anderes vorsieht."
+          "title": "Warranty and liability",
+          "content": "The service is provided within the scope of the selected plan. Our liability is limited to intent and gross negligence unless mandatory law provides otherwise."
         },
         "9": {
-          "title": "Geistiges Eigentum",
-          "content": "Alle Rechte am geistigen Eigentum am Dienst verbleiben bei Evolution Hub oder deren Lizenzgebern. Sie erhalten ein einfaches, nicht übertragbares Nutzungsrecht für die Vertragsdauer."
+          "title": "Intellectual property",
+          "content": "All intellectual property rights in the service remain with Evolution Hub or its licensors. You receive a non-exclusive, non-transferable right of use for the duration of the contract."
         },
         "10": {
-          "title": "Datenschutz",
-          "content": "Wir verarbeiten personenbezogene Daten gemäß unserer Datenschutzerklärung. Einzelheiten zu Zwecken und Rechtsgrundlagen finden Sie unter pages.datenschutz."
+          "title": "Privacy",
+          "content": "We process personal data in accordance with our privacy policy. Details on purposes and legal bases can be found in our privacy policy."
         },
         "11": {
-          "title": "Anwendbares Recht und Gerichtsstand",
-          "content": "Es gilt deutsches Recht unter Ausschluss des Kollisionsrechts. Gerichtsstand ist, soweit gesetzlich zulässig, Berlin."
+          "title": "Governing law and jurisdiction",
+          "content": "German law applies, excluding its conflict-of-law rules. The place of jurisdiction is Berlin to the extent permitted by law."
         },
         "12": {
-          "title": "Änderungen dieser Bedingungen",
-          "content": "Wir können diese Bedingungen anpassen, um Änderungen der Rechtslage oder unserer Leistungen abzubilden. Wesentliche Änderungen werden vorab kommuniziert. Die fortgesetzte Nutzung gilt als Zustimmung."
+          "title": "Changes to these terms",
+          "content": "We may update these terms to reflect changes in legal requirements or our services. Material changes will be communicated in advance. Continued use is considered acceptance."
         },
         "11_participation": {
-          "title": "Teilnahme an Streitbeilegung",
-          "content": "Wir sind weder bereit noch verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen."
+          "title": "Participation in dispute resolution",
+          "content": "We are neither willing nor obliged to participate in dispute resolution proceedings before a consumer arbitration board."
         }
       }
     },
     "verifyEmail": {
-      "title": "Prüfen Sie Ihre E-Mails",
-      "subtitle": "Wir haben Ihnen eine Bestätigungs-E-Mail gesendet",
-      "emailSentToLabel": "E-Mail wurde gesendet an:",
-      "instructionClick": "Klicken Sie auf den Bestätigungs-Link in der E-Mail",
-      "linkValidity": "Der Link ist 24 Stunden gültig",
-      "noEmailTip": "Keine E-Mail erhalten? Prüfen Sie auch Ihren Spam-Ordner",
-      "backToRegister": "← Zurück zur Registrierung",
-      "supportLine": "Probleme? Kontaktieren Sie uns unter",
+      "title": "Check your email",
+      "subtitle": "We've sent you a verification email",
+      "emailSentToLabel": "Email sent to:",
+      "instructionClick": "Click the verification link in the email",
+      "linkValidity": "The link is valid for 24 hours",
+      "noEmailTip": "Didn't receive an email? Check your spam folder too",
+      "backToRegister": "← Back to registration",
+      "supportLine": "Problems? Contact us at",
       "resend": {
-        "btnDefault": "E-Mail erneut senden",
-        "success": "E-Mail erfolgreich erneut gesendet! Prüfen Sie Ihr Postfach.",
-        "error": "Fehler beim Senden der E-Mail. Bitte versuchen Sie es später erneut.",
-        "missingEmail": "E-Mail-Adresse nicht verfügbar. Bitte registrieren Sie sich erneut.",
-        "sending": "Wird gesendet...",
-        "countdown": "Erneut senden ({s}s)",
-        "unexpected": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es später erneut."
+        "btnDefault": "Resend email",
+        "success": "Email resent successfully! Check your inbox.",
+        "error": "Error sending email. Please try again later.",
+        "missingEmail": "Email address not available. Please register again.",
+        "sending": "Sending...",
+        "countdown": "Resend ({s}s)",
+        "unexpected": "An unexpected error occurred. Please try again later."
       }
     },
     "futureLanding": {
@@ -1603,520 +1617,520 @@
     "tools": {
       "meta": {
         "title": "Tools – Evolution Hub",
-        "description": "Entdecke unsere leistungsstarken Tools für Entwickler, Designer und Content-Ersteller. Steigere deine Produktivität mit unseren KI-gestützten Lösungen."
+        "description": "Discover our powerful tools for developers, designers and content creators. Boost your productivity with our AI-powered solutions."
       },
-      "heading": "Unsere Tools",
-      "subheading": "Entdecke unsere leistungsstarken Tools für Entwickler, Designer und Content-Ersteller",
+      "heading": "Our tools",
+      "subheading": "Discover our powerful tools for developers, designers and content creators",
       "filter": {
-        "search_placeholder": "Nach Tools suchen..."
+        "search_placeholder": "Search tools..."
       },
       "results": {
-        "singular": "Ergebnis",
-        "plural": "Ergebnisse",
-        "found_suffix": "gefunden"
+        "singular": "result",
+        "plural": "results",
+        "found_suffix": "found"
       },
       "badges": {
-        "new": "Neu",
-        "popular": "Beliebt"
+        "new": "New",
+        "popular": "Popular"
       },
       "card": {
-        "more": "Mehr erfahren",
-        "more_about_prefix": "Mehr über",
-        "direct": "Tool starten"
+        "more": "Learn more",
+        "more_about_prefix": "More about",
+        "direct": "Open tool"
       },
       "modal": {
-        "close": "Schließen",
-        "featuresHeading": "Funktionen"
+        "close": "Close",
+        "featuresHeading": "Features"
       },
-      "all": "Alle Tools",
+      "all": "All tools",
       "categories": {
-        "all": "Alle Tools",
-        "ai": "KI & Maschinelles Lernen",
-        "development": "Entwicklung",
+        "all": "All tools",
+        "ai": "AI & Machine Learning",
+        "development": "Development",
         "design": "Design",
-        "productivity": "Produktivität",
+        "productivity": "Productivity",
         "marketing": "Marketing"
       },
       "empty": {
-        "title": "Keine Tools gefunden",
-        "description": "Versuche es mit einem anderen Suchbegriff oder einer anderen Kategorie."
+        "title": "No tools found",
+        "description": "Try a different search term or another category."
       },
       "cta": {
-        "heading": "Fehlt dir ein bestimmtes Tool?",
-        "description": "Wir arbeiten ständig an neuen Tools und Funktionen. Lass uns wissen, was du dir wünschst!",
-        "button": "Tool vorschlagen"
+        "heading": "Missing a specific tool?",
+        "description": "We're constantly working on new tools and features. Let us know what you'd like to see!",
+        "button": "Suggest a tool"
       },
       "prompt-enhancer": {
         "form": {
-          "inputLabel": "Eingabe‑Prompt",
-          "inputPlaceholder": "Beschreibe, was du sagen oder fragen möchtest...",
-          "modeLabel": "Stil",
+          "inputLabel": "Input prompt",
+          "inputPlaceholder": "Describe what you want to say or ask...",
+          "modeLabel": "Style",
           "mode": {
-            "creative": "Kreativ",
-            "professional": "Professionell",
-            "concise": "Kurz"
+            "creative": "Creative",
+            "professional": "Professional",
+            "concise": "Concise"
           },
-          "enhanceButton": "Prompt verbessern",
-          "enhancing": "Wird verbessert…",
-          "outputLabel": "Verbesserter Prompt",
-          "inputLabelOriginal": "Original-Prompt",
-          "showComparison": "Vorher/Nachher anzeigen",
-          "hideComparison": "Nur Ergebnis anzeigen",
-          "copy": "Kopieren",
-          "copied": "Kopiert",
-          "copyJson": "Als JSON kopieren",
-          "viewText": "Text-Ansicht",
-          "viewJson": "JSON-Ansicht",
-          "clear": "Leeren",
+          "enhanceButton": "Enhance prompt",
+          "enhancing": "Enhancing…",
+          "outputLabel": "Enhanced prompt",
+          "inputLabelOriginal": "Original prompt",
+          "showComparison": "Show before/after",
+          "hideComparison": "Show result only",
+          "copy": "Copy",
+          "copied": "Copied",
+          "copyJson": "Copy as JSON",
+          "viewText": "Text view",
+          "viewJson": "JSON view",
+          "clear": "Clear",
           "step1": {
-            "title": "1. Eingabe‑Prompt",
-            "subtitle": "Wähle eine Vorlage oder schreibe deinen eigenen Prompt. Du kannst den Text danach frei anpassen.",
-            "presetsIntro": "Oder starte mit einer Vorlage:"
+            "title": "1. Input prompt",
+            "subtitle": "Choose a preset or write your own prompt. You can edit the text freely afterward.",
+            "presetsIntro": "Or start with a preset:"
           },
           "step2": {
-            "title": "2. Zusätzlicher Kontext (optional)",
-            "subtitle": "Füge Dateien oder Textquellen hinzu, die der KI helfen, deine Anfrage besser zu verstehen.",
-            "help": "TXT- und Markdown-URLs werden als Textdateien importiert und beim Optimieren als Kontext genutzt."
+            "title": "2. Additional context (optional)",
+            "subtitle": "Add files or text sources to help the AI understand your request better.",
+            "help": "TXT and Markdown URLs are imported as text files and used as context during enhancement."
           },
           "step3": {
-            "title": "3. Stil des optimierten Prompts",
-            "subtitle": "Bestimme, wie ausführlich und formal der optimierte Prompt sein soll."
+            "title": "3. Output style",
+            "subtitle": "Choose how detailed and formal the enhanced prompt should be."
           },
           "step4": {
-            "title": "4. Ergebnis & Vergleich"
+            "title": "4. Result & comparison"
           },
           "files": {
-            "label": "Dateien (optional)",
-            "dropHint": "Dateien hier ablegen oder klicken, um auszuwählen",
-            "urlImportLabel": "Aus URL importieren (TXT/Markdown)",
-            "urlImportPlaceholder": "https://beispiel.de/datei.txt",
-            "urlImportToggle": "URL-Eingabe einblenden",
-            "urlImportHide": "URL-Eingabe ausblenden",
-            "allowedTypes": "Erlaubte Typen",
-            "maxSize": "Max. Größe",
-            "maxCount": "Max. Dateien: {count}",
-            "remove": "Entfernen",
-            "softLimit": "Maximale Anzahl Dateien erreicht ({count}).",
-            "selectButton": "Dateien auswählen",
-            "selectedCount": "{count} Datei(en) ausgewählt"
+            "label": "Files (optional)",
+            "dropHint": "Drop files here or click to select",
+            "urlImportLabel": "Import from URL (TXT/Markdown)",
+            "urlImportPlaceholder": "https://example.com/file.txt",
+            "urlImportToggle": "Show URL input",
+            "urlImportHide": "Hide URL input",
+            "allowedTypes": "Allowed types",
+            "maxSize": "Max size",
+            "maxCount": "Max files: {count}",
+            "remove": "Remove",
+            "softLimit": "Maximum number of files reached ({count}).",
+            "selectButton": "Select files",
+            "selectedCount": "{count} file(s) selected"
           },
           "error": {
-            "required": "Bitte gib einen Prompt ein.",
-            "length": "Maximale Länge ist 1000 Zeichen.",
-            "rateLimit": "Zu viele Anfragen. Bitte warte und versuche es erneut.",
-            "unknown": "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
-            "network": "Netzwerkfehler. Bitte überprüfe deine Verbindung.",
+            "required": "Please enter a prompt.",
+            "length": "Maximum length is 1000 characters.",
+            "rateLimit": "Too many requests. Please wait and try again.",
+            "unknown": "Something went wrong. Please try again.",
+            "network": "Network error. Please check your connection.",
             "file": {
-              "invalidType": "Nicht unterstützter Dateityp.",
-              "tooLarge": "Datei ist zu groß. Max.: {max}"
+              "invalidType": "Unsupported file type.",
+              "tooLarge": "File is too large. Max: {max}"
             },
             "files": {
-              "tooMany": "Zu viele Dateien. Maximal {count}."
+              "tooMany": "Too many files. Maximum {count}."
             }
           },
-          "modeMapping": "Creative – explorativer, ausführlicher · Professional – strukturiert, business-fokussiert · Concise – kurz & knapp",
-          "resultLatency": "Prompt in {ms} ms verbessert."
+          "modeMapping": "Creative – more exploratory and detailed · Professional – structured and business-focused · Concise – short and to the point",
+          "resultLatency": "Prompt enhanced in {ms} ms."
         },
         "usage": {
-          "title": "Nutzung",
-          "used": "{used} von {limit} heute genutzt",
-          "freeMessage": "Bis zu 100 hochwertige Prompt-Optimierungen pro Tag im Free-Plan."
+          "title": "Usage",
+          "used": "{used} of {limit} used today",
+          "freeMessage": "Up to 100 high-quality prompt improvements per day on the Free plan."
         },
         "improvements": {
-          "title": "Was wurde verbessert?",
-          "structure": "Struktur hinzugefügt (z. B. klare Abschnitte und Überschriften).",
-          "constraints": "Zusätzliche Constraints und Regeln ergänzt, um das Ergebnis vorhersehbarer zu machen.",
-          "steps": "Schritt-für-Schritt-Anweisungen für das Modell hinzugefügt."
+          "title": "What was improved?",
+          "structure": "Added structure (e.g., clear sections and headings).",
+          "constraints": "Added constraints and rules to make the outcome more predictable.",
+          "steps": "Added step-by-step instructions for the model."
         },
         "safety": {
-          "title": "Sicherheitsbericht"
+          "title": "Safety report"
         },
         "presets": {
           "codingBugfix": {
             "label": "Coding / Bugfix",
-            "description": "Starter-Prompt für Fehlersuche und Refactoring in Code.",
-            "template": "Hilf mir, Bugs in folgendem Code zu finden und saubere, idiomatische Fixes vorzuschlagen. Erkläre kurz, warum jeder Bug problematisch ist, und zeige optimierte Code-Snippets."
+            "description": "Starter prompt for debugging and refactoring code.",
+            "template": "Help me find bugs in the following code and propose clean, idiomatic fixes. Briefly explain why each bug is problematic, and show improved code snippets."
           },
           "dataAnalysis": {
             "label": "Data / Analytics",
-            "description": "Starter-Prompt für Analysen von KPIs, Reports und Datensätzen.",
-            "template": "Unterstütze mich dabei, einen Datenausschnitt (KPIs, Events, Tabellen) zu analysieren. Identifiziere Muster, Ausreißer und Hypothesen und schlage konkrete nächste Analyseschritte vor."
+            "description": "Starter prompt for analyzing KPIs, reports, and datasets.",
+            "template": "Help me analyze a data excerpt (KPIs, events, tables). Identify patterns, outliers, and hypotheses and suggest concrete next analysis steps."
           },
           "contentLinkedin": {
             "label": "Content / LinkedIn",
-            "description": "Starter-Prompt für LinkedIn-Posts zu AI & Produktivität.",
-            "template": "Erzeuge LinkedIn-Posts zu einem AI-Thema für Knowledge Worker. Fokus: verständliche Beispiele, echte Use Cases und ein klarer Mehrwert im ersten Absatz."
+            "description": "Starter prompt for LinkedIn posts about AI & productivity.",
+            "template": "Create LinkedIn posts about an AI topic for knowledge workers. Focus on clear examples, real use cases, and a clear value proposition in the first paragraph."
           },
           "researchAudience": {
-            "label": "Research / Zielgruppe",
-            "description": "Starter-Prompt für Zielgruppen-Interviews und Surveys.",
-            "template": "Hilf mir, meine Zielgruppe besser zu verstehen. Erzeuge Interview- und Survey-Fragen, um Bedürfnisse, Pain Points, aktuelle Lösungen und Entscheidungsprozesse zu erfassen."
+            "label": "Research / Audience",
+            "description": "Starter prompt for audience interviews and surveys.",
+            "template": "Help me understand my target audience better. Create interview and survey questions to capture needs, pain points, current solutions, and decision-making processes."
           }
         },
         "toasts": {
-          "urlImportSuccessTitle": "Kontext importiert",
-          "urlImportSuccessDescription": "Inhalt von \"{filename}\" wurde als Kontext hinzugefügt.",
-          "urlImportError": "Inhalt konnte nicht von der URL importiert werden.",
-          "enhanceSuccessTitle": "Prompt erfolgreich verbessert",
-          "enhanceSuccessDescription": "Fertig in {ms} ms. Du kannst den Prompt jetzt kopieren oder weiter anpassen.",
-          "copyJsonSuccessTitle": "JSON in Zwischenablage",
-          "copyJsonSuccessDescription": "Der optimierte Prompt wurde als JSON kopiert.",
-          "copyJsonError": "JSON konnte nicht in die Zwischenablage kopiert werden."
+          "urlImportSuccessTitle": "Context imported",
+          "urlImportSuccessDescription": "Content from \"{filename}\" was added as context.",
+          "urlImportError": "Content could not be imported from the URL.",
+          "enhanceSuccessTitle": "Prompt enhanced successfully",
+          "enhanceSuccessDescription": "Done in {ms} ms. You can now copy the prompt or keep refining it.",
+          "copyJsonSuccessTitle": "JSON copied to clipboard",
+          "copyJsonSuccessDescription": "The enhanced prompt was copied as JSON.",
+          "copyJsonError": "JSON could not be copied to the clipboard."
         }
       },
       "items": {
         "code-review": {
           "name": "Code Review Assistant",
-          "description": "KI-gestütztes Code-Review-Tool zur Erkennung von Problemen und Verbesserungsvorschlägen."
+          "description": "AI-powered code review tool for detecting issues and proposing improvements."
         },
         "design-system": {
           "name": "Design System Builder",
-          "description": "Erstelle und verwalte ein konsistentes Design-System mit wiederverwendbaren Komponenten."
+          "description": "Create and maintain a consistent design system with reusable components."
         },
         "seo-analyzer": {
           "name": "SEO-Analyzer",
-          "description": "Analysiert Seiteninhalte und Metriken, um die Sichtbarkeit in Suchmaschinen zu verbessern."
+          "description": "Analyze page content and metrics to improve search engine visibility."
         },
         "api-tester": {
           "name": "API-Tester",
-          "description": "Sende Anfragen, inspiziere Antworten und teste Endpunkte effizient."
+          "description": "Send requests, inspect responses, and test endpoints efficiently."
         },
         "content-generator": {
           "name": "Content-Generator",
-          "description": "Erzeuge hochwertigen Text mit KI – von Beschreibungen bis hin zu Blog-Entwürfen."
+          "description": "Generate high-quality text with AI — from descriptions to blog drafts."
         },
         "performance-monitor": {
           "name": "Performance-Monitor",
-          "description": "Überwacht Performance-Metriken und hebt Optimierungspotenziale hervor."
+          "description": "Monitor performance metrics and highlight optimization opportunities."
         },
         "Imag-Enhancer": {
           "name": "Imag-Enhancer",
-          "description": "Verbessert automatisch die Bildqualität: KI-basierte Rauschunterdrückung, Detail-Schärfung, hochwertiges Upscaling und Farb-/Kontrastoptimierung — einstellbare Stufen für Einzel- und Batchverarbeitung.",
+          "description": "Automatically improves image quality: AI-powered denoising, detail sharpening, high-quality upscaling, and color/contrast optimization — adjustable settings for single images and batches.",
           "modal": {
-            "headline": "Jedes Pixel optimieren",
-            "summary": "KI-gestützte Optimierungen für Rauschen, Upscaling und Farbkorrektur.",
+            "headline": "Optimize every pixel",
+            "summary": "AI-powered improvements for noise, upscaling, and color correction.",
             "features": [
-              "Fortschrittliche Rauschreduzierung und Detailwiederherstellung",
-              "Konfigurierbare Upscaling-Stufen und Presets",
-              "Vorher/Nachher-Vergleich mit Lupe und Zoom",
-              "Unterstützt Batch-Uploads mit Nutzungs-Tracking"
+              "Advanced denoising and detail recovery",
+              "Configurable upscale levels and presets",
+              "Before/after comparison with loupe and zoom",
+              "Supports batch uploads with usage tracking"
             ]
           },
           "app": {
-            "dropText": "Bild hierher ziehen oder klicken, um auszuwählen",
-            "enhance": "Verbessern",
-            "processing": "Wird verarbeitet...",
-            "model": "Modell",
-            "usage": "Tageslimit",
-            "monthlyUsage": "Monatliches Limit",
-            "creditsBalance": "Credits-Guthaben",
-            "usageDetailsTitle": "Nutzung & Credits",
-            "resetLabel": "Reset am",
-            "result": "Ergebnis",
+            "dropText": "Drop an image here or click to select",
+            "enhance": "Enhance",
+            "processing": "Processing...",
+            "model": "Model",
+            "usage": "Daily limit",
+            "monthlyUsage": "Monthly limit",
+            "creditsBalance": "Credits balance",
+            "usageDetailsTitle": "Usage & credits",
+            "resetLabel": "Resets on",
+            "result": "Result",
             "original": "Original",
-            "allowedTypes": "Erlaubt: JPG, PNG, WEBP",
-            "max": "Max. Größe",
-            "download": "Herunterladen",
-            "loading": "Laden...",
+            "allowedTypes": "Allowed: JPG, PNG, WEBP",
+            "max": "Max size",
+            "download": "Download",
+            "loading": "Loading...",
             "quotaBanner": "Your current quota is very limited. Sign in or upgrade to process more images per day.",
             "toasts": {
-              "loadQuotaError": "Kontingentinformationen konnten nicht geladen werden.",
-              "loadError": "Laden fehlgeschlagen. Bitte versuche es erneut.",
-              "quotaReached": "Du hast dein Nutzungslimit erreicht.",
-              "unsupportedType": "Nicht unterstützter Dateityp.",
-              "fileTooLargePrefix": "Datei ist zu groß. Max.:",
-              "processingFailed": "Verarbeitung fehlgeschlagen. Bitte versuche es erneut.",
-              "successEnhanced": "Bild erfolgreich verbessert!"
+              "loadQuotaError": "Quota information could not be loaded.",
+              "loadError": "Loading failed. Please try again.",
+              "quotaReached": "You've reached your usage limit.",
+              "unsupportedType": "Unsupported file type.",
+              "fileTooLargePrefix": "File is too large. Max:",
+              "processingFailed": "Processing failed. Please try again.",
+              "successEnhanced": "Image enhanced successfully!"
             },
             "compare": {
-              "sliderLabel": "Vergleichen",
-              "before": "Vorher",
-              "after": "Nachher",
-              "handleAriaLabel": "Zum Vergleichen ziehen",
-              "keyboardHint": "Pfeiltasten bewegen; Shift+Pfeile schneller; Pos1/Ende zu den Rändern; 0 zentriert; +/− zoomt; 1 setzt Zoom zurück; L schaltet die Lupe; Leertaste halten zeigt 100% „Vorher“.",
-              "reset": "Zurücksetzen",
-              "loupe": "Lupe",
-              "touchHintShort": "Zum Zoomen zusammenziehen, zum Verschieben ziehen",
-              "zoomOutLabel": "Herauszoomen",
-              "zoomInLabel": "Hineinzoomen",
-              "zoomResetLabel": "Zoom zurücksetzen"
+              "sliderLabel": "Compare",
+              "before": "Before",
+              "after": "After",
+              "handleAriaLabel": "Drag to compare",
+              "keyboardHint": "Use arrow keys to move; Shift+Arrows moves faster; Home/End jumps to edges; 0 centers; +/− zooms; 1 resets zoom; L toggles the loupe; hold Space to show 100% “Before”.",
+              "reset": "Reset",
+              "loupe": "Loupe",
+              "touchHintShort": "Pinch to zoom, drag to pan",
+              "zoomOutLabel": "Zoom out",
+              "zoomInLabel": "Zoom in",
+              "zoomResetLabel": "Reset zoom"
             },
             "help": {
-              "button": "Hilfe",
-              "title": "So funktioniert es",
-              "close": "Schließen",
+              "button": "Help",
+              "title": "How it works",
+              "close": "Close",
               "sections": {
                 "upload": "Upload",
-                "models": "Modelle",
-                "compare": "Vergleichen & Inspizieren",
-                "quota": "Kontingent"
+                "models": "Models",
+                "compare": "Compare & inspect",
+                "quota": "Quota"
               }
             },
-            "fullscreen": "Vollbild",
-            "exitFullscreen": "Vollbild verlassen",
-            "changeModel": "Modell ändern",
-            "done": "Fertig",
-            "startOver": "Neu beginnen",
-            "faceEnhance": "Gesichtsverbesserung",
+            "fullscreen": "Fullscreen",
+            "exitFullscreen": "Exit fullscreen",
+            "changeModel": "Change model",
+            "done": "Done",
+            "startOver": "Start over",
+            "faceEnhance": "Face enhancement",
             "upgrade": "Upgrade"
           }
         },
         "prompt-enhancer": {
           "name": "Prompt-Enhancer",
-          "description": "Prompts für Klarheit und Wirkung verfeinern. Wähle Stile wie Creative, Professional oder Concise und erhalte hochwertige Ergebnisse.",
+          "description": "Refine prompts for clarity and impact. Choose styles like Creative, Professional, or Concise and get high-quality results.",
           "modal": {
-            "headline": "Bessere Prompts verfassen",
-            "summary": "Verbessere Klarheit, Ton und Struktur mit geführten Modi und Safety-Checks.",
+            "headline": "Write better prompts",
+            "summary": "Improve clarity, tone, and structure with guided modes and safety checks.",
             "features": [
-              "Stil-Presets für kreative, professionelle oder knappe Ergebnisse",
-              "Optionale Kontextdateien und URL-Importe",
-              "Safety-Heuristiken und Nutzungsüberblick",
-              "Kopierfertige Ergebnisse mit einem Klick"
+              "Style presets for creative, professional, or concise output",
+              "Optional context files and URL imports",
+              "Safety heuristics and usage overview",
+              "Copy-ready results in one click"
             ]
           }
         },
         "Prompt-Enhancer": {
           "name": "Prompt-Enhancer",
-          "description": "Prompts für Klarheit und Wirkung verfeinern. Wähle Stile wie Creative, Professional oder Concise und erhalte hochwertige Ergebnisse."
+          "description": "Refine prompts for clarity and impact. Choose styles like Creative, Professional, or Concise and get high-quality results."
         },
         "webscraper": {
           "name": "Webscraper",
-          "description": "Sicher Klartext aus Webseiten extrahieren. SSRF‑gehärtet, formatbewusst, mit Nutzungslimits und klaren Fehlermeldungen.",
+          "description": "Extract clean text from web pages safely. SSRF-hardened, format-aware, with usage limits and clear error messages.",
           "modal": {
-            "headline": "Sicher scrapen",
-            "summary": "Strukturierten Text mit SSRF-Schutz, Quoten und sauberer Formatierung abrufen.",
+            "headline": "Scrape safely",
+            "summary": "Fetch structured text with SSRF protection, quotas, and clean formatting.",
             "features": [
-              "SSRF-gehärtete Requests mit Port-Allowlist",
-              "Markdown- und Plain-Text-Ausgabeoptionen",
-              "Rate-Limits und Tageskontingente pro Plan",
-              "Detaillierte Validierung und Fehlermeldungen"
+              "SSRF-hardened requests with port allowlist",
+              "Markdown and plain-text output options",
+              "Rate limits and daily quotas per plan",
+              "Detailed validation and error messages"
             ]
           }
         },
         "voice-visualizer": {
-          "name": "Voice Visualizer & Transkriptor",
-          "description": "Audio aufnehmen, Live‑Wellenform sehen und sofort transkribieren. Auf Tempo, Klarheit und geringe Reibung optimiert.",
+          "name": "Voice Visualizer & Transcriber",
+          "description": "Record audio, see a live waveform, and transcribe instantly. Optimized for speed, clarity, and low friction.",
           "modal": {
-            "headline": "In Echtzeit transkribieren",
-            "summary": "Audio aufnehmen, Waveform sehen und sofortige Transkripte erhalten – mit Nutzungssteuerung.",
+            "headline": "Transcribe in real time",
+            "summary": "Record audio, see the waveform, and get instant transcripts — with usage controls.",
             "features": [
-              "Live-Wellenform mit Recording-Steuerung",
-              "Gestückelte Transkription mit Quotas",
-              "Downloadbare Transkripte und Sitzungsverlauf",
-              "Same-Origin-geschützter Upload mit CSP-Schutz"
+              "Live waveform with recording controls",
+              "Chunked transcription with quotas",
+              "Downloadable transcripts and session history",
+              "Same-origin protected upload with CSP protection"
             ]
           }
         },
         "video-enhancer": {
           "name": "Video‑Enhancer",
-          "description": "Videos mit KI hochskalieren und verbessern. Mehr Schärfe, weniger Rauschen, klare Details — schnell und konsistent.",
+          "description": "Upscale and enhance videos with AI. More sharpness, less noise, clear details — fast and consistent.",
           "modal": {
-            "headline": "Jeden Frame hochskalieren",
-            "summary": "AI-Video-Enhancement mit Upscaling, Rauschreduktion und Quota-Tracking.",
+            "headline": "Upscale every frame",
+            "summary": "AI video enhancement with upscaling, denoising, and quota tracking.",
             "features": [
-              "2× und 4× Upscaling mit AI-Schärfung",
-              "Rauschreduktion und detailtreue Gesichter",
-              "R2-gestützte Uploads mit temporärer Speicherung",
-              "Nutzungsbasierte Kontingente gemäß Plan"
+              "2× and 4× upscaling with AI sharpening",
+              "Denoising and detail-preserving faces",
+              "R2-backed uploads with temporary storage",
+              "Usage-based quotas per plan"
             ]
           }
         },
         "web-eval": {
           "name": "Web‑Eval Agent",
-          "description": "Evaluationstasks erstellen, autonome Checks ausführen und Reports mit Quoten und Credits einsehen.",
+          "description": "Create evaluation tasks, run autonomous checks, and review reports with quotas and credits.",
           "modal": {
-            "headline": "Das Web evaluieren",
-            "summary": "Tasks einreihen, Evaluierungen ausführen und Console/Netzwerk‑Berichte inspizieren.",
+            "headline": "Evaluate the web",
+            "summary": "Queue tasks, run evaluations, and inspect console/network reports.",
             "features": [
-              "Task‑Queue mit owner‑basiertem Zugriff",
-              "Tages‑/Monatsquoten und Credit‑Support",
-              "Minimale Reports mit Console‑ und Netzwerk‑Logs"
+              "Task queue with owner-based access",
+              "Daily/monthly quotas and credit support",
+              "Minimal reports with console and network logs"
             ]
           }
         }
       },
       "details": {
-        "back": "Zurück zur Übersicht",
+        "back": "Back to overview",
         "Imag-Enhancer": {
-          "back": "Zurück zur Übersicht",
-          "badge_new": "Neu",
-          "open": "Tool öffnen",
+          "back": "Back to overview",
+          "badge_new": "New",
+          "open": "Open tool",
           "support": "Support & Feedback",
           "features": {
-            "heading": "Funktionen",
+            "heading": "Features",
             "upscaling": {
-              "title": "KI-gestütztes Upscaling",
-              "description": "Skaliere Bilder hoch ohne sichtbaren Qualitätsverlust."
+              "title": "AI-powered upscaling",
+              "description": "Upscale images without visible quality loss."
             },
             "denoise_sharpen": {
-              "title": "Rauschunterdrückung & Schärfung",
-              "description": "Reduziert Rauschen und stellt feine Details wieder her."
+              "title": "Denoising & sharpening",
+              "description": "Reduces noise and restores fine details."
             },
             "fine_tuning": {
-              "title": "Feinabstimmung & Presets",
-              "description": "Vordefinierte Presets und manuelle Regler für individuelle Ergebnisse."
+              "title": "Fine-tuning & presets",
+              "description": "Preset modes and manual controls for tailored results."
             },
             "batch": {
-              "title": "Batch-Verarbeitung",
-              "description": "Verarbeite mehrere Dateien gleichzeitig für effiziente Workflows."
+              "title": "Batch processing",
+              "description": "Process multiple files at once for efficient workflows."
             }
           },
           "privacy": {
-            "heading": "Datenschutz & Verarbeitung",
-            "text": "Imag-Enhancer kann auf unseren Servern oder lokal betrieben werden (abhängig von der Integration). Sensible Daten sollten lokal verarbeitet werden; kontaktiere uns für Self-Host-Optionen."
+            "heading": "Privacy & processing",
+            "text": "Imag-Enhancer can run on our servers or locally (depending on the integration). For sensitive data, consider local processing; contact us for self-hosting options."
           },
           "workflow": {
-            "heading": "Beispiel-Workflow",
+            "heading": "Example workflow",
             "steps": [
-              "Bild hochladen oder per Drag & Drop ablegen.",
-              "Preset auswählen oder manuelle Einstellungen vornehmen.",
-              "Vorschau prüfen und Qualitätsstufe wählen.",
-              "Einzeln verarbeiten oder Stapelverarbeitung starten."
+              "Upload an image or drag and drop it.",
+              "Choose a preset or adjust settings manually.",
+              "Review the preview and select a quality level.",
+              "Process a single image or start batch processing."
             ]
           },
-          "try": "Jetzt ausprobieren",
-          "longDescription": "Imag-Enhancer verwendet moderne neuronale Modelle, um Fotos und Grafiken automatisch zu optimieren. Wähle Voreinstellungen oder feine Anpassungen für Rauschreduzierung, Schärfe, Farbkorrektur und Upscaling. Unterstützt Einzel- und Stapelverarbeitung und respektiert Datenschutzrichtlinien durch optionale lokale Verarbeitung."
+          "try": "Try it now",
+          "longDescription": "Imag-Enhancer uses modern neural models to automatically improve photos and graphics. Choose presets or fine-tune denoising, sharpening, color correction, and upscaling. Supports single images and batch processing, with optional local processing for privacy-sensitive workflows."
         },
         "Prompt-Enhancer": {
-          "back": "Zurück zur Übersicht",
-          "badge_new": "Neu",
-          "open": "Tool öffnen",
+          "back": "Back to overview",
+          "badge_new": "New",
+          "open": "Open tool",
           "support": "Support",
           "privacy": {
-            "heading": "Datenschutz & Verarbeitung",
-            "text": "Prompts werden auf unseren Servern verarbeitet. Bitte keine sensiblen oder personenbezogenen Daten eingeben."
+            "heading": "Privacy & processing",
+            "text": "Prompts are processed on our servers. Please do not enter sensitive or personal data."
           },
-          "try": "Jetzt ausprobieren",
-          "longDescription": "Prompt-Enhancer verfeinert deine Text-Prompts hinsichtlich Klarheit, Ton und Vollständigkeit. Wähle einen Stil und erhalte einen besseren, sichereren Prompt für KI-Tools."
+          "try": "Try it now",
+          "longDescription": "Prompt-Enhancer refines your prompts for clarity, tone, and completeness. Choose a style and get a better, safer prompt for your AI tools."
         }
       }
     }
   },
   "comingSoon": {
-    "title": "Bald verfügbar",
-    "description": "Unsere Plattform wird gerade überarbeitet. Trage dich in die Warteliste ein, um als Erste informiert zu werden.",
+    "title": "Coming soon",
+    "description": "We are currently rebuilding our platform. Join the waitlist to be among the first to hear when it’s ready.",
     "cta": {
-      "primary": "Zur Startseite",
-      "secondary": "Zur Warteliste",
-      "close": "Schließen"
+      "primary": "Back to home",
+      "secondary": "Join the waitlist",
+      "close": "Close"
     },
-    "ariaLabel": "Hinweis Seite in Arbeit"
+    "ariaLabel": "Notice: page under construction"
   },
   "faq": {
-    "title": "Häufig gestellte Fragen",
+    "title": "Frequently asked questions",
     "hero": {
-      "heading": "Häufig gestellte Fragen",
-      "subtitle": "Finde Antworten auf die häufigsten Fragen"
+      "heading": "Frequently asked questions",
+      "subtitle": "Find answers to the most common questions"
     },
-    "search_placeholder": "Suchen Sie nach einer Frage oder einem Stichwort...",
+    "search_placeholder": "Search for a question or keyword...",
     "no_results": {
-      "title": "Keine Ergebnisse gefunden",
-      "description_before": "Keine passenden Fragen. Versuche, deine Suche anzupassen oder",
-      "description_link_text": "kontaktiere uns",
+      "title": "No results found",
+      "description_before": "No matching questions. Try adjusting your search or",
+      "description_link_text": "contact us",
       "description_after": "."
     },
     "categories": {
-      "all": "Alle anzeigen",
+      "all": "Show all",
       "allgemein": {
-        "title": "Allgemeine Fragen",
+        "title": "General",
         "items": [
           {
-            "question": "Was ist EvolutionHub?",
-            "answer": "EvolutionHub ist eine Plattform für moderne Webentwicklung mit Fokus auf Performance, Benutzerfreundlichkeit und moderne Technologien."
+            "question": "What is Evolution Hub?",
+            "answer": "Evolution Hub is a platform for modern web development focused on performance, usability, and modern technologies."
           },
           {
-            "question": "Welche Technologien werden verwendet?",
-            "answer": "Wir verwenden Astro für das Frontend, TypeScript für typsichere Entwicklung, und Tailwind CSS für das Styling. Unser Backend basiert auf modernen JavaScript/TypeScript-Technologien."
+            "question": "Which technologies do you use?",
+            "answer": "We use Astro for the frontend, TypeScript for type-safe development, and Tailwind CSS for styling. Our backend is built on modern JavaScript/TypeScript technologies."
           },
           {
-            "question": "Ist ein Konto erforderlich?",
-            "answer": "Für die meisten Funktionen benötigen Sie ein Konto. Einige Bereiche wie die Dokumentation und Blogbeiträge sind auch ohne Konto einsehbar."
+            "question": "Do I need an account?",
+            "answer": "You need an account for most features. Some areas such as documentation and blog posts are also accessible without an account."
           },
           {
-            "question": "Wie wird der Datenschutz gewährleistet?",
-            "answer": "Wir legen großen Wert auf Datenschutz und Sicherheit. Alle Daten werden verschlüsselt übertragen und gemäß der DSGVO verarbeitet."
+            "question": "How do you handle privacy?",
+            "answer": "We take privacy and security seriously. All data is transmitted in encrypted form and processed in accordance with GDPR."
           },
           {
-            "question": "Wann ist der Support erreichbar?",
-            "answer": "Unser Support-Team ist von Montag bis Freitag, 9 bis 18 Uhr, für Sie erreichbar."
+            "question": "When is support available?",
+            "answer": "Our support team is available Monday to Friday, 9am to 6pm."
           },
           {
-            "question": "Ist EvolutionHub auch mobil nutzbar?",
-            "answer": "Ja, unsere Plattform ist für mobile Geräte optimiert und kann auf Smartphones und Tablets genutzt werden."
+            "question": "Is Evolution Hub mobile-friendly?",
+            "answer": "Yes, our platform is optimized for mobile devices and can be used on smartphones and tablets."
           },
           {
-            "question": "Ist die Plattform barrierefrei?",
-            "answer": "Wir arbeiten kontinuierlich daran, die Barrierefreiheit unserer Plattform zu verbessern, um sie für alle Nutzer zugänglich zu machen."
+            "question": "Is the platform accessible?",
+            "answer": "We continuously work to improve accessibility so that the platform is usable for everyone."
           },
           {
-            "question": "Wie werde ich für Weiterempfehlungen belohnt?",
-            "answer": "Teile deinen persönlichen Empfehlungslink aus dem Dashboard. Sobald eine Person darüber ein Konto anlegt und ihren Zugang bestätigt, erhältst du Bonus-Credits. Wenn die Empfehlung später auf einen zahlungspflichtigen Plan wechselt, werden zusätzliche Credits gutgeschrieben."
+            "question": "How do referrals work?",
+            "answer": "Share your personal referral link from the dashboard. Once someone signs up through it and verifies their access, you receive bonus credits. If the referral later upgrades to a paid plan, additional credits are granted."
           }
         ]
       },
       "konto": {
-        "title": "Konto & Abonnement",
+        "title": "Account & subscription",
         "items": [
           {
-            "question": "Wie erstelle ich ein Konto?",
-            "answer": "Klicken Sie auf \"Registrieren\" in der oberen Navigation und folgen Sie den Anweisungen. Sie benötigen eine gültige E-Mail-Adresse."
+            "question": "How do I create an account?",
+            "answer": "Click \"Register\" in the top navigation and follow the instructions. You’ll need a valid email address."
           },
           {
-            "question": "Wie kann ich mein Passwort zurücksetzen?",
-            "answer": "Auf der Anmeldeseite finden Sie einen Link \"Passwort vergessen\". Geben Sie Ihre E-Mail-Adresse ein und folgen Sie den Anweisungen in der erhaltenen E-Mail."
+            "question": "How can I reset my password?",
+            "answer": "On the login page, you’ll find a \"Forgot password\" link. Enter your email address and follow the instructions in the email you receive."
           },
           {
-            "question": "Wie kündige ich mein Abonnement?",
-            "answer": "Gehen Sie zu Ihren Kontoeinstellungen und wählen Sie \"Abonnement verwalten\". Dort können Sie Ihr Abonnement kündigen."
+            "question": "How do I cancel my subscription?",
+            "answer": "Go to your account settings and choose \"Manage subscription\". There you can cancel your subscription."
           },
           {
-            "question": "Welche Abonnement-Pläne gibt es?",
-            "answer": "Wir bieten verschiedene Pläne an, die auf unterschiedliche Bedürfnisse zugeschnitten sind. Details finden Sie auf unserer Pricing-Seite."
+            "question": "Which subscription plans are available?",
+            "answer": "We offer different plans tailored to different needs. You can find details on our pricing page."
           },
           {
-            "question": "Welche Zahlungsmethoden werden akzeptiert?",
-            "answer": "Wir akzeptieren Kreditkarten, PayPal und SEPA-Lastschriftverfahren."
+            "question": "Which payment methods are accepted?",
+            "answer": "We accept credit cards, PayPal, and SEPA direct debit."
           },
           {
-            "question": "Wie kann ich mein Konto wiederherstellen, wenn ich den Zugang verliere?",
-            "answer": "Nutzen Sie die Passwort-zurücksetzen-Funktion oder kontaktieren Sie unseren Support für weitere Hilfe."
+            "question": "How can I recover my account if I lose access?",
+            "answer": "Use the password reset flow or contact our support team for further help."
           },
           {
-            "question": "Wie verwalte ich meine Benachrichtigungseinstellungen?",
-            "answer": "In Ihren Kontoeinstellungen können Sie festlegen, welche Benachrichtigungen Sie erhalten möchten."
+            "question": "How do I manage notification settings?",
+            "answer": "In your account settings you can configure which notifications you want to receive."
           }
         ]
       },
       "technik": {
-        "title": "Technische Fragen",
+        "title": "Technical",
         "items": [
           {
-            "question": "Welche Browser werden unterstützt?",
-            "answer": "Wir unterstützen die aktuellen Versionen von Chrome, Firefox, Safari, und Edge. Ältere Browser werden möglicherweise nicht vollständig unterstützt."
+            "question": "Which browsers are supported?",
+            "answer": "We support the latest versions of Chrome, Firefox, Safari, and Edge. Older browsers may not be fully supported."
           },
           {
-            "question": "Wie kann ich die API nutzen?",
-            "answer": "Unsere API-Dokumentation finden Sie unter /api-docs. Sie benötigen einen API-Schlüssel, den Sie in Ihren Kontoeinstellungen generieren können."
+            "question": "How can I use the API?",
+            "answer": "You can find our API documentation at /api-docs. You’ll need an API key, which you can generate in your account settings."
           },
           {
-            "question": "Wie melde ich einen Fehler?",
-            "answer": "Bitte nutzen Sie unser Fehlerformular unter /kontakt oder erstellen Sie ein Issue in unserem GitHub-Repository."
+            "question": "How do I report a bug?",
+            "answer": "Please use our bug report form at /kontakt or create an issue in our GitHub repository."
           },
           {
-            "question": "Gibt es Nutzungslimits für die API?",
-            "answer": "Ja, unsere API hat Nutzungslimits, um eine faire Verteilung der Ressourcen sicherzustellen. Details finden Sie in der API-Dokumentation."
+            "question": "Are there usage limits for the API?",
+            "answer": "Yes, our API has usage limits to ensure fair distribution of resources. Details are available in the API documentation."
           },
           {
-            "question": "Kann ich EvolutionHub mit Drittanbieter-Tools integrieren?",
-            "answer": "Ja, wir bieten Integrationen und Webhooks für verschiedene Drittanbieter-Services an."
+            "question": "Can I integrate Evolution Hub with third-party tools?",
+            "answer": "Yes, we offer integrations and webhooks for various third-party services."
           },
           {
-            "question": "Welche Systemanforderungen gibt es?",
-            "answer": "Für die Nutzung empfehlen wir aktuelle Browser und eine stabile Internetverbindung."
+            "question": "What are the system requirements?",
+            "answer": "We recommend using a modern browser and a stable internet connection."
           },
           {
-            "question": "Gibt es Backup- und Wiederherstellungsoptionen?",
-            "answer": "Ja, Ihre Daten werden regelmäßig gesichert und können bei Bedarf wiederhergestellt werden."
+            "question": "Are there backup and recovery options?",
+            "answer": "Yes, your data is backed up regularly and can be restored if needed."
           }
         ]
       }
@@ -2125,10 +2139,10 @@
   "api": {
     "user": {
       "profile": {
-        "no_changes": "Keine Änderungen",
+        "no_changes": "No changes",
         "cooldown": {
-          "one": "Du hast dein Profil vor Kurzem geändert. Du kannst es in 1 Tag wieder aktualisieren.",
-          "other": "Du hast dein Profil vor Kurzem geändert. Du kannst es in {count} Tagen wieder aktualisieren."
+          "one": "You updated your profile recently. You can update it again in 1 day.",
+          "other": "You updated your profile recently. You can update it again in {count} days."
         }
       }
     }

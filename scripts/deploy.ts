@@ -6,7 +6,23 @@
  *   tsx scripts/deploy.ts --env production|staging|testing --url <BASE_URL>
  */
 
+import fs from 'node:fs';
+import path from 'node:path';
+import { config as dotenvConfig } from 'dotenv';
 import { execa } from 'execa';
+
+function loadDotenv() {
+  const root = process.cwd();
+  const candidates = ['.env', '.env.local'];
+  for (const rel of candidates) {
+    const p = path.join(root, rel);
+    if (fs.existsSync(p)) {
+      dotenvConfig({ path: p });
+    }
+  }
+}
+
+loadDotenv();
 
 function parseArgs() {
   const args = process.argv.slice(2);

@@ -498,81 +498,34 @@ export class AiImageService {
 
     const openai = new OpenAI({ apiKey });
 
-    // Step 1: Create thread, add user message, create run (wrap network errors)
-    let threadId: string;
-    let runId: string;
-    let runStatusValue: string;
+    // Option B: Migrate away from deprecated Assistants Threads/Runs APIs.
+    // We keep `assistantId` by retrieving assistant metadata, then call Chat Completions.
     try {
-      const thread = await openai.beta.threads.create();
-      const threadIdMaybe = (thread as unknown as { id?: unknown })?.id;
-      if (!thread || typeof threadIdMaybe !== 'string') {
-        throw new Error('Thread creation returned no id');
+      const assistant = await openai.beta.assistants.retrieve(assistantId);
+      const assistantLike = assistant as unknown as { model?: unknown; instructions?: unknown };
+      const model = assistantLike?.model;
+      const instructions = assistantLike?.instructions;
+      if (typeof model !== 'string' || !model) {
+        throw new Error('Assistant retrieve returned no model');
       }
-      threadId = threadIdMaybe;
 
-      await openai.beta.threads.messages.create(threadId, {
-        role: 'user',
-        content: prompt,
+      const completion = await openai.chat.completions.create({
+        model,
+        messages: [
+          ...(typeof instructions === 'string' && instructions.trim()
+            ? [{ role: 'developer' as const, content: instructions }]
+            : []),
+          { role: 'user' as const, content: prompt },
+        ],
+        temperature: 0,
       });
 
-      const run = await openai.beta.threads.runs.create(threadId, {
-        assistant_id: assistantId,
-      });
-      const runLike = run as unknown as { id?: unknown; status?: unknown };
-      if (!run || typeof runLike.id !== 'string') {
-        throw new Error('Run creation returned no id');
-      }
-      runId = runLike.id;
-      runStatusValue = typeof runLike.status === 'string' ? runLike.status : '';
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : String(error);
-      this.log.error('assistant_call_failed', {
-        action: 'assistant_call_failed',
-        metadata: { error: msg },
-      });
-      throw new Error('Failed to call assistant');
-    }
-
-    // Step 2: Poll run status (bubble failures with specific message)
-    try {
-      let status = runStatusValue;
-      while (status !== 'completed' && status !== 'failed' && status !== 'cancelled') {
-        await new Promise((resolve) => setTimeout(resolve, 50));
-        const runStatus = await openai.beta.threads.runs.retrieve(runId, { thread_id: threadId });
-        const stat = (runStatus as unknown as { status?: unknown })?.status;
-        status = typeof stat === 'string' ? stat : '';
-      }
-      if (status !== 'completed') {
-        throw new Error(`Run failed with status: ${status}`);
-      }
-
-      // Step 3: Fetch messages, ensure assistant response exists (bubble specific error)
-      const messages = await openai.beta.threads.messages.list(threadId);
-      const data = (messages as unknown as { data?: unknown })?.data;
-      const assistantMessage = Array.isArray(data)
-        ? (data as Array<{ role?: unknown; content?: unknown[] }>).find(
-            (m) => m && m.role === 'assistant'
-          )
-        : undefined;
-      if (
-        !assistantMessage ||
-        !Array.isArray(assistantMessage.content) ||
-        assistantMessage.content.length === 0
-      ) {
+      const content = completion?.choices?.[0]?.message?.content;
+      if (typeof content !== 'string' || !content.trim()) {
         throw new Error('No response from assistant');
       }
-      const first = assistantMessage.content[0] as unknown as {
-        type?: unknown;
-        text?: { value?: unknown };
-      };
-      const content =
-        first?.type === 'text' && typeof first?.text?.value === 'string' ? first.text.value : '';
       return { content };
     } catch (error) {
-      // Ensure we surface a consistent error while allowing specific message assertions in tests
-      if (error instanceof Error && /Run failed with status:/.test(error.message)) {
-        throw error;
-      }
       if (error instanceof Error && /No response from assistant/.test(error.message)) {
         throw error;
       }

@@ -234,9 +234,24 @@ export const PUT = withAuthApiMiddleware(
       const bodyUnknown = await context.request.json().catch(() => undefined);
       const parsedBody = commentUpdateSchema.safeParse(bodyUnknown);
       if (!parsedBody.success) {
-        return createApiError('validation_error', 'Invalid request body', {
-          details: formatZodError(parsedBody.error),
-        });
+        const details = formatZodError(parsedBody.error);
+        const contentTooShort = parsedBody.error.issues.some(
+          (issue) =>
+            issue.path.length === 1 &&
+            issue.path[0] === 'content' &&
+            issue.code === 'too_small' &&
+            issue.minimum === 3
+        );
+        if (contentTooShort) {
+          return createApiError(
+            'validation_error',
+            'Comment content must be at least 3 characters long',
+            {
+              details,
+            }
+          );
+        }
+        return createApiError('validation_error', 'Invalid request body', { details });
       }
 
       const csrfToken = context.request.headers.get('x-csrf-token');

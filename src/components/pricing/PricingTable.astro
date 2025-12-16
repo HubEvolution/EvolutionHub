@@ -330,40 +330,6 @@ const plans: Plan[] = [
       } catch {}
     }
 
-    async function createCreditsCheckout(pack) {
-      try {
-        const csrf = ensureCsrfToken();
-        const res = await fetch('/api/billing/credits', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
-          credentials: 'include',
-          body: JSON.stringify({
-            pack,
-            workspaceId: getWorkspaceId(),
-            returnTo: explicitReturnTo || location.pathname + location.search,
-          }),
-        });
-        if (res.status === 401) {
-          window.location.href = '/login';
-          return;
-        }
-        if (!res.ok) {
-          const text = await res.text().catch(() => '');
-          alert('Checkout failed: ' + (text || res.status));
-          return;
-        }
-        const data = await res.json().catch(() => ({}));
-        const nextUrl = (data && (data.url || (data.data && data.data.url))) || '';
-        if (nextUrl) {
-          window.location.href = nextUrl;
-        } else {
-          alert('Checkout failed: Invalid response');
-        }
-      } catch (e) {
-        console.warn('[credits] checkout error', e);
-        alert('Checkout failed');
-      }
-    }
     function wire() {
       let wired = false;
       try {

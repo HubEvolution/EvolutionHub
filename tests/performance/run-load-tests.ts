@@ -3,6 +3,7 @@ import { loadEnv } from 'vite';
 import { fileURLToPath } from 'url';
 import { join, dirname } from 'path';
 import { readFileSync } from 'fs';
+import { safeParseJson } from '../shared/http';
 
 // Lade Umgebungsvariablen
 loadEnv(process.env.NODE_ENV || 'test', process.cwd(), '');
@@ -21,6 +22,10 @@ type LoadTestConfig = {
     {
       endpoint: string;
       method: 'GET' | 'POST';
+      requiresAuth?: boolean;
+      requiresCsrf?: boolean;
+      contentType?: string;
+      body?: Record<string, unknown>;
       testScenarios: Array<{
         name: string;
         requestsPerSecond: number;
@@ -41,7 +46,12 @@ type LoadTestConfig = {
   };
 };
 
-const config = JSON.parse(readFileSync(configPath, 'utf-8')) as LoadTestConfig;
+const configText = readFileSync(configPath, 'utf-8');
+const config = safeParseJson<LoadTestConfig>(configText);
+if (!config) {
+  throw new Error('Invalid load-test-config.json');
+}
+const loadTestConfig: LoadTestConfig = config;
 
 // Kommandozeilenargumente
 const args = process.argv.slice(2);
@@ -56,54 +66,268 @@ interface LoadTestResult {
   totalRequests: number;
   successfulRequests: number;
   rateLimitedRequests: number;
+  rejectedRequests: number;
+  statusBuckets: Record<string, number>;
+  statusCodes: Record<string, number>;
   averageResponseTime: number;
   minResponseTime: number;
   maxResponseTime: number;
+  p95ResponseTime: number;
   requestsPerSecond: number;
   totalDuration: number;
   timestamp: string;
   success: boolean;
 }
 
-// Hilfsfunktion für parallele Requests
-async function makeParallelRequests(
-  _baseUrl: string,
-  endpoint: string,
-  count: number,
-  requestFn: (index: number) => Promise<Response>
-): Promise<LoadTestResult> {
-  void _baseUrl;
-  const startTime = Date.now();
-  const promises = Array(count)
-    .fill(null)
-    .map((_, index) => requestFn(index));
-  const responses = await Promise.allSettled(promises);
-  const endTime = Date.now();
+function sleep(ms: number) {
+  return new Promise((r) => setTimeout(r, ms));
+}
 
-  const fulfilled = responses.filter(
-    (entry): entry is PromiseFulfilledResult<Response> => entry.status === 'fulfilled'
-  );
-  const rateLimited = fulfilled.filter((entry) => entry.value.status === 429).length;
-  const successful = fulfilled.length - rateLimited;
-  const failed = responses.length - fulfilled.length;
+function percentile(values: number[], p: number): number {
+  if (values.length === 0) return 0;
+  const sorted = [...values].sort((a, b) => a - b);
+  const idx = Math.min(sorted.length - 1, Math.max(0, Math.floor(p * (sorted.length - 1))));
+  return sorted[idx];
+}
 
-  // Berechne durchschnittliche Antwortzeit (geschätzt)
-  const avgResponseTime = (endTime - startTime) / count;
-  const requestsPerSecond = (count / (endTime - startTime)) * 1000;
+function addCount(map: Record<string, number>, key: string) {
+  map[key] = (map[key] || 0) + 1;
+}
+
+function bucketForStatus(status: number): string {
+  if (status >= 200 && status < 300) return '2xx';
+  if (status >= 300 && status < 400) return '3xx';
+  if (status >= 400 && status < 500) return '4xx';
+  if (status >= 500 && status < 600) return '5xx';
+  return 'other';
+}
+
+type AuthContext = {
+  cookieHeader: string;
+  csrfToken: string;
+};
+
+type ApiJson = {
+  success?: boolean;
+  data?: unknown;
+  error?: { type?: string; message?: string; details?: unknown };
+};
+
+function getInternalHealthToken(env: string): string {
+  const provided = process.env.INTERNAL_HEALTH_TOKEN;
+  if (provided && provided.trim()) return provided.trim();
+  if (env === 'development' || env === 'testing') return 'ci-internal-health-token';
+  return '';
+}
+
+function parseMintResponseData(data: unknown): { userId: string; csrfToken: string } | null {
+  if (!data || typeof data !== 'object' || Array.isArray(data)) return null;
+  const rec = data as Record<string, unknown>;
+  const userId = rec.userId;
+  const csrfToken = rec.csrfToken;
+  if (typeof userId !== 'string' || typeof csrfToken !== 'string') return null;
+  return { userId, csrfToken };
+}
+
+function extractCookieValue(setCookieHeader: string, name: string): string | null {
+  const re = new RegExp(`(?:^|,)\\s*${name}=([^;]+)`, 'i');
+  const match = setCookieHeader.match(re);
+  return match?.[1] ? match[1] : null;
+}
+
+async function mintPerfSession(baseUrl: string, envName: string): Promise<AuthContext> {
+  const token = getInternalHealthToken(envName);
+  if (!token) {
+    throw new Error('Missing INTERNAL_HEALTH_TOKEN for perf mint-session');
+  }
+
+  const res = await fetch(`${baseUrl}/api/perf/mint-session`, {
+    method: 'GET',
+    redirect: 'manual',
+    headers: {
+      Origin: baseUrl,
+      'X-Internal-Health': token,
+    },
+  });
+
+  const text = res.status !== 302 ? await res.text().catch(() => '') : '';
+  const json = text ? safeParseJson<ApiJson>(text) : null;
+  if (!res.ok || !json?.success) {
+    throw new Error(
+      `Perf session mint failed: ${res.status} ${res.statusText}${text ? ` — ${text.slice(0, 200)}` : ''}`
+    );
+  }
+  const parsed = parseMintResponseData(json.data);
+  if (!parsed) {
+    throw new Error('Perf session mint response missing csrfToken');
+  }
+
+  const setCookie = res.headers.get('set-cookie') || '';
+  const sessionId = extractCookieValue(setCookie, 'session_id');
+  const csrfCookie = extractCookieValue(setCookie, 'csrf_token');
+  const hostSession = extractCookieValue(setCookie, '__Host-session');
+
+  const parts: string[] = [];
+  if (csrfCookie) parts.push(`csrf_token=${csrfCookie}`);
+  else parts.push(`csrf_token=${encodeURIComponent(parsed.csrfToken)}`);
+  if (sessionId) parts.push(`session_id=${sessionId}`);
+  if (hostSession) parts.push(`__Host-session=${hostSession}`);
+
+  return { cookieHeader: parts.join('; '), csrfToken: parsed.csrfToken };
+}
+
+function withUniqueEmail(body: Record<string, unknown> | undefined, index: number): Record<string, unknown> | undefined {
+  if (!body) return body;
+  const email = body.email;
+  if (typeof email !== 'string') return body;
+  const at = email.indexOf('@');
+  if (at <= 0) return body;
+  const local = email.slice(0, at);
+  const domain = email.slice(at + 1);
+  if (!domain) return body;
+  const base = local.split('+')[0];
+  return { ...body, email: `${base}+${index}@${domain}` };
+}
+
+type RequestPlan = {
+  url: string;
+  init: RequestInit;
+};
+
+function buildRequest(
+  baseUrl: string,
+  apiConfig: LoadTestConfig['rateLimitTests'][string],
+  index: number,
+  auth: AuthContext | null
+): RequestPlan {
+  const headers = new Headers();
+  headers.set('Origin', baseUrl);
+
+  const requiresAuth = apiConfig.requiresAuth === true;
+  const requiresCsrf = apiConfig.requiresCsrf === true;
+  const cookieParts: string[] = [];
+  if (requiresAuth) {
+    if (!auth) {
+      throw new Error(`Missing auth context for ${apiConfig.endpoint}`);
+    }
+    cookieParts.push(auth.cookieHeader);
+  }
+  if (requiresCsrf) {
+    if (!auth) {
+      throw new Error(`Missing auth context for CSRF on ${apiConfig.endpoint}`);
+    }
+    headers.set('X-CSRF-Token', auth.csrfToken);
+    if (!cookieParts.some((p) => p.includes('csrf_token='))) {
+      cookieParts.push(`csrf_token=${encodeURIComponent(auth.csrfToken)}`);
+    }
+  }
+  if (cookieParts.length > 0) {
+    headers.set('Cookie', cookieParts.join('; '));
+  }
+
+  const url = `${baseUrl}${apiConfig.endpoint}`;
+  if (apiConfig.method === 'GET') {
+    return { url, init: { method: 'GET', headers } };
+  }
+
+  const contentType = apiConfig.contentType || 'application/json';
+  headers.set('Content-Type', contentType);
+
+  const bodyObj = withUniqueEmail(apiConfig.body, index);
+  const body = contentType.includes('application/json')
+    ? JSON.stringify(bodyObj || {})
+    : JSON.stringify(bodyObj || {});
 
   return {
-    testName: `Parallel_${count}_requests`,
+    url,
+    init: {
+      method: 'POST',
+      headers,
+      body,
+      redirect: 'manual',
+    },
+  };
+}
+
+async function makePacedRequests(
+  baseUrl: string,
+  endpoint: string,
+  count: number,
+  requestsPerSecond: number,
+  requestFn: (index: number) => Promise<Response>
+): Promise<LoadTestResult> {
+  const startTime = Date.now();
+  const timings: number[] = [];
+  const statusBuckets: Record<string, number> = {};
+  const statusCodes: Record<string, number> = {};
+  let rejectedRequests = 0;
+  let rateLimitedRequests = 0;
+  let successfulRequests = 0;
+
+  const maxConcurrency = Math.min(100, Math.max(10, Math.ceil(requestsPerSecond * 2)));
+  const inFlight = new Set<Promise<void>>();
+
+  for (let i = 0; i < count; i++) {
+    const scheduledAt = startTime + Math.floor((i * 1000) / Math.max(1, requestsPerSecond));
+    const delay = scheduledAt - Date.now();
+    if (delay > 0) {
+      await sleep(delay);
+    }
+
+    const p = (async () => {
+      const t0 = Date.now();
+      try {
+        const res = await requestFn(i);
+        const t1 = Date.now();
+        const dur = t1 - t0;
+        timings.push(dur);
+        addCount(statusCodes, String(res.status));
+        addCount(statusBuckets, bucketForStatus(res.status));
+        if (res.status === 429) rateLimitedRequests += 1;
+        if (res.status >= 200 && res.status < 300) successfulRequests += 1;
+      } catch {
+        rejectedRequests += 1;
+      }
+    })();
+    inFlight.add(p);
+    void p.finally(() => inFlight.delete(p));
+
+    if (inFlight.size >= maxConcurrency) {
+      await Promise.race(inFlight);
+    }
+  }
+
+  await Promise.allSettled(Array.from(inFlight));
+
+  const endTime = Date.now();
+  const totalDuration = endTime - startTime;
+  const avgResponseTime =
+    timings.length > 0 ? timings.reduce((sum, t) => sum + t, 0) / timings.length : 0;
+  const minResponseTime = timings.length > 0 ? Math.min(...timings) : 0;
+  const maxResponseTime = timings.length > 0 ? Math.max(...timings) : 0;
+  const p95ResponseTime = percentile(timings, 0.95);
+  const actualRps = totalDuration > 0 ? (count / totalDuration) * 1000 : 0;
+
+  const hasSevereErrors = rejectedRequests > 0 || (statusBuckets['5xx'] || 0) > 0;
+  const success = !hasSevereErrors;
+
+  return {
+    testName: `Paced_${count}_requests`,
     endpoint,
     totalRequests: count,
-    successfulRequests: successful,
-    rateLimitedRequests: rateLimited,
+    successfulRequests,
+    rateLimitedRequests,
+    rejectedRequests,
+    statusBuckets,
+    statusCodes,
     averageResponseTime: avgResponseTime,
-    minResponseTime: avgResponseTime * 0.5,
-    maxResponseTime: avgResponseTime * 1.5,
-    requestsPerSecond,
-    totalDuration: endTime - startTime,
+    minResponseTime,
+    maxResponseTime,
+    p95ResponseTime,
+    requestsPerSecond: actualRps,
+    totalDuration,
     timestamp: new Date().toISOString(),
-    success: failed === 0,
+    success,
   };
 }
 
@@ -112,12 +336,19 @@ async function runRateLimitTests() {
   console.log('🚀 Starte Rate-Limiting-Performance-Tests...\n');
 
   const results: LoadTestResult[] = [];
-  const envConfig = config.testEnvironments[environment];
+  const envConfig = loadTestConfig.testEnvironments[environment];
   const baseUrl = envConfig.baseUrl;
+  let authContext: AuthContext | null = null;
 
-  for (const apiName of Object.keys(config.rateLimitTests)) {
+  async function getAuthContext(): Promise<AuthContext> {
+    if (authContext) return authContext;
+    authContext = await mintPerfSession(baseUrl, environment);
+    return authContext;
+  }
+
+  for (const apiName of Object.keys(loadTestConfig.rateLimitTests)) {
     if (endpoint && !apiName.includes(endpoint)) continue;
-    const apiConfig = config.rateLimitTests[apiName];
+    const apiConfig = loadTestConfig.rateLimitTests[apiName];
 
     console.log(`📊 Teste ${apiName} Rate-Limiting...`);
 
@@ -126,31 +357,18 @@ async function runRateLimitTests() {
         `  └─ ${scenario.name}: ${scenario.requestsPerSecond} RPS für ${scenario.duration}s`
       );
 
-      const result = await makeParallelRequests(
+      const needsAuth = apiConfig.requiresAuth === true || apiConfig.requiresCsrf === true;
+      const auth = needsAuth ? await getAuthContext() : null;
+
+      const totalRequests = scenario.requestsPerSecond * scenario.duration;
+      const result = await makePacedRequests(
         baseUrl,
         apiConfig.endpoint,
-        scenario.requestsPerSecond * scenario.duration,
+        totalRequests,
+        scenario.requestsPerSecond,
         async (index) => {
-          if (apiConfig.method === 'GET') {
-            return fetch(`${baseUrl}${apiConfig.endpoint}`);
-          } else {
-            const formData = new URLSearchParams({
-              email: `loadtest${index}@example.com`,
-              name: `Load Test User ${index}`,
-              ...(apiConfig.endpoint.includes('lead-magnets') && {
-                magnetId: 'ki-tools-checkliste-2025',
-              }),
-            });
-
-            return fetch(`${baseUrl}${apiConfig.endpoint}`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                Origin: baseUrl,
-              },
-              body: formData.toString(),
-            });
-          }
+          const plan = buildRequest(baseUrl, apiConfig, index, auth);
+          return fetch(plan.url, plan.init);
         }
       );
 
@@ -160,18 +378,27 @@ async function runRateLimitTests() {
       const expectedRateLimited = Math.round(
         (scenario.expectedRateLimited / 100) * result.totalRequests
       );
-      if (result.rateLimitedRequests >= expectedRateLimited * 0.8) {
+
+      const ok2xx = result.successfulRequests;
+      const shouldCheckRateLimit = ok2xx > 0;
+      if (shouldCheckRateLimit && result.rateLimitedRequests >= expectedRateLimited * 0.8) {
         console.log(
           `    ✅ Rate-Limiting funktioniert korrekt (${result.rateLimitedRequests}/${result.totalRequests} Rate-Limited)`
         );
-      } else {
+      } else if (shouldCheckRateLimit) {
         console.log(
           `    ⚠️  Rate-Limiting könnte zu permissiv sein (${result.rateLimitedRequests}/${result.totalRequests} Rate-Limited, erwartet: ${expectedRateLimited})`
         );
+        result.success = false;
+      } else {
+        console.log(
+          `    ❌ Keine erfolgreichen Requests (2xx=0). Status: ${JSON.stringify(result.statusBuckets)}`
+        );
+        result.success = false;
       }
 
       console.log(
-        `    📈 Performance: ${result.averageResponseTime.toFixed(2)}ms avg, ${result.requestsPerSecond.toFixed(2)} RPS\n`
+        `    📈 Performance: ${result.averageResponseTime.toFixed(2)}ms avg (p95 ${result.p95ResponseTime.toFixed(0)}ms), ${result.requestsPerSecond.toFixed(2)} RPS\n`
       );
     }
   }
@@ -184,39 +411,47 @@ async function runStressTests() {
   console.log('🔥 Starte Stress-Tests...\n');
 
   const results: LoadTestResult[] = [];
-  const envConfig = config.testEnvironments[environment];
+  const envConfig = loadTestConfig.testEnvironments[environment];
   const baseUrl = envConfig.baseUrl;
+  let authContext: AuthContext | null = null;
+
+  async function getAuthContext(): Promise<AuthContext> {
+    if (authContext) return authContext;
+    authContext = await mintPerfSession(baseUrl, environment);
+    return authContext;
+  }
+
+  const byEndpoint = new Map<string, LoadTestConfig['rateLimitTests'][string]>();
+  for (const key of Object.keys(loadTestConfig.rateLimitTests)) {
+    const entry = loadTestConfig.rateLimitTests[key];
+    byEndpoint.set(entry.endpoint, entry);
+  }
 
   if (endpoint === 'burst' || !endpoint) {
     console.log('💥 Teste Burst-Traffic...');
 
-    const burstResult = await makeParallelRequests(
+    const endpoints = loadTestConfig.stressTests.burstTraffic.parallelEndpoints;
+    const totalRequests =
+      loadTestConfig.stressTests.burstTraffic.requestsPerEndpoint * endpoints.length;
+    const burstResult = await makePacedRequests(
       baseUrl,
       'burst-traffic',
-      config.stressTests.burstTraffic.requestsPerEndpoint *
-        config.stressTests.burstTraffic.parallelEndpoints.length,
+      totalRequests,
+      Math.max(1, Math.floor(totalRequests / 10)),
       async (index) => {
-        const endpointIndex = index % config.stressTests.burstTraffic.parallelEndpoints.length;
-        const testEndpoint = config.stressTests.burstTraffic.parallelEndpoints[endpointIndex];
-
-        if (testEndpoint.includes('newsletter')) {
-          const formData = new URLSearchParams({
-            email: `burst${index}@example.com`,
-            name: `Burst Test User ${index}`,
-            magnetId: 'ki-tools-checkliste-2025',
-          });
-
-          return fetch(`${baseUrl}${testEndpoint}`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded',
-              Origin: baseUrl,
-            },
-            body: formData.toString(),
-          });
-        } else {
-          return fetch(`${baseUrl}${testEndpoint}`);
+        const endpointIndex = index % endpoints.length;
+        const testEndpoint = endpoints[endpointIndex];
+        const cfg = byEndpoint.get(testEndpoint);
+        if (cfg) {
+          const needsAuth = cfg.requiresAuth === true || cfg.requiresCsrf === true;
+          const auth = needsAuth ? await getAuthContext() : null;
+          const plan = buildRequest(baseUrl, cfg, index, auth);
+          return fetch(plan.url, plan.init);
         }
+        return fetch(`${baseUrl}${testEndpoint}`, {
+          method: 'GET',
+          headers: { Origin: baseUrl },
+        });
       }
     );
 
@@ -234,17 +469,27 @@ async function runBenchmarks() {
   console.log('📊 Starte Performance-Benchmarks...\n');
 
   const results: LoadTestResult[] = [];
-  const envConfig = config.testEnvironments[environment];
+  const envConfig = loadTestConfig.testEnvironments[environment];
   const baseUrl = envConfig.baseUrl;
 
-  const benchmarkResult = await makeParallelRequests(
+  const benchmarkKeys = ['promptEnhance', 'newsletter', 'leadMagnet'] as const;
+  const benchmarkEndpoints = benchmarkKeys
+    .map((k) => loadTestConfig.rateLimitTests[k])
+    .filter(Boolean);
+
+  if (benchmarkEndpoints.length === 0) {
+    throw new Error('No benchmark endpoints configured');
+  }
+
+  const benchmarkResult = await makePacedRequests(
     baseUrl,
     'benchmark-suite',
-    100, // 100 Requests für Benchmark
+    100,
+    25,
     async (index) => {
-      const endpoints = ['/api/dashboard/stats', '/api/projects', '/api/billing/credits'];
-      const endpoint = endpoints[index % endpoints.length];
-      return fetch(`${baseUrl}${endpoint}`);
+      const cfg = benchmarkEndpoints[index % benchmarkEndpoints.length];
+      const plan = buildRequest(baseUrl, cfg, index, null);
+      return fetch(plan.url, plan.init);
     }
   );
 
@@ -254,13 +499,14 @@ async function runBenchmarks() {
   console.log(
     `  Durchschnittliche Antwortzeit: ${benchmarkResult.averageResponseTime.toFixed(2)}ms`
   );
+  console.log(`  p95 Antwortzeit: ${benchmarkResult.p95ResponseTime.toFixed(0)}ms`);
   console.log(`  Requests pro Sekunde: ${benchmarkResult.requestsPerSecond.toFixed(2)}`);
   console.log(
     `  Rate-Limited: ${benchmarkResult.rateLimitedRequests}/${benchmarkResult.totalRequests}`
   );
 
   // Prüfe Performance-Thresholds
-  const thresholds = config.performanceThresholds;
+  const thresholds = loadTestConfig.performanceThresholds;
   const performanceOk =
     benchmarkResult.averageResponseTime <= thresholds.maxAverageResponseTime &&
     benchmarkResult.requestsPerSecond >= thresholds.minRequestsPerSecond;
@@ -290,6 +536,7 @@ function saveResults(results: LoadTestResult[], testType: string) {
       averageRequestsPerSecond:
         results.reduce((sum, r) => sum + r.requestsPerSecond, 0) / results.length,
       totalRateLimitedRequests: results.reduce((sum, r) => sum + r.rateLimitedRequests, 0),
+      totalRejectedRequests: results.reduce((sum, r) => sum + r.rejectedRequests, 0),
     },
     results,
   };
@@ -300,6 +547,7 @@ function saveResults(results: LoadTestResult[], testType: string) {
   console.log(`  Ø Antwortzeit: ${report.summary.averageResponseTime.toFixed(2)}ms`);
   console.log(`  Ø RPS: ${report.summary.averageRequestsPerSecond.toFixed(2)}`);
   console.log(`  Rate-Limited: ${report.summary.totalRateLimitedRequests}`);
+  console.log(`  Rejected: ${report.summary.totalRejectedRequests}`);
 
   return report;
 }

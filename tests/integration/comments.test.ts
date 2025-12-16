@@ -31,6 +31,7 @@ type CommentReportLike = {
 };
 
 let authCookie = '';
+let altAuthCookie = '';
 
 function mergeCookies(a: string, b: string): string {
   const parts = [a, b].map((s) => s.trim()).filter(Boolean);
@@ -49,12 +50,32 @@ function authCsrfHeaders(): Record<string, string> {
 async function requireAuthCookie(): Promise<string> {
   if (authCookie) return authCookie;
   try {
-    const login = await debugLogin(process.env.DEBUG_LOGIN_TOKEN);
+    const login = await debugLogin(process.env.DEBUG_LOGIN_TOKEN, { debugUser: 'user1' });
     authCookie = login.cookie;
     return authCookie;
   } catch {
     return '';
   }
+}
+
+async function requireAltAuthCookie(): Promise<string> {
+  if (altAuthCookie) return altAuthCookie;
+  try {
+    const login = await debugLogin(process.env.DEBUG_LOGIN_TOKEN, { debugUser: 'user2' });
+    altAuthCookie = login.cookie;
+    return altAuthCookie;
+  } catch {
+    return '';
+  }
+}
+
+function altAuthCsrfHeaders(): Record<string, string> {
+  const token = hex32();
+  const base = csrfHeaders(token);
+  return {
+    ...base,
+    Cookie: mergeCookies(altAuthCookie, base.Cookie),
+  };
 }
 
 const commentService = {
@@ -108,6 +129,22 @@ const commentService = {
   ): Promise<CommentLike> {
     void _authorId;
     void _csrfToken;
+    if (String(_authorId) === '999') {
+      await requireAltAuthCookie();
+      const headers = altAuthCsrfHeaders();
+      const { res, json } = await sendJson<ApiJson<CommentLike>>(`/api/comments/${id}`, update, {
+        method: 'PUT',
+        headers,
+      });
+      if (res.status === 401) throw new Error('Authentication');
+      if (res.status === 403) throw new Error('CSRF');
+      if (!json || json.success !== true) {
+        const msg = json && json.success === false ? json.error.message : `HTTP ${res.status}`;
+        throw new Error(String(msg || 'Update failed'));
+      }
+      return json.data;
+    }
+
     await requireAuthCookie();
     const headers = authCsrfHeaders();
     const { res, json } = await sendJson<ApiJson<CommentLike>>(`/api/comments/${id}`, update, {
@@ -126,6 +163,26 @@ const commentService = {
   async deleteComment(id: string, _authorId: number | string, _csrfToken: string): Promise<void> {
     void _authorId;
     void _csrfToken;
+    if (String(_authorId) === '999') {
+      await requireAltAuthCookie();
+      const headers = altAuthCsrfHeaders();
+      const { res, json } = await sendJson<ApiJson<{ message: string }>>(
+        `/api/comments/${id}`,
+        {},
+        {
+          method: 'DELETE',
+          headers,
+        }
+      );
+      if (res.status === 401) throw new Error('Authentication');
+      if (res.status === 403) throw new Error('CSRF');
+      if (!json || json.success !== true) {
+        const msg = json && json.success === false ? json.error.message : `HTTP ${res.status}`;
+        throw new Error(String(msg || 'Delete failed'));
+      }
+      return;
+    }
+
     await requireAuthCookie();
     const headers = authCsrfHeaders();
     const { res, json } = await sendJson<ApiJson<{ message: string }>>(

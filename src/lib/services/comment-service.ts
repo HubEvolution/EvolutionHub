@@ -82,7 +82,8 @@ export class CommentService {
         cols.has('postId') &&
         cols.has('approved') &&
         cols.has('createdAt') &&
-        !cols.has('entity_type');
+        !cols.has('entity_type') &&
+        !cols.has('entityType');
       this.schemaDetection = { isLegacy: legacy };
       return legacy;
     } catch {
@@ -391,6 +392,32 @@ export class CommentService {
 
     const now = Math.floor(Date.now() / 1000);
 
+    const existing = await this.db
+      .select({
+        authorId: comments.authorId,
+        status: comments.status,
+        entityType: comments.entityType,
+        entityId: comments.entityId,
+      })
+      .from(comments)
+      .where(eq(comments.id, commentId))
+      .limit(1);
+
+    if (existing.length === 0) {
+      throw new Error('Comment not found');
+    }
+
+    const existing0 = existing[0] as {
+      authorId: string | null;
+      status: string;
+      entityType: string;
+      entityId: string;
+    };
+
+    if (existing0.status === 'hidden') {
+      throw new Error('Comment not found');
+    }
+
     // Sanitize content to prevent XSS attacks (lazy import to avoid DOM dependency)
     const sanitizedContent = await (async () => {
       try {
@@ -427,9 +454,11 @@ export class CommentService {
       isAdmin = !!actor && (actor.email === 'admin@hub-evolution.com' || actor.role === 'admin');
     } catch {}
 
-    const whereCond = isAdmin
-      ? eq(comments.id, commentId)
-      : and(eq(comments.id, commentId), eq(comments.authorId, userId));
+    if (!isAdmin && existing0.authorId !== userId) {
+      throw new Error('Unauthorized to update this comment');
+    }
+
+    const whereCond = eq(comments.id, commentId);
 
     await this.db
       .update(comments)
@@ -440,6 +469,11 @@ export class CommentService {
         updatedAt: now,
       })
       .where(whereCond);
+
+    // Invalidate cache for the entity (non-blocking)
+    try {
+      await this.invalidateEntityCache(existing0.entityType, existing0.entityId);
+    } catch {}
 
     return this.getCommentById(commentId);
   }
@@ -454,7 +488,7 @@ export class CommentService {
       throw new Error('Invalid CSRF token');
     }
 
-    // Delete comment (soft delete by hiding)
+    // Determine if user is admin
     let isAdmin = false;
     try {
       const actor = await this.rawDb
@@ -464,9 +498,35 @@ export class CommentService {
       isAdmin = !!actor && (actor.email === 'admin@hub-evolution.com' || actor.role === 'admin');
     } catch {}
 
-    const whereCond = isAdmin
-      ? eq(comments.id, commentId)
-      : and(eq(comments.id, commentId), eq(comments.authorId, userId));
+    const existing = await this.db
+      .select({
+        authorId: comments.authorId,
+        status: comments.status,
+        entityType: comments.entityType,
+        entityId: comments.entityId,
+      })
+      .from(comments)
+      .where(eq(comments.id, commentId))
+      .limit(1);
+
+    if (existing.length === 0) {
+      throw new Error('Comment not found');
+    }
+
+    const existing0 = existing[0] as {
+      authorId: string | null;
+      status: string;
+      entityType: string;
+      entityId: string;
+    };
+
+    if (existing0.status === 'hidden') {
+      throw new Error('Comment not found');
+    }
+
+    if (!isAdmin && existing0.authorId !== userId) {
+      throw new Error('Unauthorized to delete this comment');
+    }
 
     await this.db
       .update(comments)
@@ -474,18 +534,22 @@ export class CommentService {
         status: 'hidden',
         updatedAt: Math.floor(Date.now() / 1000),
       })
-      .where(whereCond);
+      .where(eq(comments.id, commentId));
 
     try {
-      const updated = await this.getCommentById(commentId);
-      await this.invalidateEntityCache(updated.entityType, updated.entityId);
+      await this.invalidateEntityCache(existing0.entityType, existing0.entityId);
     } catch {}
   }
 
   /**
    * Get a comment by ID with moderation history
    */
-  async getCommentById(commentId: string): Promise<Comment> {
+  async getCommentById(
+    commentId: string,
+    options?: {
+      includeHidden?: boolean;
+    }
+  ): Promise<Comment> {
     const result = await this.db
       .select({
         comment: comments,
@@ -510,6 +574,11 @@ export class CommentService {
 
     const row0 = result[0] as { comment: Comment; reportCount: number; authorImage: string | null };
     const { comment, reportCount, authorImage } = row0;
+
+    if (comment.status === 'hidden' && options?.includeHidden !== true) {
+      throw new Error('Comment not found');
+    }
+
     return {
       ...comment,
       reportCount: reportCount || 0,
@@ -717,7 +786,7 @@ export class CommentService {
 
     // After status update, notify comment author (approved/rejected)
     try {
-      const updatedComment = await this.getCommentById(commentId);
+      const updatedComment = await this.getCommentById(commentId, { includeHidden: true });
       if (updatedComment && updatedComment.authorId && updatedComment.authorEmail) {
         const notificationService = await this.getNotificationService();
         const context = {
@@ -763,7 +832,7 @@ export class CommentService {
     }
 
     try {
-      const updated = await this.getCommentById(commentId);
+      const updated = await this.getCommentById(commentId, { includeHidden: true });
       await this.invalidateEntityCache(updated.entityType, updated.entityId);
     } catch {}
 
@@ -780,11 +849,44 @@ export class CommentService {
   ): Promise<CommentReport> {
     const now = Math.floor(Date.now() / 1000);
 
+    const normalizedReporterId = reporterId || null;
+    const normalizedReporterEmail = request.reporterEmail || null;
+
+    if (normalizedReporterId) {
+      const existing = await this.db
+        .select({ id: commentReports.id })
+        .from(commentReports)
+        .where(
+          and(
+            eq(commentReports.commentId, commentId),
+            eq(commentReports.reporterId, normalizedReporterId)
+          )
+        )
+        .limit(1);
+      if (existing.length > 0) {
+        throw new Error('Comment has already been reported');
+      }
+    } else if (normalizedReporterEmail) {
+      const existing = await this.db
+        .select({ id: commentReports.id })
+        .from(commentReports)
+        .where(
+          and(
+            eq(commentReports.commentId, commentId),
+            eq(commentReports.reporterEmail, normalizedReporterEmail)
+          )
+        )
+        .limit(1);
+      if (existing.length > 0) {
+        throw new Error('Comment has already been reported');
+      }
+    }
+
     const reportResult = await this.db
       .insert(commentReports)
       .values({
         commentId,
-        reporterId: reporterId || null,
+        reporterId: normalizedReporterId,
         reporterEmail: request.reporterEmail,
         reason: request.reason,
         description: request.description,
@@ -806,7 +908,7 @@ export class CommentService {
     }
 
     try {
-      const updated = await this.getCommentById(commentId);
+      const updated = await this.getCommentById(commentId, { includeHidden: true });
       await this.invalidateEntityCache(updated.entityType, updated.entityId);
     } catch {}
 

@@ -22,12 +22,18 @@ export interface DebugLoginResult {
   userId?: string;
 }
 
-export async function debugLogin(debugToken?: string): Promise<DebugLoginResult> {
+export async function debugLogin(
+  debugToken?: string,
+  options?: {
+    debugUser?: string;
+  }
+): Promise<DebugLoginResult> {
   const headers: Record<string, string> = {
     Origin: TEST_URL,
     'Content-Type': 'application/json',
   };
   if (debugToken) headers['X-Debug-Token'] = debugToken;
+  if (options?.debugUser) headers['X-Debug-User'] = options.debugUser;
 
   const res = await fetch(`${TEST_URL}/api/debug-login`, {
     method: 'POST',

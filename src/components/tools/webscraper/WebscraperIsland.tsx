@@ -101,7 +101,7 @@ export default function WebscraperIsland({ strings, showHeader = false }: Webscr
     setError(null);
 
     try {
-      await ensureCsrfToken();
+      ensureCsrfToken();
 
       const response = await fetch('/api/webscraper/extract', {
         method: 'POST',

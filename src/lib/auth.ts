@@ -10,6 +10,6 @@
 export interface LegacyLucia {}
 
 // Stub-Funktion: existiert nur für rückwärtskompatible Exporte. Nicht verwenden.
-export function initializeLucia(_D1: unknown): LegacyLucia {
+export function initializeLucia(_D1: unknown): never {
   throw new Error('initializeLucia (legacy) is deprecated. Use auth-v2 instead.');
 }

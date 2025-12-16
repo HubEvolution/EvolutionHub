@@ -1,11 +1,13 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { aosDelayForIndex } from '@/lib/aos';
-import Icon from '@/components/ui/Icon.astro';
-import AosWrapper from '@/components/AosWrapper.astro';
 import { getLocale } from '@/lib/i18n';
 import { getI18n, getI18nArray } from '@/utils/i18n';
 import { localizePath } from '@/lib/locale-path';
+import DocsBackground from '@/components/docs/DocsBackground.astro';
+import DocsHero from '@/components/docs/DocsHero.astro';
+import DocsSteps from '@/components/docs/DocsSteps.astro';
+import DocsResources from '@/components/docs/DocsResources.astro';
+import type { DirectAccessItem, DocsResource, DocsStep } from '@/components/docs/types';
 
 const locale = getLocale(Astro.url.pathname);
 const t = getI18n(locale);
@@ -20,7 +22,7 @@ const stepLinkMap = {
 
 const stepKeys = ['step1', 'step2', 'step3', 'step4'] as const;
 
-const steps = stepKeys.map((key) => ({
+const steps: DocsStep[] = stepKeys.map((key) => ({
   title: t(`pages.docs.steps.${key}.title`),
   description: t(`pages.docs.steps.${key}.description`),
   link: localizePath(locale, stepLinkMap[key]),
@@ -28,7 +30,7 @@ const steps = stepKeys.map((key) => ({
   checklist: tList(`pages.docs.steps.${key}.checklist`),
 }));
 
-const resources = [
+const resources: DocsResource[] = [
   {
     title: t('pages.docs.resources.tools.title'),
     description: t('pages.docs.resources.tools.description'),
@@ -60,156 +62,53 @@ const resources = [
     icon: 'book-open',
   },
 ];
+
+const directAccess: DirectAccessItem[] = [
+  { label: t('pages.docs.resources.tools.title'), href: localizePath(locale, '/tools') },
+  { label: t('pages.docs.resources.faq.title'), href: localizePath(locale, '/faq') },
+  { label: t('pages.docs.resources.pricing.title'), href: localizePath(locale, '/pricing') },
+  { label: t('pages.docs.resources.blog.title'), href: localizePath(locale, '/blog') },
+];
 ---
 
-<BaseLayout title={t('pages.docs.meta.title')} description={t('pages.docs.meta.description')}>
-  <div class="landing-v2 relative">
-    <section
-      class="py-20 bg-slate-950/80 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950"
-    >
-      <div class="container space-y-20">
-        <header class="max-w-3xl mx-auto text-center space-y-5">
-          <h2
-            class="text-xs sm:text-sm font-semibold tracking-[0.12em] uppercase text-primary-400 dark:text-primary-300"
-          >
-            {t('pages.docs.hero.kicker')}
-          </h2>
-          <p class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white dark:text-white">
-            {t('pages.docs.hero.title')}
-          </p>
-          <p class="text-base sm:text-lg text-gray-300 dark:text-gray-300 leading-relaxed">
-            {t('pages.docs.hero.subtitle')}
-          </p>
-        </header>
+<BaseLayout
+  title={t('pages.docs.meta.title')}
+  description={t('pages.docs.meta.description')}
+  hideDebugPanel={true}
+>
+  <div
+    class="landing-v2 docs-landing relative overflow-hidden bg-[rgb(var(--docs-bg))] text-[rgb(var(--docs-fg))] selection:bg-[rgba(var(--docs-accent)/0.22)] selection:text-[rgb(var(--docs-fg))]"
+  >
+    <DocsBackground />
+    <section class="pt-24 sm:pt-28 pb-16 sm:pb-20">
+      <div class="mx-auto w-full max-w-7xl px-4 space-y-10 sm:space-y-12 relative z-10">
+        <DocsHero
+          kicker={t('pages.docs.hero.kicker')}
+          title={t('pages.docs.hero.title')}
+          subtitle={t('pages.docs.hero.subtitle')}
+          primaryCta={{ label: steps[0].linkLabel, href: steps[0].link }}
+          secondaryCta={{ label: resources[0].title, href: resources[0].link }}
+          directAccess={directAccess}
+          searchLabel={t('pages.docs.search.label')}
+          searchPlaceholder={t('pages.docs.search.placeholder')}
+          accessLabel={t('pages.docs.access.title')}
+          footerNote={t('pages.docs.search.note')}
+        />
 
-        <section aria-labelledby="onboarding-steps">
-          <div class="flex flex-col gap-3 text-center">
-            <h3
-              id="onboarding-steps"
-              class="text-xs sm:text-sm font-semibold tracking-[0.12em] uppercase text-primary-400 dark:text-primary-300"
-            >
-              {t('pages.docs.steps.title')}
-            </h3>
-            <p
-              class="text-gray-300 dark:text-gray-300 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed"
-            >
-              {t('pages.docs.steps.subtitle')}
-            </p>
-          </div>
-          <ol
-            class="mt-12 grid gap-8 md:gap-10 grid-cols-1 sm:grid-cols-[repeat(auto-fit,minmax(18rem,1fr))] auto-rows-fr max-w-5xl mx-auto"
-            role="list"
-          >
-            {
-              steps.map((step, index) => (
-                <li
-                  class="glass p-8 text-left space-y-6 rounded-2xl h-full flex flex-col w-full sm:max-w-sm"
-                  role="listitem"
-                >
-                  <div class="flex items-start gap-5">
-                    <span class="flex h-11 w-11 items-center justify-center rounded-full bg-primary-500/20 text-primary-200 text-lg font-semibold">
-                      {index + 1}
-                    </span>
-                    <div class="space-y-4">
-                      <h4 class="text-xl font-semibold text-white">{step.title}</h4>
-                      <p class="text-base text-gray-200 leading-relaxed">{step.description}</p>
-                      {step.checklist.length > 0 && (
-                        <ul class="grid gap-2 text-sm text-gray-200 lg:grid-cols-2">
-                          {step.checklist.map((item) => (
-                            <li class="flex items-start gap-2">
-                              <span
-                                class="mt-1 h-2.5 w-2.5 rounded-full bg-emerald-400"
-                                aria-hidden="true"
-                              />
-                              <span class="leading-relaxed">{item}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  </div>
-                  <div class="mt-auto pt-4">
-                    <a
-                      href={step.link}
-                      class="inline-flex items-center gap-2 text-sm font-medium px-4 py-1.5 rounded-full bg-primary-500/15 text-primary-100 hover:bg-primary-500/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
-                    >
-                      {step.linkLabel}
-                      <svg
-                        class="h-4 w-4"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          d="M17 8l4 4m0 0l-4 4m4-4H3"
-                        />
-                      </svg>
-                    </a>
-                  </div>
-                </li>
-              ))
-            }
-          </ol>
-        </section>
+        <div class="grid gap-8 lg:gap-10 lg:grid-cols-[1.15fr,0.85fr] lg:items-start">
+          <DocsSteps
+            title={t('pages.docs.steps.title')}
+            subtitle={t('pages.docs.steps.subtitle')}
+            steps={steps}
+          />
 
-        <section aria-labelledby="docs-resources" class="space-y-10">
-          <div class="text-center space-y-3">
-            <h3
-              id="docs-resources"
-              class="text-xs sm:text-sm font-semibold tracking-[0.12em] uppercase text-primary-400 dark:text-primary-300"
-            >
-              {t('pages.docs.resources.title')}
-            </h3>
-            <p
-              class="text-gray-300 dark:text-gray-300 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed"
-            >
-              {t('pages.docs.resources.subtitle')}
-            </p>
-          </div>
-          <div
-            class="grid gap-8 grid-cols-1 sm:grid-cols-[repeat(auto-fit,minmax(16rem,1fr))] auto-rows-fr max-w-5xl mx-auto"
-          >
-            {
-              resources.map((resource, idx) => (
-                <AosWrapper
-                  tag="div"
-                  delay={aosDelayForIndex(idx, { step: 120, max: 360 })}
-                  class="glass h-full w-full p-8 flex flex-col gap-5 rounded-2xl sm:max-w-sm"
-                >
-                  <div class="flex items-center gap-3">
-                    <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-500/15 text-primary-200">
-                      <Icon name={resource.icon} class="w-5 h-5" ariaLabel={resource.title} />
-                    </span>
-                    <h4 class="text-lg font-semibold text-white">{resource.title}</h4>
-                  </div>
-                  <p class="text-sm text-gray-200 leading-relaxed flex-1">{resource.description}</p>
-                  <a
-                    href={resource.link}
-                    class="inline-flex items-center gap-2 text-sm font-medium px-4 py-1.5 rounded-full bg-primary-500/15 text-primary-100 hover:bg-primary-500/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
-                  >
-                    {t('pages.docs.resources.action')}
-                    <svg
-                      class="h-4 w-4"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M17 8l4 4m0 0l-4 4m4-4H3"
-                      />
-                    </svg>
-                  </a>
-                </AosWrapper>
-              ))
-            }
-          </div>
-        </section>
+          <DocsResources
+            title={t('pages.docs.resources.title')}
+            subtitle={t('pages.docs.resources.subtitle')}
+            actionLabel={t('pages.docs.resources.action')}
+            resources={resources}
+          />
+        </div>
       </div>
     </section>
   </div>

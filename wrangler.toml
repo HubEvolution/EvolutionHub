@@ -38,6 +38,9 @@ preview_database_id = "evolution-hub-main-local"
 [env.development]
 name = "evolution-hub"
 
+[env.development.browser]
+binding = "BROWSER"
+
 [env.development.vars]
 ENVIRONMENT = "development"
 BILLING_USAGE_OVERVIEW_V2 = "1"
@@ -52,6 +55,18 @@ STYTCH_BYPASS = "1"
 E2E_FAKE_STYTCH = "1"
 STYTCH_CUSTOM_DOMAIN = "login-test.hub-evolution.com"
 PROMPT_REWRITE_V1 = "true"
+CF_ACCESS_TEAM_DOMAIN = ""
+CF_ACCESS_AUD = ""
+CF_ACCESS_JWKS_URL = ""
+PROMPT_TEXT_MODEL = "gpt-4o-mini"
+PROMPT_VISION_MODEL = "gpt-4o-mini"
+PROMPT_MAX_FILE_BYTES = "5242880"
+PROMPT_MAX_FILES = "3"
+PROMPT_ALLOWED_TYPES = "image/jpeg,image/png,image/webp,application/pdf,text/plain,text/markdown"
+PROMPT_OUTPUT_TOKENS_MAX = "400"
+PROMPT_TEMPERATURE = "0.2"
+PROMPT_TOP_P = "0.9"
+PUBLIC_LANDING_BG_VARIANT = "techcells"
 AUTH_CSRF_RELAXED = "1"
 PUBLIC_ENHANCER_MVP_MODE = "0"
 PUBLIC_ENHANCER_LEGACY_MODE = "1"
@@ -513,6 +528,16 @@ zone_name = "hub-evolution.com"
 ENVIRONMENT = "staging"
 BILLING_USAGE_OVERVIEW_V2 = "1"
 BASE_URL = "https://staging.hub-evolution.com"
+PERF_TEST_USER_EMAIL = "perf_test_user_staging@hub-evolution.com"
+EMAIL_FROM = "noreply@hub-evolution.com"
+CONTACT_RECIPIENTS = "noreply@hub-evolution.com,lucas0507@icloud.com"
+CONTENTFUL_SPACE_ID = "tmtc6fophkx8"
+CONTENTFUL_ENVIRONMENT = "preview"
+
+# Duplicate top-level vars explicitly (Wrangler does not inherit [vars] into [env.*.vars])
+CF_ACCESS_TEAM_DOMAIN = ""
+CF_ACCESS_AUD = ""
+CF_ACCESS_JWKS_URL = ""
 
 # Web-Eval TTL (Sekunden) – 7 Tage
 WEB_EVAL_TASK_TTL_SECONDS = "604800"

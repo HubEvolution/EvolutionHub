@@ -42,6 +42,7 @@ interface Props {
   noIndex?: boolean;
   comingSoon?: boolean;
   disableGlobalBg?: boolean; // optional: globalen Hintergrund deaktivieren
+  hideDebugPanel?: boolean;
   titleSuffix?: string;
 }
 
@@ -59,6 +60,7 @@ const { enableAOS = true, enableAnalytics = true } = props;
 const { hideHeader = false, hideFooter = false } = props;
 const { noIndex = false } = props;
 const { disableGlobalBg = false } = props;
+const { hideDebugPanel = false } = props;
 
 // Get locale from URL
 const locale = getLocale(Astro.url.pathname);
@@ -298,11 +300,15 @@ const alternateXDefaultUrl = new URL(localeAlternates.de, siteBase).toString();
     </div>
 
     {/* Debug Panel Overlay - nur in DEV */}
-    <DebugPanelIsland>
-      <DebugPanelOverlay client:load />
-      {/* Initialize Debug Interceptors as a client island (CSP-safe) */}
-      <DebugInterceptors client:load />
-    </DebugPanelIsland>
+    {
+      !hideDebugPanel && (
+        <DebugPanelIsland>
+          <DebugPanelOverlay client:load />
+          {/* Initialize Debug Interceptors as a client island (CSP-safe) */}
+          <DebugInterceptors client:load />
+        </DebugPanelIsland>
+      )
+    }
 
     {
       showComingSoon && (

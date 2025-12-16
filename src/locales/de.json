@@ -223,6 +223,14 @@
           "action": "Kontaktformular öffnen"
         }
       },
+      "search": {
+        "label": "Doku durchsuchen (Contentful folgt)",
+        "placeholder": "Contentful-Suche wird bald ergänzt",
+        "note": "Contentful-Suche ist in Vorbereitung – nutze vorerst die Direktlinks."
+      },
+      "access": {
+        "title": "Direktzugriff auf wichtige Bereiche"
+      },
       "sections": {
         "gettingStarted": {
           "title": "Erste Schritte",
@@ -749,7 +757,7 @@
             "description": "Perfekt zum Ausprobieren",
             "features": [
               "Credits: 30/Monat (Burst: 3/Tag)",
-              "Alle fünf Tools enthalten",
+              "Zugang zu allen Tools (je nach Verfügbarkeit; Limits je nach Plan)",
               "Kommerzielle Nutzung: Nein"
             ],
             "cta": "Jetzt starten"
@@ -760,7 +768,7 @@
             "description": "Für Creator und Indie-Teams",
             "features": [
               "Credits: 300/Monat (Burst: 30/Tag)",
-              "Alle fünf Tools enthalten",
+              "Zugang zu allen Tools (je nach Verfügbarkeit; Limits je nach Plan)",
               "Kommerzielle Nutzung: Ja"
             ],
             "cta": "Pro kaufen"
@@ -771,7 +779,7 @@
             "description": "Für Power-User",
             "features": [
               "Credits: 1.000/Monat (Burst: 100/Tag)",
-              "Alle fünf Tools enthalten",
+              "Zugang zu allen Tools (je nach Verfügbarkeit; Limits je nach Plan)",
               "Priorisierter E-Mail-Support",
               "Kommerzielle Nutzung: Ja"
             ],
@@ -783,7 +791,7 @@
             "description": "Für Unternehmen",
             "features": [
               "Credits: 4.000+/Monat (Burst: 400/Tag)",
-              "Alle fünf Tools enthalten",
+              "Zugang zu allen Tools (je nach Verfügbarkeit; Limits je nach Plan)",
               "Individuelle Limits & Abrechnung",
               "Dedizierter Kontakt"
             ],
@@ -820,11 +828,11 @@
             "enterprise": "400"
           },
           "max_resolution": {
-            "name": "Enthaltene Tools",
-            "starter": "Alle 5 Tools",
-            "pro": "Alle 5 Tools",
-            "premium": "Alle 5 Tools",
-            "enterprise": "Alle 5 Tools"
+            "name": "Tool-Zugang",
+            "starter": "Alle Tools (je nach Verfügbarkeit)",
+            "pro": "Alle Tools (je nach Verfügbarkeit)",
+            "premium": "Alle Tools (je nach Verfügbarkeit)",
+            "enterprise": "Alle Tools (je nach Verfügbarkeit)"
           },
           "max_upscale": {
             "name": "—",
@@ -893,8 +901,8 @@
         "faq": "FAQ"
       },
       "highlights": {
-        "tools_title": "Alle 5 Tools enthalten",
-        "tools_desc": "Imag‑Enhancer, Video Enhancer, Prompt Enhancer, Voice Visualizer, Webscraper nutzen",
+        "tools_title": "Tool-Zugang im Plan",
+        "tools_desc": "Imag‑Enhancer, Video Enhancer, Prompt Enhancer, Voice Visualizer, Webscraper – je nach Verfügbarkeit",
         "commercial_title": "Kommerzielle Nutzung erlaubt",
         "commercial_desc": "Pro, Business und Enterprise enthalten kommerzielle Nutzungsrechte",
         "credits_title": "Monatliche Credits + Tages‑Burst",

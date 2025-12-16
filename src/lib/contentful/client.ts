@@ -27,7 +27,54 @@ type ContentfulEnvConfig = z.infer<typeof contentfulEnvSchema>;
 let cachedEnvConfig: ContentfulEnvConfig | null = null;
 let cachedClient: ContentfulClientApi<undefined> | null = null;
 
+let runtimeEnvConfig: Record<string, unknown> | null = null;
+let runtimeEnvFingerprint: string | null = null;
+
+function hashString(input: string): string {
+  // Small, deterministic hash (djb2 variant). Not for security.
+  let hash = 5381;
+  for (let i = 0; i < input.length; i += 1) {
+    hash = (hash * 33) ^ input.charCodeAt(i);
+  }
+  return (hash >>> 0).toString(16);
+}
+
+function computeEnvFingerprint(env: Record<string, unknown> | null): string {
+  const keys = [
+    'CONTENTFUL_SPACE_ID',
+    'CONTENTFUL_ENVIRONMENT',
+    'CONTENTFUL_DELIVERY_TOKEN',
+    'CONTENTFUL_ACCESS_TOKEN',
+    'CONTENTFUL_PREVIEW_TOKEN',
+    'CONTENTFUL_API_HOST',
+  ];
+
+  return keys
+    .map((k) => {
+      const v = env?.[k];
+      return typeof v === 'string' ? hashString(v) : '';
+    })
+    .join('|');
+}
+
+export function setContentfulRuntimeEnv(env: unknown): void {
+  const next = env && typeof env === 'object' ? (env as Record<string, unknown>) : null;
+  const nextFingerprint = computeEnvFingerprint(next);
+
+  if (runtimeEnvFingerprint !== nextFingerprint) {
+    runtimeEnvConfig = next;
+    runtimeEnvFingerprint = nextFingerprint;
+    cachedEnvConfig = null;
+    cachedClient = null;
+  }
+}
+
 function resolveEnvVar(name: keyof NodeJS.ProcessEnv): string | undefined {
+  const runtimeKey = String(name);
+  const runtimeValue = runtimeEnvConfig?.[runtimeKey];
+  if (typeof runtimeValue === 'string' && runtimeValue) {
+    return runtimeValue;
+  }
   if (typeof process !== 'undefined' && process.env && process.env[name]) {
     return process.env[name];
   }

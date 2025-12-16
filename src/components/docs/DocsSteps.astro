@@ -1,0 +1,87 @@
+---
+import { type DocsStep } from './types';
+
+interface Props {
+  title: string;
+  subtitle: string;
+  steps: DocsStep[];
+}
+
+const { title, subtitle, steps } = Astro.props;
+---
+
+<section
+  aria-labelledby="onboarding-steps"
+  class="rounded-xl border border-[rgba(var(--docs-border)/0.8)] bg-[rgb(var(--docs-surface))] p-6 sm:p-8"
+>
+  <div class="space-y-3">
+    <h2
+      id="onboarding-steps"
+      class="text-xs sm:text-sm font-mono font-semibold tracking-[0.18em] uppercase text-[rgb(var(--docs-fg-subtle))]"
+    >
+      {title}
+    </h2>
+    <p class="text-sm sm:text-base leading-relaxed text-[rgb(var(--docs-fg-muted))]">
+      {subtitle}
+    </p>
+  </div>
+
+  <ol
+    class="mt-7 relative space-y-8 before:content-[''] before:absolute before:left-[1.125rem] before:top-2 before:bottom-2 before:w-px before:bg-[rgba(var(--docs-border)/0.65)]"
+    role="list"
+  >
+    {
+      steps.map((step, index) => (
+        <li role="listitem" class="relative pl-12">
+          <span
+            class="absolute left-0 top-0 flex h-9 w-9 items-center justify-center rounded-lg border border-[rgba(var(--docs-accent)/0.35)] bg-[rgba(var(--docs-accent)/0.10)] font-mono font-bold text-[rgb(var(--docs-accent))]"
+            aria-hidden="true"
+          >
+            {index + 1}
+          </span>
+
+          <div class="min-w-0 space-y-3">
+            <div class="space-y-1">
+              <h3 class="text-base sm:text-lg font-semibold text-[rgb(var(--docs-fg))] leading-snug">
+                {step.title}
+              </h3>
+              <p class="text-sm sm:text-base text-[rgb(var(--docs-fg-muted))] leading-relaxed">
+                {step.description}
+              </p>
+            </div>
+
+            {step.checklist.length > 0 && (
+              <ul class="grid gap-2 text-sm text-[rgb(var(--docs-fg-muted))]">
+                {step.checklist.map((item) => (
+                  <li class="flex items-start gap-2">
+                    <span
+                      class="mt-[0.55rem] h-1.5 w-1.5 rounded-full bg-[rgba(var(--docs-accent)/0.85)]"
+                      aria-hidden="true"
+                    />
+                    <span class="min-w-0 leading-relaxed">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            <a
+              href={step.link}
+              class="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-mono font-semibold border border-[rgba(var(--docs-border)/0.9)] bg-[rgb(var(--docs-surface-2))] text-[rgb(var(--docs-fg))] hover:border-[rgba(var(--docs-accent)/0.5)] hover:bg-[rgba(var(--docs-accent)/0.06)] motion-safe:transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgb(var(--docs-accent))]"
+            >
+              {step.linkLabel}
+              <svg
+                class="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </a>
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+</section>

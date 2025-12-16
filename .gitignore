@@ -49,10 +49,24 @@ secrets/
 .logs/
 .windsurf/rules/snyk_rules.md
 
+# Local backups & captures
+.backups/
+*.har
+
+# Local assistant settings
+.claude/settings.local.json
+
 # IDEs
 .idea/
 .vscode/
 *.code-workspace
+
+# Editor swap/backup files
+*~
+*.swp
+*.swo
+*.bak
+*.tmp
 
 # OS files
 .DS_Store

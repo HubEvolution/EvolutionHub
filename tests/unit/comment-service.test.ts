@@ -42,6 +42,16 @@ function makeCountChain(result: any) {
   };
 }
 
+function makeWhereLimitChain(result: any) {
+  return {
+    from: vi.fn(() => ({
+      where: vi.fn(() => ({
+        limit: vi.fn(() => Promise.resolve(result)),
+      })),
+    })),
+  };
+}
+
 function makeListChain(result: any) {
   // usage: select(...).from(comments).where(baseWhere).orderBy(...).limit(...).offset(...) -> result
   const tail = {
@@ -308,6 +318,18 @@ describe('CommentService', () => {
         }),
       });
 
+      // existing comment lookup before update
+      (mockDb.select as any).mockReturnValueOnce(
+        makeWhereLimitChain([
+          {
+            authorId: 'user-1',
+            status: 'approved',
+            entityType: 'blog_post',
+            entityId: 'test-post-123',
+          },
+        ])
+      );
+
       // getCommentById chain after update
       (mockDb.select as any).mockReturnValueOnce(
         makeJoinThenWhereLimitChain([
@@ -375,6 +397,18 @@ describe('CommentService', () => {
           where: vi.fn().mockResolvedValue([]),
         }),
       });
+
+      // existing comment lookup before delete
+      (mockDb.select as any).mockReturnValueOnce(
+        makeWhereLimitChain([
+          {
+            authorId: 'user-1',
+            status: 'approved',
+            entityType: 'blog_post',
+            entityId: 'test-post-123',
+          },
+        ])
+      );
 
       await commentService.deleteComment('test-id-123', 'user-1', 'valid-csrf-token');
 

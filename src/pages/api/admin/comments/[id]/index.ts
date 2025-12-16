@@ -37,7 +37,7 @@ export const GET = withAuthApiMiddleware(
 
     try {
       const service = new CommentService(db, env.KV_COMMENTS);
-      const comment = await service.getCommentById(commentId);
+      const comment = await service.getCommentById(commentId, { includeHidden: true });
       return createApiSuccess({
         comment,
         adminData: {
@@ -97,7 +97,7 @@ export const DELETE = withAuthApiMiddleware(
     try {
       const service = new CommentService(db, env.KV_COMMENTS);
       // ensure comment exists (and for potential notifications)
-      const existing = await service.getCommentById(commentId);
+      const existing = await service.getCommentById(commentId, { includeHidden: true });
 
       const moderation = await service.moderateComment(
         commentId,

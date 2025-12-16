@@ -62,7 +62,17 @@ export const POST = withApiMiddleware(
     }
 
     const db = env.DB;
-    const debugEmail = 'debug@example.com';
+    const debugUserHeaderRaw =
+      context.request?.headers?.get('x-debug-user') ||
+      context.request?.headers?.get('X-Debug-User');
+    const debugUserKey = typeof debugUserHeaderRaw === 'string' ? debugUserHeaderRaw.trim() : '';
+    const debugUserKeySafe = /^[a-z0-9_-]{1,32}$/i.test(debugUserKey) ? debugUserKey : '';
+
+    const debugEmail = debugUserKeySafe
+      ? `debug+${debugUserKeySafe}@example.com`
+      : 'debug@example.com';
+    const debugName = debugUserKeySafe ? `Debug User ${debugUserKeySafe}` : 'Debug User';
+    const debugUsername = debugUserKeySafe ? `debuguser_${debugUserKeySafe}` : 'debuguser';
     const sessionTableName = 'sessions';
     const userTableName = 'users';
 
@@ -82,8 +92,8 @@ export const POST = withApiMiddleware(
       const newUser = {
         id: crypto.randomUUID(),
         email: debugEmail,
-        name: 'Debug User',
-        username: 'debuguser',
+        name: debugName,
+        username: debugUsername,
         created_at: new Date().toISOString(),
       };
       await db

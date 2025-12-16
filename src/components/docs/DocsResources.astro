@@ -1,0 +1,70 @@
+---
+import Icon from '@/components/ui/Icon.astro';
+import { type DocsResource } from './types';
+
+interface Props {
+  title: string;
+  subtitle: string;
+  actionLabel: string;
+  resources: DocsResource[];
+}
+
+const { title, subtitle, actionLabel, resources } = Astro.props;
+---
+
+<section
+  aria-labelledby="docs-resources"
+  class="rounded-xl border border-[rgba(var(--docs-border)/0.8)] bg-[rgb(var(--docs-surface))] p-6 sm:p-8"
+>
+  <div class="space-y-3">
+    <h2
+      id="docs-resources"
+      class="text-xs sm:text-sm font-mono font-semibold tracking-[0.18em] uppercase text-[rgb(var(--docs-fg-subtle))]"
+    >
+      {title}
+    </h2>
+    <p class="text-sm sm:text-base leading-relaxed text-[rgb(var(--docs-fg-muted))]">
+      {subtitle}
+    </p>
+  </div>
+
+  <ul class="mt-7 divide-y divide-[rgba(var(--docs-border)/0.55)]">
+    {
+      resources.map((resource) => (
+        <li class="py-5 first:pt-0 last:pb-0">
+          <div class="grid gap-4 sm:grid-cols-[1fr,auto] sm:items-start">
+            <div class="flex items-start gap-3 min-w-0">
+              <span class="mt-0.5 flex h-10 w-10 flex-none items-center justify-center rounded-lg border border-[rgba(var(--docs-border)/0.9)] bg-[rgba(var(--docs-accent)/0.10)] text-[rgb(var(--docs-accent))]">
+                <Icon name={resource.icon} class="w-5 h-5" ariaLabel={resource.title} />
+              </span>
+              <div class="min-w-0 space-y-1">
+                <h3 class="text-base font-semibold text-[rgb(var(--docs-fg))] leading-snug">
+                  {resource.title}
+                </h3>
+                <p class="text-sm text-[rgb(var(--docs-fg-muted))] leading-relaxed">
+                  {resource.description}
+                </p>
+              </div>
+            </div>
+
+            <a
+              href={resource.link}
+              class="inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-mono font-semibold border border-[rgba(var(--docs-border)/0.9)] bg-[rgb(var(--docs-surface-2))] text-[rgb(var(--docs-fg))] hover:border-[rgba(var(--docs-accent)/0.5)] hover:bg-[rgba(var(--docs-accent)/0.06)] motion-safe:transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgb(var(--docs-accent))]"
+            >
+              {actionLabel}
+              <svg
+                class="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </a>
+          </div>
+        </li>
+      ))
+    }
+  </ul>
+</section>

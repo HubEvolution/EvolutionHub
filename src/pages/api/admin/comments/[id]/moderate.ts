@@ -58,7 +58,7 @@ export const POST = withAuthApiMiddleware(
         { action, reason },
         String(user.id)
       );
-      const comment = await service.getCommentById(commentId);
+      const comment = await service.getCommentById(commentId, { includeHidden: true });
       // Optional, non-blocking notification hook can be added later
       if (notifyUser && comment.authorId === String(user.id)) {
         // no-op

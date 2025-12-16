@@ -6,7 +6,7 @@
       "retries": 3
     },
     "staging": {
-      "baseUrl": "https://staging.your-domain.com",
+      "baseUrl": "https://staging.hub-evolution.com",
       "timeout": 10000,
       "retries": 2
     },
@@ -21,8 +21,16 @@
     "newsletter": {
       "endpoint": "/api/newsletter/subscribe",
       "method": "POST",
-      "limit": 15,
+      "limit": 10,
       "window": "1m",
+      "requiresAuth": false,
+      "requiresCsrf": false,
+      "contentType": "application/json",
+      "body": {
+        "email": "loadtest@example.com",
+        "consent": true,
+        "source": "perf"
+      },
       "testScenarios": [
         {
           "name": "Normal_Load",
@@ -48,8 +56,16 @@
     "leadMagnet": {
       "endpoint": "/api/lead-magnets/download",
       "method": "POST",
-      "limit": 15,
+      "limit": 10,
       "window": "1m",
+      "requiresAuth": false,
+      "requiresCsrf": false,
+      "contentType": "application/json",
+      "body": {
+        "leadMagnetId": "ki-tools-checkliste",
+        "email": "loadtest@example.com",
+        "source": "perf"
+      },
       "testScenarios": [
         {
           "name": "Normal_Load",
@@ -66,32 +82,17 @@
       ]
     },
 
-    "avatar": {
-      "endpoint": "/api/user/avatar",
+    "promptEnhance": {
+      "endpoint": "/api/prompt-enhance",
       "method": "POST",
-      "limit": 5,
+      "limit": 15,
       "window": "1m",
-      "testScenarios": [
-        {
-          "name": "Normal_Load",
-          "requestsPerSecond": 1,
-          "duration": 30,
-          "expectedRateLimited": 0
-        },
-        {
-          "name": "High_Load",
-          "requestsPerSecond": 3,
-          "duration": 15,
-          "expectedRateLimited": 60
-        }
-      ]
-    },
-
-    "billing": {
-      "endpoint": "/api/billing/session",
-      "method": "POST",
-      "limit": 10,
-      "window": "1m",
+      "requiresAuth": false,
+      "requiresCsrf": false,
+      "contentType": "application/json",
+      "body": {
+        "text": "Improve this prompt: make it actionable and safe."
+      },
       "testScenarios": [
         {
           "name": "Normal_Load",
@@ -101,18 +102,26 @@
         },
         {
           "name": "High_Load",
-          "requestsPerSecond": 5,
-          "duration": 20,
-          "expectedRateLimited": 50
+          "requestsPerSecond": 8,
+          "duration": 30,
+          "expectedRateLimited": 40
+        },
+        {
+          "name": "Burst_Load",
+          "requestsPerSecond": 20,
+          "duration": 10,
+          "expectedRateLimited": 70
         }
       ]
     },
 
-    "dashboard": {
+    "dashboardStats": {
       "endpoint": "/api/dashboard/stats",
       "method": "GET",
       "limit": 30,
       "window": "1m",
+      "requiresAuth": true,
+      "requiresCsrf": false,
       "testScenarios": [
         {
           "name": "Normal_Load",
@@ -135,22 +144,24 @@
       ]
     },
 
-    "projects": {
-      "endpoint": "/api/projects",
-      "method": "POST",
-      "limit": 20,
+    "dashboardProjects": {
+      "endpoint": "/api/dashboard/projects",
+      "method": "GET",
+      "limit": 30,
       "window": "1m",
+      "requiresAuth": true,
+      "requiresCsrf": false,
       "testScenarios": [
         {
           "name": "Normal_Load",
-          "requestsPerSecond": 3,
+          "requestsPerSecond": 2,
           "duration": 60,
           "expectedRateLimited": 0
         },
         {
           "name": "High_Load",
-          "requestsPerSecond": 12,
-          "duration": 25,
+          "requestsPerSecond": 10,
+          "duration": 20,
           "expectedRateLimited": 40
         }
       ]
@@ -161,10 +172,10 @@
     "burstTraffic": {
       "description": "Testet plötzliche Lastspitzen auf mehrere Endpunkte gleichzeitig",
       "parallelEndpoints": [
-        "/api/dashboard/stats",
-        "/api/projects",
+        "/api/prompt-enhance",
         "/api/newsletter/subscribe",
-        "/api/lead-magnets/download"
+        "/api/lead-magnets/download",
+        "/api/dashboard/stats"
       ],
       "requestsPerEndpoint": 50,
       "maxConcurrency": 100,

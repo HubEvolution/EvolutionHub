@@ -3,6 +3,7 @@ import type { Locale } from '@/lib/i18n';
 import { validateSession } from '@/lib/auth-v2';
 import { log, generateRequestId } from '@/server/utils/logger';
 import { pickBestLanguage } from '@/lib/i18n/accept-language';
+import { setContentfulRuntimeEnv } from '@/lib/contentful/client';
 
 // Helper: redact sensitive headers and anonymize IPs for logs
 function anonymizeIp(value: string): string {
@@ -64,6 +65,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const url = new URL(context.request.url);
   let tAfterSession = startTime;
   let tAfterNext = startTime;
+
+  setContentfulRuntimeEnv(context.locals.runtime?.env);
 
   // Log request start
   log('info', `${context.request.method} ${url.pathname}`, {

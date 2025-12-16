@@ -15,33 +15,25 @@ const mockEnv = {
   ENVIRONMENT: 'development'
 };
 
-// Provide a concrete beta.threads implementation on the mocked prototype
-const threadsCreate = vi.fn().mockResolvedValue({ id: 'thread-123' } as any);
-const messagesCreate = vi.fn().mockResolvedValue({} as any);
-const runsCreate = vi.fn().mockResolvedValue({ id: 'run-123', status: 'completed' } as any);
-const runsRetrieve = vi.fn().mockResolvedValue({ status: 'completed' } as any);
-const messagesList = vi.fn().mockResolvedValue({
-  data: [
-    {
-      role: 'assistant',
-      content: [{ type: 'text', text: { value: 'Test response' } }]
-    }
-  ]
+// Provide a concrete OpenAI implementation on the mocked prototype.
+// New flow: beta.assistants.retrieve + chat.completions.create
+const assistantsRetrieve = vi
+  .fn()
+  .mockResolvedValue({ model: 'gpt-4o-mini', instructions: 'Test instructions' } as any);
+const chatCompletionsCreate = vi.fn().mockResolvedValue({
+  choices: [{ message: { content: 'Test response' } }],
 } as any);
 
 // Attach to prototype so that instance under test sees these mocks
 (OpenAI as unknown as { prototype: any }).prototype.beta = {
-  threads: {
-    create: threadsCreate,
-    messages: {
-      create: messagesCreate,
-      list: messagesList
-    },
-    runs: {
-      create: runsCreate,
-      retrieve: runsRetrieve
-    }
-  }
+  assistants: {
+    retrieve: assistantsRetrieve,
+  },
+};
+(OpenAI as unknown as { prototype: any }).prototype.chat = {
+  completions: {
+    create: chatCompletionsCreate,
+  },
 };
 
 describe('AiImageService', () => {
@@ -79,15 +71,15 @@ describe('AiImageService', () => {
       const result = await service.callCustomAssistant(prompt, assistantId);
 
       expect(OpenAI).toHaveBeenCalledWith({ apiKey: 'sk-test-key' });
-      expect(threadsCreate).toHaveBeenCalled();
-      expect(messagesCreate).toHaveBeenCalledWith('thread-123', {
-        role: 'user',
-        content: prompt,
-      });
-      expect(runsCreate).toHaveBeenCalledWith('thread-123', {
-        assistant_id: assistantId,
-      });
-      expect(messagesList).toHaveBeenCalledWith('thread-123');
+      expect(assistantsRetrieve).toHaveBeenCalledWith(assistantId);
+      expect(chatCompletionsCreate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          model: 'gpt-4o-mini',
+          messages: expect.arrayContaining([
+            expect.objectContaining({ role: 'user', content: prompt }),
+          ]),
+        })
+      );
       expect(result).toEqual({ content: 'Test response' });
     });
 
@@ -97,30 +89,25 @@ describe('AiImageService', () => {
       await expect(service.callCustomAssistant('prompt', 'asst-123')).rejects.toThrow('OPENAI_API_KEY not configured');
     });
 
-    it('should throw error on run failure (status: failed)', async () => {
-      runsCreate.mockResolvedValueOnce({ id: 'run-123', status: 'in_progress' } as any);
-      runsRetrieve.mockResolvedValueOnce({ status: 'failed' } as any);
-
-      await expect(service.callCustomAssistant('prompt', 'asst-123')).rejects.toThrow(/Run failed with status: failed|Failed to call assistant/);
+    it('should throw error if chat completion returns no content', async () => {
+      chatCompletionsCreate.mockResolvedValueOnce({ choices: [{ message: { content: '' } }] } as any);
+      await expect(service.callCustomAssistant('prompt', 'asst-123')).rejects.toThrow(
+        /No response from assistant|Failed to call assistant/
+      );
     });
 
-    it('should throw error if no assistant message', async () => {
-      messagesList.mockResolvedValueOnce({ data: [] } as any);
-
-      await expect(service.callCustomAssistant('prompt', 'asst-123')).rejects.toThrow(/No response from assistant|Failed to call assistant/);
-    });
-
-    it('should throw error on network error during run creation', async () => {
+    it('should throw error on network error during chat completion', async () => {
       const error = new Error('Network error');
-      runsCreate.mockRejectedValueOnce(error);
-
-      await expect(service.callCustomAssistant('prompt', 'asst-123')).rejects.toThrow('Failed to call assistant');
+      chatCompletionsCreate.mockRejectedValueOnce(error);
+      await expect(service.callCustomAssistant('prompt', 'asst-123')).rejects.toThrow(
+        'Failed to call assistant'
+      );
     });
 
     it('should log error on failure', async () => {
       const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
       const error = new Error('Test error');
-      vi.mocked(OpenAI.prototype.beta.threads.create).mockRejectedValueOnce(error);
+      vi.mocked(OpenAI.prototype.beta.assistants.retrieve).mockRejectedValueOnce(error);
 
       await expect(service.callCustomAssistant('prompt', 'asst-123')).rejects.toThrow('Failed to call assistant');
       expect(consoleError).toHaveBeenCalledWith(expect.stringContaining('assistant_call_failed'), expect.any(Object));

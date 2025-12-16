@@ -29,6 +29,38 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GenericResponse'
+  /api/perf/mint-session:
+    get:
+      summary: Mint perf test session (internal)
+      description: Creates a seeded session and CSRF cookie for performance tests. Guarded by X-Internal-Health.
+      x-source: src/pages/api/perf/mint-session.ts
+      operationId: getPerfMintSession
+      parameters:
+        - name: X-Internal-Health
+          in: header
+          required: true
+          schema:
+            type: string
+          description: Internal health token; must match env INTERNAL_HEALTH_TOKEN.
+      responses:
+        "200":
+          description: Session minted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /api/newsletter/unsubscribe:
     post:
       summary: Unsubscribe from newsletter

@@ -1,0 +1,61 @@
+---
+// Purely decorative background for the docs page.
+---
+
+<div class="docs-bg-layer" aria-hidden="true">
+  <div class="docs-grid"></div>
+  <div class="docs-glow docs-glow-1"></div>
+  <div class="docs-glow docs-glow-2"></div>
+</div>
+
+<style>
+  .docs-bg-layer {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(
+        circle at 18% 16%,
+        rgb(var(--docs-accent) / var(--docs-glow-alpha)),
+        transparent 40%
+      ),
+      radial-gradient(
+        circle at 82% 28%,
+        rgb(var(--docs-accent) / calc(var(--docs-glow-alpha) * 0.7)),
+        transparent 44%
+      ),
+      radial-gradient(
+        circle at 52% 76%,
+        rgb(var(--docs-accent) / calc(var(--docs-glow-alpha) * 0.55)),
+        transparent 46%
+      );
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .docs-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgb(var(--docs-grid) / var(--docs-grid-alpha)) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(var(--docs-grid) / var(--docs-grid-alpha)) 1px, transparent 1px);
+    background-size: 80px 80px;
+    mask-image: radial-gradient(circle at 60% 42%, rgba(0, 0, 0, 0.8), transparent 72%);
+  }
+  .docs-glow {
+    position: absolute;
+    width: 520px;
+    height: 520px;
+    filter: blur(140px);
+    opacity: 0.6;
+    transform: translateZ(0);
+  }
+  .docs-glow-1 {
+    top: -120px;
+    left: -40px;
+    background: radial-gradient(circle, rgb(var(--docs-accent) / 0.28), transparent 60%);
+  }
+  .docs-glow-2 {
+    bottom: -160px;
+    right: -80px;
+    background: radial-gradient(circle, rgb(var(--docs-accent) / 0.22), transparent 62%);
+  }
+</style>
