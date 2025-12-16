@@ -61,3 +61,7 @@ secrets/
 
 # Snyk Security Extension - AI Rules (auto-generated)
 .windsurf/rules/snyk_rules.md
+.logs/cascade-post-write-quality.log
+.logs/cascade-pre-run-command.log
+.logs/cascade-pre-write-guard.log
+.logs/
