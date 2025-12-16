@@ -66,6 +66,15 @@ function shouldKeepLine(kind: StepKind, plain: string): boolean {
   if (!s) return false;
   const lower = s.toLowerCase();
 
+  if (kind === 'build') {
+    // Drop Vite artifact lines like:
+    // 09:02:56 [vite] dist/_worker.js/chunks/error-handler_XXXX.mjs  1.12 kB
+    // These are not actual errors, but filenames can include "error".
+    const isViteArtifactLine =
+      /(^\d{2}:\d{2}:\d{2}\s+)?\[vite\]\s+dist\/\S+\s+\d+(?:\.\d+)?\s*(?:kb|mb|b)$/i.test(s);
+    if (isViteArtifactLine) return false;
+  }
+
   if (/(^|\b)(error|fatal|failed|fail)\b/.test(lower)) return true;
   if (/(^|\b)(warn|warning)\b/.test(lower)) return true;
   if (s.includes('?')) return true;

@@ -5,6 +5,13 @@ import { getAlternateUrls } from '@/lib/seo';
 // Prefer an explicit site URL in production; fallback to request origin (useful in dev)
 const ENV_SITE = import.meta.env.PUBLIC_SITE_URL as string | undefined;
 
+function normalizePath(path: string): string {
+  if (!path) return '/';
+  if (path === '/') return '/';
+  const withLeading = path.startsWith('/') ? path : `/${path}`;
+  return withLeading.endsWith('/') ? withLeading.slice(0, -1) : withLeading;
+}
+
 function abs(origin: string, path: string): string {
   if (path.startsWith('http://') || path.startsWith('https://')) return path;
   const cleanOrigin = origin.replace(/\/$/, '');
@@ -13,10 +20,11 @@ function abs(origin: string, path: string): string {
 }
 
 function renderUrl(origin: string, locPath: string): string {
-  const alts = getAlternateUrls(locPath);
+  const canonicalLocPath = normalizePath(locPath);
+  const alts = getAlternateUrls(canonicalLocPath);
   return [
     '  <url>',
-    `    <loc>${abs(origin, locPath)}</loc>`,
+    `    <loc>${abs(origin, canonicalLocPath)}</loc>`,
     `    <xhtml:link rel="alternate" hreflang="de" href="${abs(origin, alts.de)}" />`,
     `    <xhtml:link rel="alternate" hreflang="en" href="${abs(origin, alts.en)}" />`,
     '  </url>',
@@ -25,7 +33,7 @@ function renderUrl(origin: string, locPath: string): string {
 
 const STATIC_PATHS: readonly string[] = [
   '/',
-  '/en/',
+  '/en',
   '/pricing',
   '/en/pricing',
   '/faq',
@@ -42,8 +50,8 @@ const STATIC_PATHS: readonly string[] = [
   '/en/cookie-settings',
   '/docs',
   '/en/docs',
-  '/blog/',
-  '/en/blog/',
+  '/blog',
+  '/en/blog',
   '/tools',
   '/en/tools',
   '/tools/imag-enhancer/app',
@@ -59,15 +67,15 @@ const STATIC_PATHS: readonly string[] = [
 ];
 
 function buildBlogPath(slug: string, lang: string | undefined): string {
-  const normalizedSlug = slug.replace(/^\/+|\/+$|\s+/g, '');
-  if (lang === 'en') return `/en/blog/${normalizedSlug}/`;
-  return `/blog/${normalizedSlug}/`;
+  const normalizedSlug = slug.replace(/^\/+|\/+$/g, '').replace(/\s+/g, '');
+  if (lang === 'en') return `/en/blog/${normalizedSlug}`;
+  return `/blog/${normalizedSlug}`;
 }
 
 export const GET: APIRoute = async ({ url }: { url: URL }) => {
   const origin = ENV_SITE || `${url.protocol}//${url.host}`;
 
-  const pathSet = new Set<string>(STATIC_PATHS);
+  const pathSet = new Set<string>(STATIC_PATHS.map((p) => normalizePath(p)));
 
   try {
     const posts = await blogService.getPublishedPosts();

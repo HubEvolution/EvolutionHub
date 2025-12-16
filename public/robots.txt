@@ -12,4 +12,4 @@ Disallow: /
 User-agent: SemrushBot
 Disallow: /
 
-Sitemap: https://hub-evolution.com/sitemap.xml
+Sitemap: /sitemap.xml

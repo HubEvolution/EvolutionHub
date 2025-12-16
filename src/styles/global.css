@@ -73,16 +73,16 @@
     --docs-surface: 10 14 24;
     --docs-surface-2: 14 19 32;
     /* Lines */
-    --docs-border: 51 65 85; /* slate-700 */
-    --docs-border-strong: 71 85 105; /* slate-600 */
+    --docs-border: 71 85 105; /* slate-600 */
+    --docs-border-strong: 100 116 139; /* slate-500 */
     /* Text */
     --docs-fg: 226 232 240; /* slate-200 */
     --docs-fg-muted: 148 163 184; /* slate-400 */
     --docs-fg-subtle: 100 116 139; /* slate-500 */
     /* Background grid/glow controls */
     --docs-grid: 148 163 184;
-    --docs-grid-alpha: 0.06;
-    --docs-glow-alpha: 0.18;
+    --docs-grid-alpha: 0.055;
+    --docs-glow-alpha: 0.16;
 
     /* Keep global accent utilities single-hue on docs landing */
     --accent-blue: var(--docs-accent);
@@ -95,17 +95,35 @@
   :root:not(.dark) .landing-v2.docs-landing {
     --docs-accent: 14 165 233; /* sky-500 */
     --docs-accent-ink: 255 255 255;
-    --docs-bg: 248 250 252; /* slate-50 */
-    --docs-surface: 255 255 255;
-    --docs-surface-2: 241 245 249; /* slate-100 */
-    --docs-border: 203 213 225; /* slate-300 */
-    --docs-border-strong: 148 163 184; /* slate-400 */
+    --docs-bg: 241 245 249; /* slate-100 */
+    --docs-surface: 255 255 255; /* white */
+    --docs-surface-2: 248 250 252; /* slate-50 */
+    --docs-border: 148 163 184; /* slate-400 */
+    --docs-border-strong: 100 116 139; /* slate-500 */
     --docs-fg: 15 23 42; /* slate-900 */
     --docs-fg-muted: 51 65 85; /* slate-700 */
     --docs-fg-subtle: 71 85 105; /* slate-600 */
     --docs-grid: 51 65 85;
-    --docs-grid-alpha: 0.08;
-    --docs-glow-alpha: 0.12;
+    --docs-grid-alpha: 0.055;
+    --docs-glow-alpha: 0.06;
+  }
+
+  /* Docs landing footer harmonization (scoped; no content changes) */
+  .landing-v2.docs-landing footer.glass-footer {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background-color: rgb(var(--docs-bg)) !important;
+    border-top-color: rgba(var(--docs-border) / 0.6) !important;
+  }
+  .landing-v2.docs-landing footer.glass-footer .bg-gradient-to-b {
+    background-image: linear-gradient(
+      to bottom,
+      rgba(var(--docs-bg) / 0.94) 0%,
+      rgba(var(--docs-bg) / 1) 70%
+    ) !important;
+  }
+  .landing-v2.docs-landing footer.glass-footer div[class*='data:image/svg+xml'] {
+    display: none !important;
   }
 
   @media (prefers-reduced-motion: reduce) {

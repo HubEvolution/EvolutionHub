@@ -25,12 +25,19 @@ export function getSEOData(locale: Locale): SEOData {
   return seoData[locale];
 }
 
+function normalizePath(pathname: string): string {
+  if (!pathname) return '/';
+  if (pathname === '/') return '/';
+  const withLeading = pathname.startsWith('/') ? pathname : `/${pathname}`;
+  return withLeading.endsWith('/') ? withLeading.slice(0, -1) : withLeading;
+}
+
 export function getAlternateUrls(pathname: string): Record<Locale, string> {
   // Normalize by stripping any existing locale prefix and ensuring a leading slash
   const base = pathname.replace(/^\/(de|en)(\/(|$))?/, '/');
-  const normalized = base === '' ? '/' : base; // safety: ensure root is '/'
+  const normalized = normalizePath(base === '' ? '/' : base); // safety: ensure root is '/'
   return {
     de: normalized,
-    en: normalized === '/' ? '/en/' : `/en${normalized}`,
+    en: normalized === '/' ? '/en' : `/en${normalized}`,
   };
 }

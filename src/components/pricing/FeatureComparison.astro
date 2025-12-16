@@ -124,23 +124,31 @@ const rows = features.filter((f) => {
       </thead>
       <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
         {
-          rows.map((feature, idx) => (
-            <AosWrapper
-              tag="tr"
-              delay={aosDelayForIndex(idx, { step: 50, max: 400 })}
-              class="hover:bg-gray-50 dark:hover:bg-gray-800 odd:bg-transparent even:bg-gray-50 dark:even:bg-gray-800/50"
-            >
-              <td class="py-3 px-4 font-medium">{feature.name}</td>
-              <td class="py-3 px-4 text-center">{feature.starter}</td>
-              <td class="py-3 px-4 text-center bg-blue-50 dark:bg-blue-900/30">
-                {(feature as { pro: string }).pro}
-              </td>
-              <td class="py-3 px-4 text-center bg-indigo-50 dark:bg-indigo-900/30">
-                {(feature as { premium: string }).premium}
-              </td>
-              <td class="py-3 px-4 text-center">{feature.enterprise}</td>
-            </AosWrapper>
-          ))
+          rows.map((feature, idx) => {
+            const delay = aosDelayForIndex(idx, { step: 50, max: 400 });
+            const aosAttrs = {
+              'data-aos': 'fade-up',
+              'data-aos-duration': '700',
+              ...(delay > 0 ? { 'data-aos-delay': String(delay) } : {}),
+            };
+
+            return (
+              <tr
+                {...aosAttrs}
+                class="hover:bg-gray-50 dark:hover:bg-gray-800 odd:bg-transparent even:bg-gray-50 dark:even:bg-gray-800/50"
+              >
+                <td class="py-3 px-4 font-medium">{feature.name}</td>
+                <td class="py-3 px-4 text-center">{feature.starter}</td>
+                <td class="py-3 px-4 text-center bg-blue-50 dark:bg-blue-900/30">
+                  {(feature as { pro: string }).pro}
+                </td>
+                <td class="py-3 px-4 text-center bg-indigo-50 dark:bg-indigo-900/30">
+                  {(feature as { premium: string }).premium}
+                </td>
+                <td class="py-3 px-4 text-center">{feature.enterprise}</td>
+              </tr>
+            );
+          })
         }
       </tbody>
     </table>

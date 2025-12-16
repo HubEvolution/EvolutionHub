@@ -2,7 +2,7 @@
 description: 'Richtlinien für Content Management (Blog, UI-Texte, Collections)'
 owner: 'Content Team'
 priority: 'medium'
-lastSync: '2025-12-12'
+lastSync: '2025-12-16'
 codeRefs: 'src/content/**, src/utils/i18n.ts, docs/content.md'
 testRefs: 'N/A'
 ---
@@ -20,6 +20,15 @@ This document provides guidelines for managing content on the Evolution Hub webs
 All blog posts must adhere to the following frontmatter schema (validated via Zod in `src/content/config.ts`):
 
 Note: For Contentful-based blog posts, `description` may be missing during migration/relaunch phases; the rendering layer falls back to `excerpt` (first paragraphs) for SEO/RSS/on-page summaries.
+
+#### Contentful Preview Environment (staging)
+
+Evolution Hub can read blog posts from Contentful.
+
+- `CONTENTFUL_ENVIRONMENT` selects the Contentful environment (e.g. `master` for production, `preview` for staging).
+- `CONTENTFUL_PREVIEW_TOKEN` (optional) enables reading draft content via Contentful's Preview API.
+
+Important: “preview environment” (`CONTENTFUL_ENVIRONMENT=preview`) and “Preview API” (token/host) are separate concepts.
 
 #### Required Fields
 

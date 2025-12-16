@@ -47,7 +47,7 @@ BILLING_USAGE_OVERVIEW_V2 = "1"
 BASE_URL = "http://127.0.0.1:8787"
 APP_ORIGIN = "http://127.0.0.1:8787"
 EMAIL_FROM = "noreply@hub-evolution.com"
-CONTACT_RECIPIENTS = "noreply@hub-evolution.com,lucas0507@icloud.com"
+CONTACT_RECIPIENTS = "noreply@hub-evolution.com,contact@hub-evolution.com"
 LEADMAGNET_SOURCE = "public"
 AUTH_PROVIDER = "stytch"
 AUTH_REDIRECT = "/dashboard"
@@ -211,7 +211,7 @@ preview_id = "a63a1fd516d942e9a892f226f2cc11c6"
 directory = "./dist" # serve all static assets from dist; .assetsignore excludes _worker.js at dist root
 html_handling = "auto-trailing-slash"
 binding = "ASSETS"
-run_worker_first = ["/r2-ai/*", "/api/*"]
+run_worker_first = true
 
 # Secrets / Umgebungsvariablen
 [vars]
@@ -220,7 +220,7 @@ ENVIRONMENT = "development" # Wird für lokale Entwicklung auf 'development' ges
 LEADMAGNET_SOURCE = "public"
 # Resend Email defaults (API key is provided via `wrangler secret put RESEND_API_KEY`)
 EMAIL_FROM = "noreply@hub-evolution.com"
-CONTACT_RECIPIENTS = "noreply@hub-evolution.com,lucas0507@icloud.com"
+CONTACT_RECIPIENTS = "noreply@hub-evolution.com,contact@hub-evolution.com"
 
 # Cloudflare Access (MCP ingress) — set per environment
 # Example: CF_ACCESS_TEAM_DOMAIN = "team.cloudflareaccess.com" (your account's team domain)
@@ -316,7 +316,7 @@ PUBLIC_GA_MEASUREMENT_ID = "G-EPWPQG7FNL"
 PUBLIC_ENHANCER_MVP_MODE = "1"
 PUBLIC_ENHANCER_LEGACY_MODE = "0"
 EMAIL_FROM = "noreply@hub-evolution.com"
-CONTACT_RECIPIENTS = "noreply@hub-evolution.com,lucas0507@icloud.com"
+CONTACT_RECIPIENTS = "noreply@hub-evolution.com,contact@hub-evolution.com"
 CLOUDFLARE_ZONE_ID = "14c984ebb05270de08cb82d316f1ba36"
 CLOUDFLARE_ACCOUNT_ID = "39434b5635d8beb4bde93e1792b628d7"
 # Produktionsbasis-URL für Stripe-Redirects
@@ -530,7 +530,7 @@ BILLING_USAGE_OVERVIEW_V2 = "1"
 BASE_URL = "https://staging.hub-evolution.com"
 PERF_TEST_USER_EMAIL = "perf_test_user_staging@hub-evolution.com"
 EMAIL_FROM = "noreply@hub-evolution.com"
-CONTACT_RECIPIENTS = "noreply@hub-evolution.com,lucas0507@icloud.com"
+CONTACT_RECIPIENTS = "noreply@hub-evolution.com,contact@hub-evolution.com"
 CONTENTFUL_SPACE_ID = "tmtc6fophkx8"
 CONTENTFUL_ENVIRONMENT = "preview"
 

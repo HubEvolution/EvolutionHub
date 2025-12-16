@@ -88,7 +88,7 @@
       "limit": 15,
       "window": "1m",
       "requiresAuth": false,
-      "requiresCsrf": false,
+      "requiresCsrf": true,
       "contentType": "application/json",
       "body": {
         "text": "Improve this prompt: make it actionable and safe."

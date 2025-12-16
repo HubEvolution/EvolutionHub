@@ -2,7 +2,7 @@
 description: 'Serien-Plan für die Blogreihe "Story hinter Evolution Hub" (Content-Strategie)'
 owner: 'Content Team'
 priority: 'medium'
-lastSync: '2025-11-30'
+lastSync: '2025-12-16'
 codeRefs: 'docs/content.md, docs/features/blog+commentsystem-plan.md, src/content/**, src/pages/blog/**'
 testRefs: 'N/A'
 ---
@@ -17,29 +17,81 @@ Diese Doku beschreibt die geplante Blogreihe zur Aufbaugeschichte des Evolution 
 - **Zielgruppe:** Technische, aber nicht-hardcore Devs; Gründer:innen, Product‑People und neugierige Tech‑Interessierte.
 - **Kanäle:** Blog als Primärquelle; Ableitung für X/LinkedIn, Instagram, TikTok.
 
+## Contentful Environments (Preview vs Master)
+
+- **Production:** `CONTENTFUL_ENVIRONMENT=master`
+- **Staging:** `CONTENTFUL_ENVIRONMENT=preview`
+- **Preview API Token (optional):**
+  - Falls Staging auch **unpublizierte** Inhalte aus Contentful anzeigen soll, kann zusätzlich ein Preview‑Token genutzt werden.
+  - Aktuelles Verhalten im Code: standardmäßig Delivery API (`cdn.contentful.com`); Preview API (`preview.contentful.com`) wird nur genutzt, wenn **kein** Delivery/Access Token gesetzt ist, aber `CONTENTFUL_PREVIEW_TOKEN` vorhanden ist (oder wenn explizit `CONTENTFUL_API_HOST` gesetzt wird).
+
 ## Serienübersicht (Staffel 1)
 
 ### A1 – Image Enhancer
 
 - **Slug:** `ai-bild-verbessern-button`
 - **Arbeitstitel:** Was hinter einem einfachen "Bild verbessern"-Button wirklich steckt
-- **Status:** Draft in Contentful (`blogPost`, ID `63w1xjLJcHVuSdo4Iv2RWu`)
+- **Status:** Published in Contentful (`blogPost`, ID `63w1xjLJcHVuSdo4Iv2RWu`)
 - **Kernwinkel:**
   - Service-Layer statt direkter Provider-Anbindung
   - R2-Storage (uploads vs. results) und Ownership
   - Rate-Limits, Quoten und Kostenkontrolle
 - **Doku-Anker:** `.windsurf/rules/image-enhancer.md`, `src/config/ai-image/**`, `src/pages/api/ai-image/**`
 
+### A2 – Prompt Enhancer (Slot)
+
+- **Vorschlag-Slug:** `prompt-optimieren-statt-copy-paste`
+- **Arbeitstitel:** Warum ein Prompt-Enhancer mehr ist als "Text umformulieren"
+- **Status:** Slot (noch kein Contentful-Entry)
+- **Kernwinkel:**
+  - Strikte Validierung und Sicherheitsgrenzen (keine Prompt-Leaks)
+  - Rate-Limits/Quoten und vorhersehbare Kosten
+  - UX: hilfreiche Fehler, klare Grenzen statt "magischer" Antworten
+- **Doku-Anker:** `.windsurf/rules/prompt.md`, `src/lib/validation/schemas/prompt.ts`, `src/lib/rate-limiter.ts`, `src/pages/api/prompt/**`
+
+### A3 – AI Usage & Quotas (Slot)
+
+- **Vorschlag-Slug:** `warum-ai-limits-kein-ux-killer-sind`
+- **Arbeitstitel:** Warum Limits, Retry-After und Quoten die Voraussetzung für gute AI-UX sind
+- **Status:** Slot (noch kein Contentful-Entry)
+- **Kernwinkel:**
+  - 429 + `Retry-After` als UX-Signal statt "random failures"
+  - Server als Quelle der Wahrheit (Entitlements/Quoten)
+  - Transparenz: Nutzungsanzeigen ohne Security- oder Cost-Leaks
+- **Doku-Anker:** `.windsurf/rules/frontend-state.md`, `.windsurf/rules/performance.md`, `src/lib/rate-limiter.ts`, `src/lib/kv/usage.ts`
+
 ### B1 – Auth & Magic Link
 
 - **Slug:** `warum-wir-passwort-login-begraben-haben`
 - **Arbeitstitel:** Warum wir klassischen Passwort-Login begraben haben
-- **Status:** Draft-Entry in Contentful (Platzhalter-Content)
+- **Status:** Published in Contentful (`blogPost`, ID `5xhq2PoX3Fuq2VOlQfKL8`)
 - **Kernwinkel:**
   - Gründe gegen Passwort-Login (Security, UX, Wartung)
   - Magic Link + Stytch + PKCE + Access-Proxy
   - Session-Cookies, CSRF, Middleware
 - **Doku-Anker:** `.windsurf/rules/auth.md`, `.windsurf/rules/api-and-security.md`, `src/middleware.ts`, `src/lib/api-middleware.ts`, `src/pages/api/auth/**`
+
+### B2 – API Middleware & Security Baseline (Slot)
+
+- **Vorschlag-Slug:** `warum-wir-api-middleware-als-baseline-haben`
+- **Arbeitstitel:** Warum unsere API-Middleware (Rate-Limits, Security Header, Fehlerformen) nicht optional ist
+- **Status:** Slot (noch kein Contentful-Entry)
+- **Kernwinkel:**
+  - Einheitliche Fehlerformen (`createApiSuccess`/`createApiError`) und 405-Handling
+  - Same-Origin + CSRF bei unsafe methods
+  - Rate-Limits als Security- und Cost-Control
+- **Doku-Anker:** `.windsurf/rules/api-and-security.md`, `src/lib/api-middleware.ts`, `src/middleware.ts`, `src/lib/rate-limiter.ts`
+
+### B3 – Observability ohne PII (Slot)
+
+- **Vorschlag-Slug:** `wie-wir-logging-machen-ohne-pii-zu-leaken`
+- **Arbeitstitel:** Wie wir debuggen, ohne Cookies, Tokens oder E-Mails in Logs zu verewigen
+- **Status:** Slot (noch kein Contentful-Entry)
+- **Kernwinkel:**
+  - Request IDs und redacted Logs als Standard
+  - Debug Panel / Client Logs env-gated
+  - Security Events getrennt von Feature-Logs
+- **Doku-Anker:** `.windsurf/rules/observability.md`, `src/config/logging.ts`, `src/server/utils/logger.ts`, `src/lib/security-logger.ts`
 
 ### C1 – Webscraper
 
@@ -96,12 +148,13 @@ Diese Doku beschreibt die geplante Blogreihe zur Aufbaugeschichte des Evolution 
 Empfohlene Reihenfolge für Staffel 1 der Serie:
 
 1. **A1 – Image Enhancer**
-2. **B1 – Auth & Magic Link**
-3. **C1 – Webscraper**
-4. **C2 – Web-Eval**
-5. **C3 – Video Enhancer**
-6. **C4 – Voice Transcriptor**
-7. **C5 – Pricing & Credits**
+2. **A2 – Prompt Enhancer**
+3. **B1 – Auth & Magic Link**
+4. **C1 – Webscraper**
+5. **C2 – Web-Eval**
+6. **C3 – Video Enhancer**
+7. **C4 – Voice Transcriptor**
+8. **C5 – Pricing & Credits**
 
 Diese Reihenfolge baut von einem sichtbaren Produkt-Feature (Image Enhancer) über Sicherheit/UX (Auth), hin zu Tooling (Webscraper, Web-Eval) und schließlich Kostenmodell und Entitlements auf.
 

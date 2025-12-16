@@ -145,4 +145,4 @@ When updating the agent configuration:
 
 - [GitHub Copilot Agent Documentation](https://docs.github.com/en/copilot/customizing-copilot/creating-custom-agents)
 - [AGENTS.md](../AGENTS.md) - Repository agent rules
-- [Copilot Instructions](.github/copilot-instructions.md) - Onboarding guide
+- [Copilot Instructions](../../.github/copilot-instructions.md) - Onboarding guide

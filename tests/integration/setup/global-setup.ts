@@ -119,7 +119,7 @@ export default async function () {
   await wait(300);
   serverProcess = spawn(
     'wrangler',
-    ['dev', 'dist/_worker.js/index.js', '--port', '8787', '--config', 'wrangler.ci.toml'],
+    ['dev', '--port', '8787', '--config', 'wrangler.ci.toml'],
     {
       cwd: rootDir,
       env: {

@@ -787,6 +787,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
   if (path === '/welcome' || path === '/welcome/') {
     response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
   }
+  // Ensure staging is never indexed (defense in depth)
+  if (cfEnv && cfEnv.ENVIRONMENT === 'staging') {
+    response.headers.set('X-Robots-Tag', 'noindex, nofollow');
+  }
   // CSP: relax in development for Astro/Vite HMR and inline module scripts; strict in production
   // Wrangler "dev" runs a built worker, so import.meta.env.DEV can be false.
   // Treat local loopbacks as development to keep relaxed CSP during local E2E/dev.

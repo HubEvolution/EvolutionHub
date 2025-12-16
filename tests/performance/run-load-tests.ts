@@ -6,7 +6,7 @@ import { readFileSync } from 'fs';
 import { safeParseJson } from '../shared/http';
 
 // Lade Umgebungsvariablen
-loadEnv(process.env.NODE_ENV || 'test', process.cwd(), '');
+Object.assign(process.env, loadEnv(process.env.NODE_ENV || 'test', process.cwd(), ''));
 
 // Pfade für Testumgebung
 const __filename = fileURLToPath(import.meta.url);
@@ -94,6 +94,16 @@ function addCount(map: Record<string, number>, key: string) {
   map[key] = (map[key] || 0) + 1;
 }
 
+function formatTopStatusCodes(statusCodes: Record<string, number>, limit = 5): string {
+  const entries = Object.entries(statusCodes)
+    .filter(([code, count]) => Boolean(code) && count > 0)
+    .sort((a, b) => b[1] - a[1]);
+
+  const top = entries.slice(0, limit);
+  if (top.length === 0) return '{}';
+  return `{ ${top.map(([code, count]) => `${code}: ${count}`).join(', ')} }`;
+}
+
 function bucketForStatus(status: number): string {
   if (status >= 200 && status < 300) return '2xx';
   if (status >= 300 && status < 400) return '3xx';
@@ -112,6 +122,33 @@ type ApiJson = {
   data?: unknown;
   error?: { type?: string; message?: string; details?: unknown };
 };
+
+function getErrorSummaryFromJson(json: ApiJson | null): string | null {
+  if (!json?.error) return null;
+  const type = json.error.type;
+  const message = json.error.message;
+  const parts = [type, message].filter(
+    (p): p is string => typeof p === 'string' && p.trim().length > 0
+  );
+  return parts.length > 0 ? parts.join(': ') : null;
+}
+
+async function diagnoseOneRequest(
+  baseUrl: string,
+  apiConfig: LoadTestConfig['rateLimitTests'][string],
+  auth: AuthContext | null
+): Promise<string | null> {
+  try {
+    const plan = buildRequest(baseUrl, apiConfig, 0, auth);
+    const res = await fetch(plan.url, plan.init);
+    const text = await res.text().catch(() => '');
+    const json = text ? safeParseJson<ApiJson>(text) : null;
+    const summary = getErrorSummaryFromJson(json);
+    return summary ? `${res.status} ${summary}` : String(res.status);
+  } catch {
+    return null;
+  }
+}
 
 function getInternalHealthToken(env: string): string {
   const provided = process.env.INTERNAL_HEALTH_TOKEN;
@@ -250,7 +287,6 @@ function buildRequest(
 }
 
 async function makePacedRequests(
-  baseUrl: string,
   endpoint: string,
   count: number,
   requestsPerSecond: number,
@@ -362,7 +398,6 @@ async function runRateLimitTests() {
 
       const totalRequests = scenario.requestsPerSecond * scenario.duration;
       const result = await makePacedRequests(
-        baseUrl,
         apiConfig.endpoint,
         totalRequests,
         scenario.requestsPerSecond,
@@ -389,12 +424,31 @@ async function runRateLimitTests() {
         console.log(
           `    ⚠️  Rate-Limiting könnte zu permissiv sein (${result.rateLimitedRequests}/${result.totalRequests} Rate-Limited, erwartet: ${expectedRateLimited})`
         );
+        console.log(`    🔎 Statuscodes (Top): ${formatTopStatusCodes(result.statusCodes)}`);
         result.success = false;
       } else {
-        console.log(
-          `    ❌ Keine erfolgreichen Requests (2xx=0). Status: ${JSON.stringify(result.statusBuckets)}`
-        );
-        result.success = false;
+        const rateLimited = result.rateLimitedRequests;
+        const ratio = result.totalRequests > 0 ? rateLimited / result.totalRequests : 0;
+        if (rateLimited > 0 && ratio >= 0.95) {
+          console.log(
+            `    ✅ Komplett rate-limited (2xx=0, 429≈100%). Limiter greift korrekt (${rateLimited}/${result.totalRequests})`
+          );
+          console.log(`    🔎 Statuscodes (Top): ${formatTopStatusCodes(result.statusCodes)}`);
+        } else {
+          console.log(
+            `    ❌ Keine erfolgreichen Requests (2xx=0). Buckets: ${JSON.stringify(
+              result.statusBuckets
+            )}`
+          );
+          console.log(`    🔎 Statuscodes (Top): ${formatTopStatusCodes(result.statusCodes)}`);
+
+          const diag = await diagnoseOneRequest(baseUrl, apiConfig, auth);
+          if (diag) {
+            console.log(`    🩺 Diagnose: ${diag}`);
+          }
+
+          result.success = false;
+        }
       }
 
       console.log(
@@ -434,7 +488,6 @@ async function runStressTests() {
     const totalRequests =
       loadTestConfig.stressTests.burstTraffic.requestsPerEndpoint * endpoints.length;
     const burstResult = await makePacedRequests(
-      baseUrl,
       'burst-traffic',
       totalRequests,
       Math.max(1, Math.floor(totalRequests / 10)),
@@ -482,7 +535,6 @@ async function runBenchmarks() {
   }
 
   const benchmarkResult = await makePacedRequests(
-    baseUrl,
     'benchmark-suite',
     100,
     25,

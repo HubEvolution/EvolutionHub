@@ -3,7 +3,7 @@ title: Environment variables
 description: Referenz der Environment-Variablen (Cloudflare Worker & Astro)
 owner: Platform Team
 priority: medium
-lastSync: 2025-11-03
+lastSync: 2025-12-16
 codeRefs: .env.example, wrangler.toml, src/config/**
 testRefs: 'N/A'
 ---
@@ -30,3 +30,20 @@ This reference is generated from the `.env.example` template and lists every env
 | `PROMPT_TOP_P`             | `0.9`                                                                      | —                                                                                                                               |
 | `OPENAI_API_KEY`           | `sk-…`                                                                     | —                                                                                                                               |
 | `PROMPT_REWRITE_V1`        | `true`                                                                     | —                                                                                                                               |
+
+| `CONTENTFUL_SPACE_ID`        | `""`        | Contentful space id (required for Contentful blog loading). |
+| `CONTENTFUL_ENVIRONMENT`     | `"master"`  | Contentful environment. Use `master` in production; staging can use `preview`. |
+| `CONTENTFUL_DELIVERY_TOKEN`  | `""`        | Contentful Delivery API token (read-only; recommended for runtime). |
+| `CONTENTFUL_PREVIEW_TOKEN`   | `""`        | Optional: Contentful Preview API token (draft preview). |
+| `CONTENTFUL_MANAGEMENT_TOKEN`| `""`        | Contentful Management token (migration scripts; not required at runtime). |
+
+Note: “preview environment” (`CONTENTFUL_ENVIRONMENT=preview`) and “Preview API” (`CONTENTFUL_PREVIEW_TOKEN` / `preview.contentful.com`) are separate concepts.
+
+### Recommendation (Staging token setup)
+
+- **Published-only preview (recommended default):**
+  - Use `CONTENTFUL_ENVIRONMENT=preview` and a normal `CONTENTFUL_DELIVERY_TOKEN`.
+  - This lets staging read the *published* state of the `preview` Contentful environment.
+- **Draft preview (optional):**
+  - Use the Preview API via `CONTENTFUL_PREVIEW_TOKEN` if staging should also show *unpublished* drafts.
+  - Ensure requests go to `preview.contentful.com` (either implicitly by not setting a delivery/access token, or explicitly via `CONTENTFUL_API_HOST`).

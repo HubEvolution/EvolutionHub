@@ -328,7 +328,7 @@ export function mapEntryToBlogPost(entry: ContentfulBlogEntry): ProcessedBlogPos
     readingTime,
     formattedPubDate: formatDate(pubDate),
     formattedUpdatedDate: updatedDate ? formatDate(updatedDate) : undefined,
-    url: `/blog/${fields.slug}/`,
+    url: `/blog/${slug}`,
   };
 
   return processed;

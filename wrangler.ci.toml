@@ -13,6 +13,7 @@ logpush = false
 directory = "./dist"
 html_handling = "auto-trailing-slash"
 binding = "ASSETS"
+run_worker_first = true
 # Intentionally no run_worker_first in CI to avoid Wrangler validation during script arg mode
 
 # D1 database (local preview db id mirrors dev)
