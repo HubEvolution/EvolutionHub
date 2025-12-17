@@ -1,0 +1,51 @@
+---
+import type { I18nFn } from '@/utils/i18n';
+
+type Props = {
+  t: I18nFn;
+  ctaHref: string;
+};
+
+const { t, ctaHref } = Astro.props as Props;
+---
+
+<!-- 3-STEP QUICK FLOW -->
+<section class="container mx-auto px-4 pb-14 md:pb-20">
+  <h2 class="sr-only">{t('pages.home.quick_flow.aria')}</h2>
+  <div class="mx-auto max-w-5xl">
+    <ol class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-center sm:gap-5">
+      <li class="flex items-center gap-3">
+        <span
+          class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[rgba(var(--lp-accent)/0.18)] text-[rgb(var(--lp-page-fg))] font-semibold"
+          aria-hidden="true">1</span
+        >
+        <span class="text-sm font-semibold">{t('pages.home.quick_flow.step1')}</span>
+      </li>
+      <span class="hidden sm:block text-[rgb(var(--lp-page-muted))]" aria-hidden="true">→</span>
+      <li class="flex items-center gap-3">
+        <span
+          class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[rgba(var(--lp-accent)/0.18)] text-[rgb(var(--lp-page-fg))] font-semibold"
+          aria-hidden="true">2</span
+        >
+        <span class="text-sm font-semibold">{t('pages.home.quick_flow.step2')}</span>
+      </li>
+      <span class="hidden sm:block text-[rgb(var(--lp-page-muted))]" aria-hidden="true">→</span>
+      <li class="flex items-center gap-3">
+        <span
+          class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[rgba(var(--lp-accent)/0.18)] text-[rgb(var(--lp-page-fg))] font-semibold"
+          aria-hidden="true">3</span
+        >
+        <span class="text-sm font-semibold">{t('pages.home.quick_flow.step3')}</span>
+      </li>
+    </ol>
+
+    <div class="mt-7 flex justify-center">
+      <a
+        href={ctaHref}
+        class="inline-flex items-center justify-center rounded-full px-7 py-3 text-sm font-semibold bg-[rgb(var(--lp-accent))] text-[rgb(var(--lp-accent-ink))] hover:bg-[rgb(var(--lp-accent-hover))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--lp-accent))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--lp-page-bg))] transition-colors duration-200"
+      >
+        {t('pages.home.hero.cta_primary')}
+      </a>
+    </div>
+  </div>
+</section>

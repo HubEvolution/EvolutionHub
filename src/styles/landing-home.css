@@ -1,0 +1,105 @@
+/* Home landing (tool-first) tokens (opt-in via .landing-home wrapper) */
+.landing-home {
+  /* Base surfaces */
+  --lp-page-bg: 3 7 18;
+  --lp-page-surface: 10 14 24;
+  /* Slightly lifted vs page bg so sections don't feel "flat" */
+  --lp-section-wash: 6 9 18;
+  --lp-section-wash-2: 2 6 23;
+  /* Text */
+  --lp-page-fg: 226 232 240;
+  --lp-page-muted: 148 163 184;
+  /* Lines */
+  --lp-page-border: 71 85 105;
+
+  /* Single accent hue */
+  --lp-accent: 34 211 153; /* emerald-400 */
+  --lp-accent-hover: 110 231 183; /* emerald-300 */
+  --lp-accent-ink: 3 7 18; /* slate-950-ish */
+
+  /* Hero veil + text on video */
+  --lp-hero-veil: 2 6 23; /* slate-950-ish */
+  --lp-hero-fg: 255 255 255;
+  --lp-hero-muted: 226 232 240;
+
+  /* Keep global accent utilities single-hue on home landing */
+  --accent-blue: var(--lp-accent);
+  --accent-gold: var(--lp-accent);
+  --accent-orange: var(--lp-accent);
+  --accent-a: var(--lp-accent);
+  --accent-b: var(--lp-accent);
+}
+
+:root:not(.dark) .landing-home {
+  --lp-page-bg: 248 250 252; /* slate-50 */
+  --lp-page-surface: 255 255 255;
+  --lp-section-wash: 245 247 250;
+  --lp-section-wash-2: 255 255 255;
+  --lp-page-fg: 15 23 42; /* slate-900 */
+  --lp-page-muted: 51 65 85; /* slate-700 */
+  --lp-page-border: 203 213 225; /* slate-300 */
+
+  /* Keep hero readable on video in light mode */
+  --lp-hero-veil: 2 6 23;
+  --lp-hero-fg: 255 255 255;
+  --lp-hero-muted: 226 232 240;
+}
+
+/* Non-hero background: subtle depth, no cards/shadows, neutral (accent stays single hue) */
+.lp-section-bg {
+  background-color: rgb(var(--lp-section-wash));
+  background-image:
+    radial-gradient(
+      1200px 600px at 50% -10%,
+      rgba(var(--lp-accent) / 0.1),
+      rgba(var(--lp-accent) / 0) 60%
+    ),
+    radial-gradient(
+      1000px 520px at 10% 30%,
+      rgba(var(--lp-page-fg) / 0.055),
+      rgba(var(--lp-page-fg) / 0) 55%
+    ),
+    radial-gradient(
+      900px 520px at 90% 55%,
+      rgba(var(--lp-page-fg) / 0.045),
+      rgba(var(--lp-page-fg) / 0) 55%
+    ),
+    linear-gradient(to bottom, rgba(var(--lp-section-wash-2) / 0.96), rgb(var(--lp-section-wash))),
+    linear-gradient(to right, rgba(var(--lp-page-border) / 0.14) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(var(--lp-page-border) / 0.14) 1px, transparent 1px);
+  background-size: auto, auto, auto, auto, 64px 64px, 64px 64px;
+  background-position: 50% -10%, 10% 30%, 90% 55%, 0 0, 0 0, 0 0;
+}
+
+.lp-section-bottom-fade {
+  background: linear-gradient(
+    to bottom,
+    rgba(var(--lp-section-wash) / 0) 0%,
+    rgba(var(--lp-section-wash) / 0.85) 40%,
+    rgb(var(--lp-page-bg)) 100%
+  );
+}
+
+/* Video veil layers (tool-first home hero) */
+.lp-hero-veil {
+  background: linear-gradient(
+    to bottom,
+    rgba(var(--lp-hero-veil) / 0.62) 0%,
+    rgba(var(--lp-hero-veil) / 0.34) 46%,
+    rgba(var(--lp-hero-veil) / 0.72) 100%
+  );
+}
+.lp-hero-vignette {
+  background: radial-gradient(
+    120% 110% at 50% 38%,
+    rgba(var(--lp-hero-veil) / 0) 0%,
+    rgba(var(--lp-hero-veil) / 0.22) 60%,
+    rgba(var(--lp-hero-veil) / 0.56) 100%
+  );
+}
+.lp-hero-grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+  opacity: 0.18;
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+}

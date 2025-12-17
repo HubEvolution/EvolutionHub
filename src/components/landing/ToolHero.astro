@@ -1,0 +1,97 @@
+---
+import type { I18nFn } from '@/utils/i18n';
+
+type Props = {
+  t: I18nFn;
+  ctaHref: string;
+};
+
+const { t, ctaHref } = Astro.props as Props;
+---
+
+<section class="relative overflow-hidden">
+  <div class="relative z-20 container mx-auto px-4 py-16 sm:py-20 md:py-24">
+    <div class="mx-auto max-w-3xl text-center">
+      <h1
+        class="text-balance text-[rgb(var(--lp-hero-fg))] font-semibold tracking-tight text-4xl sm:text-5xl md:text-6xl"
+      >
+        {t('pages.home.hero.tool_headline')}
+      </h1>
+      <p class="mt-5 text-pretty text-[rgb(var(--lp-hero-muted))] text-base sm:text-lg md:text-xl">
+        {t('pages.home.hero.tool_subline')}
+      </p>
+      <div class="mt-8 flex justify-center">
+        <a
+          href={ctaHref}
+          class="inline-flex items-center justify-center rounded-full px-7 py-3.5 text-sm sm:text-base font-semibold bg-[rgb(var(--lp-accent))] text-[rgb(var(--lp-accent-ink))] hover:bg-[rgb(var(--lp-accent-hover))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--lp-accent))] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(var(--lp-hero-veil))] transition-colors duration-200"
+          aria-label={t('pages.home.hero.cta_primary')}
+        >
+          {t('pages.home.hero.cta_primary')}
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Background video + veil layers -->
+  <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none" aria-hidden="true">
+    <video
+      data-hero-video
+      class="absolute inset-0 h-full w-full object-cover"
+      src="/media/home-hero.mp4"
+      autoplay
+      muted
+      loop
+      playsinline
+      preload="metadata"
+    >
+    </video>
+    <div class="absolute inset-0 z-10 lp-hero-veil"></div>
+    <div class="absolute inset-0 z-10 lp-hero-vignette"></div>
+    <div class="absolute inset-0 z-10 lp-hero-grain"></div>
+  </div>
+</section>
+
+<script is:inline nonce={Astro.locals.cspNonce}>
+  {
+    String.raw`(() => {
+      const video = document.querySelector('[data-hero-video]');
+      if (!(video instanceof HTMLVideoElement)) return;
+
+      video.muted = true;
+      const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+      const freezeOnFirstFrame = () => {
+        video.preload = 'auto';
+        video.load();
+
+        const pauseNow = () => {
+          video.pause();
+        };
+
+        if (video.readyState >= 2) pauseNow();
+        else video.addEventListener('loadeddata', pauseNow, { once: true });
+      };
+
+      const update = () => {
+        if (mq.matches) {
+          freezeOnFirstFrame();
+          return;
+        }
+
+        if (video.readyState === 0) {
+          video.preload = 'auto';
+          video.load();
+        }
+
+        const playPromise = video.play();
+        if (playPromise && typeof playPromise.catch === 'function') {
+          playPromise.catch(() => {});
+        }
+      };
+
+      update();
+      if (typeof mq.addEventListener === 'function') mq.addEventListener('change', update);
+      else if (typeof mq.addListener === 'function') mq.addListener(update);
+    })();`;
+  }
+</script>

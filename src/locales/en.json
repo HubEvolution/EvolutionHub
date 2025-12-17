@@ -231,6 +231,13 @@
       "access": {
         "title": "Quick access to key destinations"
       },
+      "publicDocs": {
+        "back": "Back to docs",
+        "featuredTitle": "Featured docs",
+        "featuredSubtitle": "A curated selection of public documentation (powered by Contentful).",
+        "empty": "No public docs are available yet.",
+        "readMore": "Read"
+      },
       "sections": {
         "gettingStarted": {
           "title": "Getting started",
@@ -252,6 +259,50 @@
     },
     "home": {
       "title": "Welcome to Evolution Hub",
+      "proof": {
+        "input_label": "Input",
+        "output_label": "Enhanced Prompt",
+        "input_value": "Write a LinkedIn post about my new AI tool.",
+        "output_value": "Write a concise LinkedIn post announcing a new AI tool.\nStart with a strong hook, clearly state the main benefit for creators,\ninclude one concrete use case and end with a soft call-to-action."
+      },
+      "quick_flow": {
+        "aria": "Quick flow",
+        "step1": "Write prompt",
+        "step2": "Enhance",
+        "step3": "Use result"
+      },
+      "other_tools": {
+        "label": "Other tools",
+        "all_tools": "All tools"
+      },
+      "use_cases": {
+        "heading": "Use it instantly for",
+        "case1": {
+          "title": "Content",
+          "example": "Posts, scripts, newsletters, hooks"
+        },
+        "case2": {
+          "title": "Offers",
+          "example": "Landing copy, claims, pricing text"
+        },
+        "case3": {
+          "title": "Team flow",
+          "example": "Briefs, specs, support replies"
+        }
+      },
+      "bottom_cta": {
+        "headline": "Ready? Improve your prompt now.",
+        "subline": "Free, no credit card — result in under 60 seconds."
+      },
+      "starters": {
+        "heading": "Start with one of these prompts",
+        "item1": "Write a LinkedIn post about my new AI tool.",
+        "item2": "Turn these bullet points into a landing headline + subline.",
+        "item3": "Rewrite this email to be shorter and more persuasive.",
+        "item4": "Create 5 hooks for a short video about this topic.",
+        "item5": "Summarize this text and extract action items.",
+        "item6": "Generate 3 ad variants with different angles."
+      },
       "features": {
         "heading": "AI tools for your daily workflows",
         "subtitle": "Explore our core tools for images, prompts, voice, web data, video and live web evaluation.",
@@ -345,13 +396,15 @@
       },
       "hero": {
         "title_part1": "Evolution Hub",
+        "tool_headline": "Improve any prompt in under 60 seconds.",
+        "tool_subline": "For creators, solo entrepreneurs & small teams — free, no credit card.",
         "title_part2": "The future of AI‑powered development",
         "subtitle": "Discover AI‑powered tools to streamline your workflow and increase your productivity.",
         "subtitle_poetic": "Where language turns into structure. Where data learns to dream.",
         "title_magnet": "Your AI toolbox – with a free Prompt Enhancer in the Free plan.",
         "subtitle_magnet": "Free plan with Prompt Enhancer included – up to 100 optimizations per day without touching your AI credits.",
         "free_pill": "Free plan · no card required",
-        "cta_primary": "Start Prompt Enhancer for free",
+        "cta_primary": "Enhance prompt for free",
         "cta_secondary": "Explore all tools",
         "bullets": [
           "Free to use in the Free plan — no credit card required",
@@ -870,11 +923,11 @@
             "enterprise": "Dedicated contact"
           },
           "commercial": {
-            "name": "Contact/Enterprise",
+            "name": "Enterprise purchase",
             "starter": "—",
             "pro": "—",
             "premium": "—",
-            "enterprise": "Contact"
+            "enterprise": "Self‑serve"
           },
           "support": {
             "name": "—",
@@ -951,7 +1004,7 @@
         "title": "What are credits?",
         "intro": "Credits are a unified allowance you can use across all tools. Each operation consumes credits; higher plans include more credits and higher daily burst limits.",
         "bullets": {
-          "0": "Use credits in tools like Imag‑Enhancer, Video Enhancer, Prompt Enhancer and Voice Transcriptor.",
+          "0": "Use credits flexibly across all available tools — depending on availability and your plan.",
           "1": "Your monthly credits reset every billing cycle; daily burst limits help ensure service quality.",
           "2": "Need more? Buy one-time credit packs anytime (100/500/1500)."
         }
@@ -963,7 +1016,7 @@
         "question2": "Is there a minimum contract term?",
         "answer2": "No, all plans can be cancelled monthly. There is no long-term commitment.",
         "question3": "Can I try the Enterprise plan?",
-        "answer3": "Yes — contact us for an individual demo and a trial period for Enterprise features."
+        "answer3": "Yes — you can buy Enterprise anytime. If you need custom terms, feel free to reach out."
       },
       "faq_contact_cta_text": "Still have questions?",
       "faq_contact_cta_link_text": "Contact our team"
@@ -1661,6 +1714,10 @@
         "button": "Suggest a tool"
       },
       "prompt-enhancer": {
+        "plan": {
+          "guest": "Guest",
+          "starter": "Starter"
+        },
         "form": {
           "inputLabel": "Input prompt",
           "inputPlaceholder": "Describe what you want to say or ask...",
@@ -1672,6 +1729,7 @@
           },
           "enhanceButton": "Enhance prompt",
           "enhancing": "Enhancing…",
+          "retryIn": "Retry in {seconds}s",
           "outputLabel": "Enhanced prompt",
           "inputLabelOriginal": "Original prompt",
           "showComparison": "Show before/after",
@@ -1743,7 +1801,8 @@
           "steps": "Added step-by-step instructions for the model."
         },
         "safety": {
-          "title": "Safety report"
+          "title": "Safety report",
+          "score": "Score: {score}/10"
         },
         "presets": {
           "codingBugfix": {
@@ -1831,6 +1890,7 @@
             "allowedTypes": "Allowed: JPG, PNG, WEBP",
             "max": "Max size",
             "download": "Download",
+            "share": "Share",
             "loading": "Loading...",
             "quotaBanner": "Your current quota is very limited. Sign in or upgrade to process more images per day.",
             "toasts": {
@@ -2077,11 +2137,11 @@
           },
           {
             "question": "How can I reset my password?",
-            "answer": "On the login page, you’ll find a \"Forgot password\" link. Enter your email address and follow the instructions in the email you receive."
+            "answer": "We use Magic‑Link login (no password). Go to /login, enter your email, and use the sign‑in link from your inbox to regain access."
           },
           {
             "question": "How do I cancel my subscription?",
-            "answer": "Go to your account settings and choose \"Manage subscription\". There you can cancel your subscription."
+            "answer": "You can cancel your subscription from the dashboard under Billing (cancels at the end of the current period) or switch plans on the pricing page."
           },
           {
             "question": "Which subscription plans are available?",
@@ -2089,11 +2149,11 @@
           },
           {
             "question": "Which payment methods are accepted?",
-            "answer": "We accept credit cards, PayPal, and SEPA direct debit."
+            "answer": "Payments are processed via Stripe. We accept major credit/debit cards. Additional payment methods may vary by country/checkout configuration."
           },
           {
             "question": "How can I recover my account if I lose access?",
-            "answer": "Use the password reset flow or contact our support team for further help."
+            "answer": "Use Magic‑Link login via /login. If you no longer have access to your email address, please contact support."
           },
           {
             "question": "How do I manage notification settings?",
@@ -2110,7 +2170,7 @@
           },
           {
             "question": "How can I use the API?",
-            "answer": "You can find our API documentation at /api-docs. You’ll need an API key, which you can generate in your account settings."
+            "answer": "There is currently no public API documentation at /api-docs. The web app uses internal API endpoints. If you need API access for an integration, please reach out."
           },
           {
             "question": "How do I report a bug?",

@@ -231,6 +231,13 @@
       "access": {
         "title": "Direktzugriff auf wichtige Bereiche"
       },
+      "publicDocs": {
+        "back": "Zurück zur Doku",
+        "featuredTitle": "Ausgewählte Dokumentationen",
+        "featuredSubtitle": "Eine kuratierte Auswahl öffentlicher Dokumentation (über Contentful).",
+        "empty": "Aktuell sind noch keine öffentlichen Docs verfügbar.",
+        "readMore": "Lesen"
+      },
       "sections": {
         "gettingStarted": {
           "title": "Erste Schritte",
@@ -252,6 +259,50 @@
     },
     "home": {
       "title": "Willkommen bei Evolution Hub",
+      "proof": {
+        "input_label": "Input",
+        "output_label": "Enhanced Prompt",
+        "input_value": "Write a LinkedIn post about my new AI tool.",
+        "output_value": "Write a concise LinkedIn post announcing a new AI tool.\nStart with a strong hook, clearly state the main benefit for creators,\ninclude one concrete use case and end with a soft call-to-action."
+      },
+      "quick_flow": {
+        "aria": "Schnellablauf",
+        "step1": "Prompt schreiben",
+        "step2": "Verbessern",
+        "step3": "Ergebnis nutzen"
+      },
+      "other_tools": {
+        "label": "Weitere Tools",
+        "all_tools": "Alle Tools"
+      },
+      "use_cases": {
+        "heading": "Wofür du es sofort nutzen kannst",
+        "case1": {
+          "title": "Content",
+          "example": "Posts, Skripte, Newsletter, Hooks"
+        },
+        "case2": {
+          "title": "Angebote",
+          "example": "Landing‑Copy, Claims, Pricing‑Text"
+        },
+        "case3": {
+          "title": "Team‑Flow",
+          "example": "Briefings, Specs, Support‑Antworten"
+        }
+      },
+      "bottom_cta": {
+        "headline": "Bereit? Verbessere deinen Prompt jetzt.",
+        "subline": "Kostenlos, ohne Kreditkarte – Ergebnis in unter 60 Sekunden."
+      },
+      "starters": {
+        "heading": "Starte mit einem dieser Prompts",
+        "item1": "Write a LinkedIn post about my new AI tool.",
+        "item2": "Turn these bullet points into a landing headline + subline.",
+        "item3": "Rewrite this email to be shorter and more persuasive.",
+        "item4": "Create 5 hooks for a short video about this topic.",
+        "item5": "Summarize this text and extract action items.",
+        "item6": "Generate 3 ad variants with different angles."
+      },
       "features": {
         "heading": "Die Zukunft der KI‑gestützten Entwicklung",
         "subtitle": "Entdecke unsere Kern‑Tools für echte Alltags‑Workflows.",
@@ -345,13 +396,15 @@
       },
       "hero": {
         "title_part1": "Evolution Hub",
+        "tool_headline": "Verbessere jeden Prompt in unter 60 Sekunden.",
+        "tool_subline": "Für Creator, Solo-Entrepreneurs & kleine Teams – kostenlos, ohne Kreditkarte.",
         "title_part2": "Die Zukunft der KI-gestützten Entwicklung",
         "subtitle": "Entdecken Sie die Leistung von KI-gestützten Tools zur Optimierung Ihres Workflows und zur Steigerung Ihrer Produktivität.",
         "subtitle_poetic": "Wo Sprache zu Struktur wird. Wo Daten träumen lernen.",
         "title_magnet": "Deine KI‑Toolbox – mit einem kostenlosen Prompt Enhancer als Kundenmagnet.",
         "subtitle_magnet": "Free‑Plan mit großzügigen Quoten: bis zu 100 Prompt‑Optimierungen pro Tag und 2.000 im Monat – ohne AI‑Credits zu verbrauchen.",
         "free_pill": "Kostenloser Prompt Enhancer – ideal als Kundenmagnet",
-        "cta_primary": "Prompt Enhancer jetzt kostenlos starten",
+        "cta_primary": "Prompt kostenlos verbessern",
         "cta_secondary": "Alle Tools ansehen",
         "bullets": [
           "Kostenlos nutzbar im Free‑Plan – ohne Kreditkarte",
@@ -870,11 +923,11 @@
             "enterprise": "Dedizierter Kontakt"
           },
           "commercial": {
-            "name": "Kontakt/Enterprise",
+            "name": "Enterprise Kauf",
             "starter": "—",
             "pro": "—",
             "premium": "—",
-            "enterprise": "Kontakt"
+            "enterprise": "Direkt buchbar"
           },
           "support": {
             "name": "—",
@@ -945,7 +998,7 @@
         "title": "Was sind Credits?",
         "intro": "Credits sind ein einheitliches Kontingent, das du über alle Tools hinweg nutzen kannst. Jede Operation verbraucht Credits; höhere Pläne enthalten mehr Credits und höhere Tages‑Burst‑Limits.",
         "bullets": {
-          "0": "Nutze Credits in Tools wie Imag‑Enhancer, Video Enhancer, Prompt Enhancer und Voice Transcriptor.",
+          "0": "Nutze Credits flexibel für alle verfügbaren Tools – je nach Verfügbarkeit und Plan.",
           "1": "Deine monatlichen Credits werden zu jedem Abrechnungszyklus zurückgesetzt; Tages‑Burst‑Limits sichern die Service‑Qualität.",
           "2": "Mehr Bedarf? Kaufe jederzeit einmalige Credit‑Pakete (100/500/1500)."
         }
@@ -957,7 +1010,7 @@
         "question2": "Gibt es eine Mindestvertragslaufzeit?",
         "answer2": "Nein, alle Pläne sind monatlich kündbar. Es gibt keine vertragliche Bindung.",
         "question3": "Kann ich die Enterprise-Version testen?",
-        "answer3": "Ja, kontaktiere uns für eine individuelle Demo und Testphase der Enterprise-Features."
+        "answer3": "Ja — du kannst Enterprise jederzeit direkt buchen. Wenn du Sonderkonditionen brauchst, melde dich gern bei uns."
       },
       "faq_contact_cta_text": "Noch Fragen?",
       "faq_contact_cta_link_text": "Kontaktiere unser Team"
@@ -1655,6 +1708,10 @@
         "button": "Tool vorschlagen"
       },
       "prompt-enhancer": {
+        "plan": {
+          "guest": "Gast",
+          "starter": "Starter"
+        },
         "form": {
           "inputLabel": "Eingabe‑Prompt",
           "inputPlaceholder": "Beschreibe, was du sagen oder fragen möchtest...",
@@ -1666,6 +1723,7 @@
           },
           "enhanceButton": "Prompt verbessern",
           "enhancing": "Wird verbessert…",
+          "retryIn": "Erneut in {seconds}s",
           "outputLabel": "Verbesserter Prompt",
           "inputLabelOriginal": "Original-Prompt",
           "showComparison": "Vorher/Nachher anzeigen",
@@ -1737,7 +1795,8 @@
           "steps": "Schritt-für-Schritt-Anweisungen für das Modell hinzugefügt."
         },
         "safety": {
-          "title": "Sicherheitsbericht"
+          "title": "Sicherheitsbericht",
+          "score": "Score: {score}/10"
         },
         "presets": {
           "codingBugfix": {
@@ -1825,6 +1884,7 @@
             "allowedTypes": "Erlaubt: JPG, PNG, WEBP",
             "max": "Max. Größe",
             "download": "Herunterladen",
+            "share": "Teilen",
             "loading": "Laden...",
             "quotaBanner": "Dein aktuelles Kontingent ist stark limitiert. Melde dich an oder upgrade, um mehr Bilder pro Tag verarbeiten zu können.",
             "toasts": {
@@ -2071,11 +2131,11 @@
           },
           {
             "question": "Wie kann ich mein Passwort zurücksetzen?",
-            "answer": "Auf der Anmeldeseite finden Sie einen Link \"Passwort vergessen\". Geben Sie Ihre E-Mail-Adresse ein und folgen Sie den Anweisungen in der erhaltenen E-Mail."
+            "answer": "Wir nutzen Magic‑Link Login (ohne Passwort). Geh zu /login, gib deine E‑Mail ein und öffne den Anmelde‑Link aus der E‑Mail. Damit erhältst du wieder Zugriff."
           },
           {
             "question": "Wie kündige ich mein Abonnement?",
-            "answer": "Gehen Sie zu Ihren Kontoeinstellungen und wählen Sie \"Abonnement verwalten\". Dort können Sie Ihr Abonnement kündigen."
+            "answer": "Du kannst dein Abo im Dashboard unter Abrechnung/Billing kündigen (Kündigung zum Ende der laufenden Periode) oder auf der Pricing‑Seite deinen Plan wechseln."
           },
           {
             "question": "Welche Abonnement-Pläne gibt es?",
@@ -2083,11 +2143,11 @@
           },
           {
             "question": "Welche Zahlungsmethoden werden akzeptiert?",
-            "answer": "Wir akzeptieren Kreditkarten, PayPal und SEPA-Lastschriftverfahren."
+            "answer": "Zahlungen laufen über Stripe. Wir akzeptieren gängige Kredit‑/Debitkarten. Weitere Methoden können je nach Land/Checkout‑Konfiguration variieren."
           },
           {
             "question": "Wie kann ich mein Konto wiederherstellen, wenn ich den Zugang verliere?",
-            "answer": "Nutzen Sie die Passwort-zurücksetzen-Funktion oder kontaktieren Sie unseren Support für weitere Hilfe."
+            "answer": "Nutze den Magic‑Link Login über /login. Falls du keinen Zugriff mehr auf deine E‑Mail hast, kontaktiere bitte unseren Support."
           },
           {
             "question": "Wie verwalte ich meine Benachrichtigungseinstellungen?",
@@ -2104,7 +2164,7 @@
           },
           {
             "question": "Wie kann ich die API nutzen?",
-            "answer": "Unsere API-Dokumentation finden Sie unter /api-docs. Sie benötigen einen API-Schlüssel, den Sie in Ihren Kontoeinstellungen generieren können."
+            "answer": "Derzeit gibt es keine öffentliche API‑Dokumentation unter /api-docs. Die Web‑App nutzt interne API‑Endpunkte. Wenn du API‑Zugriff für eine Integration brauchst, melde dich bitte bei uns."
           },
           {
             "question": "Wie melde ich einen Fehler?",

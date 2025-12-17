@@ -1,0 +1,49 @@
+---
+export const prerender = false;
+
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getLocale } from '@/lib/i18n';
+import { localizePath } from '@/lib/locale-path';
+import { publicDocsService } from '@/lib/public-docs';
+import { getI18n } from '@/utils/i18n';
+
+const slugParam = (Astro.params as Record<string, unknown>)?.slug;
+const slug = typeof slugParam === 'string' ? slugParam : undefined;
+
+if (!slug) {
+  return new Response(null, { status: 404, statusText: 'Not Found' });
+}
+
+const locale = getLocale(Astro.url.pathname);
+const t = getI18n(locale);
+
+const doc = await publicDocsService.getBySlug(locale, slug);
+
+if (!doc) {
+  return new Response(null, { status: 404, statusText: 'Not Found' });
+}
+---
+
+<BaseLayout title={doc.title} description={doc.summary} hideDebugPanel={true}>
+  <main class="mx-auto w-full max-w-4xl px-4 pt-20 pb-16">
+    <a
+      href={localizePath(locale, '/docs')}
+      class="inline-flex items-center text-sm font-medium text-slate-600 hover:text-slate-900"
+    >
+      {t('pages.docs.publicDocs.back')}
+    </a>
+
+    <header class="mt-6">
+      <h1 class="text-3xl sm:text-4xl font-semibold tracking-tight text-slate-950">
+        {doc.title}
+      </h1>
+      {doc.summary ? (
+        <p class="mt-3 text-lg text-slate-700">{doc.summary}</p>
+      ) : null}
+    </header>
+
+    <article class="prose prose-slate mt-10 max-w-none">
+      <Fragment set:html={doc.bodyHtml} />
+    </article>
+  </main>
+</BaseLayout>
