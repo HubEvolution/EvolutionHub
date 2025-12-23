@@ -53,33 +53,6 @@ experimental_sandbox_command_assessment = false
 ghost_commit = false
 enable_experimental_windows_sandbox = false
 
-# MCP servers available to Codex in this project
-# See: https://github.com/openai/codex/blob/main/docs/config.md#mcp-integration
-[mcp_servers]
-[mcp_servers.playwright]
-# Use an absolute path so GUI apps (Windsurf) don't need your shell PATH/nvm init.
-command = "/Users/lucas/.nvm/versions/node/v20.19.1/bin/npx"
-args = ["-y", "--package", "@playwright/mcp@0.0.52", "mcp-server-playwright"]
-# First start may be slow (npx download); give it more headroom.
-startup_timeout_sec = 60
-tool_timeout_sec = 300
-
-# Google Search Console MCP (stdio)
-[mcp_servers.gsc]
-command = "node"
-args = ["scripts/mcp/gsc-extended.mjs"]
-env = { GOOGLE_APPLICATION_CREDENTIALS = "/Users/lucas/Downloads/EvolutionHub_Bundle_v1.7_full/evolution-hub/secrets/google/gsc-service-account.json" }
-# Optional timeouts; keep defaults unless you need more headroom
-# startup_timeout_sec = 20
-# tool_timeout_sec = 60
-# env = { }
-
-# Cloudflare MCP (stdio) — custom server exposing read-only tools
-[mcp_servers.cloudflare]
-command = "node"
-args = ["scripts/mcp/cloudflare-mcp.mjs"]
-# Pass-through environment for auth; set CF_API_TOKEN in your shell or in Codex env
-# env = { CF_API_TOKEN = "${CF_API_TOKEN}" }
 
 # Optional: mark this worktree as trusted
 [projects]

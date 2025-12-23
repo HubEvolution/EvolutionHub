@@ -11,9 +11,10 @@ const { t } = Astro.props as Props;
 <!-- Use cases -->
 <section class="container mx-auto px-4 pb-12 md:pb-14">
   <div class="mx-auto max-w-5xl border-t border-[rgba(var(--lp-page-border)/0.65)] pt-8">
-    <h2 class="text-base sm:text-lg font-semibold text-[rgb(var(--lp-page-fg))]">
+    <h2 class="lp-heading text-base sm:text-lg font-semibold text-[rgb(var(--lp-page-fg))]">
       {t('pages.home.use_cases.heading')}
     </h2>
+    <div class="mt-5 lp-divider" aria-hidden="true"></div>
     <ul class="mt-5 grid gap-6 md:grid-cols-3">
       <li class="flex gap-3">
         <span

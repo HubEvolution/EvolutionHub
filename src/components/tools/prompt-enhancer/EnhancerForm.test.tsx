@@ -7,7 +7,7 @@ import { MAX_FILE_BYTES, MAX_FILES } from '@/config/prompt-enhancer';
 
 // Mock i18n utilities
 vi.mock('@/utils/i18n', () => ({
-  getI18n: () => (key: string, params?: Record<string, any>) => {
+  getI18n: () => (key: string, params?: Record<string, unknown>) => {
     const map: Record<string, string> = {
       'pages.tools.prompt-enhancer.form.inputLabel': 'Input prompt',
       'pages.tools.prompt-enhancer.form.inputPlaceholder': 'Describe...',
@@ -36,12 +36,23 @@ vi.mock('@/utils/i18n', () => ({
       'pages.tools.prompt-enhancer.form.mode.creative': 'Creative',
       'pages.tools.prompt-enhancer.form.mode.professional': 'Professional',
       'pages.tools.prompt-enhancer.form.mode.concise': 'Concise',
+      'pages.tools.prompt-enhancer.form.step4.title': 'Result & comparison',
+      'pages.tools.prompt-enhancer.form.viewText': 'Text view',
+      'pages.tools.prompt-enhancer.form.viewJson': 'JSON view',
+      'pages.tools.prompt-enhancer.form.showComparison': 'Show before/after',
+      'pages.tools.prompt-enhancer.form.hideComparison': 'Hide before/after',
+      'pages.tools.prompt-enhancer.form.copyJson': 'Copy as JSON',
+      'pages.tools.prompt-enhancer.plan.guest': 'Guest',
+      'pages.tools.prompt-enhancer.plan.starter': 'Starter',
+      'pages.tools.prompt-enhancer.safety.title': 'Safety report',
+      'pages.tools.prompt-enhancer.safety.score': 'Score: {score}/10',
+      'header.menu.monthly_quota': 'Monthly quota',
+      'header.menu.credits': 'Credits',
     };
     const value = map[key] || key;
     return value.replace(/\{(\w+)\}/g, (_, k) => String(params?.[k] ?? ''));
   },
 }));
-vi.mock('@/lib/i18n', () => ({ getLocale: () => 'en' }));
 
 // Mock useEnhance to avoid network
 vi.mock('./hooks/useEnhance', () => ({
@@ -63,22 +74,24 @@ describe('EnhancerForm (files validation)', () => {
   });
 
   it('shows error for unsupported file type', async () => {
-    render(<EnhancerForm />);
-    const dropzone = screen.getByLabelText(/drop files here or click to select/i);
-    const input = dropzone.querySelector('input[type="file"]') as HTMLInputElement;
+    render(<EnhancerForm locale="en" />);
+    const input = screen.getByLabelText(
+      /drop files here or click to select/i
+    ) as HTMLInputElement;
 
     const bad = new File([new Blob(['abc'])], 'malware.exe', { type: 'application/x-msdownload' });
     Object.defineProperty(input, 'files', { value: [bad], configurable: true });
     fireEvent.change(input);
 
-    const alert1 = await within(dropzone).findByRole('alert', undefined, { timeout: 5000 });
+    const alert1 = await screen.findByRole('alert', undefined, { timeout: 5000 });
     expect(alert1).toHaveTextContent(/Unsupported/i);
   });
 
   it('shows error for too large file', async () => {
-    render(<EnhancerForm />);
-    const dropzone = screen.getByLabelText(/drop files here or click to select/i);
-    const input = dropzone.querySelector('input[type="file"]') as HTMLInputElement;
+    render(<EnhancerForm locale="en" />);
+    const input = screen.getByLabelText(
+      /drop files here or click to select/i
+    ) as HTMLInputElement;
 
     const oversizeBytes = MAX_FILE_BYTES + 1;
     const bigChunk = 'a'.repeat(oversizeBytes);
@@ -87,14 +100,15 @@ describe('EnhancerForm (files validation)', () => {
     Object.defineProperty(input, 'files', { value: [big], configurable: true });
     fireEvent.change(input);
 
-    const alert2 = await within(dropzone).findByRole('alert', undefined, { timeout: 5000 });
+    const alert2 = await screen.findByRole('alert', undefined, { timeout: 5000 });
     expect(alert2).toHaveTextContent(/too large/i);
   });
 
   it('does not exceed max files when extra files are added', async () => {
-    render(<EnhancerForm />);
-    const dropzone = screen.getByLabelText(/drop files here or click to select/i);
-    const input = dropzone.querySelector('input[type="file"]') as HTMLInputElement;
+    render(<EnhancerForm locale="en" />);
+    const input = screen.getByLabelText(
+      /drop files here or click to select/i
+    ) as HTMLInputElement;
 
     const files: File[] = [];
     for (let i = 0; i < MAX_FILES; i++) {
@@ -108,18 +122,20 @@ describe('EnhancerForm (files validation)', () => {
     Object.defineProperty(input, 'files', { value: [extra], configurable: true });
     fireEvent.change(input);
 
-    const items = await within(dropzone).findAllByRole('listitem', undefined, { timeout: 3000 });
+    const list = await screen.findByTestId('files-list', undefined, { timeout: 3000 });
+    const items = await within(list).findAllByRole('listitem', undefined, { timeout: 3000 });
     expect(items.length).toBeLessThanOrEqual(MAX_FILES);
-    expect(within(dropzone).queryByRole('alert')).toBeNull();
+    expect(screen.queryByRole('alert')).toBeNull();
   });
 
   it('submits with valid text and files', async () => {
-    render(<EnhancerForm />);
+    render(<EnhancerForm locale="en" />);
     const textarea = screen.getByLabelText(/input prompt/i);
     fireEvent.change(textarea, { target: { value: 'Hello world' } });
 
-    const dropzone = screen.getByLabelText(/drop files here or click to select/i);
-    const input = dropzone.querySelector('input[type="file"]') as HTMLInputElement;
+    const input = screen.getByLabelText(
+      /drop files here or click to select/i
+    ) as HTMLInputElement;
     const ok = new File(['x'], 'note.txt', { type: 'text/plain' });
     Object.defineProperty(input, 'files', { value: [ok], configurable: true });
     fireEvent.change(input);

@@ -1,13 +1,5 @@
 {
   "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "types": [
-      "@cloudflare/workers-types",
-      "vitest",
-      "@testing-library/jest-dom",
-      "@testing-library/jest-dom/vitest"
-    ]
-  },
   "include": ["src/**/*"],
   "exclude": [
     "node_modules",

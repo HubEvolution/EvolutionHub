@@ -1,0 +1,22 @@
+{
+  "name": "mcp-hub-admin",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "dev": "wrangler dev src/index.ts --config wrangler.toml --port 8799 --local",
+    "deploy": "wrangler deploy --config wrangler.toml"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.20.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20251111.0",
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

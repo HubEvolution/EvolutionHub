@@ -47,6 +47,7 @@
 
 /* Non-hero background: subtle depth, no cards/shadows, neutral (accent stays single hue) */
 .lp-section-bg {
+  position: relative;
   background-color: rgb(var(--lp-section-wash));
   background-image:
     radial-gradient(
@@ -69,6 +70,72 @@
     linear-gradient(to bottom, rgba(var(--lp-page-border) / 0.14) 1px, transparent 1px);
   background-size: auto, auto, auto, auto, 64px 64px, 64px 64px;
   background-position: 50% -10%, 10% 30%, 90% 55%, 0 0, 0 0, 0 0;
+}
+
+.lp-section-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+  opacity: 0.12;
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+}
+
+.lp-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    rgba(var(--lp-accent) / 0) 0%,
+    rgba(var(--lp-accent) / 0.55) 18%,
+    rgba(var(--lp-page-border) / 0.65) 55%,
+    rgba(var(--lp-accent) / 0.25) 78%,
+    rgba(var(--lp-accent) / 0) 100%
+  );
+}
+
+.lp-heading {
+  position: relative;
+  display: inline-flex;
+}
+.lp-heading::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.55rem;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    rgba(var(--lp-accent) / 0.9),
+    rgba(var(--lp-accent) / 0.15),
+    rgba(var(--lp-accent) / 0)
+  );
+}
+
+.lp-proof-surface {
+  background-image:
+    radial-gradient(
+      900px 360px at 20% 0%,
+      rgba(var(--lp-accent) / 0.12),
+      rgba(var(--lp-accent) / 0) 60%
+    ),
+    linear-gradient(to bottom, rgba(var(--lp-page-surface) / 0.92), rgba(var(--lp-page-surface) / 0.78));
+  border-color: rgba(var(--lp-page-border) / 0.9);
+}
+
+.lp-proof-kicker {
+  background: rgba(var(--lp-accent) / 0.16);
+  color: rgb(var(--lp-page-fg));
+}
+
+.lp-proof-divider {
+  background: linear-gradient(
+    90deg,
+    rgba(var(--lp-page-border) / 0.8),
+    rgba(var(--lp-accent) / 0.45),
+    rgba(var(--lp-page-border) / 0.8)
+  );
 }
 
 .lp-section-bottom-fade {

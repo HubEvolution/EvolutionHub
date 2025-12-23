@@ -11,9 +11,10 @@ const { t } = Astro.props as Props;
 <!-- Prompt starters (static, screenshotable, no new feature) -->
 <section class="container mx-auto px-4 pb-14 md:pb-16">
   <div class="mx-auto max-w-5xl border-t border-[rgba(var(--lp-page-border)/0.65)] pt-8">
-    <h2 class="text-base sm:text-lg font-semibold text-[rgb(var(--lp-page-fg))]">
+    <h2 class="lp-heading text-base sm:text-lg font-semibold text-[rgb(var(--lp-page-fg))]">
       {t('pages.home.starters.heading')}
     </h2>
+    <div class="mt-5 lp-divider" aria-hidden="true"></div>
     <div class="mt-5 flex flex-wrap gap-2">
       <span
         class="inline-flex max-w-full items-center rounded-full border border-[rgba(var(--lp-page-border)/0.65)] px-3 py-1.5 font-mono text-[13px] text-[rgb(var(--lp-page-fg))] bg-[rgba(var(--lp-page-surface)/0.52)]"

@@ -9,35 +9,39 @@ const { t } = Astro.props as Props;
 ---
 
 <!-- INPUT → OUTPUT PROOF -->
-<section class="container mx-auto px-4 py-8 md:py-10">
+<section class="relative z-10 container mx-auto px-4 pt-2 pb-10 md:pb-12">
   <div
-    class="mx-auto max-w-5xl border border-[rgba(var(--lp-page-border)/0.65)] rounded-2xl overflow-hidden bg-[rgba(var(--lp-page-surface)/0.72)]"
+    class="-mt-10 sm:-mt-12 md:-mt-16 mx-auto max-w-6xl border rounded-2xl overflow-hidden lp-proof-surface"
   >
+    <div class="px-5 pt-5 md:px-7 md:pt-6">
+      <div class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold lp-proof-kicker">
+        {t('pages.home.proof.input_label')} → {t('pages.home.proof.output_label')}
+      </div>
+    </div>
+
     <div class="grid md:grid-cols-[1fr_2fr]">
       <div
-        class="px-5 py-4 md:px-6 md:py-5 border-b md:border-b-0 md:border-r border-[rgba(var(--lp-page-border)/0.65)]"
+        class="px-5 py-5 md:px-7 md:py-6 border-b md:border-b-0 md:border-r border-[rgba(var(--lp-page-border)/0.8)]"
       >
         <div class="text-xs font-semibold tracking-wide text-[rgb(var(--lp-page-muted))]">
           {t('pages.home.proof.input_label')}
         </div>
         <div
-          class="mt-2 overflow-x-auto whitespace-nowrap font-mono text-sm md:text-[15px] text-[rgb(var(--lp-page-fg))]"
+          class="mt-2 overflow-x-auto whitespace-nowrap font-mono text-sm md:text-base text-[rgb(var(--lp-page-fg))]"
         >
           {t('pages.home.proof.input_value')}
         </div>
       </div>
-      <div class="px-5 py-4 md:px-6 md:py-5">
+      <div class="px-5 py-5 md:px-7 md:py-6">
         <div class="flex items-center justify-between gap-3">
           <div class="text-xs font-semibold tracking-wide text-[rgb(var(--lp-page-muted))]">
             {t('pages.home.proof.output_label')}
           </div>
-          <div class="h-px flex-1 bg-[rgba(var(--lp-accent)/0.35)]" aria-hidden="true"></div>
+          <div class="h-px flex-1 lp-proof-divider" aria-hidden="true"></div>
         </div>
-        <pre
-          class="mt-2 font-mono text-sm md:text-[15px] leading-relaxed text-[rgb(var(--lp-page-fg))] whitespace-pre-wrap"
+        <pre class="mt-2 font-mono text-sm md:text-base leading-relaxed text-[rgb(var(--lp-page-fg))] whitespace-pre-wrap">
+{t('pages.home.proof.output_value')}</pre
         >
-          {t('pages.home.proof.output_value')}
-        </pre>
       </div>
     </div>
   </div>

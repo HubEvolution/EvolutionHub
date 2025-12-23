@@ -4,7 +4,7 @@ import type { EnhancedPromptJson } from './types';
 import { useEnhance } from './hooks/useEnhance';
 import { useRateLimit } from './hooks/useRateLimit';
 import { getI18n } from '@/utils/i18n';
-import { getLocale } from '@/lib/i18n';
+import type { Locale } from '@/lib/i18n';
 import {
   ALLOWED_TYPES,
   MAX_FILE_BYTES,
@@ -25,6 +25,7 @@ import notify from '@/lib/notify';
 import { useUsage } from './hooks/useUsage';
 
 interface EnhancerFormProps {
+  locale: Locale;
   initialMode?: 'creative' | 'professional' | 'concise';
 }
 
@@ -33,7 +34,7 @@ export interface SafetyReport {
   warnings: string[];
 }
 
-const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' }) => {
+const EnhancerForm: React.FC<EnhancerFormProps> = ({ locale, initialMode = 'creative' }) => {
   const [inputText, setInputText] = useState('');
   const [outputText, setOutputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -52,6 +53,8 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
   const [lastLatencyMs, setLastLatencyMs] = useState<number | null>(null);
   const [enhancedJson, setEnhancedJson] = useState<EnhancedPromptJson | null>(null);
   const [resultView, setResultView] = useState<'text' | 'json'>('text');
+  const [inputExpanded, setInputExpanded] = useState(false);
+  const [contextExpanded, setContextExpanded] = useState(false);
 
   const { enhance } = useEnhance();
   const { retryActive, handle429Response } = useRateLimit();
@@ -63,17 +66,18 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
   const [copied, setCopied] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
-  const locale = getLocale(typeof window !== 'undefined' ? window.location.pathname : '/');
   const t = getI18n(locale);
 
   const planLabel = useMemo(() => {
-    if (ownerType === 'guest' || ownerType === null) return 'Guest';
+    if (ownerType === 'guest' || ownerType === null) {
+      return t('pages.tools.prompt-enhancer.plan.guest');
+    }
     if (ownerType === 'user') {
-      if (plan === 'free' || !plan) return 'Starter';
+      if (plan === 'free' || !plan) return t('pages.tools.prompt-enhancer.plan.starter');
       return plan.charAt(0).toUpperCase() + plan.slice(1);
     }
     return '';
-  }, [ownerType, plan]);
+  }, [ownerType, plan, t]);
 
   const planId = useMemo(
     () =>
@@ -86,15 +90,13 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
   );
 
   const monthlyLabel = useMemo(
-    () =>
-      t('header.menu.monthly_quota') ||
-      (locale.startsWith('de') ? 'Monthly quota' : 'Monthly quota'),
-    [locale, t]
+    () => t('header.menu.monthly_quota'),
+    [t]
   );
 
   const creditsLabel = useMemo(
-    () => t('header.menu.credits') || (locale.startsWith('de') ? 'Credits' : 'Credits'),
-    [locale, t]
+    () => t('header.menu.credits'),
+    [t]
   );
 
   const presets = useMemo(
@@ -159,7 +161,7 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
       return t('pages.tools.prompt-enhancer.form.error.files.tooMany', { count: MAX_FILES });
     }
     for (const f of incoming) {
-      if (!ALLOWED_TYPES.includes(f.type as any)) {
+      if (!ALLOWED_TYPES.includes(f.type)) {
         return t('pages.tools.prompt-enhancer.form.error.file.invalidType');
       }
       if (f.size > MAX_FILE_BYTES) {
@@ -205,6 +207,7 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
       return next;
     });
     setFiles((prev) => [...prev, ...incoming].slice(0, MAX_FILES));
+    setContextExpanded(true);
     setError(null);
     setErrorScope(null);
   };
@@ -548,87 +551,93 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
   ];
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <form
-        className="space-y-6"
-        data-testid="enhancer-form"
-        data-hydrated={hydrated ? 'true' : 'false'}
-      >
-        {/* 1. Eingabe-Prompt */}
-        <section aria-labelledby="pe-step-1-title">
-          <h2
-            id="pe-step-1-title"
-            className="text-sm font-semibold text-gray-900 dark:text-gray-100"
+    <div className="max-w-6xl mx-auto">
+      <div className="lg:grid lg:grid-cols-12 lg:gap-8">
+        <div className="lg:col-span-7">
+          <form
+            className="space-y-6"
+            data-testid="enhancer-form"
+            data-hydrated={hydrated ? 'true' : 'false'}
           >
-            {t('pages.tools.prompt-enhancer.form.step1.title')}
-          </h2>
-          <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">
-            {t('pages.tools.prompt-enhancer.form.step1.subtitle')}
-          </p>
+            {/* 1. Eingabe-Prompt */}
+            <section aria-labelledby="pe-step-1-title">
+              <h2
+                id="pe-step-1-title"
+                className="text-sm font-semibold text-gray-900 dark:text-gray-100"
+              >
+                {t('pages.tools.prompt-enhancer.form.step1.title')}
+              </h2>
+              <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">
+                {t('pages.tools.prompt-enhancer.form.step1.subtitle')}
+              </p>
 
-          <div className="mt-3">
-            <label
-              htmlFor="inputText"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-            >
-              {t('pages.tools.prompt-enhancer.form.inputLabel')}
-            </label>
-            <textarea
-              id="inputText"
-              ref={inputRef}
-              value={inputText}
-              onChange={handleInputChange}
-              className="w-full h-32 p-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder={t('pages.tools.prompt-enhancer.form.inputPlaceholder')}
-              aria-describedby="inputError"
-              disabled={isLoading}
-              maxLength={1000}
-              data-testid="input-text"
-            />
-            <div className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              {inputText.length}/1000
-            </div>
-            {error && (errorScope === 'input' || errorScope === null) && (
-              <Alert id="inputError">{error}</Alert>
-            )}
-          </div>
-
-          <div className="mt-4">
-            <p className="mb-2 text-xs font-medium text-gray-700 dark:text-gray-300">
-              {t('pages.tools.prompt-enhancer.form.step1.presetsIntro')}
-            </p>
-            <div className="mb-2 flex flex-wrap gap-2">
-              {presets.map((preset) => (
-                <Button
-                  key={preset.id}
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  disabled={isLoading}
-                  className="text-xs"
-                  onClick={() => {
-                    const base = inputText.trim();
-                    const next = base ? `${base}\n\n${preset.template}` : preset.template;
-                    setInputText(next);
-                    inputRef.current?.focus();
-                  }}
-                  aria-label={preset.description}
+              <div className="mt-3">
+                <label
+                  htmlFor="inputText"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                 >
-                  {preset.label}
-                </Button>
-              ))}
-            </div>
-            {presets.length > 0 && (
-              <div className="mb-3 space-y-0.5 text-xs text-gray-500 dark:text-gray-400">
-                {presets.map((preset) => (
-                  <p key={preset.id}>
-                    <span className="font-medium">{preset.label}:</span> {preset.description}
-                  </p>
-                ))}
+                  {t('pages.tools.prompt-enhancer.form.inputLabel')}
+                </label>
+                <textarea
+                  id="inputText"
+                  ref={inputRef}
+                  value={inputText}
+                  onChange={handleInputChange}
+                  onFocus={() => setInputExpanded(true)}
+                  onBlur={() => setInputExpanded(Boolean(inputText.trim()))}
+                  className={`w-full ${
+                    inputExpanded ? 'h-32 lg:h-40' : 'h-28 lg:h-24'
+                  } p-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white`}
+                  placeholder={t('pages.tools.prompt-enhancer.form.inputPlaceholder')}
+                  aria-describedby="inputError"
+                  disabled={isLoading}
+                  maxLength={1000}
+                  data-testid="input-text"
+                />
+                <div className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                  {inputText.length}/1000
+                </div>
+                {error && (errorScope === 'input' || errorScope === null) && (
+                  <Alert id="inputError">{error}</Alert>
+                )}
               </div>
-            )}
-          </div>
-        </section>
+
+              <div className="mt-4">
+                <p className="mb-2 text-xs font-medium text-gray-700 dark:text-gray-300">
+                  {t('pages.tools.prompt-enhancer.form.step1.presetsIntro')}
+                </p>
+                <div className="mb-2 flex flex-wrap gap-2">
+                  {presets.map((preset) => (
+                    <Button
+                      key={preset.id}
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      disabled={isLoading}
+                      className="text-xs"
+                      onClick={() => {
+                        const base = inputText.trim();
+                        const next = base ? `${base}\n\n${preset.template}` : preset.template;
+                        setInputText(next);
+                        inputRef.current?.focus();
+                      }}
+                      aria-label={preset.description}
+                    >
+                      {preset.label}
+                    </Button>
+                  ))}
+                </div>
+                {presets.length > 0 && (
+                  <div className="mb-3 space-y-0.5 text-xs text-gray-500 dark:text-gray-400">
+                    {presets.map((preset) => (
+                      <p key={preset.id}>
+                        <span className="font-medium">{preset.label}:</span> {preset.description}
+                      </p>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </section>
 
         {/* 2. Kontext (Dateien & URLs) */}
         <section aria-labelledby="pe-step-2-title">
@@ -642,190 +651,216 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
             {t('pages.tools.prompt-enhancer.form.step2.subtitle')}
           </p>
           <div className="mt-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white/60 dark:bg-gray-900/40 p-3">
-            {/* URL Import (inline, collapsible) */}
-            <div className="mb-3">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="text-xs text-gray-600 dark:text-gray-400">
-                  {t('pages.tools.prompt-enhancer.form.files.urlImportLabel')}
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                disabled={isLoading || files.length >= MAX_FILES}
+                onClick={() => {
+                  setContextExpanded(true);
+                  fileInputRef.current?.click();
+                }}
+              >
+                {t('pages.tools.prompt-enhancer.form.files.selectButton')}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setContextExpanded(true);
+                  setShowUrlInput((prev) => !prev);
+                }}
+                disabled={isLoading || urlLoading || files.length >= MAX_FILES}
+              >
+                {showUrlInput
+                  ? t('pages.tools.prompt-enhancer.form.files.urlImportHide')
+                  : t('pages.tools.prompt-enhancer.form.files.urlImportToggle')}
+              </Button>
+              {files.length > 0 && (
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {t('pages.tools.prompt-enhancer.form.files.selectedCount', { count: files.length })}
                 </p>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowUrlInput((prev) => !prev)}
-                  disabled={isLoading || urlLoading || files.length >= MAX_FILES}
-                >
-                  {showUrlInput
-                    ? t('pages.tools.prompt-enhancer.form.files.urlImportHide')
-                    : t('pages.tools.prompt-enhancer.form.files.urlImportToggle')}
-                </Button>
-              </div>
-              {showUrlInput && (
-                <div className="mt-2 flex gap-2">
-                  <input
-                    id="urlImport"
-                    type="url"
-                    value={urlValue}
-                    onChange={(e) => setUrlValue(e.target.value)}
-                    placeholder={t('pages.tools.prompt-enhancer.form.files.urlImportPlaceholder')}
-                    className="flex-1 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                    disabled={isLoading || urlLoading || files.length >= MAX_FILES}
-                  />
-                  <Button
-                    type="button"
-                    onClick={onImportUrl}
-                    disabled={
-                      isLoading || urlLoading || !urlValue.trim() || files.length >= MAX_FILES
-                    }
-                  >
-                    {urlLoading ? t('common.loading') : t('common.import')}
-                  </Button>
-                </div>
               )}
             </div>
 
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-              {t('pages.tools.prompt-enhancer.form.files.label')}
-            </label>
-            <div
-              onDragOver={onDragOver}
-              onDragLeave={onDragLeave}
-              onDrop={onDrop}
-              onClick={() => {
-                if (!isLoading && files.length < MAX_FILES) {
-                  fileInputRef.current?.click();
-                }
-              }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
-                  e.preventDefault();
-                  if (!isLoading && files.length < MAX_FILES) {
-                    fileInputRef.current?.click();
-                  }
-                }
-              }}
-              className={`p-3 border-2 border-dashed rounded-md text-sm cursor-pointer transition-colors ${dragActive ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-300 dark:border-gray-600 hover:border-blue-400 hover:bg-blue-50/40 dark:hover:border-blue-400 dark:hover:bg-blue-900/10'} `}
+            <input
+              id="fileInput"
+              ref={fileInputRef}
+              type="file"
+              onChange={onFileInputChange}
+              multiple
+              accept={['.jpg', '.jpeg', '.png', '.webp', '.pdf', '.txt', '.md'].join(',')}
+              disabled={isLoading}
+              className="sr-only"
               aria-label={t('pages.tools.prompt-enhancer.form.files.dropHint')}
-              role="button"
-              tabIndex={0}
-            >
-              <div className="flex flex-col items-center justify-center gap-1.5 text-center text-gray-600 dark:text-gray-300">
-                <div className="flex items-center justify-center h-8 w-8 rounded-full bg-blue-500/10 text-blue-500 dark:text-blue-300 dark:bg-blue-500/20">
-                  <UploadIcon className="h-4 w-4" aria-hidden="true" />
+            />
+
+            {error && errorScope === 'files' && <Alert className="mt-2">{error}</Alert>}
+
+            {(contextExpanded || files.length > 0 || showUrlInput || dragActive) && (
+              <div className="mt-3">
+                <div className="mb-3">
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    {t('pages.tools.prompt-enhancer.form.files.urlImportLabel')}
+                  </p>
+                  {showUrlInput && (
+                    <div className="mt-2 flex gap-2">
+                      <input
+                        id="urlImport"
+                        type="url"
+                        value={urlValue}
+                        onChange={(e) => setUrlValue(e.target.value)}
+                        placeholder={t('pages.tools.prompt-enhancer.form.files.urlImportPlaceholder')}
+                        className="flex-1 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                        disabled={isLoading || urlLoading || files.length >= MAX_FILES}
+                      />
+                      <Button
+                        type="button"
+                        onClick={onImportUrl}
+                        disabled={
+                          isLoading || urlLoading || !urlValue.trim() || files.length >= MAX_FILES
+                        }
+                      >
+                        {urlLoading ? t('common.loading') : t('common.import')}
+                      </Button>
+                    </div>
+                  )}
                 </div>
-                <p className="text-sm font-medium">
-                  {t('pages.tools.prompt-enhancer.form.files.dropHint')}
-                </p>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  disabled={isLoading || files.length >= MAX_FILES}
-                  className="mt-1"
-                  onClick={(e) => {
-                    e.stopPropagation();
+
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                  {t('pages.tools.prompt-enhancer.form.files.label')}
+                </label>
+                <div
+                  onDragOver={onDragOver}
+                  onDragLeave={onDragLeave}
+                  onDrop={onDrop}
+                  onClick={() => {
                     if (!isLoading && files.length < MAX_FILES) {
                       fileInputRef.current?.click();
                     }
                   }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+                      e.preventDefault();
+                      if (!isLoading && files.length < MAX_FILES) {
+                        fileInputRef.current?.click();
+                      }
+                    }
+                  }}
+                  className={`p-3 border-2 border-dashed rounded-md text-sm cursor-pointer transition-colors ${
+                    dragActive
+                      ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                      : 'border-gray-300 dark:border-gray-600 hover:border-blue-400 hover:bg-blue-50/40 dark:hover:border-blue-400 dark:hover:bg-blue-900/10'
+                  }`}
+                  aria-label={t('pages.tools.prompt-enhancer.form.files.dropHint')}
+                  role="button"
+                  tabIndex={0}
                 >
-                  {t('pages.tools.prompt-enhancer.form.files.selectButton')}
-                </Button>
-                {files.length > 0 && (
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {t('pages.tools.prompt-enhancer.form.files.selectedCount', {
-                      count: files.length,
-                    })}
-                  </p>
-                )}
-              </div>
-              <input
-                id="fileInput"
-                ref={fileInputRef}
-                type="file"
-                onChange={onFileInputChange}
-                multiple
-                accept={['.jpg', '.jpeg', '.png', '.webp', '.pdf', '.txt', '.md'].join(',')}
-                disabled={isLoading}
-                className="sr-only"
-              />
-              <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                {t('pages.tools.prompt-enhancer.form.files.allowedTypes')}: JPG, PNG, WEBP, PDF,
-                TXT, MD · {t('pages.tools.prompt-enhancer.form.files.maxSize')}:{' '}
-                {formatBytes(MAX_FILE_BYTES)} ·{' '}
-                {t('pages.tools.prompt-enhancer.form.files.maxCount', { count: MAX_FILES })}
-              </div>
-              {error && errorScope === 'files' && <Alert className="mt-2">{error}</Alert>}
-              {files.length > 0 && (
-                <ul className="mt-4 space-y-2 text-left">
-                  {files.map((f, idx) => (
-                    <li
-                      key={idx}
-                      className="text-sm border border-gray-200 dark:border-gray-700 rounded-md p-2"
+                  <div className="flex flex-col items-center justify-center gap-1.5 text-center text-gray-600 dark:text-gray-300">
+                    <div className="flex items-center justify-center h-8 w-8 rounded-full bg-blue-500/10 text-blue-500 dark:text-blue-300 dark:bg-blue-500/20">
+                      <UploadIcon className="h-4 w-4" aria-hidden="true" />
+                    </div>
+                    <p className="text-sm font-medium">
+                      {t('pages.tools.prompt-enhancer.form.files.dropHint')}
+                    </p>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      disabled={isLoading || files.length >= MAX_FILES}
+                      className="mt-1"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (!isLoading && files.length < MAX_FILES) {
+                          fileInputRef.current?.click();
+                        }
+                      }}
                     >
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="truncate">
-                          {f.name} · {f.type || 'unknown'} · {formatBytes(f.size)}
-                        </span>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            type="button"
-                            onClick={() => moveFileUp(idx)}
-                            aria-label={`Move up ${f.name}`}
-                            disabled={isLoading || idx === 0}
-                            variant="ghost"
-                            size="sm"
-                            className="px-2 py-1 h-auto rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
-                          >
-                            ↑
-                          </Button>
-                          <Button
-                            type="button"
-                            onClick={() => moveFileDown(idx)}
-                            aria-label={`Move down ${f.name}`}
-                            disabled={isLoading || idx === files.length - 1}
-                            variant="ghost"
-                            size="sm"
-                            className="px-2 py-1 h-auto rounded-md border opacity-100 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
-                          >
-                            ↓
-                          </Button>
-                          <Button
-                            type="button"
-                            onClick={() => onRemoveFile(idx)}
-                            disabled={isLoading}
-                            variant="ghost"
-                            size="sm"
-                            className="px-2 py-1 h-auto rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
-                          >
-                            {t('pages.tools.prompt-enhancer.form.files.remove')}
-                          </Button>
-                        </div>
-                      </div>
-                      {/* Text preview if available */}
-                      {(() => {
-                        const key = fileKey(f);
-                        const pv = textPreviews[key];
-                        return pv ? (
-                          <div className="mt-1 text-xs text-gray-600 dark:text-gray-300">
-                            {pv}
-                            {pv.length >= 160 ? '…' : ''}
+                      {t('pages.tools.prompt-enhancer.form.files.selectButton')}
+                    </Button>
+                  </div>
+
+                  <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                    {t('pages.tools.prompt-enhancer.form.files.allowedTypes')}: JPG, PNG, WEBP, PDF,
+                    TXT, MD · {t('pages.tools.prompt-enhancer.form.files.maxSize')}:{' '}
+                    {formatBytes(MAX_FILE_BYTES)} ·{' '}
+                    {t('pages.tools.prompt-enhancer.form.files.maxCount', { count: MAX_FILES })}
+                  </div>
+
+                  {files.length > 0 && (
+                    <ul className="mt-4 space-y-2 text-left" data-testid="files-list">
+                      {files.map((f, idx) => (
+                        <li
+                          key={idx}
+                          className="text-sm border border-gray-200 dark:border-gray-700 rounded-md p-2"
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="truncate">
+                              {f.name} · {f.type || 'unknown'} · {formatBytes(f.size)}
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                type="button"
+                                onClick={() => moveFileUp(idx)}
+                                aria-label={`Move up ${f.name}`}
+                                disabled={isLoading || idx === 0}
+                                variant="ghost"
+                                size="sm"
+                                className="px-2 py-1 h-auto rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                              >
+                                ↑
+                              </Button>
+                              <Button
+                                type="button"
+                                onClick={() => moveFileDown(idx)}
+                                aria-label={`Move down ${f.name}`}
+                                disabled={isLoading || idx === files.length - 1}
+                                variant="ghost"
+                                size="sm"
+                                className="px-2 py-1 h-auto rounded-md border opacity-100 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                              >
+                                ↓
+                              </Button>
+                              <Button
+                                type="button"
+                                onClick={() => onRemoveFile(idx)}
+                                disabled={isLoading}
+                                variant="ghost"
+                                size="sm"
+                                className="px-2 py-1 h-auto rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                              >
+                                {t('pages.tools.prompt-enhancer.form.files.remove')}
+                              </Button>
+                            </div>
                           </div>
-                        ) : null;
-                      })()}
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {files.length >= MAX_FILES && (
-                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                  {t('pages.tools.prompt-enhancer.form.files.softLimit', { count: MAX_FILES })}
+                          {(() => {
+                            const key = fileKey(f);
+                            const pv = textPreviews[key];
+                            return pv ? (
+                              <div className="mt-1 text-xs text-gray-600 dark:text-gray-300">
+                                {pv}
+                                {pv.length >= 160 ? '…' : ''}
+                              </div>
+                            ) : null;
+                          })()}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  {files.length >= MAX_FILES && (
+                    <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                      {t('pages.tools.prompt-enhancer.form.files.softLimit', { count: MAX_FILES })}
+                    </p>
+                  )}
+                </div>
+                <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                  {t('pages.tools.prompt-enhancer.form.step2.help')}
                 </p>
-              )}
-            </div>
-            <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
-              {t('pages.tools.prompt-enhancer.form.step2.help')}
-            </p>
+              </div>
+            )}
           </div>
         </section>
 
@@ -877,244 +912,272 @@ const EnhancerForm: React.FC<EnhancerFormProps> = ({ initialMode = 'creative' })
           </p>
         </section>
 
-        <Button
-          type="button"
-          onClick={handleEnhance}
-          disabled={isLoading || retryActive || !inputText.trim()}
-          className="w-full"
-          aria-label={t('pages.tools.prompt-enhancer.form.enhanceButton')}
-          data-testid="enhance-button"
-        >
-          {isLoading
-            ? t('pages.tools.prompt-enhancer.form.enhancing')
-            : t('pages.tools.prompt-enhancer.form.enhanceButton')}
-        </Button>
-
-        {usage && (
-          <div className="mt-4 flex flex-col items-center">
-            <ToolUsageBadge
-              label={t('pages.tools.prompt-enhancer.usage.title')}
-              loadingLabel={t('common.loading')}
-              usage={usage}
-              ownerType={ownerType}
-              planId={planId}
-              planLabel={planLabel}
-              layout="card"
-              size="md"
-              align="center"
-              showIcon
-              showResetHint={false}
-              showOwnerHint={false}
-              showPercent
-              detailsTitle={t('pages.tools.prompt-enhancer.usage.title')}
-              resetLabel={t('pages.tools.items.Imag-Enhancer.app.resetLabel')}
-              headerCredits={
-                creditsBalanceTenths != null ? Math.round(creditsBalanceTenths) / 10 : null
-              }
-              detailsItems={[
-                {
-                  id: 'daily',
-                  label: t('pages.tools.prompt-enhancer.usage.title'),
-                  used: usage.used,
-                  limit: usage.limit,
-                  resetAt: usage.resetAt,
-                },
-                ...(monthlyUsage
-                  ? [
-                      {
-                        id: 'monthly',
-                        label: monthlyLabel,
-                        used: monthlyUsage.used,
-                        limit: monthlyUsage.limit,
-                        resetAt: monthlyUsage.resetAt,
-                      },
-                    ]
-                  : []),
-                ...(creditsBalanceTenths != null
-                  ? [
-                      {
-                        id: 'credits',
-                        label: creditsLabel,
-                        used: Math.round(creditsBalanceTenths) / 10,
-                        limit: null,
-                        kind: 'credits' as const,
-                      },
-                    ]
-                  : []),
-              ]}
-            />
-            <p className="mt-2 text-xs text-gray-500 dark:text-gray-400 text-center">
-              {t('pages.tools.prompt-enhancer.usage.freeMessage')}
-            </p>
-          </div>
-        )}
-      </form>
-
-      {outputText && (
-        <section aria-labelledby="pe-step-4-title" className="mt-6">
-          <h2
-            id="pe-step-4-title"
-            className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2"
-          >
-            {t('pages.tools.prompt-enhancer.form.step4.title')}
-          </h2>
-          <div className="flex items-center justify-between mb-2">
-            <label
-              htmlFor="outputText"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            <Button
+              type="button"
+              onClick={handleEnhance}
+              disabled={isLoading || retryActive || !inputText.trim()}
+              className="w-full"
+              aria-label={t('pages.tools.prompt-enhancer.form.enhanceButton')}
+              data-testid="enhance-button"
             >
-              {t('pages.tools.prompt-enhancer.form.outputLabel')}
-            </label>
-            <div className="flex items-center gap-2">
-              <div className="inline-flex rounded-md border border-gray-300 dark:border-gray-600 overflow-hidden text-xs">
-                <button
-                  type="button"
-                  onClick={() => setResultView('text')}
-                  className={`px-2 py-1 ${resultView === 'text' ? 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300'}`}
-                  aria-pressed={resultView === 'text'}
-                >
-                  {t('pages.tools.prompt-enhancer.form.viewText')}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => enhancedJson && setResultView('json')}
-                  className={`px-2 py-1 border-l border-gray-300 dark:border-gray-600 ${
-                    resultView === 'json'
-                      ? 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100'
-                      : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300'
-                  } ${!enhancedJson ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  aria-pressed={resultView === 'json'}
-                  disabled={!enhancedJson}
-                >
-                  {t('pages.tools.prompt-enhancer.form.viewJson')}
-                </button>
+              {isLoading
+                ? t('pages.tools.prompt-enhancer.form.enhancing')
+                : t('pages.tools.prompt-enhancer.form.enhanceButton')}
+            </Button>
+          </form>
+        </div>
+
+        <aside className="mt-8 lg:mt-0 lg:col-span-5 lg:sticky lg:top-24 lg:self-start">
+          <div className="space-y-4">
+            <section
+              aria-labelledby="pe-step-4-title"
+              className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white/60 dark:bg-gray-900/40 p-4"
+            >
+              <h2
+                id="pe-step-4-title"
+                className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2"
+              >
+                {t('pages.tools.prompt-enhancer.form.step4.title')}
+              </h2>
+              <div className="flex flex-col gap-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <label
+                    htmlFor="outputText"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
+                    {t('pages.tools.prompt-enhancer.form.outputLabel')}
+                  </label>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <div className="inline-flex rounded-md border border-gray-300 dark:border-gray-600 overflow-hidden text-xs">
+                      <button
+                        type="button"
+                        onClick={() => setResultView('text')}
+                        className={`px-2 py-1 ${resultView === 'text' ? 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300'}`}
+                        aria-pressed={resultView === 'text'}
+                        disabled={!outputText}
+                      >
+                        {t('pages.tools.prompt-enhancer.form.viewText')}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => enhancedJson && setResultView('json')}
+                        className={`px-2 py-1 border-l border-gray-300 dark:border-gray-600 ${
+                          resultView === 'json'
+                            ? 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100'
+                            : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300'
+                        } ${!enhancedJson || !outputText ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        aria-pressed={resultView === 'json'}
+                        disabled={!enhancedJson || !outputText}
+                      >
+                        {t('pages.tools.prompt-enhancer.form.viewJson')}
+                      </button>
+                    </div>
+                    <Button
+                      type="button"
+                      onClick={() => setShowComparison((prev) => !prev)}
+                      disabled={!outputText}
+                      variant="ghost"
+                      size="sm"
+                      className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                      aria-pressed={showComparison ? 'true' : 'false'}
+                    >
+                      {showComparison
+                        ? t('pages.tools.prompt-enhancer.form.hideComparison')
+                        : t('pages.tools.prompt-enhancer.form.showComparison')}
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={handleCopy}
+                      disabled={!outputText}
+                      variant="ghost"
+                      size="sm"
+                      className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                      aria-live="polite"
+                    >
+                      {copied
+                        ? t('pages.tools.prompt-enhancer.form.copied')
+                        : t('pages.tools.prompt-enhancer.form.copy')}
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={handleCopyJson}
+                      disabled={!outputText}
+                      variant="ghost"
+                      size="sm"
+                      className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                    >
+                      {t('pages.tools.prompt-enhancer.form.copyJson')}
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={handleClear}
+                      disabled={isLoading}
+                      variant="secondary"
+                      size="sm"
+                      className="px-3 py-1.5 text-sm"
+                    >
+                      {t('pages.tools.prompt-enhancer.form.clear')}
+                    </Button>
+                  </div>
+                </div>
+
+                {lastLatencyMs != null && (
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {t('pages.tools.prompt-enhancer.form.resultLatency', { ms: lastLatencyMs })}
+                  </p>
+                )}
+
+                {outputText ? (
+                  resultView === 'text' || !enhancedJson ? (
+                    <textarea
+                      id="outputText"
+                      value={outputText}
+                      readOnly
+                      className="w-full h-32 p-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-gray-50 dark:bg-gray-600 dark:text-white"
+                      aria-label={t('pages.tools.prompt-enhancer.form.outputLabel')}
+                      data-testid="output-text"
+                    />
+                  ) : (
+                    <pre
+                      className="w-full h-48 p-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-gray-50 dark:bg-gray-900 text-xs text-gray-900 dark:text-gray-50 overflow-auto font-mono whitespace-pre"
+                      aria-label={t('pages.tools.prompt-enhancer.form.outputLabel')}
+                      data-testid="output-json"
+                    >
+                      {JSON.stringify(enhancedJson, null, 2)}
+                    </pre>
+                  )
+                ) : (
+                  <textarea
+                    id="outputText"
+                    value=""
+                    readOnly
+                    disabled
+                    className="w-full h-32 p-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-gray-50 dark:bg-gray-600 dark:text-white opacity-60"
+                    aria-label={t('pages.tools.prompt-enhancer.form.outputLabel')}
+                    data-testid="output-text"
+                  />
+                )}
+
+                {showComparison && outputText && (
+                  <div className="rounded-md border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/60 p-3">
+                    <label
+                      htmlFor="originalText"
+                      className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1"
+                    >
+                      {t('pages.tools.prompt-enhancer.form.inputLabelOriginal')}
+                    </label>
+                    <textarea
+                      id="originalText"
+                      value={inputText}
+                      readOnly
+                      className="w-full h-24 p-3 border border-gray-200 dark:border-gray-700 rounded-md shadow-sm bg-white dark:bg-gray-900 dark:text-white"
+                      aria-label={t('pages.tools.prompt-enhancer.form.inputLabelOriginal')}
+                    />
+                  </div>
+                )}
+
+                {improvements.length > 0 && outputText && (
+                  <div className="p-3 rounded-md bg-blue-50 dark:bg-blue-900/20">
+                    <h3 className="text-xs font-medium text-blue-800 dark:text-blue-200 mb-1">
+                      {t('pages.tools.prompt-enhancer.improvements.title')}
+                    </h3>
+                    <ul className="text-xs text-blue-800 dark:text-blue-100 list-disc list-inside">
+                      {improvements.includes('structure') && (
+                        <li>{t('pages.tools.prompt-enhancer.improvements.structure')}</li>
+                      )}
+                      {improvements.includes('constraints') && (
+                        <li>{t('pages.tools.prompt-enhancer.improvements.constraints')}</li>
+                      )}
+                      {improvements.includes('steps') && (
+                        <li>{t('pages.tools.prompt-enhancer.improvements.steps')}</li>
+                      )}
+                    </ul>
+                  </div>
+                )}
               </div>
-              <Button
-                type="button"
-                onClick={() => setShowComparison((prev) => !prev)}
-                disabled={!outputText}
-                variant="ghost"
-                size="sm"
-                className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
-                aria-pressed={showComparison ? 'true' : 'false'}
-              >
-                {showComparison
-                  ? t('pages.tools.prompt-enhancer.form.hideComparison')
-                  : t('pages.tools.prompt-enhancer.form.showComparison')}
-              </Button>
-              <Button
-                type="button"
-                onClick={handleCopy}
-                disabled={!outputText}
-                variant="ghost"
-                size="sm"
-                className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
-                aria-live="polite"
-              >
-                {copied
-                  ? t('pages.tools.prompt-enhancer.form.copied')
-                  : t('pages.tools.prompt-enhancer.form.copy')}
-              </Button>
-              <Button
-                type="button"
-                onClick={handleCopyJson}
-                disabled={!outputText}
-                variant="ghost"
-                size="sm"
-                className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
-              >
-                {t('pages.tools.prompt-enhancer.form.copyJson')}
-              </Button>
-              <Button
-                type="button"
-                onClick={handleClear}
-                disabled={isLoading}
-                variant="secondary"
-                size="sm"
-                className="px-3 py-1.5 text-sm"
-              >
-                {t('pages.tools.prompt-enhancer.form.clear')}
-              </Button>
-            </div>
-          </div>
-          {lastLatencyMs != null && (
-            <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">
-              {t('pages.tools.prompt-enhancer.form.resultLatency', { ms: lastLatencyMs })}
-            </p>
-          )}
-          {resultView === 'text' || !enhancedJson ? (
-            <textarea
-              id="outputText"
-              value={outputText}
-              readOnly
-              className="w-full h-32 p-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-gray-50 dark:bg-gray-600 dark:text-white"
-              aria-label={t('pages.tools.prompt-enhancer.form.outputLabel')}
-              data-testid="output-text"
-            />
-          ) : (
-            <pre
-              className="w-full h-48 p-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-gray-50 dark:bg-gray-900 text-xs text-gray-900 dark:text-gray-50 overflow-auto font-mono whitespace-pre"
-              aria-label={t('pages.tools.prompt-enhancer.form.outputLabel')}
-              data-testid="output-json"
-            >
-              {JSON.stringify(enhancedJson, null, 2)}
-            </pre>
-          )}
-          {showComparison && (
-            <div className="mt-3 rounded-md border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/60 p-3">
-              <label
-                htmlFor="originalText"
-                className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1"
-              >
-                {t('pages.tools.prompt-enhancer.form.inputLabelOriginal')}
-              </label>
-              <textarea
-                id="originalText"
-                value={inputText}
-                readOnly
-                className="w-full h-24 p-3 border border-gray-200 dark:border-gray-700 rounded-md shadow-sm bg-white dark:bg-gray-900 dark:text-white"
-                aria-label={t('pages.tools.prompt-enhancer.form.inputLabelOriginal')}
-              />
-            </div>
-          )}
-          {improvements.length > 0 && (
-            <div className="mt-3 p-3 rounded-md bg-blue-50 dark:bg-blue-900/20">
-              <h3 className="text-xs font-medium text-blue-800 dark:text-blue-200 mb-1">
-                {t('pages.tools.prompt-enhancer.improvements.title')}
-              </h3>
-              <ul className="text-xs text-blue-800 dark:text-blue-100 list-disc list-inside">
-                {improvements.includes('structure') && (
-                  <li>{t('pages.tools.prompt-enhancer.improvements.structure')}</li>
-                )}
-                {improvements.includes('constraints') && (
-                  <li>{t('pages.tools.prompt-enhancer.improvements.constraints')}</li>
-                )}
-                {improvements.includes('steps') && (
-                  <li>{t('pages.tools.prompt-enhancer.improvements.steps')}</li>
-                )}
-              </ul>
-            </div>
-          )}
-        </section>
-      )}
+            </section>
 
-      {safetyReport && (
-        <div className="mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-md">
-          <h3 className="text-sm font-medium text-yellow-800 dark:text-yellow-200 mb-2">
-            {t('pages.tools.prompt-enhancer.safety.title')}
-          </h3>
-          <div className="text-sm text-yellow-700 dark:text-yellow-300">
-            <p>Score: {safetyReport.score}/10</p>
-            {safetyReport.warnings.length > 0 && (
-              <ul className="list-disc list-inside mt-2">
-                {safetyReport.warnings.map((warning, index) => (
-                  <li key={index}>{warning}</li>
-                ))}
-              </ul>
+            {safetyReport && (
+              <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-md">
+                <h3 className="text-sm font-medium text-yellow-800 dark:text-yellow-200 mb-2">
+                  {t('pages.tools.prompt-enhancer.safety.title')}
+                </h3>
+                <div className="text-sm text-yellow-700 dark:text-yellow-300">
+                  <p>
+                    {t('pages.tools.prompt-enhancer.safety.score', { score: safetyReport.score })}
+                  </p>
+                  {safetyReport.warnings.length > 0 && (
+                    <ul className="list-disc list-inside mt-2">
+                      {safetyReport.warnings.map((warning, index) => (
+                        <li key={index}>{warning}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {usage && (
+              <div className="flex flex-col items-center">
+                <ToolUsageBadge
+                  label={t('pages.tools.prompt-enhancer.usage.title')}
+                  loadingLabel={t('common.loading')}
+                  usage={usage}
+                  ownerType={ownerType}
+                  planId={planId}
+                  planLabel={planLabel}
+                  layout="card"
+                  size="md"
+                  align="center"
+                  showIcon
+                  showResetHint={false}
+                  showOwnerHint={false}
+                  showPercent
+                  detailsTitle={t('pages.tools.prompt-enhancer.usage.title')}
+                  resetLabel={t('pages.tools.items.Imag-Enhancer.app.resetLabel')}
+                  headerCredits={
+                    creditsBalanceTenths != null ? Math.round(creditsBalanceTenths) / 10 : null
+                  }
+                  detailsItems={[
+                    {
+                      id: 'daily',
+                      label: t('pages.tools.prompt-enhancer.usage.title'),
+                      used: usage.used,
+                      limit: usage.limit,
+                      resetAt: usage.resetAt,
+                    },
+                    ...(monthlyUsage
+                      ? [
+                          {
+                            id: 'monthly',
+                            label: monthlyLabel,
+                            used: monthlyUsage.used,
+                            limit: monthlyUsage.limit,
+                            resetAt: monthlyUsage.resetAt,
+                          },
+                        ]
+                      : []),
+                    ...(creditsBalanceTenths != null
+                      ? [
+                          {
+                            id: 'credits',
+                            label: creditsLabel,
+                            used: Math.round(creditsBalanceTenths) / 10,
+                            limit: null,
+                            kind: 'credits' as const,
+                          },
+                        ]
+                      : []),
+                  ]}
+                />
+                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400 text-center">
+                  {t('pages.tools.prompt-enhancer.usage.freeMessage')}
+                </p>
+              </div>
             )}
           </div>
-        </div>
-      )}
+        </aside>
+      </div>
     </div>
   );
 };
