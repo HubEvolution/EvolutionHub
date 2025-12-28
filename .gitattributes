@@ -1,0 +1,12 @@
+*.astro linguist-language=Astro
+workers/** linguist-language=TypeScript
+
+out/** linguist-generated=true
+public/** linguist-generated=true
+assets/** linguist-generated=true
+
+*.log linguist-generated=true
+*.out linguist-generated=true
+*.zip linguist-generated=true
+*.mp4 linguist-generated=true
+HAR/** linguist-generated=true
