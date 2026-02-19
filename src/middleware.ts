@@ -206,6 +206,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
     return BLOG_RE.test(p);
   }
 
+  function isDocsRoute(p: string): boolean {
+    const DOCS_RE = /^\/(?:(?:de|en)\/)?docs(?:\/|$)/;
+    return DOCS_RE.test(p);
+  }
+
   // Admin routes should not be locale-prefixed and must bypass gates
   function isAdminRoute(p: string): boolean {
     const ADMIN_RE = /^\/admin(\/|$)/;
@@ -364,6 +369,30 @@ export const onRequest = defineMiddleware(async (context, next) => {
     isGuestAccessibleToolRoute(path) ||
     isBlogRoute(path) ||
     isAdminRoute(path);
+
+  if (
+    !bot &&
+    !existingLocale &&
+    !cookieLocale &&
+    !isApi &&
+    !isAsset &&
+    !isR2Proxy &&
+    isDocsRoute(path)
+  ) {
+    const best = detectFromAcceptLanguage(context.request.headers.get('accept-language'));
+    try {
+      context.cookies.set(cookieName, best, {
+        path: '/',
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: url.protocol === 'https:',
+        maxAge: 60 * 60 * 24 * 180,
+      });
+      cookieLocale = best;
+    } catch {
+      cookieLocale = best;
+    }
+  }
 
   // Referer-basiertes Fallback-Signal: wenn vorherige Seite /en/... war, präferiere EN
   let refererSuggestsEn = false;

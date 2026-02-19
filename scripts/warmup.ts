@@ -783,6 +783,10 @@ async function main() {
     '/en/register',
     '/blog',
     '/en/blog',
+    '/docs',
+    '/en/docs',
+    '/docs/getting-started',
+    '/en/docs/getting-started',
   ];
   const pagesRes = await prewarmPaths(baseUrl, 'pages', pagePaths, concurrency, {
     verbose,

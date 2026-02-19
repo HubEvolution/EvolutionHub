@@ -73,6 +73,17 @@ export function useAdminUserList(initialFilters: AdminUserListFilters = {}) {
   const retryTimeoutRef = useRef<number | null>(null);
   const strings = getAdminStrings();
 
+  const resolveRateLimitMessage = useCallback(
+    (error: AdminApiError): string => {
+      if (error.retryAfterSec && Number.isFinite(error.retryAfterSec)) {
+        const minutes = Math.max(1, Math.ceil(error.retryAfterSec / 60));
+        return strings.errors.rateLimitWithRetryAfter.replace('{minutes}', String(minutes));
+      }
+      return strings.errors.rateLimit;
+    },
+    [strings.errors.rateLimit, strings.errors.rateLimitWithRetryAfter]
+  );
+
   const refresh = useCallback(
     async (filters?: AdminUserListFilters) => {
       const appliedFilters = cleanFilters(filters ?? filtersRef.current ?? {});
@@ -115,6 +126,12 @@ export function useAdminUserList(initialFilters: AdminUserListFilters = {}) {
             retryTimeoutRef.current = null;
           }
           const ms = Math.max(0, Math.floor(error.retryAfterSec * 1000));
+          setState((prev) => ({
+            ...prev,
+            loading: false,
+            loadingMore: false,
+            error: resolveRateLimitMessage(error),
+          }));
           const timeoutId = window.setTimeout(() => {
             const next = new AbortController();
             controllerRef.current = next;
@@ -148,7 +165,7 @@ export function useAdminUserList(initialFilters: AdminUserListFilters = {}) {
         throw error;
       }
     },
-    [strings.errors.userListLoad]
+    [resolveRateLimitMessage, strings.errors.userListLoad]
   );
 
   const loadMore = useCallback(async () => {
@@ -193,6 +210,11 @@ export function useAdminUserList(initialFilters: AdminUserListFilters = {}) {
         }
         const snapshotCursor = state.nextCursor;
         const ms = Math.max(0, Math.floor(error.retryAfterSec * 1000));
+        setState((prev) => ({
+          ...prev,
+          loadingMore: false,
+          error: resolveRateLimitMessage(error),
+        }));
         const timeoutId = window.setTimeout(() => {
           const current2 = filtersRef.current ?? cleanFilters({});
           const next = new AbortController();
@@ -203,7 +225,7 @@ export function useAdminUserList(initialFilters: AdminUserListFilters = {}) {
               status: current2.status ?? undefined,
               plan: current2.plan ?? undefined,
               cursor: snapshotCursor,
-              limit: 20,
+              limit: 10,
             },
             next.signal
           )
@@ -233,7 +255,7 @@ export function useAdminUserList(initialFilters: AdminUserListFilters = {}) {
       }));
       throw error;
     }
-  }, [state.nextCursor, strings.errors.userListLoadMore]);
+  }, [resolveRateLimitMessage, state.nextCursor, strings.errors.userListLoadMore]);
 
   const runLifecycleAction = useCallback(
     async (

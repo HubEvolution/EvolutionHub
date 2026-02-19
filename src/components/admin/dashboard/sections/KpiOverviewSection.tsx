@@ -103,6 +103,14 @@ const KpiOverviewSection: React.FC = () => {
     typeof window !== 'undefined' && window.location.pathname.startsWith('/en') ? 'en-US' : 'de-DE';
   const fmt = useMemo(() => makeFormatters(localeTag), [localeTag]);
 
+  const stripeMissing =
+    metrics &&
+    (!metrics.stripe ||
+      (typeof metrics.stripe.total_volume !== 'number' &&
+        typeof metrics.stripe.mrr !== 'number' &&
+        typeof metrics.stripe.arr !== 'number'));
+  const trafficMissing = metrics && (!metrics.traffic || metrics.traffic.length === 0);
+
   const trafficSeries = useMemo(() => {
     if (!metrics?.traffic) return [] as number[];
     return metrics.traffic
@@ -201,13 +209,22 @@ const KpiOverviewSection: React.FC = () => {
               </span>
             </div>
             <div className="mt-3">
-              <Sparkline values={trafficSeries} />
+              {trafficMissing ? (
+                <div className="text-xs text-amber-200/80">n/a</div>
+              ) : (
+                <Sparkline values={trafficSeries} />
+              )}
             </div>
           </Card>
           <Card className="flex flex-col gap-3 p-4" variant="default">
             <div className="flex items-center justify-between">
               <p className="text-sm text-white/60">{strings.kpi.stripeTitle}</p>
-              <span className="text-xs text-white/40">{strings.kpi.stripeNote}</span>
+              <div className="flex items-center gap-2 text-xs text-white/40">
+                {stripeMissing && (
+                  <span className="rounded-full bg-white/10 px-2 py-0.5 text-amber-200/90">n/a</span>
+                )}
+                <span>{strings.kpi.stripeNote}</span>
+              </div>
             </div>
             <p className="text-2xl font-semibold text-white">
               {Number.isFinite(metrics?.stripe?.total_volume)

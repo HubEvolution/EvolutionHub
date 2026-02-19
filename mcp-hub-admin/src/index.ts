@@ -547,7 +547,15 @@ async function handleRequest(env: Env, request: Request): Promise<Response> {
 
   await server.connect(transport);
 
-  const body = request.method === 'POST' ? await request.json().catch(() => undefined) : undefined;
+  let body: unknown;
+  if (request.method === 'POST') {
+    const raw = await request.text();
+    try {
+      body = raw ? JSON.parse(raw) : undefined;
+    } catch {
+      body = raw; // fall back to raw text if JSON parse fails
+    }
+  }
   const reqLike = createRequestLike(request, body);
   const resLike = new ResponseAdapter();
   await (
@@ -556,54 +564,69 @@ async function handleRequest(env: Env, request: Request): Promise<Response> {
   return resLike.toResponse();
 }
 
-export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+async function mcpFetch(request: Request, env: Env): Promise<Response> {
+  try {
+    console.log('mcp-hub-admin fetch enter', request.method, new URL(request.url).pathname);
+    // Lazy register tools once (idempotent if called multiple times)
+    if ((server as unknown as { __registered?: boolean }).__registered !== true) {
+      registerTools(env);
+      (server as unknown as { __registered?: boolean }).__registered = true;
+    }
+
+    const pathname = new URL(request.url).pathname;
+    if (request.method === 'GET' && pathname === '/health') {
+      return new Response(JSON.stringify({ ok: true }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+    // Simple root probe to avoid transport parse errors on bare GET /
+    if (request.method === 'GET' && pathname === '/') {
+      console.log('mcp-hub-admin GET / respond 200');
+      return new Response(JSON.stringify({ ok: true, service: 'mcp-hub-admin' }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+    // Reject other GETs early (e.g., ACME/.well-known) to avoid transport errors
+    if (request.method === 'GET') {
+      console.log('mcp-hub-admin GET other path -> 404', pathname);
+      return new Response('Not Found', { status: 404 });
+    }
+
+    // Only POST to root is allowed for MCP transport
+    if (request.method === 'POST' && pathname !== '/') {
+      console.log('mcp-hub-admin POST non-root -> 404', pathname);
+      return new Response('Not Found', { status: 404 });
+    }
+
+    if (request.method !== 'GET' && request.method !== 'POST') {
+      return new Response('Method Not Allowed', { status: 405 });
+    }
+
     try {
-      // Lazy register tools once (idempotent if called multiple times)
-      if ((server as unknown as { __registered?: boolean }).__registered !== true) {
-        registerTools(env);
-        (server as unknown as { __registered?: boolean }).__registered = true;
-      }
-
-      const pathname = new URL(request.url).pathname;
-      if (request.method === 'GET' && pathname === '/health') {
-        return new Response(JSON.stringify({ ok: true }), {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' },
-        });
-      }
-      // Simple root probe to avoid transport parse errors on bare GET /
-      if (request.method === 'GET' && pathname === '/') {
-        return new Response(JSON.stringify({ ok: true, service: 'mcp-hub-admin' }), {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' },
-        });
-      }
-      // Reject other GETs early (e.g., ACME/.well-known) to avoid transport errors
-      if (request.method === 'GET') {
-        return new Response('Not Found', { status: 404 });
-      }
-
-      // Only POST to root is allowed for MCP transport
-      if (request.method === 'POST' && pathname !== '/') {
-        return new Response('Not Found', { status: 404 });
-      }
-
-      if (request.method !== 'GET' && request.method !== 'POST') {
-        return new Response('Method Not Allowed', { status: 405 });
-      }
-
+      console.log('mcp-hub-admin handleRequest start');
       const response = await handleRequest(env, request);
       if (!(response instanceof Response)) {
         throw new TypeError('Handler did not return a Response');
       }
+      console.log('mcp-hub-admin handleRequest ok');
       return response;
     } catch (err) {
-      console.error('mcp-hub-admin fetch error', err);
+      console.error('mcp-hub-admin handleRequest error', err, (err as Error)?.stack);
       return new Response('Internal Server Error', { status: 500 });
     }
-  },
-};
+  } catch (err) {
+    console.error('mcp-hub-admin fetch error', err, (err as Error)?.stack);
+    return new Response('Internal Server Error', { status: 500 });
+  }
+}
+
+export async function fetch(request: Request, env: Env): Promise<Response> {
+  return mcpFetch(request, env);
+}
+
+export default { fetch };
 
 function createRequestLike(request: Request, parsedBody: unknown) {
   const url = new URL(request.url);

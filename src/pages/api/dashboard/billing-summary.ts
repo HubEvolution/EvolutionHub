@@ -27,6 +27,12 @@ import { VoiceTranscribeService } from '@/lib/services/voice-transcribe-service'
 import { WebscraperService } from '@/lib/services/webscraper-service';
 import { resolveEffectivePlanForUser } from '@/lib/services/billing-plan-service';
 
+function flagOn(raw: string | undefined | null): boolean {
+  if (raw === undefined || raw === null) return true;
+  const v = String(raw).toLowerCase().trim();
+  return !(v === '0' || v === 'false' || v === 'off' || v === 'no');
+}
+
 interface SubscriptionRow {
   id: string;
   plan: 'free' | 'pro' | 'premium' | 'enterprise';
@@ -69,6 +75,12 @@ export const GET = withAuthApiMiddleware(
       WEBSCRAPER_GUEST_LIMIT: string;
       WEBSCRAPER_USER_LIMIT: string;
       KV_AI_VIDEO_USAGE_FALLBACK: KVNamespace;
+      PUBLIC_ENHANCER_MVP_MODE: string;
+      PUBLIC_ENHANCER_LEGACY_MODE: string;
+      ENABLE_VIDEO_ENHANCER: string;
+      PUBLIC_TOOL_VOICE_VISUALIZER: string;
+      PUBLIC_TOOL_WEBSCRAPER: string;
+      PUBLIC_TOOL_WEB_EVAL: string;
     }>;
 
     if (!user) {
@@ -205,6 +217,15 @@ export const GET = withAuthApiMiddleware(
     }
     const enableToolsDebug = !isProductionEnv && debugToolsParam === '1';
 
+    const toolEnabled: Record<keyof ToolsUsageOverview, boolean> = {
+      image: flagOn(env.PUBLIC_ENHANCER_MVP_MODE) || flagOn(env.PUBLIC_ENHANCER_LEGACY_MODE),
+      video: flagOn(env.ENABLE_VIDEO_ENHANCER),
+      prompt: flagOn(env.PUBLIC_PROMPT_ENHANCER_V1),
+      voice: flagOn(env.PUBLIC_TOOL_VOICE_VISUALIZER),
+      webscraper: flagOn(env.PUBLIC_TOOL_WEBSCRAPER) && flagOn(env.PUBLIC_WEBSCRAPER_V1),
+      webEval: flagOn(env.PUBLIC_TOOL_WEB_EVAL),
+    };
+
     const toolNames: (keyof ToolsUsageOverview)[] = [
       'image',
       'video',
@@ -256,108 +277,119 @@ export const GET = withAuthApiMiddleware(
         }
       };
 
-      await recordToolResult('image', async () => {
-        return toUsageOverview({ used: monthlyUsed, limit: monthlyLimit, resetAt: periodEndsAt });
-      });
-
-      await recordToolResult('video', async () => {
-        const videoEnt = getVideoEntitlementsFor('user', result.plan as Plan);
-        const limitTenths = Math.max(0, videoEnt.monthlyCreditsTenths);
-        const kvVideo = (env.KV_AI_VIDEO_USAGE ?? env.KV_AI_ENHANCER) as KVNamespace | undefined;
-        if (!kvVideo || limitTenths <= 0) return null;
-        const ym = currentYearMonth();
-        const remainingTenths = await getVideoMonthlyQuotaRemainingTenths(
-          kvVideo,
-          user.id,
-          limitTenths,
-          ym
-        );
-        const limit = limitTenths / 10;
-        const remaining = remainingTenths / 10;
-        return toUsageOverview({
-          used: limit - remaining,
-          limit,
-          resetAt: endOfMonthUtcMs(),
+      if (toolEnabled.image) {
+        await recordToolResult('image', async () => {
+          return toUsageOverview({ used: monthlyUsed, limit: monthlyLimit, resetAt: periodEndsAt });
         });
-      });
+      }
 
-      await recordToolResult('prompt', async () => {
-        const kvPrompt = env.KV_PROMPT_ENHANCER as KVNamespace | undefined;
-        if (!kvPrompt) return null;
-        const limitUser = parseInt(String(env.PROMPT_USER_LIMIT || '20'), 10);
-        const useV2 = String(env.USAGE_KV_V2 || '').trim() === '1';
-        let used = 0;
-        let resetAt: number | null = null;
-        if (useV2) {
-          const key = rollingDailyKey('prompt', 'user', user.id);
-          const usage = await getUsage(kvPrompt, key);
-          if (usage) {
-            used = usage.count || 0;
-            resetAt = usage.resetAt ? usage.resetAt * 1000 : null;
+      if (toolEnabled.video) {
+        await recordToolResult('video', async () => {
+          const videoEnt = getVideoEntitlementsFor('user', result.plan as Plan);
+          const limitTenths = Math.max(0, videoEnt.monthlyCreditsTenths);
+          const kvVideo = (env.KV_AI_VIDEO_USAGE ?? env.KV_AI_ENHANCER) as KVNamespace | undefined;
+          if (!kvVideo || limitTenths <= 0) return null;
+          const ym = currentYearMonth();
+          const remainingTenths = await getVideoMonthlyQuotaRemainingTenths(
+            kvVideo,
+            user.id,
+            limitTenths,
+            ym
+          );
+          const limit = limitTenths / 10;
+          const remaining = remainingTenths / 10;
+          return toUsageOverview({
+            used: limit - remaining,
+            limit,
+            resetAt: endOfMonthUtcMs(),
+          });
+        });
+      }
+
+      if (toolEnabled.prompt) {
+        await recordToolResult('prompt', async () => {
+          const kvPrompt = env.KV_PROMPT_ENHANCER as KVNamespace | undefined;
+          if (!kvPrompt) return null;
+          const limitUser = parseInt(String(env.PROMPT_USER_LIMIT || '20'), 10);
+          const useV2 = String(env.USAGE_KV_V2 || '').trim() === '1';
+          let used = 0;
+          let resetAt: number | null = null;
+          if (useV2) {
+            const key = rollingDailyKey('prompt', 'user', user.id);
+            const usage = await getUsage(kvPrompt, key);
+            if (usage) {
+              used = usage.count || 0;
+              resetAt = usage.resetAt ? usage.resetAt * 1000 : null;
+            }
+          } else {
+            const key = `prompt:usage:user:${user.id}`;
+            const raw = await kvPrompt.get(key);
+            if (raw) {
+              try {
+                const parsed = JSON.parse(raw) as { count?: number; resetAt?: number };
+                used = typeof parsed.count === 'number' ? parsed.count : 0;
+                resetAt = typeof parsed.resetAt === 'number' ? parsed.resetAt : null;
+              } catch {}
+            }
           }
-        } else {
-          const key = `prompt:usage:user:${user.id}`;
-          const raw = await kvPrompt.get(key);
-          if (raw) {
-            try {
-              const parsed = JSON.parse(raw) as { count?: number; resetAt?: number };
-              used = typeof parsed.count === 'number' ? parsed.count : 0;
-              resetAt = typeof parsed.resetAt === 'number' ? parsed.resetAt : null;
-            } catch {}
-          }
-        }
-        return toUsageOverview({ used, limit: limitUser, resetAt });
-      });
-
-      await recordToolResult('voice', async () => {
-        const voiceService = new VoiceTranscribeService({
-          KV_VOICE_TRANSCRIBE: env.KV_VOICE_TRANSCRIBE as KVNamespace | undefined,
-          USAGE_KV_V2: env.USAGE_KV_V2,
-          ENVIRONMENT: env.ENVIRONMENT,
+          return toUsageOverview({ used, limit: limitUser, resetAt });
         });
-        const ent = getVoiceEntitlementsFor('user', result.plan as Plan);
-        const usageInfo = await voiceService.getUsage('user', user.id, ent.dailyBurstCap);
-        return toUsageOverview({
-          used: usageInfo.used,
-          limit: usageInfo.limit,
-          resetAt: usageInfo.resetAt,
+      }
+
+      if (toolEnabled.voice) {
+        await recordToolResult('voice', async () => {
+          const voiceService = new VoiceTranscribeService({
+            KV_VOICE_TRANSCRIBE: env.KV_VOICE_TRANSCRIBE as KVNamespace | undefined,
+            USAGE_KV_V2: env.USAGE_KV_V2,
+            ENVIRONMENT: env.ENVIRONMENT,
+          });
+          const ent = getVoiceEntitlementsFor('user', result.plan as Plan);
+          const usageInfo = await voiceService.getUsage('user', user.id, ent.dailyBurstCap);
+          return toUsageOverview({
+            used: usageInfo.used,
+            limit: usageInfo.limit,
+            resetAt: usageInfo.resetAt,
+          });
         });
-      });
+      }
 
-      await recordToolResult('webEval', async () => {
-        const kvWebEval = env.KV_WEB_EVAL as KVNamespace | undefined;
-        if (!kvWebEval) return null;
+      if (toolEnabled.webEval) {
+        await recordToolResult('webEval', async () => {
+          const kvWebEval = env.KV_WEB_EVAL as KVNamespace | undefined;
+          if (!kvWebEval) return null;
 
-        const ent = getWebEvalEntitlementsFor('user', result.plan as Plan);
-        const limit = ent.dailyBurstCap;
-        if (limit <= 0) return null;
+          const ent = getWebEvalEntitlementsFor('user', result.plan as Plan);
+          const limit = ent.dailyBurstCap;
+          if (limit <= 0) return null;
 
-        const key = rollingDailyKey('web-eval', 'user', user.id);
-        const usage = await getUsage(kvWebEval, key);
+          const key = rollingDailyKey('web-eval', 'user', user.id);
+          const usage = await getUsage(kvWebEval, key);
 
-        const used = usage?.count || 0;
-        const resetAt = usage?.resetAt ? usage.resetAt * 1000 : null;
+          const used = usage?.count || 0;
+          const resetAt = usage?.resetAt ? usage.resetAt * 1000 : null;
 
-        return toUsageOverview({ used, limit, resetAt });
-      });
-
-      await recordToolResult('webscraper', async () => {
-        if (env.PUBLIC_WEBSCRAPER_V1 === 'false') return null;
-        const service = new WebscraperService({
-          KV_WEBSCRAPER: env.KV_WEBSCRAPER as KVNamespace | undefined,
-          ENVIRONMENT: env.ENVIRONMENT,
-          PUBLIC_WEBSCRAPER_V1: env.PUBLIC_WEBSCRAPER_V1,
-          WEBSCRAPER_GUEST_LIMIT: env.WEBSCRAPER_GUEST_LIMIT,
-          WEBSCRAPER_USER_LIMIT: env.WEBSCRAPER_USER_LIMIT,
+          return toUsageOverview({ used, limit, resetAt });
         });
-        const ent = getWebscraperEntitlementsFor('user', result.plan as Plan);
-        const usageInfo = await service.getUsagePublic('user', user.id, ent.dailyBurstCap);
-        return toUsageOverview({
-          used: usageInfo.used,
-          limit: usageInfo.limit,
-          resetAt: usageInfo.resetAt,
+      }
+
+      if (toolEnabled.webscraper) {
+        await recordToolResult('webscraper', async () => {
+          const service = new WebscraperService({
+            KV_WEBSCRAPER: env.KV_WEBSCRAPER as KVNamespace | undefined,
+            ENVIRONMENT: env.ENVIRONMENT,
+            PUBLIC_WEBSCRAPER_V1: env.PUBLIC_WEBSCRAPER_V1,
+            WEBSCRAPER_GUEST_LIMIT: env.WEBSCRAPER_GUEST_LIMIT,
+            WEBSCRAPER_USER_LIMIT: env.WEBSCRAPER_USER_LIMIT,
+          });
+          const ent = getWebscraperEntitlementsFor('user', result.plan as Plan);
+          const usageInfo = await service.getUsagePublic('user', user.id, ent.dailyBurstCap);
+          return toUsageOverview({
+            used: usageInfo.used,
+            limit: usageInfo.limit,
+            resetAt: usageInfo.resetAt,
+          });
         });
-      });
+      }
     }
 
     logUserEvent(user.id, 'billing_summary_requested', {

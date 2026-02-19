@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import Card from '@/components/ui/Card';
 import type { UsageOverview } from '@/lib/kv/usage';
 import type { BillingSummary } from '@/components/dashboard/BillingCard';
+import type { Tool } from '@/lib/tools-data';
+import { isToolVisible } from '@/lib/tools-availability';
 
 type ToolKey = 'image' | 'video' | 'prompt' | 'voice' | 'webscraper' | 'webEval';
 
@@ -82,6 +84,15 @@ function assertApiResult<T>(value: unknown): asserts value is ApiResult<T> {
 
 const toolOrder: ToolKey[] = ['image', 'video', 'prompt', 'voice', 'webscraper', 'webEval'];
 
+const toolIdByKey: Record<ToolKey, Tool['id']> = {
+  image: 'Imag-Enhancer',
+  video: 'video-enhancer',
+  prompt: 'prompt-enhancer',
+  voice: 'voice-visualizer',
+  webscraper: 'webscraper',
+  webEval: 'web-eval',
+};
+
 interface Props {
   strings: ToolsOverviewStrings;
 }
@@ -150,7 +161,7 @@ export default function ToolsUsageOverviewCard({ strings }: Props) {
       tools
         ? toolOrder
             .map((key) => ({ key, entry: tools[key] }))
-            .filter((item) => item.entry && item.entry.limit > 0)
+            .filter((item) => item.entry && item.entry.limit > 0 && isToolVisible(toolIdByKey[item.key]))
         : [],
     [tools]
   );

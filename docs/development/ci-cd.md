@@ -2,7 +2,7 @@
 description: 'CI/CD-Pipeline, Workflows und Qualitäts-Gates für Evolution Hub'
 owner: 'Platform Team'
 priority: 'high'
-lastSync: '2025-11-16'
+lastSync: '2025-12-23'
 codeRefs: '.github/workflows/**, scripts/**, docs/development/ci-cd.md'
 testRefs: 'N/A'
 ---
@@ -229,7 +229,7 @@ steps: 1. ⏸️ Warte auf manuelle Approval
 
 Nach erfolgreichem Deploy wird ein leichtgewichtiger Warmup-Run gestartet:
 
-- Scope Pages: `/`, `/en/`, `/tools`, `/en/tools`, Tool-Apps (`/tools/*/app`, `en/*/app`), Blog-Index und top Blog-Posts via RSS.
+- Scope Pages: `/`, `/en/`, `/tools`, `/en/tools`, `/docs`, `/en/docs` (inkl. `/docs/getting-started`, `/en/docs/getting-started`), Tool-Apps (`/tools/*/app`, `en/*/app`), Blog-Index und top Blog-Posts via RSS.
 
 - Scope APIs (öffentlich/leicht): `/api/tools`, `/api/dashboard/quick-actions`, `/api/*/usage`, `/api/lead-magnets/download` (GET Metadaten).
 
@@ -992,7 +992,7 @@ npx wrangler deployments list --env production
 
 ## Weitere Dokumentation
 
-- **Setup:** [README.md](../../README.md#-deployment)
+- **Setup:** [README.md](../../README.md)
 
 - **Projektrichtlinien:** [CLAUDE.md](../../CLAUDE.md)
 

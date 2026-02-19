@@ -19,8 +19,8 @@ type PerfMintEnv = {
 function resolveEnv(context: APIContext): PerfMintEnv {
   try {
     const env =
-      (context.locals as unknown as { runtime?: { env?: Record<string, unknown> } })?.runtime?.env ||
-      {};
+      (context.locals as unknown as { runtime?: { env?: Record<string, unknown> } })?.runtime
+        ?.env || {};
     return env as unknown as PerfMintEnv;
   } catch {
     return {};
@@ -48,10 +48,7 @@ export const GET: APIRoute = withApiMiddleware(
       requestUrl.hostname === 'localhost' ||
       requestUrl.hostname === '127.0.0.1' ||
       requestUrl.hostname === '::1';
-    const environmentRaw =
-      env.ENVIRONMENT ||
-      processEnv.ENVIRONMENT ||
-      undefined;
+    const environmentRaw = env.ENVIRONMENT || processEnv.ENVIRONMENT || undefined;
 
     const inferredDev = !environmentRaw && isLoopback;
 
@@ -64,9 +61,7 @@ export const GET: APIRoute = withApiMiddleware(
     const provided = context.request.headers.get('x-internal-health');
     const expectedFromEnv = env.INTERNAL_HEALTH_TOKEN || processEnv.INTERNAL_HEALTH_TOKEN;
     const expected =
-      environment === 'development' && isLoopback
-        ? 'ci-internal-health-token'
-        : expectedFromEnv;
+      environment === 'development' && isLoopback ? 'ci-internal-health-token' : expectedFromEnv;
     if (!expected || !provided || provided !== expected) {
       const debug =
         environment === 'development' && isLoopback
@@ -127,8 +122,7 @@ export const GET: APIRoute = withApiMiddleware(
           maxAge,
         });
       }
-    } catch {
-    }
+    } catch {}
 
     const csrfToken = hex32();
     try {
@@ -139,8 +133,7 @@ export const GET: APIRoute = withApiMiddleware(
         secure: isHttps,
         maxAge,
       });
-    } catch {
-    }
+    } catch {}
 
     return createApiSuccess({ userId: user.id, csrfToken });
   },

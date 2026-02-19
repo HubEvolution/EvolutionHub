@@ -14,7 +14,9 @@ const { t } = Astro.props as Props;
     class="-mt-10 sm:-mt-12 md:-mt-16 mx-auto max-w-6xl border rounded-2xl overflow-hidden lp-proof-surface"
   >
     <div class="px-5 pt-5 md:px-7 md:pt-6">
-      <div class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold lp-proof-kicker">
+      <div
+        class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold lp-proof-kicker"
+      >
         {t('pages.home.proof.input_label')} → {t('pages.home.proof.output_label')}
       </div>
     </div>
@@ -39,9 +41,10 @@ const { t } = Astro.props as Props;
           </div>
           <div class="h-px flex-1 lp-proof-divider" aria-hidden="true"></div>
         </div>
-        <pre class="mt-2 font-mono text-sm md:text-base leading-relaxed text-[rgb(var(--lp-page-fg))] whitespace-pre-wrap">
-{t('pages.home.proof.output_value')}</pre
-        >
+        <pre
+          class="mt-2 font-mono text-sm md:text-base leading-relaxed text-[rgb(var(--lp-page-fg))] whitespace-pre-wrap">
+          {t('pages.home.proof.output_value')}
+        </pre>
       </div>
     </div>
   </div>

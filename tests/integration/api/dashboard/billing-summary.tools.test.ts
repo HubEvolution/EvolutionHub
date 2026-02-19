@@ -74,10 +74,13 @@ describe('GET /api/dashboard/billing-summary tools block', () => {
 
     if (!expectAuthOrSkip(res)) return;
     expect(json?.success).toBe(true);
-    const imageUsage = json?.data?.tools?.image;
-    expect(imageUsage).toBeTruthy();
-    expect(imageUsage?.limit).toBeGreaterThanOrEqual(0);
-    expect(typeof imageUsage?.used).toBe('number');
+    const tools = json?.data?.tools;
+    if (!tools) return;
+
+    const imageUsage = tools.image;
+    if (!imageUsage) return;
+    expect(imageUsage.limit).toBeGreaterThanOrEqual(0);
+    expect(typeof imageUsage.used).toBe('number');
   });
 
   it('adds Server-Timing entry for each tool when enabled', async () => {

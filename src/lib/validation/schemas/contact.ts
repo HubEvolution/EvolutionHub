@@ -1,4 +1,4 @@
-import { z } from '@/lib/validation';
+import { z } from 'zod';
 
 export const contactMessageSchema = z
   .object({
