@@ -1,12 +1,21 @@
-*.astro linguist-language=Astro
-workers/** linguist-language=TypeScript
+# ==============================================
+# GitHub Linguist — Language Detection Config
+# ==============================================
 
-out/** linguist-generated=true
-public/** linguist-generated=true
-assets/** linguist-generated=true
+# Build output (Astro/Vite dist, Cloudflare Workers output)
+dist/**              linguist-generated=true
+.output/**           linguist-generated=true
+.astro/**            linguist-generated=true
+.wrangler/**         linguist-generated=true
+out/**               linguist-generated=true
+build/**             linguist-generated=true
 
-*.log linguist-generated=true
-*.out linguist-generated=true
-*.zip linguist-generated=true
-*.mp4 linguist-generated=true
-HAR/** linguist-generated=true
+# Dependencies (safety fallback)
+node_modules/**      linguist-vendored=true
+
+# Explicitly mark TypeScript/JavaScript as primary
+*.ts                 linguist-detectable=true
+*.tsx                linguist-detectable=true
+*.js                 linguist-detectable=true
+*.jsx                linguist-detectable=true
+*.astro              linguist-detectable=true
