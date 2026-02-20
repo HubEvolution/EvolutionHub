@@ -1,29 +1,35 @@
-# Portfolio Review (ohne Setup)
+# Portfolio Review (3 Minuten, ohne Setup)
 
-Dieses Repository ist Teil eines **Demo-first** Portfolios: Alle Funktionen laufen über die Live-Instanz (kein lokales Starten nötig).
+Dieses Repository ist ein **Bewerbungs-Portfolio**: Es soll in kurzer Zeit zeigen, dass ich komplexe Software
+konzipieren, umsetzen und verlässlich betreiben kann (Docs, Tests, CI, nachvollziehbare Schnittstellen).
 
-## 1) Live ansehen
+## 1) Live ansehen (30–60 Sekunden)
 
-Öffne die Tool-Übersicht:
-
+Tool-Übersicht:
 - https://hub-evolution.com/tools
 
-## 2) WebEval (Kernfeature) ansehen
+## 2) WebEval ansehen (60–90 Sekunden)
 
-Öffne die WebEval-Demo:
-
+WebEval Demo (Kernfeature):
 - https://staging.hub-evolution.com/en/tools/web-eval/app
 
-Achte beim Durchklicken darauf, dass die Plattform konsistent aufgebaut ist (Auth/Navigation), Ergebnisse reproduzierbar sind (gleiche Eingabe → ähnlicher Output) und die UI die Analyse nachvollziehbar macht.
+Worauf du achten kannst (auch ohne tiefes Tech-Wissen):
+- Klarer Ablauf: Eingabe → Analyse → Ergebnis
+- Nachvollziehbarkeit: Ergebnisse sind strukturiert und erklärend
+- Produktreife: konsistente UI, Navigation, Fehlerbehandlung
 
-## 3) Technische Nachweise (im Repo)
+## 3) Engineering-Nachweise im Repo (60–90 Sekunden)
 
-Wenn du die Engineering-Qualität bewerten willst:
+Wenn du technische Qualität bewerten willst, sind diese drei Stellen die besten Signale:
 
-- OpenAPI Spezifikation: `openapi.yaml`
-- Architektur/Referenzdoku: `docs/`
-- Workflows: `.github/workflows/` (Quality Gates, Smokes, Deploy)
+- API-Spezifikation (explizite Schnittstellen): `openapi.yaml`
+- Architektur & Entscheidungen (Dokumentation): `docs/`
+- Automatisierte Qualität (Checks/Smokes): `.github/workflows/`
 
-## 4) Demo-Medien
+Diese Artefakte sind bewusst öffentlich, damit Qualität **prüfbar** ist (nicht nur behauptet).
 
-Ausgewählte Demo-Medien liegen in `docs/media/` (Screenshots/GIF/MP4). Bitte bewerte nicht die Menge an Assets, sondern die Nachvollziehbarkeit (Docs + Links + Tests + CI).
+## 4) Optional: Demo-Medien
+
+Screenshots/GIF/MP4 liegen in `docs/media/`.
+Bitte bewerte nicht die Menge der Assets, sondern ob die Nachweise (Docs + CI + Specs + Live-Demo)
+ein stimmiges, überprüfbares Gesamtbild ergeben.
