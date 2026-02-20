@@ -27,6 +27,10 @@ pnpm-debug.log*
 *.pid
 *.pid.lock
 
+# Media captures (keep demos in docs/media)
+*.mov
+*.mp4
+
 # Cloudflare Wrangler (local dev state + secrets)
 .wrangler/
 .dev.vars
