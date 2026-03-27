@@ -212,7 +212,7 @@
     "ffmpeg-static": "^5.2.0",
     "github-slugger": "^2.0.0",
     "husky": "^9.1.7",
-    "jsdom": "^26.1.0",
+    "jsdom": "^27.0.1",
     "lint-staged": "^15.3.0",
     "markdownlint-cli": "^0.40.0",
     "markdownlint-cli2": "^0.18.1",
